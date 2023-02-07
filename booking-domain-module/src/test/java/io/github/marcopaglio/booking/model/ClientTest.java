@@ -6,6 +6,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @DisplayName("Tests for Client entity.")
 class ClientTest {
@@ -27,102 +29,51 @@ class ClientTest {
 			assertThat(client.getReservations()).isEmpty();
 		}
 		
-		@Test
-		@DisplayName("Constructor throw exception if firstName is empty.")
-		void testConstructorWhenFirstNameIsEmptyShouldThrow() {
-			String firstName = "";
+		@ParameterizedTest(name = "{index}: ''{0}''")
+		@DisplayName("Constructor throw exception if firstName is empty or contains only spaces.")
+		@ValueSource(strings = {"", " ", "  "})
+		void testConstructorWhenFirstNameIsEmptyShouldThrow(String firstName) {
 			String lastName = "Rossi";
 			
 			assertThatThrownBy(() -> new Client(firstName, lastName))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("Client needs a non-empty first name.");
-			// TODO: check object is null (not created)
-		}
-		
-		@Test
-		@DisplayName("Constructor throw exception if firstName is a single space.")
-		void testConstructorWhenFirstNameIsSingleSpaceShouldThrow() {
-			String firstName = " ";
-			String lastName = "Rossi";
-			
-			assertThatThrownBy(() -> new Client(firstName, lastName))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client needs a non-empty first name.");
-			// TODO: check object is null (not created)
-		}
-		
-		@Test
-		@DisplayName("Constructor throw exception if firstName is multiple spaces.")
-		void testConstructorWhenFirstNameIsMultipleSpacesShouldThrow() {
-			String firstName = "  ";
-			String lastName = "Rossi";
-			
-			assertThatThrownBy(() -> new Client(firstName, lastName))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client needs a non-empty first name.");
-			// TODO: check object is null (not created)
 		}
 		
 		// TODO: more test on space characters
 		
-		@Test
+		
+		@ParameterizedTest(name = "{index}: ''{0}''")
 		@DisplayName("Constructor throw exception if firstName contains numbers.")
-		void testConstructorWhenFirstNameContainsNumbersShouldThrow() {
-			String firstName = "M4ri0";
+		@ValueSource(strings = {"1234", "3ario", "Mari0", "Ma7io", "M4ri0", "34rio", "M47io", "34ri0"})
+		void testConstructorWhenFirstNameContainsNumbersShouldThrow(String firstName) {
 			String lastName = "Rossi";
 			
 			assertThatThrownBy(() -> new Client(firstName, lastName))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("Client's first name must contain only alphabet letters.");
-			// TODO: check object is null (not created)
 		}
 		
-		@Test
-		@DisplayName("Constructor throw exception if lastName is empty.")
-		void testConstructorWhenLastNameIsEmptyShouldThrow() {
+		@ParameterizedTest(name = "{index}: ''{0}''")
+		@DisplayName("Constructor throw exception if lastName is empty or contains only spaces.")
+		@ValueSource(strings = {"", " ", "  "})
+		void testConstructorWhenLastNameIsEmptyShouldThrow(String lastName) {
 			String firstName = "Mario";
-			String lastName = "";
 			
 			assertThatThrownBy(() -> new Client(firstName, lastName))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("Client needs a non-empty last name.");
-			// TODO: check object is null (not created)
 		}
 		
-		@Test
-		@DisplayName("Constructor throw exception if lastName is a single space.")
-		void testConstructorWhenLastNameIsSingleSpaceShouldThrow() {
-			String firstName = "Mario";
-			String lastName = " ";
-			
-			assertThatThrownBy(() -> new Client(firstName, lastName))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client needs a non-empty last name.");
-			// TODO: check object is null (not created)
-		}
-		
-		@Test
-		@DisplayName("Constructor throw exception if lastName is multiple spaces.")
-		void testConstructorWhenLastNameIsMultipleSpacesShouldThrow() {
-			String firstName = "Mario";
-			String lastName = "  ";
-			
-			assertThatThrownBy(() -> new Client(firstName, lastName))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client needs a non-empty last name.");
-			// TODO: check object is null (not created)
-		}
-		
-		@Test
+		@ParameterizedTest(name = "{index}: ''{0}''")
 		@DisplayName("Constructor throw exception if lastName contains numbers.")
-		void testConstructorWhenLastNameContainsNumbersShouldThrow() {
+		@ValueSource(strings = {"6789", "7ossi", "Ross1", "Ro5si", "R0ss1", "70ssi", "Ro55i", "70ss1"})
+		void testConstructorWhenLastNameContainsNumbersShouldThrow(String lastName) {
 			String firstName = "Mario";
-			String lastName = "R0ss1";
 			
 			assertThatThrownBy(() -> new Client(firstName, lastName))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("Client's last name must contain only alphabet letters.");
-			// TODO: check object is null (not created)
 		}
 	}
 
