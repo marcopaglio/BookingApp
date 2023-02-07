@@ -31,7 +31,7 @@ class ClientTest {
 		
 		@ParameterizedTest(name = "{index}: ''{0}''")
 		@DisplayName("Constructor throw exception if firstName is empty or contains only spaces.")
-		@ValueSource(strings = {"", " ", "  "})
+		@ValueSource(strings = {"", " ", "  ", "\t ", " \n", " \r ", "\f  "})
 		void testConstructorWhenFirstNameIsEmptyShouldThrow(String firstName) {
 			String lastName = "Rossi";
 			
@@ -40,12 +40,12 @@ class ClientTest {
 				.hasMessage("Client needs a non-empty first name.");
 		}
 		
-		// TODO: more test on space characters
-		
-		
 		@ParameterizedTest(name = "{index}: ''{0}''")
-		@DisplayName("Constructor throw exception if firstName contains numbers.")
-		@ValueSource(strings = {"1234", "3ario", "Mari0", "Ma7io", "M4ri0", "34rio", "M47io", "34ri0"})
+		@DisplayName("Constructor throw exception if firstName contains numbers or non-alphabet letters.")
+		@ValueSource(strings = {
+						"1234", "3ario", "Mari0", "Ma7io", "M4ri0", "34rio", "M47io", "34ri0", //numbers
+						"£$°&()", "Mario!", ".Mario", "¿Mario?", "M@rio" // special characters
+					})
 		void testConstructorWhenFirstNameContainsNumbersShouldThrow(String firstName) {
 			String lastName = "Rossi";
 			
@@ -54,9 +54,11 @@ class ClientTest {
 				.hasMessage("Client's first name must contain only alphabet letters.");
 		}
 		
+		// TODO: non deve lanciare eccezioni con spazi e lettere accentate
+		
 		@ParameterizedTest(name = "{index}: ''{0}''")
 		@DisplayName("Constructor throw exception if lastName is empty or contains only spaces.")
-		@ValueSource(strings = {"", " ", "  "})
+		@ValueSource(strings = {"", " ", "  ", " \t ", "\n ", " \r", "\f  "})
 		void testConstructorWhenLastNameIsEmptyShouldThrow(String lastName) {
 			String firstName = "Mario";
 			
@@ -67,7 +69,10 @@ class ClientTest {
 		
 		@ParameterizedTest(name = "{index}: ''{0}''")
 		@DisplayName("Constructor throw exception if lastName contains numbers.")
-		@ValueSource(strings = {"6789", "7ossi", "Ross1", "Ro5si", "R0ss1", "70ssi", "Ro55i", "70ss1"})
+		@ValueSource(strings = {
+						"6789", "7ossi", "Ross1", "Ro5si", "R0ss1", "70ssi", "Ro55i", "70ss1", //numbers
+						"^*=[]", "Rossi@", "#Rossi", "%Rossi%", "Ro\"si" // special characters
+					})
 		void testConstructorWhenLastNameContainsNumbersShouldThrow(String lastName) {
 			String firstName = "Mario";
 			

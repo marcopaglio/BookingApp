@@ -13,13 +13,13 @@ public class Client {
 	public Client(String firstName, String lastName) {
 		if (firstName.trim().isEmpty()) 
 			throw new IllegalArgumentException("Client needs a non-empty first name.");
-		if (firstName.matches(".*\\d.*"))
+		if (firstName.matches(".*[^\\p{IsAlphabetic}].*"))
 			throw new IllegalArgumentException("Client's first name must contain only alphabet letters.");
 		this.firstName = firstName;
 		
 		if (lastName.trim().isEmpty()) 
 			throw new IllegalArgumentException("Client needs a non-empty last name.");
-		if (lastName.matches(".*\\d.*"))
+		if (lastName.matches(".*[^\\p{IsAlphabetic}].*"))
 			throw new IllegalArgumentException("Client's last name must contain only alphabet letters.");
 		this.lastName = lastName;
 		
