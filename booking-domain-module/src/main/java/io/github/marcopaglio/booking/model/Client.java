@@ -11,22 +11,22 @@ public class Client {
 	private Collection<Reservation> reservations;
 
 	public Client(String firstName, String lastName) {
-		if (firstName.trim().isEmpty()) 
-			throw new IllegalArgumentException("Client needs a non-empty first name.");
-		if (firstName.matches(".*[^\\p{IsAlphabetic}].*"))
-			throw new IllegalArgumentException("Client's first name must contain only alphabet letters.");
-		this.firstName = firstName;
-		
-		if (lastName.trim().isEmpty()) 
-			throw new IllegalArgumentException("Client needs a non-empty last name.");
-		if (lastName.matches(".*[^\\p{IsAlphabetic}].*"))
-			throw new IllegalArgumentException("Client's last name must contain only alphabet letters.");
-		this.lastName = lastName;
+		this.firstName = checkAndAdjust(firstName, "first name");
+		this.lastName = checkAndAdjust(lastName, "last name");
 		
 		this.uuid = UUID.randomUUID();
 		this.reservations = new ArrayList<Reservation>(); // TODO: arrayList o altro?
 	}
 
+	private String checkAndAdjust(String name, String input) throws IllegalArgumentException {
+		if (name.trim().isEmpty()) 
+			throw new IllegalArgumentException("Client needs a non-empty " + input + ".");
+		if (name.matches(".*[^\\p{IsAlphabetic}\\h].*"))
+			throw new IllegalArgumentException(
+				"Client's " + input + " must contain only alphabet letters.");
+		return name.replaceAll("\\s+", " ");
+	}
+	
 	public final String getFirstName() {
 		return this.firstName;
 	}
