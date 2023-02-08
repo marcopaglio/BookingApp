@@ -18,7 +18,9 @@ public class Client {
 		this.reservations = new ArrayList<Reservation>(); // TODO: arrayList o altro?
 	}
 
-	private String checkAndAdjust(String name, String input) throws IllegalArgumentException {
+	static private String checkAndAdjust(String name, String input) throws IllegalArgumentException {
+		if (name == null)
+			throw new IllegalArgumentException("Client needs a not null " + input + ".");
 		if (name.trim().isEmpty()) 
 			throw new IllegalArgumentException("Client needs a non-empty " + input + ".");
 		if (name.matches(".*[^\\p{IsAlphabetic}\\h].*"))
