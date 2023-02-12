@@ -2,6 +2,7 @@ package io.github.marcopaglio.booking.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -19,7 +20,7 @@ public class Client {
 		this.lastName = removeExcessedSpaces(lastName);
 		
 		this.uuid = UUID.randomUUID();
-		this.reservations = new ArrayList<Reservation>(); // TODO: arrayList o altro?
+		this.reservations = new ArrayList<Reservation>();
 	}
 
 	private static void checkNameValidity(String name, String inputName)
@@ -66,21 +67,60 @@ public class Client {
 	static private String removeExcessedSpaces(String name) {
 		return name.replaceAll("\\s+", " ");//.trim();
 	}
-	
+
+	/*
+	 * Java String Objects are immutable
+	 */
 	public final String getFirstName() {
 		return this.firstName;
 	}
 
+	/*
+	 * Java String Objects are immutable
+	 */
 	public final String getLastName() {
 		return this.lastName;
 	}
 
+	/*
+	 * UUID Objects are immutable
+	 */
 	public final UUID getUUID() {
 		return this.uuid;
 	}
 
+	/*
+	 * Java Collection Objects are mutable
+	 * In order to protect reservations
+	 * A defensive copy is returned
+	 */
 	public final Collection<Reservation> getReservations() {
 		return new ArrayList<Reservation>(this.reservations);
+	}
+	
+	/*
+	 * Only for test purposes
+	 */
+	void setReservations(Collection<Reservation> reservations) {
+		this.reservations = reservations;
+	}
+
+	public void addReservation(Reservation reservation) {
+		if (reservation == null)
+			throw new IllegalArgumentException("Reservation to add can't be null.");
+		if (this.reservations.contains(reservation))
+			throw new IllegalArgumentException(
+					reservation.toString() + " to add is already in " + this.toString() + "'s list.");
+		this.reservations.add(reservation);
+	}
+	
+	public void removeReservation(Reservation reservation) {
+		if (reservation == null)
+			throw new IllegalArgumentException("Reservation to delete can't be null.");
+		if (!this.reservations.contains(reservation))
+			throw new NoSuchElementException(
+					reservation.toString() + " to delete is not in " + this.toString() + "'s list.");
+		this.reservations.remove(reservation);
 	}
 
 	@Override
@@ -102,5 +142,10 @@ public class Client {
 		Client other = (Client) obj;
 		return Objects.equals(firstName, other.firstName)
 			&& Objects.equals(lastName, other.lastName);
+	}
+
+	@Override
+	public String toString() {
+		return "Client [" + firstName + " " + lastName + "]";
 	}
 }

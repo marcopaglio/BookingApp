@@ -7,7 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.NoSuchElementException;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -15,14 +17,30 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
-@DisplayName("Tests for Client entity.")
+@DisplayName("Tests for Client entity")
 class ClientTest {
 	private static final String VALID_FIRST_NAME = "Mario";
+	private static final String ANOTHER_VALID_FIRST_NAME = "Maria";
 	private static final String VALID_LAST_NAME = "Rossi";
-	
+	private static final String ANOTHER_VALID_LAST_NAME = "De Lucia";
+	private static final String VALID_DATE = "2023-04-24";
+
 	@Nested
 	@DisplayName("Check constructor inputs")
 	class ConstructorTest {
+		@Test
+		@DisplayName("Valid parameters")
+		void testConstructorWhenParametersAreValidShouldInsertValues() {
+			Client client = new Client(VALID_FIRST_NAME, VALID_LAST_NAME);
+			
+			assertAll(
+				() -> assertThat(client.getFirstName()).isEqualTo(VALID_FIRST_NAME),
+				() -> assertThat(client.getLastName()).isEqualTo(VALID_LAST_NAME),
+				() -> assertThat(client.getUUID()).isNotNull(),
+				() -> assertThat(client.getReservations().isEmpty())
+			);
+		}
+
 		@Test
 		@DisplayName("Null names")
 		void testConstructorWhenNameIsNullShouldThrow() {
@@ -67,13 +85,6 @@ class ClientTest {
 				.hasMessage("Client's last name must contain only alphabet letters.");
 		}
 
-		@Test
-		@DisplayName("Alphabetic names")
-		void testConstructorWhenNamesAreAlphabeticShouldNotThrow() {
-			assertThatNoException().isThrownBy(
-					() -> new Client(VALID_FIRST_NAME, VALID_LAST_NAME));
-		}
-
 		@ParameterizedTest(name = "{index}: ''{0}''")
 		@DisplayName("Accented names")
 		@ValueSource(strings = {
@@ -101,7 +112,7 @@ class ClientTest {
 		}
 
 		@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
-		@DisplayName("Constructor correctly deletes side spaces.")
+		@DisplayName("Constructor correctly deletes side spaces")
 		@CsvSource({
 			" Mario,\tRossi",
 			"Mario\t,Rossi ",
@@ -110,7 +121,7 @@ class ClientTest {
 			"Mario\f ,Rossi  ",
 			"  Mario  , \rRossi \t"
 		})
-		void testConstructorWhenInputsContainsTooMuchSpacesShouldAdjust(
+		void testConstructorWhenInputsContainSideSpacesShouldRemove(
 				String sideSpacedFirstName, String sideSpacedLastName) {
 			Client client = new Client(sideSpacedFirstName, sideSpacedLastName);
 			
@@ -119,15 +130,15 @@ class ClientTest {
 				() -> assertThat(client.getLastName()).isEqualTo(VALID_LAST_NAME)
 			);
 		}
-		
+
 		@ParameterizedTest(name = "{index}: ''{0}''''{1}'' => ''{2}''''{3}''")
-		@DisplayName("Constructor correctly converts multiple spaces into single spaces.")
+		@DisplayName("Constructor correctly converts multiple spaces into single space")
 		@CsvSource({
 			"Maria  Luisa,De  Lucia,Maria Luisa,De Lucia",
 			"Mario  Maria  Mario,De  Lucio  Lucia,Mario Maria Mario,De Lucio Lucia",
 			"Mario   Maria   Mario,De   Lucio   Lucia,Mario Maria Mario,De Lucio Lucia",
 		})
-		void testConstructorWhenInputsContainsTooMuchSpacesShouldAdjust(
+		void testConstructorWhenInputsContainTooMuchSpacesShouldReduce(
 				String actualFirstName, String actualLastName,
 				String expectedFirstName, String expectedLastName) {
 			Client client = new Client(actualFirstName, actualLastName);
@@ -138,54 +149,160 @@ class ClientTest {
 			);
 		}
 	}
-	
-	// TODO: 1) test add e remove reservation
-	
-	
-	// TODO: 2) test copie difensive
+
 	@Nested
-	@DisplayName("Attributes are not alterable outside Client class")
-	class DefensiveCopy {
-		
-		// Java String Objects are immutable
-		
-		// UUID Objects are immutable
-		
-		@Test
-		@DisplayName("Empty list returned from 'getReservations' is modified.")
-		void testGetReservationsNameWhenModifyReturnedEmptyListShouldNotChangeAttributeValue() {
-			Client client = new Client(VALID_FIRST_NAME, VALID_LAST_NAME);
-			Collection<Reservation> returnedReservations = client.getReservations();
-			
-			returnedReservations.add(new Reservation(client, "2023-02-08"));
-			
-			assertThat(client.getReservations()).isEqualTo(new ArrayList<Reservation>());
+	@DisplayName("Tests on methods")
+	class MethodTests {
+		private Client client;
+		private Reservation reservation;
+
+		@BeforeEach
+		void setUp() {
+			client = new Client(VALID_FIRST_NAME, VALID_LAST_NAME);
+			reservation = new Reservation(client, VALID_DATE);
 		}
-		
-		// TODO: quando addReservation è impostato
 
-	}
-	
-	// TODO: 3) test equal
-	@Nested
-	@DisplayName("Equality for Clients.")
-	class ClientsEquality {
+		@Nested
+		@DisplayName("Equality for Clients")
+		class ClientsEquality {
+			@Test
+			@DisplayName("Same names and reservations")
+			void testEqualsWhenClientsHaveSameNameAndReservationsShouldPass() {
+				Client client2 = new Client(VALID_FIRST_NAME, VALID_LAST_NAME);
+				
+				assertThat(client).isEqualTo(client2);
+				assertThat(client.hashCode()).isEqualTo(client2.hashCode());
+			}
 
-		@Test
-		@DisplayName("Same names without reservations equality")
-		void testEqualsWhenClientsHaveSameNamesShouldPass() {
-			Client client1 = new Client(VALID_FIRST_NAME, VALID_LAST_NAME);
-			Client client2 = new Client(VALID_FIRST_NAME, VALID_LAST_NAME);
-			
-			assertThat(client1).isEqualTo(client2);
-			assertThat(client1.hashCode()).isEqualTo(client2.hashCode());
+			@Test
+			@DisplayName("Same names and different reservations")
+			void testEqualsWhenClientsHaveSameNamesAndDifferentReservationsShouldPass() {
+				setUpReservationList();
+				Client client2 = new Client(VALID_FIRST_NAME, VALID_LAST_NAME);
+				
+				assertThat(client).isEqualTo(client2);
+				assertThat(client.hashCode()).isEqualTo(client2.hashCode());
+			}
+
+			@Test
+			@DisplayName("Different first names")
+			void testEqualsWhenClientsHaveDifferentFirstNamesShouldFail() {
+				Client client2 = new Client(ANOTHER_VALID_FIRST_NAME, VALID_LAST_NAME);
+				
+				assertThat(client).isNotEqualTo(client2);
+				assertThat(client.hashCode()).isNotEqualTo(client2.hashCode());
+			}
+
+			@Test
+			@DisplayName("Different last names")
+			void testEqualsWhenClientsHaveDifferentLastNamesShouldFail() {
+				Client client2 = new Client(VALID_FIRST_NAME, ANOTHER_VALID_LAST_NAME);
+				
+				assertThat(client).isNotEqualTo(client2);
+				assertThat(client.hashCode()).isNotEqualTo(client2.hashCode());
+			}
 		}
-		
-		// TODO: complete after manageReservation methods
 
+		@Nested
+		@DisplayName("Check that attributes are not alterable outside Client class")
+		class DefensiveCopyTests {
+			@Test
+			@DisplayName("Empty list returned from 'getReservations' is modified")
+			void testGetReservationsWhenReturnedEmptyListIsModifiedShouldNotChangeAttributeValue() {
+				Collection<Reservation> returnedReservations = client.getReservations();
+				
+				returnedReservations.add(reservation);
+				
+				assertThat(client.getReservations()).isEqualTo(new ArrayList<Reservation>());
+			}
+
+			@Test
+			@DisplayName("Reservation list returned from 'getReservations' is modified")
+			void testGetReservationsWhenReturnedListIsModifyShouldNotChangeAttributeValue() {
+				Collection<Reservation> reservations = new ArrayList<Reservation>();
+				reservations.add(reservation);
+				client.setReservations(reservations);
+				Collection<Reservation> returnedReservations = client.getReservations();
+				
+				returnedReservations.remove(reservation);
+				
+				assertThat(client.getReservations()).isEqualTo(reservations);
+			}
+		}
+
+		@Nested
+		@DisplayName("Tests for reservation managing")
+		class ManageReservationsTest {
+			@Nested
+			@DisplayName("Tests for 'addReservation'")
+			class AddReservationTest {
+				@Test
+				@DisplayName("Insert new reservation")
+				void testAddReservationWhenReservationIsValidShouldInsert() {
+					client.addReservation(reservation);
+					
+					assertThat(client.getReservations()).containsOnly(reservation);
+				}
+
+				@Test
+				@DisplayName("Insert pre-existing reservation")
+				void testAddReservationWhenReservationIsAlreadyExistingShouldThrow() {
+					setUpReservationList();
+					
+					assertThatThrownBy(
+							() -> client.addReservation(reservation))
+						.isInstanceOf(IllegalArgumentException.class)
+						.hasMessage("Reservation [date=" + VALID_DATE + "] to add is already in Client ["
+								+ VALID_FIRST_NAME + " " + VALID_LAST_NAME + "]'s list.");
+				}
+
+				@Test
+				@DisplayName("Insert null reservation")
+				void testAddReservationWhenReservationIsNullShouldThrow() {
+					assertThatThrownBy(() -> client.addReservation(null))
+						.isInstanceOf(IllegalArgumentException.class)
+						.hasMessage("Reservation to add can't be null.");
+				}
+			}
+
+			@Nested
+			@DisplayName("Tests for 'removeReservation'")
+			class RemoveReservationTest {
+				@Test
+				@DisplayName("Delete existing reservation")
+				void testRemoveReservationWhenReservationExistsShouldRemove() {
+					setUpReservationList();
+					
+					client.removeReservation(reservation);
+					
+					assertThat(client.getReservations()).doesNotContain(reservation);
+				}
+
+				@Test
+				@DisplayName("Delete non-existent reservation")
+				void testRemoveReservationWhenReservationDoesNotExistShouldThrow() {
+					assertThatThrownBy(
+							() -> client.removeReservation(reservation))
+						.isInstanceOf(NoSuchElementException.class)
+						.hasMessage("Reservation [date=" + VALID_DATE + "] to delete is not in Client ["
+								+ VALID_FIRST_NAME + " " + VALID_LAST_NAME + "]'s list.");
+				}
+
+				@Test
+				@DisplayName("Null reservation")
+				void testRemoveReservationWhenReservationIsNullShouldThrow() {
+					assertThatThrownBy(
+							() -> client.removeReservation(null))
+						.isInstanceOf(IllegalArgumentException.class)
+						.hasMessage("Reservation to delete can't be null.");
+				}
+			}
+		}
+
+		private void setUpReservationList() {
+			Collection<Reservation> reservations = new ArrayList<Reservation>();
+			reservations.add(reservation);
+			client.setReservations(reservations);
+		}
 	}
-	
-	
-	// TODO: controllare le copie difensive dei get modificando il valore datogli
-	// TODO: aggiungere rimuovere prenotazioni
 }

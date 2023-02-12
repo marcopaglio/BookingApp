@@ -1,7 +1,8 @@
 package io.github.marcopaglio.booking.model;
 
-import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -14,19 +15,32 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 
-@DisplayName("Tests for Reservation entity.")
+@DisplayName("Tests for Reservation entity")
 class ReservationTest {
 	private static final Client VALID_CLIENT = new Client("Mario", "Rossi");
 	private static final UUID VALID_UUID = UUID.randomUUID();
+	private static final UUID ANOTHER_VALID_UUID = UUID.randomUUID();
 	private static final String VALID_STRING_DATE = "2022-12-22";
 	private static final LocalDate VALID_DATE = LocalDate.of(2023, 4, 24);
+	private static final LocalDate ANOTHER_VALID_DATE = LocalDate.of(2023, 2, 25);
 
 	@Nested
 	@DisplayName("Check constructor inputs")
-	class ConstructorInput {
+	class ConstructorTests {
 		@Nested
 		@DisplayName("Constructor without conversions")
-		class PlainConstructorTest {
+		class PlainConstructorTests {
+			@Test
+			@DisplayName("Valid parameters")
+			void testConstructorWhenParametersAreValidShouldInsertValues() {
+				Reservation reservation = new Reservation(VALID_UUID, VALID_DATE);
+				
+				assertAll(
+					() -> assertThat(reservation.getClientUUID()).isEqualTo(VALID_UUID),
+					() -> assertThat(reservation.getDate()).isEqualTo(VALID_DATE)
+				);
+			}
+
 			@Test
 			@DisplayName("Null clientUUID")
 			void testPlainConstructorWhenUUIDIsNullShouldThrow() {
@@ -42,18 +56,22 @@ class ReservationTest {
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Reservation needs a not null date.");
 			}
-
-			@Test
-			@DisplayName("Not null parameters")
-			void testPlainConstructorWhenParametersAreNotNullShouldNotThrow() {
-				assertThatNoException().isThrownBy(
-						() -> new Reservation(VALID_UUID, VALID_DATE));
-			}
 		}
 
 		@Nested
 		@DisplayName("Constructor with conversions")
-		class ConstructorWithLogicTest {
+		class ConstructorWithLogicTests {
+			@Test
+			@DisplayName("Valid parameters")
+			void testConstructorWhenParametersAreValidShouldInsertValues() {
+				Reservation reservation = new Reservation(VALID_CLIENT, VALID_STRING_DATE);
+				
+				assertAll(
+					() -> assertThat(reservation.getClientUUID()).isEqualTo(VALID_CLIENT.getUUID()),
+					() -> assertThat(reservation.getDate()).isEqualTo(LocalDate.parse(VALID_STRING_DATE))
+				);
+			}
+
 			@Test
 			@DisplayName("Null client")
 			void testConstructorWithLogicWhenClientIsNullShouldThrow() {
@@ -69,7 +87,7 @@ class ReservationTest {
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Reservation needs a not null date.");
 			}
-			
+
 			@ParameterizedTest(name = "{index}: ''{0}''")
 			@DisplayName("Non-numeric date")
 			@ValueSource(strings = {
@@ -133,17 +151,40 @@ class ReservationTest {
 				assertThatThrownBy(() -> new Reservation(VALID_CLIENT, wrongDayDate))
 					.isInstanceOf(DateTimeParseException.class);
 			}
-
-			@Test
-			@DisplayName("Right date")
-			void testConstructorWithLogicWhenDateIsCorrectShouldNotThrow() {
-				assertThatNoException().isThrownBy(
-					() -> new Reservation(VALID_CLIENT, VALID_STRING_DATE));
-			}
 		}
 	}
-	
-	// LocalDate is immutable
-	
-	// UUID is immutable
+
+	@Nested
+	@DisplayName("Equality for Reservations")
+	class ReservationsEquality {
+		@Test
+		@DisplayName("Same date and clientUUID")
+		void testEqualsWhenReservationsHaveSameDateAndClientUUIDShouldPass() {
+			Reservation reservation1 = new Reservation(VALID_UUID, VALID_DATE);
+			Reservation reservation2 = new Reservation(VALID_UUID, VALID_DATE);
+			
+			assertThat(reservation1).isEqualTo(reservation2);
+			assertThat(reservation1.hashCode()).isEqualTo(reservation2.hashCode());
+		}
+
+		@Test
+		@DisplayName("Same date and differente clientUUID")
+		void testEqualsWhenReservationsHaveSameDateAndDifferentClientUUIDShouldPass() {
+			Reservation reservation1 = new Reservation(VALID_UUID, VALID_DATE);
+			Reservation reservation2 = new Reservation(ANOTHER_VALID_UUID, VALID_DATE);
+			
+			assertThat(reservation1).isEqualTo(reservation2);
+			assertThat(reservation1.hashCode()).isEqualTo(reservation2.hashCode());
+		}
+
+		@Test
+		@DisplayName("Different date")
+		void testEqualsWhenReservationsHaveDifferentDateShouldFail() {
+			Reservation reservation1 = new Reservation(VALID_UUID, VALID_DATE);
+			Reservation reservation2 = new Reservation(VALID_UUID, ANOTHER_VALID_DATE);
+			
+			assertThat(reservation1).isNotEqualTo(reservation2);
+			assertThat(reservation1.hashCode()).isNotEqualTo(reservation2.hashCode());
+		}
+	}
 }

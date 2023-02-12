@@ -1,6 +1,7 @@
 package io.github.marcopaglio.booking.model;
 
 import java.time.LocalDate;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Reservation {
@@ -68,11 +69,42 @@ public class Reservation {
 				"Reservation needs a " + inputName + " in format aaaa-mm-dd.");
 	}
 
+	/*
+	 * UUID Objects are immutable
+	 */
 	public final UUID getClientUUID() {
 		return clientUUID;
 	}
 
+	/*
+	 * LocalDate Objects are immutable
+	 */
 	public final LocalDate getDate() {
 		return date;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(date);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		Reservation other = (Reservation) obj;
+		return Objects.equals(date, other.date);
+	}
+
+	@Override
+	public String toString() {
+		return "Reservation [date=" + date + "]";
 	}
 }
