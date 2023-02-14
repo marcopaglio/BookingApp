@@ -114,12 +114,10 @@ class ClientTest {
 		@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
 		@DisplayName("Constructor correctly deletes side spaces")
 		@CsvSource({
-			" Mario,\tRossi",
-			"Mario\t,Rossi ",
-			" Mario ,\fRossi\r",
-			"  Mario,\f Rossi",
-			"Mario\f ,Rossi  ",
-			"  Mario  , \rRossi \t"
+			"' Mario', '\tRossi'",
+			"'Mario\t', 'Rossi '",
+			"' Mario ', '  Rossi'",
+			"'\t Mario  ', 'Rossi  '"
 		})
 		void testConstructorWhenInputsContainSideSpacesShouldRemove(
 				String sideSpacedFirstName, String sideSpacedLastName) {
@@ -134,9 +132,9 @@ class ClientTest {
 		@ParameterizedTest(name = "{index}: ''{0}''''{1}'' => ''{2}''''{3}''")
 		@DisplayName("Constructor correctly converts multiple spaces into single space")
 		@CsvSource({
-			"Maria  Luisa,De  Lucia,Maria Luisa,De Lucia",
-			"Mario  Maria  Mario,De  Lucio  Lucia,Mario Maria Mario,De Lucio Lucia",
-			"Mario   Maria   Mario,De   Lucio   Lucia,Mario Maria Mario,De Lucio Lucia",
+			"'Maria  Luisa', 'De  Lucia', 'Maria Luisa', 'De Lucia'",
+			"'Mario  Maria  Mario', 'De  Lucio  Lucia', 'Mario Maria Mario', 'De Lucio Lucia'",
+			"'Mario   Maria   Mario', 'De   Lucio   Lucia', 'Mario Maria Mario', 'De Lucio Lucia'"
 		})
 		void testConstructorWhenInputsContainTooMuchSpacesShouldReduce(
 				String actualFirstName, String actualLastName,
@@ -158,6 +156,11 @@ class ClientTest {
 
 		@BeforeEach
 		void setUp() {
+			// TODO: alternativa: metterli in @BeforeAll, 
+			// renderli statici e usare set package-private
+			// per impostare la lista vuota all'inizio di ogni test
+			// In questo modo non dipende dal fatto che il costruttore 
+			// imposti la lista iniziale vuota (cioè se cambia, questi test continuano a fare)
 			client = new Client(VALID_FIRST_NAME, VALID_LAST_NAME);
 			reservation = new Reservation(client, VALID_DATE);
 		}
@@ -213,6 +216,8 @@ class ClientTest {
 				
 				returnedReservations.add(reservation);
 				
+				// TODO: se possibile creare getter package-private
+				// senza logica (se si riesce a override, altrimenti cambiare nome del getterCopy).
 				assertThat(client.getReservations()).isEqualTo(new ArrayList<Reservation>());
 			}
 

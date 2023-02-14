@@ -21,6 +21,8 @@ public class Client {
 		
 		this.uuid = UUID.randomUUID();
 		this.reservations = new ArrayList<Reservation>();
+		// TODO: togliere inizializzazione: è hard-coded
+		// come unire depenendency inversion principle con copie difensive? Possibile: clone?
 	}
 
 	private static void checkNameValidity(String name, String inputName)
@@ -65,7 +67,7 @@ public class Client {
 	}
 
 	static private String removeExcessedSpaces(String name) {
-		return name.replaceAll("\\s+", " ");//.trim();
+		return name.trim().replaceAll("\\s+", " ");
 	}
 
 	/*
