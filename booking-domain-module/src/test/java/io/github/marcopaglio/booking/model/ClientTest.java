@@ -210,24 +210,23 @@ class ClientTest {
 		@DisplayName("Check that attributes are not alterable outside Client class")
 		class DefensiveCopyTests {
 			@Test
-			@DisplayName("Empty list returned from 'getReservations' is modified")
-			void testGetReservationsWhenReturnedEmptyListIsModifiedShouldNotChangeAttributeValue() {
-				Collection<Reservation> returnedReservations = client.getReservations();
+			@DisplayName("Empty list returned from 'getCopyOfReservations' is modified")
+			void testGetCopyOfReservationsWhenReturnedEmptyListIsModifiedShouldNotChangeAttributeValue() {
+				Collection<Reservation> returnedReservations = client.getCopyOfReservations();
 				
 				returnedReservations.add(reservation);
 				
-				// TODO: se possibile creare getter package-private
-				// senza logica (se si riesce a override, altrimenti cambiare nome del getterCopy).
 				assertThat(client.getReservations()).isEqualTo(new ArrayList<Reservation>());
 			}
 
 			@Test
-			@DisplayName("Reservation list returned from 'getReservations' is modified")
-			void testGetReservationsWhenReturnedListIsModifyShouldNotChangeAttributeValue() {
+			@DisplayName("Reservation list returned from 'getCopyOfReservations' is modified")
+			void testGetCopyOfReservationsWhenReturnedListIsModifyShouldNotChangeAttributeValue() {
 				Collection<Reservation> reservations = new ArrayList<Reservation>();
 				reservations.add(reservation);
 				client.setReservations(reservations);
-				Collection<Reservation> returnedReservations = client.getReservations();
+				// TODO: si può setUpReservationList?
+				Collection<Reservation> returnedReservations = client.getCopyOfReservations();
 				
 				returnedReservations.remove(reservation);
 				

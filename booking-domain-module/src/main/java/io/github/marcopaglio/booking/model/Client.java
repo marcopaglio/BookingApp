@@ -66,6 +66,10 @@ public class Client {
 				"Client's " + inputName + " must contain only alphabet letters.");
 	}
 
+	/*
+	 * Remove side spaces and
+	 * reduce multiple spaces into single spaces
+	 */
 	static private String removeExcessedSpaces(String name) {
 		return name.trim().replaceAll("\\s+", " ");
 	}
@@ -96,18 +100,25 @@ public class Client {
 	 * In order to protect reservations
 	 * A defensive copy is returned
 	 */
-	public final Collection<Reservation> getReservations() {
+	public final Collection<Reservation> getCopyOfReservations() {
 		return new ArrayList<Reservation>(this.reservations);
 	}
-	
+
 	/*
 	 * Only for test purposes
 	 */
-	void setReservations(Collection<Reservation> reservations) {
+	final Collection<Reservation> getReservations() {
+		return reservations;
+	}
+
+	/*
+	 * Only for test purposes
+	 */
+	final void setReservations(Collection<Reservation> reservations) {
 		this.reservations = reservations;
 	}
 
-	public void addReservation(Reservation reservation) {
+	public final void addReservation(Reservation reservation) {
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to add can't be null.");
 		if (this.reservations.contains(reservation))
@@ -116,7 +127,7 @@ public class Client {
 		this.reservations.add(reservation);
 	}
 	
-	public void removeReservation(Reservation reservation) {
+	public final void removeReservation(Reservation reservation) {
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to delete can't be null.");
 		if (!this.reservations.contains(reservation))
