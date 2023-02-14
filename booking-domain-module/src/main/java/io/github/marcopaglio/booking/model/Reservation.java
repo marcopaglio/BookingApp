@@ -24,6 +24,12 @@ public class Reservation {
 		this.date = LocalDate.parse(stringDate);
 	}
 
+	Reservation(Reservation reservationToCopy) {
+		checkNotNull(reservationToCopy, "reservation to copy");
+		this.clientUUID = reservationToCopy.getClientUUID();
+		this.date = reservationToCopy.getDate();
+	}
+
 	private static void checkDateValidity(String stringDate, String inputName)
 			throws IllegalArgumentException, NumberFormatException {
 		checkNotNull(stringDate, inputName);

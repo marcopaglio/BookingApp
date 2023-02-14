@@ -1,28 +1,29 @@
 package io.github.marcopaglio.booking.model;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Client {
 	private final UUID uuid;
 	private final String firstName;
 	private final String lastName;
-	private Collection<Reservation> reservations;
+	private List<Reservation> reservations;
 
-	public Client(String firstName, String lastName) {
+	public Client(String firstName, String lastName, List<Reservation> reservations) {
 		checkNameValidity(firstName, "first name");
 		checkNameValidity(lastName, "last name");
+		checkNotNull(reservations, "reservations' list");
 		
 		this.firstName = removeExcessedSpaces(firstName);
 		this.lastName = removeExcessedSpaces(lastName);
 		
 		this.uuid = UUID.randomUUID();
-		this.reservations = new ArrayList<Reservation>();
-		// TODO: togliere inizializzazione: è hard-coded
-		// come unire depenendency inversion principle con copie difensive? Possibile: clone?
+		this.reservations = reservations.stream().map(Reservation::new).collect(Collectors.toList());
+		
 	}
 
 	private static void checkNameValidity(String name, String inputName)
@@ -100,21 +101,22 @@ public class Client {
 	 * In order to protect reservations
 	 * A defensive copy is returned
 	 */
-	public final Collection<Reservation> getCopyOfReservations() {
+	public final List<Reservation> getCopyOfReservations() {
 		return new ArrayList<Reservation>(this.reservations);
+		//return this.reservations.stream().map(Reservation::new).collect(Collectors.toList());
 	}
 
 	/*
 	 * Only for test purposes
 	 */
-	final Collection<Reservation> getReservations() {
+	final List<Reservation> getReservations() {
 		return reservations;
 	}
 
 	/*
 	 * Only for test purposes
 	 */
-	final void setReservations(Collection<Reservation> reservations) {
+	final void setReservations(List<Reservation> reservations) {
 		this.reservations = reservations;
 	}
 
