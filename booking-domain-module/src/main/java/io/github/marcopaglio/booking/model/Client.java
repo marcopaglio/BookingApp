@@ -113,13 +113,6 @@ public class Client {
 		return reservations;
 	}
 
-	/*
-	 * Only for test purposes
-	 */
-	final void setReservations(List<Reservation> reservations) {
-		this.reservations = reservations;
-	}
-
 	public final void addReservation(Reservation reservation) {
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to add can't be null.");
