@@ -16,6 +16,7 @@
     <maven.surefire.version>2.22.2</maven.surefire.version>
     <assertj.version>3.24.2</assertj.version>
     <mockito.version>5.1.1</mockito.version>
+    <jacoco.version>0.8.8</jacoco.version>
   </properties>
   
   <dependencyManagement>
@@ -40,7 +41,7 @@
         <version>${mockito.version}</version>
         <scope>import</scope>
         <type>pom</type>
-</dependency>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   
@@ -51,11 +52,36 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven.surefire.version}</version>
         </plugin>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>${jacoco.version}</version>
+          <executions>
+            <execution>
+              <goals>
+                <!-- binds by default to the phase "initialize" -->
+                <goal>prepare-agent</goal>
+                <!-- binds by default to the phase "verify" -->
+                <goal>report</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
   
   <profiles>
-    
+    <profile>
+      <id>jacoco</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>
