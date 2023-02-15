@@ -1,6 +1,5 @@
 package io.github.marcopaglio.booking.model;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
@@ -102,8 +101,7 @@ public class Client {
 	 * A defensive copy is returned
 	 */
 	public final List<Reservation> getCopyOfReservations() {
-		return new ArrayList<Reservation>(this.reservations);
-		//return this.reservations.stream().map(Reservation::new).collect(Collectors.toList());
+		return this.reservations.stream().map(Reservation::new).collect(Collectors.toList());
 	}
 
 	/*
