@@ -6,6 +6,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import io.github.marcopaglio.booking.annotation.Generated;
+
 public class Client {
 	private final UUID uuid;
 	private final String firstName;
@@ -77,6 +79,7 @@ public class Client {
 	/*
 	 * Java String Objects are immutable
 	 */
+	@Generated
 	public final String getFirstName() {
 		return this.firstName;
 	}
@@ -84,6 +87,7 @@ public class Client {
 	/*
 	 * Java String Objects are immutable
 	 */
+	@Generated
 	public final String getLastName() {
 		return this.lastName;
 	}
@@ -91,7 +95,8 @@ public class Client {
 	/*
 	 * UUID Objects are immutable
 	 */
-	public final UUID getUUID() {
+	@Generated
+	public final UUID getUuid() {
 		return this.uuid;
 	}
 
@@ -107,6 +112,7 @@ public class Client {
 	/*
 	 * Only for test purposes
 	 */
+	@Generated
 	final List<Reservation> getReservations() {
 		return reservations;
 	}
@@ -129,11 +135,13 @@ public class Client {
 		this.reservations.remove(reservation);
 	}
 
+	@Generated
 	@Override
 	public int hashCode() {
 		return Objects.hash(firstName, lastName);
 	}
 
+	@Generated
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {

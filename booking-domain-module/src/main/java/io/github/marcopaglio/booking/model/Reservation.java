@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
+import io.github.marcopaglio.booking.annotation.Generated;
+
 public class Reservation {
 	private final UUID clientUUID;
 	private final LocalDate date;
@@ -20,7 +22,7 @@ public class Reservation {
 		checkNotNull(client, "client");
 		checkDateValidity(stringDate, "date");
 		
-		this.clientUUID = client.getUUID();
+		this.clientUUID = client.getUuid();
 		this.date = LocalDate.parse(stringDate);
 	}
 
@@ -78,6 +80,7 @@ public class Reservation {
 	/*
 	 * UUID Objects are immutable
 	 */
+	@Generated
 	public final UUID getClientUUID() {
 		return clientUUID;
 	}
@@ -85,15 +88,18 @@ public class Reservation {
 	/*
 	 * LocalDate Objects are immutable
 	 */
+	@Generated
 	public final LocalDate getDate() {
 		return date;
 	}
 
+	@Generated
 	@Override
 	public int hashCode() {
 		return Objects.hash(date);
 	}
 
+	@Generated
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -109,6 +115,7 @@ public class Reservation {
 		return Objects.equals(date, other.date);
 	}
 
+	@Generated
 	@Override
 	public String toString() {
 		return "Reservation [date=" + date + "]";

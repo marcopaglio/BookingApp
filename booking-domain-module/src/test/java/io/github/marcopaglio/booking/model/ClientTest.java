@@ -43,7 +43,7 @@ class ClientTest {
 			assertAll(
 				() -> assertThat(client.getFirstName()).isEqualTo(VALID_FIRST_NAME),
 				() -> assertThat(client.getLastName()).isEqualTo(VALID_LAST_NAME),
-				() -> assertThat(client.getUUID()).isNotNull(),
+				() -> assertThat(client.getUuid()).isNotNull(),
 				() -> assertThat(client.getReservations().isEmpty())
 			);
 		}
@@ -56,7 +56,7 @@ class ClientTest {
 			assertAll(
 				() -> assertThat(client.getFirstName()).isEqualTo(VALID_FIRST_NAME),
 				() -> assertThat(client.getLastName()).isEqualTo(VALID_LAST_NAME),
-				() -> assertThat(client.getUUID()).isNotNull(),
+				() -> assertThat(client.getUuid()).isNotNull(),
 				() -> assertThat(client.getReservations()).isEqualTo(NON_EMPTY_LIST)
 			);
 		}

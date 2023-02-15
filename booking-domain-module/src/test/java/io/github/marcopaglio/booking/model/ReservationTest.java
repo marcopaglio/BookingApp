@@ -71,7 +71,7 @@ class ReservationTest {
 				Reservation reservation = new Reservation(client, stringDate);
 				
 				assertAll(
-					() -> assertThat(reservation.getClientUUID()).isEqualTo(client.getUUID()),
+					() -> assertThat(reservation.getClientUUID()).isEqualTo(client.getUuid()),
 					() -> assertThat(reservation.getDate()).isEqualTo(LocalDate.parse(stringDate))
 				);
 			}
