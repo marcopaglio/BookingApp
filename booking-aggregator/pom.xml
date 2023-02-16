@@ -22,5 +22,11 @@
         <module>../booking-report</module>
       </modules>
     </profile>
+    <profile>
+      <id>coveralls</id>
+      <modules>
+        <module>../booking-report</module>
+      </modules>
+    </profile>
   </profiles>
 </project>

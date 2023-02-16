@@ -17,6 +17,7 @@
     <assertj.version>3.24.2</assertj.version>
     <mockito.version>5.1.1</mockito.version>
     <jacoco.version>0.8.8</jacoco.version>
+    <coveralls.version>4.3.0</coveralls.version>
   </properties>
   
   <dependencyManagement>
@@ -66,6 +67,19 @@
               </goals>
             </execution>
           </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.eluder.coveralls</groupId>
+          <artifactId>coveralls-maven-plugin</artifactId>
+          <version>${coveralls.version}</version>
+          <dependencies>
+            <!-- This is required when using JDK 9 or higher since javax.xml.bind has been removed from the JDK -->
+            <dependency>
+              <groupId>javax.xml.bind</groupId>
+              <artifactId>jaxb-api</artifactId>
+              <version>2.3.1</version>
+            </dependency>
+          </dependencies>
         </plugin>
       </plugins>
     </pluginManagement>

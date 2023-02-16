@@ -31,4 +31,35 @@
       
     </plugins>
   </build>
+  
+    <profiles>
+      <!-- TO REMOVE AS SOON AS AGGREGATE COVERALLS WORKS -->
+      <profile>
+      <id>coveralls</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+          </plugin>
+          <plugin>
+            <groupId>org.eluder.coveralls</groupId>
+            <artifactId>coveralls-maven-plugin</artifactId>
+            <configuration>
+              <dryRun>true</dryRun>
+            </configuration>
+            <executions>
+              <execution>
+                <id>report-coveralls</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
