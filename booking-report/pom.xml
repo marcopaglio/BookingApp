@@ -8,7 +8,7 @@
   <artifactId>booking-report</artifactId>
   <packaging>pom</packaging>
   
-    <dependencies>
+  <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>booking-domain-module</artifactId>
@@ -23,6 +23,11 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/annotation/*</exclude>
+              </excludes>
+            </configuration>
             <executions>
               <execution>
                 <id>report-aggregate</id>
@@ -45,6 +50,11 @@
             <!-- JaCoCo report is required by coveralls-maven-plugin -->
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/annotation/*</exclude>
+              </excludes>
+            </configuration>
             <executions>
               <execution>
                 <id>report-aggregate</id>
@@ -72,9 +82,13 @@
               <jacocoReports>
                 <jacocoReport>${project.reporting.outputDirectory}/jacoco-aggregate/jacoco.xml</jacocoReport>
               </jacocoReports>
-              <scanForSources>true</scanForSources>
+              <!-- scanForSources doesn't find sources from ../booking-domain-module/ directory -->
               <sourceDirectories>
-                <sourceDirectory>../booking-domain-module/</sourceDirectory>
+                <!-- HERE FOR OTHER SOURCES -->
+                <!-- Path has to be in accord with source names in jacoco.xml file -->
+                <!-- Example: if name=io/github/marcopaglio/booking/model/Client -->
+                <!--          then: path is ../booking-domain-module/src/main/java/ -->
+                <sourceDirectory>../booking-domain-module/src/main/java/</sourceDirectory>
               </sourceDirectories>
             </configuration>
           </plugin>
