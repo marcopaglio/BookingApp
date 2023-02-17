@@ -4,6 +4,7 @@
     <groupId>io.github.marcopaglio</groupId>
     <artifactId>booking-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../booking-parent</relativePath>
   </parent>
   <artifactId>booking-report</artifactId>
   <packaging>pom</packaging>
