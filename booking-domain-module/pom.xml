@@ -38,6 +38,18 @@
             </excludes>
           </configuration>
         </plugin>
+        <plugin>
+          <groupId>org.pitest</groupId>
+          <artifactId>pitest-maven</artifactId>
+          <configuration>
+            <targetClasses>
+              <targetClasse>io.github.marcopaglio.booking.model.*</targetClasse>
+            </targetClasses>
+            <targetTests>
+              <targetTest>io.github.marcopaglio.booking.model.*</targetTest>
+            </targetTests>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
