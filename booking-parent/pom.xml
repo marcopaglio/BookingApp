@@ -16,6 +16,7 @@
     <maven.surefire.version>2.22.2</maven.surefire.version>
     <assertj.version>3.24.2</assertj.version>
     <mockito.version>5.1.1</mockito.version>
+    <maven.site.version>4.0.0-M5</maven.site.version>
     <jacoco.version>0.8.8</jacoco.version>
     <coveralls.version>4.3.0</coveralls.version>
     <pitest.version>1.11.0</pitest.version>
@@ -53,6 +54,14 @@
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven.surefire.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-report-plugin</artifactId>
+          <version>${maven.surefire.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven.site.version}</version>
         </plugin>
         <plugin>
           <groupId>org.jacoco</groupId>
