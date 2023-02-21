@@ -59,6 +59,8 @@
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>${jacoco.version}</version>
           <executions>
+            <!-- THESE GOALS ARE AUTOMATICALLY SKIPPED BY REPORT MODULE -->
+            <!-- EVALUATE IF MOVE TO CHILD MODULE -->
             <execution>
               <goals>
                 <!-- binds by default to the phase "initialize" -->
@@ -93,12 +95,23 @@
               <version>1.1.2</version>
             </dependency>
           </dependencies>
+          <executions>
+            <!-- THIS GOALS IS AUTOMATICALLY SKIPPED BY REPORT MODULE -->
+            <!-- EVALUATE IF MOVE TO CHILD MODULE -->
+            <execution>
+              <goals>
+                <goal>mutationCoverage</goal>
+              </goals>
+              <phase>verify</phase>
+            </execution>
+          </executions>
           <configuration>
             <mutators>
               <mutator>DEFAULTS</mutator>
             </mutators>
             <mutationThreshold>100</mutationThreshold>
             <timeoutConstant>5000</timeoutConstant>
+            <exportLineCoverage>true</exportLineCoverage>
             <outputFormats>
               <outputFormat>HTML</outputFormat>
               <outputFormat>XML</outputFormat>
@@ -146,14 +159,6 @@
           <plugin>
             <groupId>org.pitest</groupId>
             <artifactId>pitest-maven</artifactId>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>mutationCoverage</goal>
-                </goals>
-                <phase>verify</phase>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>

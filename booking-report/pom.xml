@@ -58,7 +58,7 @@
             </configuration>
             <executions>
               <execution>
-                <id>report-aggregate</id>
+                <id>jacoco-report-aggregate</id>
                 <phase>verify</phase>
                 <goals>
                   <goal>report-aggregate</goal>
@@ -72,7 +72,7 @@
             <artifactId>coveralls-maven-plugin</artifactId>
             <executions>
               <execution>
-                <id>report-coveralls</id>
+                <id>coveralls-report-aggregate</id>
                 <phase>verify</phase>
                 <goals>
                   <goal>report</goal>
@@ -92,6 +92,27 @@
                 <sourceDirectory>../booking-domain-module/src/main/java/</sourceDirectory>
               </sourceDirectories>
             </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>pitest</id>
+      <build>
+        <plugins>
+          <plugin>
+            <!-- Pitest report is required by pitest-maven -->
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-maven</artifactId>
+            <executions>
+              <execution>
+                <id>pitest-report-aggregate</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report-aggregate</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

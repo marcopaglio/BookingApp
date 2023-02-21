@@ -28,5 +28,11 @@
         <module>../booking-report</module>
       </modules>
     </profile>
+    <profile>
+      <id>pitest</id>
+      <modules>
+        <module>../booking-report</module>
+      </modules>
+    </profile>
   </profiles>
 </project>
