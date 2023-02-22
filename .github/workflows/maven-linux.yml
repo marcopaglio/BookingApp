@@ -3,7 +3,6 @@ name: Java CI with Maven in Linux
 
 on:
   push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -25,7 +24,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
         restore-keys:  ${{ runner.os }}-m2-
 
     - name: Build with Maven
@@ -45,4 +44,19 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: surefire-report-jdk-11
-        path: '**/target/site'
+        path: '**/target/site/'
+        if-no-files-found: error
+        retention-days: 30
+
+    - name: Run Mutation Testing
+      run: mvn verify -Ppitest
+      working-directory: ${{ env.workdir }}
+
+    - name: Archive Pitest Report
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: pitest-report-jdk-11
+        path: 'booking-report/target/pit-reports/'
+        if-no-files-found: error
+        retention-days: 30
