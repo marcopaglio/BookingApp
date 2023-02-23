@@ -13,7 +13,6 @@
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
     <junit.version>5.9.2</junit.version>
-    <maven.surefire.version>2.22.2</maven.surefire.version>
     <assertj.version>3.24.2</assertj.version>
     <mockito.version>5.1.1</mockito.version>
     <jacoco.version>0.8.8</jacoco.version>
@@ -50,10 +49,6 @@
   <build>
     <pluginManagement>
       <plugins>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>${maven.surefire.version}</version>
-        </plugin>
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>

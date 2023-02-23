@@ -13,7 +13,64 @@
   
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.reports.version>3.4.2</maven.reports.version>
+    <maven.surefire.version>2.22.2</maven.surefire.version>
+    <maven.site.version>4.0.0-M5</maven.site.version>
+    <maven.jxr.version>3.3.0</maven.jxr.version>
   </properties>
+  
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>${maven.reports.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven.surefire.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-report-plugin</artifactId>
+          <version>${maven.surefire.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven.site.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jxr-plugin</artifactId>
+          <version>${maven.jxr.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+  
+  <reporting>
+    <plugins>
+      <plugin>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>index</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <configuration>
+          <aggregate>true</aggregate>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
   
   <profiles>
     <profile>
