@@ -9,6 +9,12 @@
   <artifactId>booking-report</artifactId>
   <packaging>pom</packaging>
   
+  <name>BookingApp - Coverage and Mutation Testing Reports</name>
+  <description>
+	  Report produces aggregate report for jacoco used also for coveralls.
+	  Added pitest aggregated reporting, too.
+  </description>
+  
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
