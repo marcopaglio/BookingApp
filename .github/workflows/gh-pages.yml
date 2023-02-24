@@ -55,8 +55,8 @@ jobs:
       uses: actions/upload-pages-artifact@v1
       with:
         path: |
-          'booking-aggregator/target/staging/'
-          'booking-report/target/pit-reports/'
+          booking-aggregator/target/staging/
+          booking-report/target/pit-reports/
         retention-days: 5
 
   deploy:
