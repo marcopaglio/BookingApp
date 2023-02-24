@@ -48,13 +48,14 @@ jobs:
       run: mvn verify site site:stage -Ppitest
       working-directory: booking-aggregator
 
-    - name: Setup Pages
+    - name: Configure GitHub Pages
       uses: actions/configure-pages@v3
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v1
       with:
         path: 'booking-aggregator/target/staging/'
+        retention-days: 5
 
   deploy:
     name: Deployment job
