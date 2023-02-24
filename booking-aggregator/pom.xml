@@ -31,6 +31,7 @@
     <maven.surefire.version>2.22.2</maven.surefire.version>
     <maven.site.version>4.0.0-M5</maven.site.version>
     <maven.jxr.version>3.3.0</maven.jxr.version>
+    <pitest.version>1.11.0</pitest.version>
   </properties>
   
   <build>
@@ -56,13 +57,18 @@
           <artifactId>maven-site-plugin</artifactId>
           <version>${maven.site.version}</version>
           <configuration>
-			  <topSiteURL>${site.url}</topSiteURL>
-		  </configuration>
+            <topSiteURL>${site.url}</topSiteURL>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jxr-plugin</artifactId>
           <version>${maven.jxr.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.pitest</groupId>
+          <artifactId>pitest-maven</artifactId>
+          <version>${pitest.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -88,15 +94,15 @@
         </reportSets>
       </plugin>
       <plugin>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <version>${maven.jxr.version}</version>
+      </plugin>
+      <plugin>
         <artifactId>maven-surefire-report-plugin</artifactId>
         <version>${maven.surefire.version}</version>
         <configuration>
           <aggregate>true</aggregate>
         </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-jxr-plugin</artifactId>
-        <version>${maven.jxr.version}</version>
       </plugin>
     </plugins>
   </reporting>
@@ -116,9 +122,39 @@
     </profile>
     <profile>
       <id>pitest</id>
-      <modules>
-        <module>../booking-report</module>
-      </modules>
+      <build>
+        <plugins>
+          <plugin>
+            <!-- Pitest report is required by pitest-maven -->
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-maven</artifactId>
+            <executions>
+              <execution>
+                <id>pitest-report-aggregate</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report-aggregate-module</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+      <reporting>
+        <plugins>
+          <plugin>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-maven</artifactId>
+            <reportSets>
+              <reportSet>
+                <reports>
+                  <report>report</report>
+                </reports>
+              </reportSet>
+            </reportSets>
+          </plugin>
+        </plugins>
+      </reporting>
     </profile>
   </profiles>
 </project>

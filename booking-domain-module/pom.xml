@@ -11,7 +11,7 @@
   <name>BookingApp - Domain Model</name>
   <description>
 	  It uses specific dependencies (chosen from those inherited from parent) 
-	  and sets specific configurations of plugins.
+	  and sets specific configurations of plugins for the Domain Model.
   </description>
   
   <dependencies>

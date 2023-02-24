@@ -10,10 +10,7 @@
   <packaging>pom</packaging>
   
   <name>BookingApp - Coverage and Mutation Testing Reports</name>
-  <description>
-	  Report produces aggregate report for jacoco used also for coveralls.
-	  Added pitest aggregated reporting, too.
-  </description>
+  <description>Report produces aggregate report for jacoco used also in Coveralls.</description>
   
   <dependencies>
     <dependency>
@@ -101,42 +98,6 @@
           </plugin>
         </plugins>
       </build>
-    </profile>
-    <profile>
-      <id>pitest</id>
-      <build>
-        <plugins>
-          <plugin>
-            <!-- Pitest report is required by pitest-maven -->
-            <groupId>org.pitest</groupId>
-            <artifactId>pitest-maven</artifactId>
-            <executions>
-              <execution>
-                <id>pitest-report-aggregate</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>report-aggregate</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-      <reporting>
-				<plugins>
-					<plugin>
-						<groupId>org.pitest</groupId>
-						<artifactId>pitest-maven</artifactId>
-						<reportSets>
-							<reportSet>
-								<reports>
-									<report>report</report>
-								</reports>
-							</reportSet>
-						</reportSets>
-					</plugin>
-				</plugins>
-			</reporting>
     </profile>
   </profiles>
 </project>
