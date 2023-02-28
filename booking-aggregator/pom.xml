@@ -5,6 +5,19 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   
+  <name>BookingApp - Reactor</name>
+  <description>Reactor contains modules and aggregate POM and reports.</description>
+  <url>${site.url}</url>
+  <inceptionYear>2023</inceptionYear>
+  
+  <distributionManagement>
+    <site>
+      <id>${project.artifactId}</id>
+      <name>${project.name}</name>
+      <url>${site.url}</url>
+    </site>
+  </distributionManagement>
+  
   <modules>
     <module>../booking-bom</module>
     <module>../booking-parent</module>
@@ -13,35 +26,49 @@
   
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <site.url>https://marcopaglio.github.io/BookingApp/</site.url>
     <maven.reports.version>3.4.2</maven.reports.version>
     <maven.surefire.version>2.22.2</maven.surefire.version>
     <maven.site.version>4.0.0-M5</maven.site.version>
     <maven.jxr.version>3.3.0</maven.jxr.version>
+    <pitest.version>1.11.0</pitest.version>
   </properties>
   
   <build>
     <pluginManagement>
       <plugins>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>${maven.reports.version}</version>
         </plugin>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven.surefire.version}</version>
         </plugin>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-report-plugin</artifactId>
           <version>${maven.surefire.version}</version>
         </plugin>
         <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
           <version>${maven.site.version}</version>
+          <configuration>
+            <topSiteURL>${site.url}</topSiteURL>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jxr-plugin</artifactId>
           <version>${maven.jxr.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.pitest</groupId>
+          <artifactId>pitest-maven</artifactId>
+          <version>${pitest.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -54,20 +81,53 @@
         <reportSets>
           <reportSet>
             <reports>
+              <report>dependency-info</report>
+              <report>distribution-management</report>
               <report>index</report>
+              <report>modules</report>
+              <report>plugin-management</report>
+              <report>plugins</report>
+              <report>summary</report>
             </reports>
           </reportSet>
         </reportSets>
       </plugin>
       <plugin>
+        <artifactId>maven-jxr-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <reports>
+              <!-- Goals of maven-jxr-plugin -->
+              <report>aggregate</report>
+              <report>test-aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+        <!-- CONFIGURATION FOR JAVADOC HERE -->
+      </plugin>
+      <plugin>
         <artifactId>maven-surefire-report-plugin</artifactId>
         <configuration>
+          <title>Surefire Report</title>
+          <description>Report on the unit test results of BookingApp project.</description>
           <aggregate>true</aggregate>
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jxr-plugin</artifactId>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <configuration>
+          <siteReportName>PIT Test Report</siteReportName>
+          <siteReportDescription>Report of the PIT mutation tests</siteReportDescription>
+        </configuration>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>report</report>
+            </reports>
+          </reportSet>
+        </reportSets>
       </plugin>
     </plugins>
   </reporting>
@@ -87,9 +147,24 @@
     </profile>
     <profile>
       <id>pitest</id>
-      <modules>
-        <module>../booking-report</module>
-      </modules>
+      <build>
+        <plugins>
+          <plugin>
+            <!-- Pitest report is required by pitest-maven -->
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-maven</artifactId>
+            <executions>
+              <execution>
+                <id>pitest-report-aggregate</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report-aggregate-module</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>

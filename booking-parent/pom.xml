@@ -9,6 +9,9 @@
   <artifactId>booking-parent</artifactId>
   <packaging>pom</packaging>
   
+  <name>BookingApp - Parent of modules</name>
+  <description>Parent contains common configurations for plugins.</description>
+  
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
@@ -17,7 +20,9 @@
     <mockito.version>5.1.1</mockito.version>
     <jacoco.version>0.8.8</jacoco.version>
     <coveralls.version>4.3.0</coveralls.version>
+    <jaxb.api.version>2.3.1</jaxb.api.version>
     <pitest.version>1.11.0</pitest.version>
+    <pitest.junit5.version>1.1.2</pitest.junit5.version>
   </properties>
   
   <dependencyManagement>
@@ -75,7 +80,7 @@
             <dependency>
               <groupId>javax.xml.bind</groupId>
               <artifactId>jaxb-api</artifactId>
-              <version>2.3.1</version>
+              <version>${jaxb.api.version}</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -87,7 +92,7 @@
             <dependency>
               <groupId>org.pitest</groupId>
               <artifactId>pitest-junit5-plugin</artifactId>
-              <version>1.1.2</version>
+              <version>${pitest.junit5.version}</version>
             </dependency>
           </dependencies>
           <executions>

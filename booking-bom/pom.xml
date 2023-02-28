@@ -5,8 +5,22 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>pom</packaging>
   
+  <name>BookingApp - Bill of Materials</name>
+  <description>BOM contains all compile and test dependencies.</description>
+  <url>${site.url}booking-bom</url>
+  <inceptionYear>2023</inceptionYear>
+  
+  <distributionManagement>
+    <site>
+      <id>${project.artifactId}</id>
+      <name>${project.name}</name>
+      <url>${site.url}booking-bom</url>
+    </site>
+  </distributionManagement>
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <site.url>https://marcopaglio.github.io/BookingApp/</site.url>
     <maven.reports.version>3.4.2</maven.reports.version>
     <maven.surefire.version>2.22.2</maven.surefire.version>
     <maven.site.version>4.0.0-M5</maven.site.version>
@@ -41,6 +55,9 @@
         <plugin>
           <artifactId>maven-site-plugin</artifactId>
           <version>${maven.site.version}</version>
+          <configuration>
+            <topSiteURL>${site.url}</topSiteURL>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-jxr-plugin</artifactId>
