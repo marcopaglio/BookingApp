@@ -30,7 +30,7 @@ jobs:
         restore-keys:  ${{ runner.os }}-m2-
 
     - name: Build with Maven
-      run: mvn install -Pcoveralls -DrepoToken=$COVERALLS_REPO_TOKEN -DpullRequest=PR_NUMBER
+      run: ../mvnw install -Pcoveralls -DrepoToken=$COVERALLS_REPO_TOKEN -DpullRequest=PR_NUMBER
       working-directory:  ${{ env.workdir }}
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -38,7 +38,7 @@ jobs:
 
     - name: Generate JUnit Report
       if: ${{ failure() }}
-      run: mvn surefire-report:report-only site:site -DgenerateReports=false -Daggregate=true
+      run: ../mvnw surefire-report:report-only site:site -DgenerateReports=false -Daggregate=true
       working-directory:  ${{ env.workdir }}
 
     - name: Archive JUnit Report
@@ -51,7 +51,7 @@ jobs:
         retention-days: 30
 
     - name: Run Mutation Testing
-      run: mvn verify -Ppitest
+      run: ../mvnw verify -Ppitest
       working-directory: ${{ env.workdir }}
 
     - name: Archive Pitest Report
