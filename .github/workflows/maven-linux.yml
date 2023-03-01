@@ -33,11 +33,12 @@ jobs:
         restore-keys:  ${{ runner.os }}-m2-
 
     - name: Build with Maven and SonarCloud
-      run: ../mvnw install -Pcoveralls -DrepoToken=$COVERALLS_REPO_TOKEN -DpullRequest=PR_NUMBER sonar:sonar -Dsonar.organization=marcopaglio-github -Dsonar.host.url=https://sonarcloud.io
+      run: ../mvnw install -Pcoveralls -DrepoToken=$COVERALLS_REPO_TOKEN -DpullRequest=PR_NUMBER sonar:sonar $ADDITIONAL_SONAR_ARGS
       working-directory:  ${{ env.workdir }}
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
+        ADDITIONAL_SONAR_ARGS: -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=marcopaglio -Dsonar.projectKey=marcopaglio_BookingApp
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
