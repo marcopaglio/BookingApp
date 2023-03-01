@@ -14,6 +14,12 @@
 	  and sets specific configurations of plugins for the Domain Model.
   </description>
   
+  <properties>
+    <sonar.coverage.exclusions>
+      **/annotation/*.*
+    </sonar.coverage.exclusions>
+  </properties>
+  
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
