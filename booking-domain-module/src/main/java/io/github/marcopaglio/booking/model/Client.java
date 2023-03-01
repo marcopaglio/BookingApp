@@ -72,7 +72,7 @@ public class Client {
 	 * Remove side spaces and
 	 * reduce multiple spaces into single spaces
 	 */
-	static private String removeExcessedSpaces(String name) {
+	private static String removeExcessedSpaces(String name) {
 		return name.trim().replaceAll("\\s+", " ");
 	}
 

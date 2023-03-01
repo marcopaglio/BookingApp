@@ -195,8 +195,7 @@ class ClientTest {
 				
 				assertAll(
 					() -> assertThat(emptyListClient).isEqualTo(anotherEmptyListClient),
-					() -> assertThat(emptyListClient.hashCode())
-							.isEqualTo(anotherEmptyListClient.hashCode())
+					() -> assertThat(emptyListClient).hasSameHashCodeAs(anotherEmptyListClient)
 				);
 			}
 
@@ -205,8 +204,7 @@ class ClientTest {
 			void testEqualsWhenClientsHaveSameNamesAndDifferentReservationsShouldPass() {
 				assertAll(
 					() -> assertThat(emptyListClient).isEqualTo(nonEmptyListClient),
-					() -> assertThat(emptyListClient.hashCode())
-							.isEqualTo(nonEmptyListClient.hashCode())
+					() -> assertThat(emptyListClient).hasSameHashCodeAs(nonEmptyListClient)
 				);
 			}
 

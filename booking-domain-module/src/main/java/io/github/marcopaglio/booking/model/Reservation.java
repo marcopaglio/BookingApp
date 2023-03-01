@@ -3,6 +3,8 @@ package io.github.marcopaglio.booking.model;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import io.github.marcopaglio.booking.annotation.Generated;
 
@@ -57,8 +59,10 @@ public class Reservation {
 	 */
 	private static void checkOnlyNumeric(String str, String inputName)
 			throws IllegalArgumentException {
-		if (str.matches(".*[^\\d\\-].*") 
-			|| str.matches("(.*[(\r\n|\r|\n)].*)+"))
+		// Without DOTALL two line separators in the same string are not recognized
+		Pattern onlyNumeric = Pattern.compile(".*[^\\d\\-].*", Pattern.DOTALL);
+		Matcher matcher = onlyNumeric.matcher(str);
+		if (matcher.matches())
 			throw new IllegalArgumentException(
 				"Reservation needs a only numeric " + inputName + ".");
 	}

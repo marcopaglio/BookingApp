@@ -98,11 +98,13 @@ class ReservationTest {
 				"2022-12-dd", "2022-MM-21", "aAAa-12-21",			// alphabetic characters
 				"2022-12-2@", "2022-1!-21", "2O?2-12-21",			// special characters
 				"2022.12.21", "2022_12_21", "2022/12/21",			// different separators
-				" 022-12-21", "202\r-12-21 ", "2022-1\f-21",		// single space
-				"2\n22-12-21", "2022-12-\t1",						// single space
-				"\n  \t-\f -\r ", "\n   -  -\r ", "    -\r -\n ",	// mixed spaces
-				"    -\r\n-  ", " \n\r -  -  ","  \r\n- \n-\r ",	// mixed spaces
-				"\n\r\n\r-  -  ", "    -\n\r-\r\n"					// mixed spaces
+				" 022-12-21", "2022-12-\t1", "2022-1\f-21",			// single space
+				"\r022-12-21", "202\u2028-12-21", "2022-\r\n-21",	// single line separator
+				"2022-12-2\u0085", "2\n22-12-21", "2022-1\u2029-21",// single line separator
+				" 022-1 -21", "2022-12-\t\t", "2022-\f\f-21",		// double same space
+				"202\r-12-\r1 ", "20\u0085\u0085-12-21",			// double line separator
+				"2\n22-1\n-21", "2022-1\u2028-2\u2028",				// double line separator
+				"2022-\r\n-\r\n", "202\u2029-1\u2029-21"			// double line separator
 			})
 			void testConstructorWithConversionsWhenDateContainsNonNumericCharactersShouldThrow(
 					String nonNumericDate) {
@@ -197,7 +199,7 @@ class ReservationTest {
 			
 			assertAll(
 				() -> assertThat(reservation1).isEqualTo(reservation2),
-				() -> assertThat(reservation1.hashCode()).isEqualTo(reservation2.hashCode())
+				() -> assertThat(reservation1).hasSameHashCodeAs(reservation2)
 			);
 		}
 
@@ -208,7 +210,7 @@ class ReservationTest {
 			
 			assertAll(
 				() -> assertThat(reservation1).isEqualTo(reservation2),
-				() -> assertThat(reservation1.hashCode()).isEqualTo(reservation2.hashCode())
+				() -> assertThat(reservation1).hasSameHashCodeAs(reservation2)
 			);
 		}
 
