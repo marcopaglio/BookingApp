@@ -4,11 +4,15 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.github.marcopaglio.booking.annotation.Generated;
 
 public class Client {
+	private static final Pattern notOnlyAlphabetic =
+			Pattern.compile("[^\\p{IsAlphabetic}\\h]");
+	
 	private final UUID uuid;
 	private final String firstName;
 	private final String lastName;
@@ -27,8 +31,13 @@ public class Client {
 		
 	}
 
-	private static void checkNameValidity(String name, String inputName)
-			throws IllegalArgumentException {
+	/*
+	 * Check if str is valid (not null neither empty,
+	 * and contains only alphabetic characters)
+	 * @throws IllegalArgumentException if str is a null or empty string,
+	 *         or it contains non-alphabetic characters.
+	 */
+	private static void checkNameValidity(String name, String inputName) {
 		checkNotNull(name, inputName);
 		checkNotEmpty(name, inputName);
 		checkOnlyAlphabetic(name, inputName);
@@ -36,9 +45,9 @@ public class Client {
 	
 	/*
 	 * Check if o is null
+	 * @throws IllegalArgumentException if o is a null object
 	 */
-	private static void checkNotNull(Object o, String inputName)
-			throws IllegalArgumentException {
+	private static void checkNotNull(Object o, String inputName) {
 		if (o == null)
 			throw new IllegalArgumentException(
 				"Client needs a not null " + inputName + ".");
@@ -46,9 +55,9 @@ public class Client {
 	
 	/*
 	 * Check if str is empty
+	 * @throws IllegalArgumentException if str is empty
 	 */
-	private static void checkNotEmpty(String str, String inputName)
-			throws IllegalArgumentException {
+	private static void checkNotEmpty(String str, String inputName) {
 		if (str.trim().isEmpty()) 
 			throw new IllegalArgumentException(
 				"Client needs a non-empty " + inputName + ".");
@@ -57,13 +66,13 @@ public class Client {
 	/*
 	 * Check if str contains non-valid characters
 	 * Accepted characters:
-	 * 		- (lower and upper) alphabetic letters
-	 * 		- accented letters
-	 * 		- horizontal whitespace character
+	 * - (lower and upper) alphabetic letters
+	 * - accented letters
+	 * - horizontal whitespace character
+	 * @throws IllegalArgumentException if str contains non-valid characters.
 	 */
-	private static void checkOnlyAlphabetic(String str, String inputName)
-			throws IllegalArgumentException {
-		if (str.matches(".*[^\\p{IsAlphabetic}\\h].*"))
+	private static void checkOnlyAlphabetic(String str, String inputName) {
+		if (notOnlyAlphabetic.matcher(str).find())
 			throw new IllegalArgumentException(
 				"Client's " + inputName + " must contain only alphabet letters.");
 	}

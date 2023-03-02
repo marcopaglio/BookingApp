@@ -18,6 +18,10 @@
     <sonar.coverage.exclusions>
       **/annotation/*.*
     </sonar.coverage.exclusions>
+    <sonar.junit.reportPaths>
+      ${project.build.directory}/surefire-reports
+      <!-- HERE INTEGRATION TEST REPORT PATH -->
+    </sonar.junit.reportPaths>
   </properties>
   
   <dependencies>
