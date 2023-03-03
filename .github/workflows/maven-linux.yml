@@ -33,9 +33,10 @@ jobs:
         restore-keys:  ${{ runner.os }}-m2-
 
     - name: Build with Maven Wrapper and SonarCloud
-      run: ../mvnw install -Pcoveralls -DrepoToken=$COVERALLS_REPO_TOKEN -DpullRequest=PR_NUMBER -Psonar $ADDITIONAL_SONAR_ARGS
+      run: ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Psonar $ADDITIONAL_SONAR_ARGS
       working-directory:  ${{ env.workdir }}
       env:
+        ADDITIONAL_COVERALLS_ARGS: -DrepoToken=$COVERALLS_REPO_TOKEN -DpullRequest=PR_NUMBER 
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
         ADDITIONAL_SONAR_ARGS: -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=marcopaglio -Dsonar.projectKey=marcopaglio_BookingApp
@@ -43,12 +44,13 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: Generate JUnit Report
+      id: test-report
       if: ${{ failure() }}
       run: ../mvnw surefire-report:report-only site:site -DgenerateReports=false -Daggregate=true
       working-directory:  ${{ env.workdir }}
 
     - name: Archive JUnit Report
-      if: ${{ failure() }}
+      if: ${{ steps.test-report.outcome == 'success' }}
       uses: actions/upload-artifact@v3
       with:
         name: surefire-report-jdk-11
@@ -57,11 +59,12 @@ jobs:
         retention-days: 30
 
     - name: Run Mutation Testing
+      id: pitest-report
       run: ../mvnw verify -Ppitest
       working-directory: ${{ env.workdir }}
 
     - name: Archive Pitest Report
-      if: ${{ failure() }}
+      if: ${{ steps.pitest-report.outcome == 'success' }}
       uses: actions/upload-artifact@v3
       with:
         name: pitest-report-jdk-11

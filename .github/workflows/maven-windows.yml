@@ -33,12 +33,13 @@ jobs:
       working-directory:  ${{ env.workdir }}
 
     - name: Generate JUnit Report
+      id: test-report
       if: ${{ failure() }}
       run: ../mvnw.cmd surefire-report:report-only site:site -DgenerateReports=false -Daggregate=true
       working-directory:  ${{ env.workdir }}
 
     - name: Archive JUnit Report
-      if: ${{ failure() }}
+      if: ${{ steps.test-report.outcome == 'success' }}
       uses: actions/upload-artifact@v3
       with:
         name: surefire-report-jdk-11
