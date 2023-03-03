@@ -174,9 +174,6 @@
     </profile>
     <profile>
       <id>sonar</id>
-      <modules>
-        <module>../booking-report</module>
-      </modules>
       <build>
         <plugins>
           <plugin>
@@ -185,7 +182,7 @@
             <executions>
               <execution>
                 <id>sonar</id>
-                <phase>install</phase>
+                <phase>verify</phase>
                 <goals>
                   <goal>sonar</goal>
                 </goals>

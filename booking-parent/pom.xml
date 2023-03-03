@@ -180,7 +180,7 @@
           <plugin>
             <groupId>org.sonarsource.scanner.maven</groupId>
             <artifactId>sonar-maven-plugin</artifactId>
-            <!-- PROVA AD ELIINARE-->
+            <!-- ONLY FOR LOCAL QUALITY CHECKS -->
             <executions>
               <execution>
                 <id>sonar</id>
