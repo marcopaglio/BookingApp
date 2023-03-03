@@ -46,14 +46,14 @@ jobs:
       id: test-report
       if: ${{ failure() }}
       run: ../mvnw surefire-report:report-only site:site -DgenerateReports=false -Daggregate=true
-      working-directory:  ${{ env.workdir }}
+      working-directory: ${{ env.workdir }}
 
     - name: Archive JUnit Report
       if: ${{ steps.test-report.outcome == 'success' }}
       uses: actions/upload-artifact@v3
       with:
         name: surefire-report-jdk-11
-        path: 'booking-aggregator/target/site/'
+        path: '${{ env.workdir }}/target/site/'
         if-no-files-found: error
         retention-days: 30
 
@@ -63,10 +63,10 @@ jobs:
       working-directory: ${{ env.workdir }}
 
     - name: Archive Pitest Report
-      if: ${{ steps.pitest-report.outcome == 'success' }}
+      if: ${{ failure() && steps.pitest-report.conclusion == 'failure' }}
       uses: actions/upload-artifact@v3
       with:
         name: pitest-report-jdk-11
-        path: 'booking-report/target/pit-reports/'
+        path: '**/target/pit-reports/'
         if-no-files-found: error
         retention-days: 30
