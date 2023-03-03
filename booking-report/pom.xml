@@ -9,7 +9,7 @@
   <artifactId>booking-report</artifactId>
   <packaging>pom</packaging>
   
-  <name>BookingApp - Coverage and Mutation Testing Reports</name>
+  <name>BookingApp - Coverage Reports</name>
   <description>Report produces aggregate report for jacoco used also in Coveralls.</description>
   
   <dependencies>
@@ -95,6 +95,31 @@
                 <sourceDirectory>../booking-domain-module/src/main/java/</sourceDirectory>
               </sourceDirectories>
             </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>sonar</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/annotation/*</exclude>
+              </excludes>
+            </configuration>
+            <executions>
+              <execution>
+                <id>report-aggregate</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report-aggregate</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

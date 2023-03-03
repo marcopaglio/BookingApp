@@ -32,6 +32,7 @@
     <maven.site.version>4.0.0-M5</maven.site.version>
     <maven.jxr.version>3.3.0</maven.jxr.version>
     <pitest.version>1.11.0</pitest.version>
+    <sonar.version>3.9.1.2184</sonar.version>
   </properties>
   
   <build>
@@ -69,6 +70,11 @@
           <groupId>org.pitest</groupId>
           <artifactId>pitest-maven</artifactId>
           <version>${pitest.version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.sonarsource.scanner.maven</groupId>
+          <artifactId>sonar-maven-plugin</artifactId>
+          <version>${sonar.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -159,6 +165,29 @@
                 <phase>verify</phase>
                 <goals>
                   <goal>report-aggregate-module</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>sonar</id>
+      <modules>
+        <module>../booking-report</module>
+      </modules>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonarsource.scanner.maven</groupId>
+            <artifactId>sonar-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sonar</id>
+                <phase>install</phase>
+                <goals>
+                  <goal>sonar</goal>
                 </goals>
               </execution>
             </executions>
