@@ -63,7 +63,6 @@ jobs:
       working-directory: ${{ env.workdir }}
 
     - name: Archive Pitest Report
-      if: ${{ failure() && steps.pitest-report.conclusion == 'failure' }}
       uses: actions/upload-artifact@v3
       with:
         name: pitest-report-jdk-11

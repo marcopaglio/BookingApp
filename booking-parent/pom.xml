@@ -108,7 +108,7 @@
           </executions>
           <configuration>
             <mutators>
-              <mutator>STRONGER</mutator>
+              <mutator>DEFAULTS</mutator>
             </mutators>
             <mutationThreshold>100</mutationThreshold>
             <timeoutConstant>5000</timeoutConstant>
