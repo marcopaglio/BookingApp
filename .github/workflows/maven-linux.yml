@@ -32,8 +32,8 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
         restore-keys:  ${{ runner.os }}-m2-
 
-    - name: Build with Maven and SonarCloud
-      run: ../mvnw install -Pcoveralls -DrepoToken=$COVERALLS_REPO_TOKEN -DpullRequest=PR_NUMBER sonar:sonar $ADDITIONAL_SONAR_ARGS
+    - name: Build with Maven Wrapper and SonarCloud
+      run: ../mvnw install -Pcoveralls -DrepoToken=$COVERALLS_REPO_TOKEN -DpullRequest=PR_NUMBER org.sonarsource.scanner.maven:sonar-maven-plugin:sonar $ADDITIONAL_SONAR_ARGS
       working-directory:  ${{ env.workdir }}
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}

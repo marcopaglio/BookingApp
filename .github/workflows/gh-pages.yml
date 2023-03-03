@@ -44,7 +44,7 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
         restore-keys:  ${{ runner.os }}-m2-
 
-    - name: Build with Maven
+    - name: Build with Maven Wrapper
       run: ../mvnw verify site site:stage -Ppitest
       working-directory: booking-aggregator
 
