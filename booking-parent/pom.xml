@@ -24,6 +24,7 @@
     <pitest.version>1.11.0</pitest.version>
     <pitest.junit5.version>1.1.2</pitest.junit5.version>
     <sonar.version>3.9.1.2184</sonar.version>
+    <maven.dependencies.version>3.5.0</maven.dependencies.version>
   </properties>
   
   <dependencyManagement>
@@ -124,6 +125,10 @@
           <artifactId>sonar-maven-plugin</artifactId>
           <version>${sonar.version}</version>
         </plugin>
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${maven.dependencies.version}</version>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
@@ -173,6 +178,18 @@
       <id>sonar</id>
       <build>
         <plugins>
+          <plugin>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>dependencies</id>
+                <phase>process-sources</phase>
+                <goals>
+                  <goal>copy-dependencies</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>

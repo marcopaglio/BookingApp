@@ -74,6 +74,9 @@
         <sonar.coverage.jacoco.xmlReportPaths>
           ${project.build.directory}/site/jacoco/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.java.libraries>
+          ${project.build.directory}/dependency
+        </sonar.java.libraries>
       </properties>
     </profile>
   </profiles>
