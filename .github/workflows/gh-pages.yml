@@ -24,6 +24,8 @@ jobs:
   build:
     name: Build job
     runs-on: ubuntu-22.04
+    env:
+      workdir: booking-aggregator
     
     steps:
     - name: Checkout
@@ -46,7 +48,7 @@ jobs:
 
     - name: Build with Maven Wrapper
       run: ../mvnw verify site site:stage -Ppitest
-      working-directory: booking-aggregator
+      working-directory: ${{ env.workdir }}
 
     - name: Configure GitHub Pages
       uses: actions/configure-pages@v3
@@ -54,7 +56,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v1
       with:
-        path: 'booking-aggregator/target/staging/'
+        path: ${{ env.workdir }}/target/staging/
         retention-days: 5
 
   deploy:

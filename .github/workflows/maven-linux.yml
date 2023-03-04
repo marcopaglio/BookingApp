@@ -30,11 +30,11 @@ jobs:
           ~/.m2
           ~/.sonar/cache
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
-        restore-keys:  ${{ runner.os }}-m2-
+        restore-keys: ${{ runner.os }}-m2-
 
     - name: Build with Maven Wrapper and SonarCloud
       run: ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER
-      working-directory:  ${{ env.workdir }}
+      working-directory: ${{ env.workdir }}
       env:
         ADDITIONAL_COVERALLS_ARGS: -DrepoToken=${{ secrets.COVERALLS_TOKEN }}
         ADDITIONAL_SONAR_ARGS: -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=marcopaglio -Dsonar.projectKey=marcopaglio_BookingApp
@@ -53,7 +53,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: surefire-report-jdk-11
-        path: '${{ env.workdir }}/target/site/'
+        path: ${{ env.workdir }}/target/site/
         if-no-files-found: error
         retention-days: 30
 
@@ -63,6 +63,7 @@ jobs:
       working-directory: ${{ env.workdir }}
 
     - name: Archive Pitest Report
+      if: ${{ failure() && steps.pitest-report.conclusion == 'failure' }}
       uses: actions/upload-artifact@v3
       with:
         name: pitest-report-jdk-11

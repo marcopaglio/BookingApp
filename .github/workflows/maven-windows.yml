@@ -43,6 +43,6 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: surefire-report-jdk-11
-        path: 'booking-aggregator/target/site/'
+        path: ${{ env.workdir }}/target/site/
         if-no-files-found: error
         retention-days: 30
