@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -35,10 +34,6 @@ class ClientTest {
 	@Nested
 	@DisplayName("Check constructor inputs")
 	class ConstructorTest {
-		@Test
-		void testToFail() {
-			fail();
-		}
 
 		@Test
 		@DisplayName("Valid parameters and empty reservations' list")
