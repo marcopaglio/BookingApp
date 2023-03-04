@@ -30,31 +30,30 @@ jobs:
           ~/.m2
           ~/.sonar/cache
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
-        restore-keys:  ${{ runner.os }}-m2-
+        restore-keys: ${{ runner.os }}-m2-
 
     - name: Build with Maven Wrapper and SonarCloud
-      run: ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Psonar $ADDITIONAL_SONAR_ARGS
-      working-directory:  ${{ env.workdir }}
+      run: ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER
+      working-directory: ${{ env.workdir }}
       env:
-        ADDITIONAL_COVERALLS_ARGS: -DrepoToken=$COVERALLS_REPO_TOKEN -DpullRequest=PR_NUMBER 
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-        PR_NUMBER: ${{ github.event.pull_request.number }}
+        ADDITIONAL_COVERALLS_ARGS: -DrepoToken=${{ secrets.COVERALLS_TOKEN }}
         ADDITIONAL_SONAR_ARGS: -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=marcopaglio -Dsonar.projectKey=marcopaglio_BookingApp
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
 
     - name: Generate JUnit Report
       id: test-report
       if: ${{ failure() }}
       run: ../mvnw surefire-report:report-only site:site -DgenerateReports=false -Daggregate=true
-      working-directory:  ${{ env.workdir }}
+      working-directory: ${{ env.workdir }}
 
     - name: Archive JUnit Report
-      if: ${{ steps.test-report.outcome == 'success' }}
+      if: ${{ failure() && steps.test-report.outcome == 'success' }}
       uses: actions/upload-artifact@v3
       with:
         name: surefire-report-jdk-11
-        path: 'booking-aggregator/target/site/'
+        path: ${{ env.workdir }}/target/site/
         if-no-files-found: error
         retention-days: 30
 
@@ -64,10 +63,10 @@ jobs:
       working-directory: ${{ env.workdir }}
 
     - name: Archive Pitest Report
-      if: ${{ steps.pitest-report.outcome == 'success' }}
+      if: ${{ failure() && steps.pitest-report.conclusion == 'failure' }}
       uses: actions/upload-artifact@v3
       with:
         name: pitest-report-jdk-11
-        path: 'booking-report/target/pit-reports/'
+        path: '**/target/pit-reports/'
         if-no-files-found: error
         retention-days: 30
