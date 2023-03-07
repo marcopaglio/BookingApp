@@ -9,21 +9,29 @@
   <artifactId>booking-parent</artifactId>
   <packaging>pom</packaging>
   
-  <name>BookingApp - Parent of modules</name>
-  <description>Parent contains common configurations for plugins.</description>
+  <name>BookingApp - Parent</name>
+  <description>
+    The Parent project contains all the test dependencies for child modules
+    and the common configurations for plugins.
+    It defines also the basic structure of profiles.
+  </description>
   
   <properties>
+    <!-- PROJECT PROPERTIES -->
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
 
-    <maven.compiler.version>3.11.0</maven.compiler.version>
-    <maven.resources.version>3.3.0</maven.resources.version>
-    <maven.jar.version>3.3.0</maven.jar.version>
-
+    <!-- VERSIONS FOR DEPENDENCIES -->
     <junit.version>5.9.2</junit.version>
     <assertj.version>3.24.2</assertj.version>
     <mockito.version>5.1.1</mockito.version>
 
+    <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
+    <maven.compiler.version>3.11.0</maven.compiler.version>
+    <maven.resources.version>3.3.0</maven.resources.version>
+    <maven.jar.version>3.3.0</maven.jar.version>
+
+    <!-- VERSIONS FOR OTHER PLUGINS -->
     <jacoco.version>0.8.8</jacoco.version>
     <coveralls.version>4.3.0</coveralls.version>
     <jaxb.api.version>2.3.1</jaxb.api.version>
@@ -61,6 +69,22 @@
   <build>
     <pluginManagement>
       <plugins>
+        <!-- DEFAULT MAVEN PLUGINS -->
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <!-- version taken from the bom -->
+          <executions>
+            <execution>
+              <id>copy-dependencies</id>
+              <phase>process-sources</phase>
+              <goals>
+                <goal>copy-dependencies</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- ADDED MAVEN PLUGINS -->
         <plugin>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>${maven.compiler.version}</version>
@@ -73,13 +97,13 @@
           <artifactId>maven-jar-plugin</artifactId>
           <version>${maven.jar.version}</version>
         </plugin>
+
+        <!-- OTHER PLUGINS -->
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
           <version>${jacoco.version}</version>
           <executions>
-            <!-- THESE GOALS ARE AUTOMATICALLY SKIPPED BY REPORT MODULE -->
-            <!-- EVALUATE IF MOVE TO CHILD MODULE -->
             <execution>
               <goals>
                 <!-- binds by default to the phase "initialize" -->
@@ -95,7 +119,8 @@
           <artifactId>coveralls-maven-plugin</artifactId>
           <version>${coveralls.version}</version>
           <dependencies>
-            <!-- This is required when using JDK 9 or higher since javax.xml.bind has been removed from the JDK -->
+            <!-- This is required when using JDK 9 or higher
+            since javax.xml.bind has been removed from the JDK -->
             <dependency>
               <groupId>javax.xml.bind</groupId>
               <artifactId>jaxb-api</artifactId>
@@ -115,8 +140,6 @@
             </dependency>
           </dependencies>
           <executions>
-            <!-- THIS GOALS IS AUTOMATICALLY SKIPPED BY REPORT MODULE -->
-            <!-- EVALUATE IF MOVE TO CHILD MODULE -->
             <execution>
               <goals>
                 <goal>mutationCoverage</goal>
@@ -152,18 +175,6 @@
             </execution>
           </executions>
         </plugin>
-        <plugin>
-          <artifactId>maven-dependency-plugin</artifactId>
-          <executions>
-            <execution>
-              <id>copy-dependencies</id>
-              <phase>process-sources</phase>
-              <goals>
-                <goal>copy-dependencies</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
       </plugins>
     </pluginManagement>
   </build>
@@ -174,6 +185,7 @@
       <build>
         <plugins>
           <plugin>
+            <!-- main configuration in pluginManagement -->
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
           </plugin>
@@ -186,13 +198,13 @@
       <build>
         <plugins>
           <plugin>
-            <!-- configured in pluginManagement -->
+            <!-- main configuration in pluginManagement -->
             <!-- JaCoCo report is required by coveralls-maven-plugin -->
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
           </plugin>
           <plugin>
-            <!-- configured in pluginManagement -->
+            <!-- main configuration in pluginManagement -->
             <groupId>org.eluder.coveralls</groupId>
             <artifactId>coveralls-maven-plugin</artifactId>
           </plugin>
@@ -205,6 +217,7 @@
       <build>
         <plugins>
           <plugin>
+            <!-- main configuration in pluginManagement -->
             <groupId>org.pitest</groupId>
             <artifactId>pitest-maven</artifactId>
           </plugin>
@@ -217,16 +230,19 @@
       <build>
         <plugins>
           <plugin>
-            <!-- Coping dependencies fixes
-            [WARNING] Bytecode of dependencies was not provided for analysis of source files,
+            <!-- main configuration in pluginManagement -->
+            <!-- To fix following WARNING: -->
+            <!-- Bytecode of dependencies was not provided for analysis of source files,
             you might end up with less precise results. -->
             <artifactId>maven-dependency-plugin</artifactId>
           </plugin>
           <plugin>
+            <!-- main configuration in pluginManagement -->
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
           </plugin>
           <plugin>
+            <!-- main configuration in pluginManagement -->
             <groupId>org.sonarsource.scanner.maven</groupId>
             <artifactId>sonar-maven-plugin</artifactId>
           </plugin>
@@ -234,5 +250,4 @@
       </build>
     </profile>
   </profiles>
-
 </project>

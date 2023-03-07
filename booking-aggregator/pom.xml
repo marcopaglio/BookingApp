@@ -29,20 +29,26 @@
   </modules>
   
   <properties>
+    <!-- PROJECT PROPERTIES -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <site.url>https://marcopaglio.github.io/BookingApp/</site.url>
 
+    <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
     <maven.antrun.version>3.1.0</maven.antrun.version>
     <maven.assembly.version>3.5.0</maven.assembly.version>
     <maven.dependency.version>3.5.0</maven.dependency.version>
     <maven.release.version>3.0.0-M7</maven.release.version>
     <maven.clean.version>3.2.0</maven.clean.version>
+    <maven.install.version>3.1.0</maven.install.version>
+    <maven.deploy.version>3.1.0</maven.deploy.version>
+    <maven.site.version>4.0.0-M5</maven.site.version>
+
+    <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
     <maven.reports.version>3.4.2</maven.reports.version>
     <maven.surefire.version>3.0.0-M9</maven.surefire.version>
-    <maven.install.version>3.1.0</maven.install.version>
-    <maven.site.version>4.0.0-M5</maven.site.version>
     <maven.jxr.version>3.3.0</maven.jxr.version>
 
+    <!-- VERSIONS FOR OTHER PLUGINS -->
     <pitest.version>1.11.4</pitest.version>
     <sonar.version>3.9.1.2184</sonar.version>
   </properties>
@@ -50,6 +56,7 @@
   <build>
     <pluginManagement>
       <plugins>
+        <!-- DEFAULT MAVEN PLUGINS -->
         <plugin>
           <artifactId>maven-antrun-plugin</artifactId>
           <version>${maven.antrun.version}</version>
@@ -75,6 +82,19 @@
           <version>${maven.install.version}</version>
         </plugin>
         <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${maven.deploy.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven.site.version}</version>
+          <configuration>
+            <topSiteURL>${site.url}</topSiteURL>
+          </configuration>
+        </plugin>
+
+        <!-- ADDED MAVEN PLUGINS -->
+        <plugin>
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>${maven.reports.version}</version>
         </plugin>
@@ -87,25 +107,39 @@
           <version>${maven.surefire.version}</version>
         </plugin>
         <plugin>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>${maven.site.version}</version>
-          <configuration>
-            <topSiteURL>${site.url}</topSiteURL>
-          </configuration>
-        </plugin>
-        <plugin>
           <artifactId>maven-jxr-plugin</artifactId>
           <version>${maven.jxr.version}</version>
         </plugin>
+
+        <!-- OTHER PLUGINS -->
         <plugin>
           <groupId>org.pitest</groupId>
           <artifactId>pitest-maven</artifactId>
           <version>${pitest.version}</version>
+          <executions>
+            <execution>
+              <id>pitest-report-aggregate</id>
+              <phase>verify</phase>
+              <goals>
+                <!-- Pitest XML report is required by pitest-maven -->
+                <goal>report-aggregate-module</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <groupId>org.sonarsource.scanner.maven</groupId>
           <artifactId>sonar-maven-plugin</artifactId>
           <version>${sonar.version}</version>
+          <executions>
+            <execution>
+              <id>sonar</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>sonar</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -176,49 +210,35 @@
         <module>../booking-report</module>
       </modules>
     </profile>
+
     <profile>
       <id>coveralls</id>
       <modules>
         <module>../booking-report</module>
       </modules>
     </profile>
+
     <profile>
       <id>pitest</id>
       <build>
         <plugins>
           <plugin>
-            <!-- Pitest report is required by pitest-maven -->
+            <!-- main configuration in pluginManagement -->
             <groupId>org.pitest</groupId>
             <artifactId>pitest-maven</artifactId>
-            <executions>
-              <execution>
-                <id>pitest-report-aggregate</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>report-aggregate-module</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>
     </profile>
+
     <profile>
       <id>sonar</id>
       <build>
         <plugins>
           <plugin>
+            <!-- main configuration in pluginManagement -->
             <groupId>org.sonarsource.scanner.maven</groupId>
             <artifactId>sonar-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>sonar</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sonar</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>

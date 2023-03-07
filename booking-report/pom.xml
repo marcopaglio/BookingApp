@@ -9,24 +9,27 @@
   <artifactId>booking-report</artifactId>
   <packaging>pom</packaging>
   
-  <name>BookingApp - Coverage Reports</name>
-  <description>Report produces aggregate report for jacoco used also in Coveralls.</description>
+  <name>BookingApp - Coverage Aggregate Report</name>
+  <description>
+    It produces aggregate report of JaCoCo for modules.
+    This report is also used for coverage monitoring in Coveralls.
+  </description>
   
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>booking-domain-module</artifactId>
+      <!-- version taken from the bom -->
     </dependency>
   </dependencies>
   
-  <profiles>
-    <profile>
-      <id>jacoco</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <!-- version taken from the parent -->
             <configuration>
               <excludes>
                 <exclude>**/annotation/*</exclude>
@@ -41,47 +44,11 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>coveralls</id>
-      <build>
-        <plugins>
-          <plugin>
-            <!-- configured in pluginManagement -->
-            <!-- JaCoCo report is required by coveralls-maven-plugin -->
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <configuration>
-              <excludes>
-                <exclude>**/annotation/*</exclude>
-              </excludes>
-            </configuration>
-            <executions>
-              <execution>
-                <id>jacoco-report-aggregate</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>report-aggregate</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <!-- configured in pluginManagement -->
+        </plugin>
+        <plugin>
             <groupId>org.eluder.coveralls</groupId>
             <artifactId>coveralls-maven-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>coveralls-report-aggregate</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>report</goal>
-                </goals>
-              </execution>
-            </executions>
+            <!-- version taken from the parent -->
             <configuration>
               <jacocoReports>
                 <jacocoReport>${project.reporting.outputDirectory}/jacoco-aggregate/jacoco.xml</jacocoReport>
@@ -95,9 +62,17 @@
                 <sourceDirectory>../booking-domain-module/src/main/java/</sourceDirectory>
               </sourceDirectories>
             </configuration>
+            <executions>
+              <execution>
+                <id>coveralls-report-aggregate</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+            </executions>
           </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>
