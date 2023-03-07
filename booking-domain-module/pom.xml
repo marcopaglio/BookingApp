@@ -10,24 +10,28 @@
   
   <name>BookingApp - Domain Model</name>
   <description>
-	  It uses specific dependencies (chosen from those inherited from parent) 
-	  and sets specific configurations of plugins for the Domain Model.
+    Contains the implementation of the Domain Model and repositories with the corresponding tests.
+    This module uses JUnit, AssertJ and Mockito as test dependencies and sets specific configurations
+    of properties and plugins for the Domain Model and repositories.
   </description>
   
   <dependencies>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
+      <!-- version taken from the parent -->
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
+      <!-- version taken from the parent -->
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
+      <!-- version taken from the parent -->
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -6,7 +6,9 @@
   <packaging>pom</packaging>
   
   <name>BookingApp - Bill of Materials</name>
-  <description>BOM contains all compile and test dependencies.</description>
+  <description>
+    The BOM project keeps in sync all the compile dependencies for modules.
+  </description>
   <url>${site.url}booking-bom</url>
   <inceptionYear>2023</inceptionYear>
   
@@ -19,11 +21,23 @@
   </distributionManagement>
   
   <properties>
+    <!-- PROJECT PROPERTIES -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <site.url>https://marcopaglio.github.io/BookingApp/</site.url>
-    <maven.reports.version>3.4.2</maven.reports.version>
-    <maven.surefire.version>2.22.2</maven.surefire.version>
+
+    <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
+    <maven.antrun.version>3.1.0</maven.antrun.version>
+    <maven.assembly.version>3.5.0</maven.assembly.version>
+    <maven.dependency.version>3.5.0</maven.dependency.version>
+    <maven.release.version>3.0.0-M7</maven.release.version>
+    <maven.clean.version>3.2.0</maven.clean.version>
+    <maven.install.version>3.1.0</maven.install.version>
+    <maven.deploy.version>3.1.0</maven.deploy.version>
     <maven.site.version>4.0.0-M5</maven.site.version>
+
+    <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
+    <maven.reports.version>3.4.2</maven.reports.version>
+    <maven.surefire.version>3.0.0-M9</maven.surefire.version>
     <maven.jxr.version>3.3.0</maven.jxr.version>
   </properties>
   
@@ -40,6 +54,44 @@
   <build>
     <pluginManagement>
       <plugins>
+        <!-- DEFAULT MAVEN PLUGINS -->
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>${maven.antrun.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${maven.assembly.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${maven.dependency.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>${maven.release.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${maven.clean.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>${maven.install.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${maven.deploy.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven.site.version}</version>
+          <configuration>
+            <topSiteURL>${site.url}</topSiteURL>
+          </configuration>
+        </plugin>
+
+        <!-- ADDED MAVEN PLUGINS -->
         <plugin>
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>${maven.reports.version}</version>
@@ -51,12 +103,10 @@
         <plugin>
           <artifactId>maven-surefire-report-plugin</artifactId>
           <version>${maven.surefire.version}</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>${maven.site.version}</version>
           <configuration>
-            <topSiteURL>${site.url}</topSiteURL>
+            <!-- To fix following WARNING: -->
+            <!-- Unable to locate Source XRef to link to - DISABLED -->
+            <linkXRef>false</linkXRef>
           </configuration>
         </plugin>
         <plugin>
