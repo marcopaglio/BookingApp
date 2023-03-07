@@ -6,7 +6,11 @@
   <packaging>pom</packaging>
   
   <name>BookingApp - Reactor</name>
-  <description>Reactor contains modules and aggregate POM and reports.</description>
+  <description>
+    Reactor is a separate project for building all the projects of this multi-module project
+    (or only a subset). It contains modules and aggregates POM and reports.
+    Note that this aggregator is completely independent of the parent project.
+  </description>
   <url>${site.url}</url>
   <inceptionYear>2023</inceptionYear>
   
@@ -28,6 +32,10 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <site.url>https://marcopaglio.github.io/BookingApp/</site.url>
 
+    <maven.antrun.version>3.1.0</maven.antrun.version>
+    <maven.assembly.version>3.5.0</maven.assembly.version>
+    <maven.dependency.version>3.5.0</maven.dependency.version>
+    <maven.release.version>3.0.0-M7</maven.release.version>
     <maven.clean.version>3.2.0</maven.clean.version>
     <maven.reports.version>3.4.2</maven.reports.version>
     <maven.surefire.version>3.0.0-M9</maven.surefire.version>
@@ -43,6 +51,22 @@
     <pluginManagement>
       <plugins>
         <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>${maven.antrun.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${maven.assembly.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${maven.dependency.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>${maven.release.version}</version>
+        </plugin>
+        <plugin>
           <artifactId>maven-clean-plugin</artifactId>
           <version>${maven.clean.version}</version>
         </plugin>
@@ -51,22 +75,18 @@
           <version>${maven.install.version}</version>
         </plugin>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>${maven.reports.version}</version>
         </plugin>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven.surefire.version}</version>
         </plugin>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-report-plugin</artifactId>
           <version>${maven.surefire.version}</version>
         </plugin>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
           <version>${maven.site.version}</version>
           <configuration>
@@ -74,7 +94,6 @@
           </configuration>
         </plugin>
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jxr-plugin</artifactId>
           <version>${maven.jxr.version}</version>
         </plugin>
