@@ -15,6 +15,8 @@
   <properties>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
+    <maven.compiler.version>3.11.0</maven.compiler.version>
+    <maven.resources.version>3.3.0</maven.resources.version>
     <junit.version>5.9.2</junit.version>
     <assertj.version>3.24.2</assertj.version>
     <mockito.version>5.1.1</mockito.version>
@@ -56,6 +58,14 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven.compiler.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${maven.resources.version}</version>
+        </plugin>
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
@@ -124,10 +134,29 @@
           <groupId>org.sonarsource.scanner.maven</groupId>
           <artifactId>sonar-maven-plugin</artifactId>
           <version>${sonar.version}</version>
+          <!-- ONLY FOR LOCAL QUALITY CHECKS -->
+          <executions>
+            <execution>
+               <id>sonar</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>sonar</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
           <artifactId>maven-dependency-plugin</artifactId>
           <version>${maven.dependencies.version}</version>
+          <executions>
+            <execution>
+              <id>copy-dependencies</id>
+              <phase>process-sources</phase>
+              <goals>
+                <goal>copy-dependencies</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -145,6 +174,7 @@
         </plugins>
       </build>
     </profile>
+
     <profile>
       <id>coveralls</id>
       <build>
@@ -163,6 +193,7 @@
         </plugins>
       </build>
     </profile>
+
     <profile>
       <id>pitest</id>
       <build>
@@ -174,21 +205,16 @@
         </plugins>
       </build>
     </profile>
+
     <profile>
       <id>sonar</id>
       <build>
         <plugins>
           <plugin>
+            <!-- Coping dependencies fixes
+            [WARNING] Bytecode of dependencies was not provided for analysis of source files,
+            you might end up with less precise results. -->
             <artifactId>maven-dependency-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>dependencies</id>
-                <phase>process-sources</phase>
-                <goals>
-                  <goal>copy-dependencies</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
           <plugin>
             <groupId>org.jacoco</groupId>
@@ -197,19 +223,10 @@
           <plugin>
             <groupId>org.sonarsource.scanner.maven</groupId>
             <artifactId>sonar-maven-plugin</artifactId>
-            <!-- ONLY FOR LOCAL QUALITY CHECKS -->
-            <executions>
-              <execution>
-                <id>sonar</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>sonar</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
         </plugins>
       </build>
     </profile>
   </profiles>
+
 </project>
