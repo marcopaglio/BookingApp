@@ -1,0 +1,25 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.github.marcopaglio</groupId>
+    <artifactId>booking-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../booking-parent</relativePath>
+  </parent>
+  <artifactId>booking-business-module</artifactId>
+  
+  <name>BookingApp - Business Logic</name>
+  <description>
+    Contains the implementation of the Business Logic and transaction's managing with the corresponding tests.
+    This module uses JUnit, AssertJ and Mockito as test dependencies and sets specific configurations
+    of properties and plugins for the Business Logic and transaction's managing.
+  </description>
+
+  <dependencies>
+    <dependency>
+      <groupId>io.github.marcopaglio</groupId>
+      <artifactId>booking-domain-module</artifactId>
+    </dependency>
+  </dependencies>
+  
+</project>
