@@ -20,6 +20,75 @@
       <groupId>io.github.marcopaglio</groupId>
       <artifactId>booking-domain-module</artifactId>
     </dependency>
+        <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
   </dependencies>
   
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <configuration>
+            <excludes>
+              <!-- HERE ANY EXCLUSION FROM COVERAGE -->
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.pitest</groupId>
+          <artifactId>pitest-maven</artifactId>
+          <configuration>
+            <targetClasses>
+				<!-- TODO: Il path deve essere completo o va bene il sopra-package? -->
+              <targetClasse>io.github.marcopaglio.booking.transaction.*</targetClasse>
+              <targetClasse>io.github.marcopaglio.booking.service.*</targetClasse>
+            </targetClasses>
+            <targetTests>
+              <targetTest>io.github.marcopaglio.booking.transaction.*</targetTest>
+              <targetTest>io.github.marcopaglio.booking.service.*</targetTest>
+            </targetTests>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+  
+  <profiles>
+    <profile>
+      <id>sonar</id>
+      <properties>
+        <sonar.coverage.exclusions>
+          <!-- HERE ANY EXCLUSION FROM COVERAGE -->
+        </sonar.coverage.exclusions>
+        <sonar.junit.reportPaths>
+          ${project.build.directory}/surefire-reports
+          <!-- HERE INTEGRATION TEST REPORT PATH -->
+        </sonar.junit.reportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>
+          ${project.build.directory}/site/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.java.libraries>
+          ${project.build.directory}/dependency
+        </sonar.java.libraries>
+      </properties>
+    </profile>
+  </profiles>
 </project>
