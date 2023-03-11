@@ -24,6 +24,9 @@
     <!-- PROJECT PROPERTIES -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <site.url>https://marcopaglio.github.io/BookingApp/</site.url>
+    
+    <!-- VERSIONS FOR DEPENDENCIES -->
+    <log4j.version>2.20.0</log4j.version>
 
     <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
     <maven.antrun.version>3.1.0</maven.antrun.version>
@@ -52,6 +55,13 @@
         <groupId>${project.groupId}</groupId>
         <artifactId>booking-business-module</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-bom</artifactId>
+        <version>${log4j.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
       </dependency>
     </dependencies>
   </dependencyManagement>
