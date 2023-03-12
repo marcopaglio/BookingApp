@@ -1,6 +1,7 @@
 package io.github.marcopaglio.booking.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import io.github.marcopaglio.booking.model.Client;
 
@@ -14,6 +15,11 @@ public interface ClientRepository {
 	 * Retrieve all Clients from the repository in a List.
 	 */
 	public List<Client> findAll();
+
+	/*
+	 * Retrieve the unique Client with given uuid.
+	 */
+	public Client findById(UUID uuid);
 
 	/*
 	 * Retrieve the unique Client with given names.
