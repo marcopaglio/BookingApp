@@ -21,6 +21,11 @@
       <artifactId>booking-domain-module</artifactId>
       <!-- version taken from the bom -->
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>booking-business-module</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
   </dependencies>
   
   <build>
@@ -60,6 +65,7 @@
                 <!-- Example: if name=io/github/marcopaglio/booking/model/Client -->
                 <!--          then: path is ../booking-domain-module/src/main/java/ -->
                 <sourceDirectory>../booking-domain-module/src/main/java/</sourceDirectory>
+                <sourceDirectory>../booking-business-module/src/main/java/</sourceDirectory>
               </sourceDirectories>
             </configuration>
             <executions>
