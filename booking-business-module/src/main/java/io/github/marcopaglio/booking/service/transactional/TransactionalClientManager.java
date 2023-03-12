@@ -3,17 +3,23 @@ package io.github.marcopaglio.booking.service.transactional;
 import java.util.List;
 
 import io.github.marcopaglio.booking.model.Client;
+import io.github.marcopaglio.booking.repository.ClientRepository;
 import io.github.marcopaglio.booking.service.ClientManager;
+import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 
 /*
  * Implements methods for operating on Client entities using transactions.
  */
 public class TransactionalClientManager implements ClientManager {
+	private TransactionManager transactionManager;
+
+	public TransactionalClientManager(TransactionManager transactionManager) {
+		this.transactionManager = transactionManager;
+	}
 
 	@Override
 	public List<Client> findAllClients() {
-		// TODO Auto-generated method stub
-		return null;
+		return transactionManager.doInTransaction(ClientRepository::findAll);
 	}
 
 	@Override
