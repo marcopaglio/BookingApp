@@ -13,12 +13,12 @@ public interface ReservationManager {
 	/*
 	 * Retrieves all the saved reservations.
 	 */
-	public List<Reservation> getAllReservations();
+	public List<Reservation> findAllReservations();
 
 	/*
 	 * Retrieves the reservation of the specific date.
 	 */
-	public Reservation getReservationOn(LocalDate date);
+	public Reservation findReservationOn(LocalDate date);
 
 	/*
 	 * Saves a new reservation in the repository

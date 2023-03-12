@@ -12,13 +12,13 @@ import io.github.marcopaglio.booking.service.ReservationManager;
 public class TransactionalReservationManager implements ReservationManager {
 
 	@Override
-	public List<Reservation> getAllReservations() {
+	public List<Reservation> findAllReservations() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Reservation getReservationOn(LocalDate date) {
+	public Reservation findReservationOn(LocalDate date) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -11,13 +11,13 @@ import io.github.marcopaglio.booking.service.ClientManager;
 public class TransactionalClientManager implements ClientManager {
 
 	@Override
-	public List<Client> getAllClients() {
+	public List<Client> findAllClients() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Client getClientNamed(String firstName, String lastName) {
+	public Client findClientNamed(String firstName, String lastName) {
 		// TODO Auto-generated method stub
 		return null;
 	}

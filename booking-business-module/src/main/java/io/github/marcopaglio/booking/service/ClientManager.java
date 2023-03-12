@@ -12,12 +12,12 @@ public interface ClientManager {
 	/*
 	 * Retrieves all the saved clients.
 	 */
-	public List<Client> getAllClients();
+	public List<Client> findAllClients();
 
 	/*
 	 * Retrieves the client with the specific firstName and lastName.
 	 */
-	public Client getClientNamed(String firstName, String lastName);
+	public Client findClientNamed(String firstName, String lastName);
 
 	/*
 	 * Saves a new client in the repository.
