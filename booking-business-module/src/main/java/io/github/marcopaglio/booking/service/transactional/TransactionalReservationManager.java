@@ -19,7 +19,7 @@ public class TransactionalReservationManager implements ReservationManager {
 	}
 
 	@Override
-	public Optional<Reservation> findReservationOn(LocalDate date) {
+	public Reservation findReservationOn(LocalDate date) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -2,7 +2,6 @@ package io.github.marcopaglio.booking.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import io.github.marcopaglio.booking.model.Reservation;
 
@@ -19,7 +18,7 @@ public interface ReservationManager {
 	/*
 	 * Retrieves the reservation of the specific date.
 	 */
-	public Optional<Reservation> findReservationOn(LocalDate date);
+	public Reservation findReservationOn(LocalDate date);
 
 	/*
 	 * Saves a new reservation in the repository

@@ -1,6 +1,7 @@
 package io.github.marcopaglio.booking.service.transactional;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import io.github.marcopaglio.booking.model.Client;
@@ -24,9 +25,14 @@ public class TransactionalClientManager implements ClientManager {
 	}
 
 	@Override
-	public Optional<Client> findClientNamed(String firstName, String lastName) {
-		// TODO Auto-generated method stub
-		return null;
+	public Client findClientNamed(String firstName, String lastName) {
+		Optional<Client> possibleClient = transactionManager.doInTransaction(
+				(ClientRepository clientRepository) -> clientRepository.findByName(firstName, lastName));
+		if (possibleClient.isPresent())
+			return possibleClient.get();
+		else
+			throw new NoSuchElementException(
+				"Client named \"" + firstName + " " + lastName + "\" is not present in the database.");
 	}
 
 	@Override

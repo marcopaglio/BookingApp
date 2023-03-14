@@ -6,8 +6,11 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.AdditionalAnswers.answer;
 
 import org.junit.jupiter.api.AfterEach;
@@ -27,6 +30,7 @@ import io.github.marcopaglio.booking.repository.ClientRepository;
 import io.github.marcopaglio.booking.transaction.code.ClientTransactionCode;
 import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 
+@DisplayName("Tests for TransactionalClientManager class")
 class TransactionalClientManagerTest {
 	private AutoCloseable closeable;
 	
@@ -72,7 +76,8 @@ class TransactionalClientManagerTest {
 			assertThat(transactionalClientManager.findAllClients()).isEqualTo(clients);
 			
 			// verify interactions
-			inOrder.verify(transactionManager).doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+			inOrder.verify(transactionManager)
+				.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
 			inOrder.verify(clientRepository).findAll();
 			verifyNoMoreInteractions(transactionManager);
 			verifyNoMoreInteractions(clientRepository);
@@ -117,6 +122,59 @@ class TransactionalClientManagerTest {
 			// verify interactions
 			inOrder.verify(transactionManager).doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
 			inOrder.verify(clientRepository).findAll();
+			verifyNoMoreInteractions(transactionManager);
+			verifyNoMoreInteractions(clientRepository);
+		}
+	}
+	
+	@Nested
+	@DisplayName("Tests for 'findClientNamed'")
+	class FindClientNamedTest {
+		
+		@BeforeEach
+		void doStubbing() throws Exception {
+			// make sure the lambda passed to the TransactionManager
+			// is executed, using the mock repository
+			when(transactionManager.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any()))
+				.thenAnswer(
+					answer((ClientTransactionCode<?> code) -> code.apply(clientRepository)));
+		}
+		
+		@Test
+		@DisplayName("The Client doesn't exist")
+		void testFindClientNamedWhenTheClientDoesNotExist() {
+			when(clientRepository.findByName("Luigi", "Bianchi"))
+				.thenReturn(Optional.empty());
+			
+			InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
+			
+			assertThatThrownBy(
+					() -> transactionalClientManager.findClientNamed("Luigi", "Bianchi"))
+				.isInstanceOf(NoSuchElementException.class)
+				.hasMessage("Client named \"Luigi Bianchi\" is not present in the database.");
+			
+			inOrder.verify(transactionManager)
+				.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+			inOrder.verify(clientRepository).findByName("Luigi", "Bianchi");
+			verifyNoMoreInteractions(transactionManager);
+			verifyNoMoreInteractions(clientRepository);
+		}
+		
+		@Test
+		@DisplayName("The Client exists")
+		void testFindClientNamedWhenTheClientExists() {
+			Client client = new Client("Mario", "Rossi", new ArrayList<>());
+			
+			when(clientRepository.findByName("Mario", "Rossi"))
+				.thenReturn(Optional.of(client));
+			
+			InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
+			
+			assertThat(transactionalClientManager.findClientNamed("Mario", "Rossi")).isEqualTo(client);
+			
+			inOrder.verify(transactionManager)
+				.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+			inOrder.verify(clientRepository).findByName("Mario", "Rossi");
 			verifyNoMoreInteractions(transactionManager);
 			verifyNoMoreInteractions(clientRepository);
 		}
