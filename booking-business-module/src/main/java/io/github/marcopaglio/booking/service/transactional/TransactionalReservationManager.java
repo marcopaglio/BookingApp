@@ -2,6 +2,7 @@ package io.github.marcopaglio.booking.service.transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.service.ReservationManager;
@@ -18,7 +19,7 @@ public class TransactionalReservationManager implements ReservationManager {
 	}
 
 	@Override
-	public Reservation findReservationOn(LocalDate date) {
+	public Optional<Reservation> findReservationOn(LocalDate date) {
 		// TODO Auto-generated method stub
 		return null;
 	}

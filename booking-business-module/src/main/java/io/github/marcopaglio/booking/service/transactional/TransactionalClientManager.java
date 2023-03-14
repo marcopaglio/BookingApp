@@ -1,6 +1,7 @@
 package io.github.marcopaglio.booking.service.transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.repository.ClientRepository;
@@ -23,7 +24,7 @@ public class TransactionalClientManager implements ClientManager {
 	}
 
 	@Override
-	public Client findClientNamed(String firstName, String lastName) {
+	public Optional<Client> findClientNamed(String firstName, String lastName) {
 		// TODO Auto-generated method stub
 		return null;
 	}

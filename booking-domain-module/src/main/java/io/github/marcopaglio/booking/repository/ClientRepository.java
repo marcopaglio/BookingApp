@@ -1,6 +1,7 @@
 package io.github.marcopaglio.booking.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import io.github.marcopaglio.booking.model.Client;
@@ -24,7 +25,7 @@ public interface ClientRepository {
 	/*
 	 * Retrieve the unique Client with given names.
 	 */
-	public Client findByName(String firstName, String lastName);
+	public Optional<Client> findByName(String firstName, String lastName);
 
 	/*
 	 * Insert a new Client in the repository.

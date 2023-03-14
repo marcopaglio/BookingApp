@@ -1,6 +1,7 @@
 package io.github.marcopaglio.booking.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import io.github.marcopaglio.booking.model.Client;
 
@@ -17,7 +18,7 @@ public interface ClientManager {
 	/*
 	 * Retrieves the client with the specific firstName and lastName.
 	 */
-	public Client findClientNamed(String firstName, String lastName);
+	public Optional<Client> findClientNamed(String firstName, String lastName);
 
 	/*
 	 * Saves a new client in the repository.
