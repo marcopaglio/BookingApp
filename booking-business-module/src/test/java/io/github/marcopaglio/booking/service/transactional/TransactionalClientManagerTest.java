@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.AdditionalAnswers.answer;
 
@@ -25,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.repository.ClientRepository;
 import io.github.marcopaglio.booking.transaction.code.ClientTransactionCode;
@@ -178,6 +180,77 @@ class TransactionalClientManagerTest {
 			verifyNoMoreInteractions(transactionManager);
 			verifyNoMoreInteractions(clientRepository);
 		}
+	}
+	
+	@Nested
+	@DisplayName("Tests for 'insertNewClient'")
+	class InsertNewClientTest {
+		
+		@BeforeEach
+		void doStubbing() throws Exception {
+			// make sure the lambda passed to the TransactionManager
+			// is executed, using the mock repository
+			when(transactionManager.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any()))
+				.thenAnswer(
+					answer((ClientTransactionCode<?> code) -> code.apply(clientRepository)));
+		}
+		
+		@Test
+		@DisplayName("Client input is null")
+		void testInsertNewClientWhenClientIsNull() {
+			assertThatThrownBy(
+					() -> transactionalClientManager.insertNewClient(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Client to insert cannot be null.");
+		}
+		
+		@Test
+		@DisplayName("The Client is actually new")
+		void testInsertNewClientWhenTheClientIsNotInDatabase() {
+			Client client = new Client("Mario", "Rossi", new ArrayList<>());
+			
+			when(clientRepository.findByName("Mario", "Rossi")).thenReturn(Optional.empty());
+			when(clientRepository.save(client)).thenReturn(client);
+			
+			InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
+			
+			assertThatNoException().isThrownBy(
+					() -> transactionalClientManager.insertNewClient(client));
+			
+			inOrder.verify(transactionManager)
+				.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+			inOrder.verify(clientRepository).findByName("Mario", "Rossi");
+			inOrder.verify(clientRepository).save(client);
+			verifyNoMoreInteractions(transactionManager);
+			verifyNoMoreInteractions(clientRepository);
+		}
+		
+		@Test
+		@DisplayName("The Client already exists")
+		void testInsertNewClientWhenTheClientIsAlreadyInDatabase() {
+			Client client = new Client("Mario", "Rossi", new ArrayList<>());
+			
+			when(clientRepository.findByName("Mario", "Rossi")).thenReturn(Optional.of(client));
+			
+			InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
+			
+			assertThatThrownBy(
+					() -> transactionalClientManager.insertNewClient(client))
+				.isInstanceOf(InstanceAlreadyExistsException.class)
+				.hasMessage("Client [Mario Rossi] already exists in the database.");
+			
+			inOrder.verify(transactionManager)
+				.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+			inOrder.verify(clientRepository).findByName("Mario", "Rossi");
+			verifyNoMoreInteractions(transactionManager);
+			verifyNoMoreInteractions(clientRepository);
+		}
+	}
+	
+	@Nested
+	@DisplayName("Tests for 'removeClientNamed'")
+	class RemoveClientNamedTest {
+
 	}
 	
 	@AfterEach

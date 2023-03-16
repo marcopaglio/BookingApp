@@ -30,7 +30,7 @@ public interface ClientRepository {
 	/*
 	 * Insert a new Client in the repository.
 	 */
-	public void save(Client client);
+	public Client save(Client client);
 
 	/*
 	 * Remove the unique Client with given names from the repository.

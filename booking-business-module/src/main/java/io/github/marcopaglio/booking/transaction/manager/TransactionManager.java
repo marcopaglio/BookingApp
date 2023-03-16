@@ -10,17 +10,17 @@ import io.github.marcopaglio.booking.transaction.code.ReservationTransactionCode
 public interface TransactionManager {
 
 	/*
-	 * Executes the ClientRepository's method in a single transaction.
+	 * Executes code that involves the ClientRepository's method(s) in a single transaction.
 	 */
 	<R> R doInTransaction(ClientTransactionCode<R> code);
 
 	/*
-	 * Executes the ReservationRepository's method in a single transaction.
+	 * Executes code that involves the ReservationRepository's method(s) in a single transaction.
 	 */
 	<R> R doInTransaction(ReservationTransactionCode<R> code);
 
 	/*
-	 * Executes both ClientRepository's and ReservationRepository's
+	 * Executes code that involves both ClientRepository's and ReservationRepository's
 	 * methods in a single transaction.
 	 */
 	<R> R doInTransaction(ClientReservationTransactionCode<R> code);

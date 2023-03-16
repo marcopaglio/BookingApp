@@ -2,13 +2,12 @@ package io.github.marcopaglio.booking.service.transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.service.ReservationManager;
 
 /*
- * Implements methods for operating on Reservation entities using transactions.
+ * Implements methods for operating on Reservation repository using transactions.
  */
 public class TransactionalReservationManager implements ReservationManager {
 
