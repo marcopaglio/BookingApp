@@ -3,6 +3,7 @@ package io.github.marcopaglio.booking.repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import io.github.marcopaglio.booking.model.Reservation;
 
@@ -16,6 +17,11 @@ public interface ReservationRepository {
 	 * Retrieve all Reservations from the repository in a List.
 	 */
 	public List<Reservation> findAll();
+	
+	/*
+	 * Retrieve all the Reservations of Client having clientUUID from the repository in a List.
+	 */
+	public List<Reservation> findByClient(UUID clientUUID);
 
 	/*
 	 * Retrieve the unique Reservation in the given date.

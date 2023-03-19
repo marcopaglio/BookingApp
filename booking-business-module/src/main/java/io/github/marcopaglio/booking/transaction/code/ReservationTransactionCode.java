@@ -5,7 +5,7 @@ import java.util.function.Function;
 import io.github.marcopaglio.booking.repository.ReservationRepository;
 
 /*
- * This interface provides the ReservationRepository's method to execute in a single transaction.
+ * This interface provides code that involves the ReservationRepository's method(s).
  */
 public interface ReservationTransactionCode<R> extends Function<ReservationRepository, R> {
 

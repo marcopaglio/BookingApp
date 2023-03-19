@@ -6,7 +6,9 @@ import java.util.Optional;
 
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.model.Client;
+import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.ClientRepository;
+import io.github.marcopaglio.booking.repository.ReservationRepository;
 import io.github.marcopaglio.booking.service.ClientManager;
 import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 
@@ -21,7 +23,7 @@ public class TransactionalClientManager implements ClientManager {
 	}
 
 	/*
-	 * It is used to retrieve all the clients saved in the database
+	 * This method is used to retrieve all the clients saved in the database
 	 * within a transaction.
 	 */
 	@Override
@@ -30,7 +32,7 @@ public class TransactionalClientManager implements ClientManager {
 	}
 
 	/*
-	 * It is used to retrieve a client with specified name and surname
+	 * This method is used to retrieve a client with specified name and surname
 	 * from the database within a transaction.
 	 * @throws NoSuchElementException if that client is not in database.
 	 */
@@ -40,13 +42,12 @@ public class TransactionalClientManager implements ClientManager {
 				(ClientRepository clientRepository) -> clientRepository.findByName(firstName, lastName));
 		if (possibleClient.isPresent())
 			return possibleClient.get();
-		else
-			throw new NoSuchElementException(
-				"Client named \"" + firstName + " " + lastName + "\" is not present in the database.");
+		throw new NoSuchElementException(
+			"Client named \"" + firstName + " " + lastName + "\" is not in the database.");
 	}
 
 	/*
-	 * It is used to add a new client in the database within a transaction.
+	 * This method is used to add a new client in the database within a transaction.
 	 * This method checks if the client is already present in the database
 	 * before inserting.
 	 * @throws IllegalArgumentException if client is null.
@@ -56,23 +57,41 @@ public class TransactionalClientManager implements ClientManager {
 	public void insertNewClient(Client client) {
 		if (client == null)
 			throw new IllegalArgumentException("Client to insert cannot be null.");
+		
 		transactionManager.doInTransaction(
 			(ClientRepository clientRepository) -> {
 				Optional<Client> possibleClient = clientRepository
 						.findByName(client.getFirstName(), client.getLastName());
 				if (possibleClient.isEmpty()) {
-					// TODO: catch exception from database
 					return clientRepository.save(client);
 				}
 				throw new InstanceAlreadyExistsException(
-					client.toString() + " already exists in the database.");
-			});
+					client.toString() + " is already in the database.");
+			}
+		);
 	}
 
+	/*
+	 * This method is used to remove the client named firstName lastName
+	 * and all his reservation from the database.
+	 * @throws NoSuchElementException if that client is not in database.
+	 */
 	@Override
 	public void removeClientNamed(String firstName, String lastName) {
-		// TODO Auto-generated method stub
-		
+		transactionManager.doInTransaction(
+			(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+				Optional<Client> possibleClient = clientRepository.findByName(firstName, lastName);
+				if (possibleClient.isPresent()) {
+					List<Reservation> reservationList = reservationRepository
+						.findByClient(possibleClient.get().getUuid());
+					for (Reservation reservation : reservationList)
+						reservationRepository.delete(reservation.getDate());
+					clientRepository.delete(firstName, lastName);
+					return null;
+				}
+				throw new NoSuchElementException(
+					"There is not a client named \"" + firstName + " " + lastName + "\" in the database.");
+			}
+		);
 	}
-
 }
