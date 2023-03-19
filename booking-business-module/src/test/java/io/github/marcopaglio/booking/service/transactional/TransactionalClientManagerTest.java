@@ -60,6 +60,7 @@ class TransactionalClientManagerTest {
 	@BeforeEach
 	void setUp() throws Exception {
 		closeable = MockitoAnnotations.openMocks(this);
+		
 		transactionalClientManager = new TransactionalClientManager(transactionManager);
 		// make sure the lambda passed to the TransactionManager
 		// is executed, using the mock repository
@@ -77,7 +78,7 @@ class TransactionalClientManagerTest {
 		void testFindAllClientsWhenThereAreNotClientsToRetrieve() {
 			// setup
 			List<Client> clients = new ArrayList<>();
-			when(clientRepository.findAll()).thenReturn(clients);
+			when(clientRepository.findAll()).thenReturn(clients); // as default
 			
 			InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
 			
@@ -142,6 +143,25 @@ class TransactionalClientManagerTest {
 	class FindClientNamedTest {
 		
 		@Test
+		@DisplayName("Names input are null")
+		void testFindClientNamedWhenNamesAreNullShouldThrow() {
+			assertThatThrownBy(
+					() -> transactionalClientManager.findClientNamed(null, A_LAST_NAME))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Names of client to find cannot be null.");
+			
+			assertThatThrownBy(
+					() -> transactionalClientManager.findClientNamed(A_FIRST_NAME, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Names of client to find cannot be null.");
+			
+			assertThatThrownBy(
+					() -> transactionalClientManager.findClientNamed(null, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Names of client to find cannot be null.");
+		}
+		
+		@Test
 		@DisplayName("The client exists")
 		void testFindClientNamedWhenClientExists() {
 			when(clientRepository.findByName(A_FIRST_NAME, A_LAST_NAME)).thenReturn(Optional.of(A_CLIENT));
@@ -170,7 +190,7 @@ class TransactionalClientManagerTest {
 					() -> transactionalClientManager.findClientNamed(A_FIRST_NAME, A_LAST_NAME))
 				.isInstanceOf(NoSuchElementException.class)
 				.hasMessage(
-					"Client named \"" + A_FIRST_NAME + " " + A_LAST_NAME + "\" is not in the database.");
+					"There is no client named \"" + A_FIRST_NAME + " " + A_LAST_NAME + "\" in the database.");
 			
 			inOrder.verify(transactionManager)
 				.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
@@ -258,10 +278,32 @@ class TransactionalClientManagerTest {
 		}
 		
 		@Test
+		@DisplayName("Names input are null")
+		void testRemoveClientNamedWhenNamesAreNullShouldThrow() {
+			assertThatThrownBy(
+					() -> transactionalClientManager.removeClientNamed(null, A_LAST_NAME))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Names of client to remove cannot be null.");
+			
+			assertThatThrownBy(
+					() -> transactionalClientManager.removeClientNamed(A_FIRST_NAME, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Names of client to remove cannot be null.");
+			
+			assertThatThrownBy(
+					() -> transactionalClientManager.removeClientNamed(null, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Names of client to remove cannot be null.");
+		}
+		
+		@Test
 		@DisplayName("The client is in database without reservations")
 		void testRemoveClientNamedWhenClientIsInDatabaseWithoutReservations() {
+			UUID clientUUID = A_CLIENT.getUuid();
+			
 			when(clientRepository.findByName(A_FIRST_NAME, A_LAST_NAME)).thenReturn(Optional.of(A_CLIENT));
 			// reservationRepository.findByClient(isA(UUID.class)) returns empty collection as default
+			// TODO esplicita i default
 			
 			InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository, reservationRepository);
 			
@@ -271,7 +313,7 @@ class TransactionalClientManagerTest {
 			inOrder.verify(transactionManager)
 				.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
 			inOrder.verify(clientRepository).findByName(A_FIRST_NAME, A_LAST_NAME);
-			inOrder.verify(reservationRepository).findByClient(A_CLIENT.getUuid());
+			inOrder.verify(reservationRepository).findByClient(clientUUID);
 			inOrder.verify(clientRepository).delete(A_FIRST_NAME, A_LAST_NAME);
 			
 			verifyNoMoreInteractions(transactionManager);

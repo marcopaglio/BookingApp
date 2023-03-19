@@ -34,16 +34,19 @@ public class TransactionalClientManager implements ClientManager {
 	/*
 	 * This method is used to retrieve a client with specified name and surname
 	 * from the database within a transaction.
-	 * @throws NoSuchElementException if that client is not in database.
+	 * @throws NoSuchElementException if there is no client with those names in database.
 	 */
 	@Override
 	public Client findClientNamed(String firstName, String lastName) {
+		if (firstName == null || lastName == null)
+			throw new IllegalArgumentException("Names of client to find cannot be null.");
+		
 		Optional<Client> possibleClient = transactionManager.doInTransaction(
 				(ClientRepository clientRepository) -> clientRepository.findByName(firstName, lastName));
 		if (possibleClient.isPresent())
 			return possibleClient.get();
 		throw new NoSuchElementException(
-			"Client named \"" + firstName + " " + lastName + "\" is not in the database.");
+			"There is no client named \"" + firstName + " " + lastName + "\" in the database.");
 	}
 
 	/*
@@ -78,6 +81,9 @@ public class TransactionalClientManager implements ClientManager {
 	 */
 	@Override
 	public void removeClientNamed(String firstName, String lastName) {
+		if (firstName == null || lastName == null)
+			throw new IllegalArgumentException("Names of client to remove cannot be null.");
+		
 		transactionManager.doInTransaction(
 			(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
 				Optional<Client> possibleClient = clientRepository.findByName(firstName, lastName);
