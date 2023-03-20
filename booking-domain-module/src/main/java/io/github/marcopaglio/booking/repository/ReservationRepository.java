@@ -31,7 +31,7 @@ public interface ReservationRepository {
 	/*
 	 * Insert a new Reservation in the repository.
 	 */
-	public void save(Reservation reservation);
+	public Reservation save(Reservation reservation);
 
 	/*
 	 * Remove the unique Reservation in the given date from the repository.

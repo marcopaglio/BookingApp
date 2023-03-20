@@ -24,7 +24,7 @@ public interface ReservationManager {
 	 * Saves a new reservation in the repository
 	 * and update the client one.
 	 */
-	public void insertNewReservation(Reservation reservation);
+	public Reservation insertNewReservation(Reservation reservation);
 
 	/*
 	 * Deletes the reservation of the specific date.
