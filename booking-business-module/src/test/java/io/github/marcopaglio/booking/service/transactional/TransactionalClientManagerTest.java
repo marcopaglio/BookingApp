@@ -218,12 +218,11 @@ class TransactionalClientManagerTest {
 		@DisplayName("The client is actually new")
 		void testInsertNewClientWhenClientIsNotYetInDatabase() {
 			when(clientRepository.findByName(A_FIRST_NAME, A_LAST_NAME)).thenReturn(Optional.empty());
-			when(clientRepository.save(A_CLIENT)).thenReturn(A_CLIENT);
+			when(clientRepository.save(A_CLIENT)).thenReturn(A_CLIENT); // TODO: serve?
 			
 			InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
 			
-			assertThatNoException().isThrownBy(
-					() -> transactionalClientManager.insertNewClient(A_CLIENT));
+			assertThat(transactionalClientManager.insertNewClient(A_CLIENT)).isEqualTo(A_CLIENT);
 			
 			inOrder.verify(transactionManager)
 				.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
@@ -435,7 +434,7 @@ class TransactionalClientManagerTest {
 					() -> transactionalClientManager.removeClientNamed(A_FIRST_NAME, A_LAST_NAME))
 				.isInstanceOf(NoSuchElementException.class)
 				.hasMessage(
-					"There is not a client named \"" + A_FIRST_NAME + " " + A_LAST_NAME + "\" in the database.");
+					"There is no client named \"" + A_FIRST_NAME + " " + A_LAST_NAME + "\" in the database.");
 			
 			inOrder.verify(transactionManager)
 				.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());

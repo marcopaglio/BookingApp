@@ -34,6 +34,7 @@ public class TransactionalClientManager implements ClientManager {
 	/*
 	 * This method is used to retrieve a client with specified name and surname
 	 * from the database within a transaction.
+	 * @throws IllegalArgumentException if firstName or lastName are null.
 	 * @throws NoSuchElementException if there is no client with those names in database.
 	 */
 	@Override
@@ -57,11 +58,11 @@ public class TransactionalClientManager implements ClientManager {
 	 * @throws InstanceAlreadyExistsException if client is already in database.
 	 */
 	@Override
-	public void insertNewClient(Client client) {
+	public Client insertNewClient(Client client) {
 		if (client == null)
 			throw new IllegalArgumentException("Client to insert cannot be null.");
 		
-		transactionManager.doInTransaction(
+		return transactionManager.doInTransaction(
 			(ClientRepository clientRepository) -> {
 				Optional<Client> possibleClient = clientRepository
 						.findByName(client.getFirstName(), client.getLastName());
@@ -77,6 +78,7 @@ public class TransactionalClientManager implements ClientManager {
 	/*
 	 * This method is used to remove the client named firstName lastName
 	 * and all his reservation from the database.
+	 * @throws IllegalArgumentException if firstName or lastName are null.
 	 * @throws NoSuchElementException if that client is not in database.
 	 */
 	@Override
@@ -96,7 +98,7 @@ public class TransactionalClientManager implements ClientManager {
 					return null;
 				}
 				throw new NoSuchElementException(
-					"There is not a client named \"" + firstName + " " + lastName + "\" in the database.");
+					"There is no client named \"" + firstName + " " + lastName + "\" in the database.");
 			}
 		);
 	}

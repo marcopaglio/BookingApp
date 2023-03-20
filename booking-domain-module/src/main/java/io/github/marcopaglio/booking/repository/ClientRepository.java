@@ -20,7 +20,7 @@ public interface ClientRepository {
 	/*
 	 * Retrieve the unique Client with given uuid.
 	 */
-	public Client findById(UUID uuid);
+	public Optional<Client> findById(UUID uuid);
 
 	/*
 	 * Retrieve the unique Client with given names.

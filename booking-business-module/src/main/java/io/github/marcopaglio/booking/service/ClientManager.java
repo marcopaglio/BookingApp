@@ -22,7 +22,7 @@ public interface ClientManager {
 	/*
 	 * Saves a new client in the repository.
 	 */
-	public void insertNewClient(Client client);
+	public Client insertNewClient(Client client);
 
 	/*
 	 * Deletes the client with the specific firstName and lastName 
