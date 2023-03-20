@@ -64,8 +64,11 @@ public class TransactionalReservationManager implements ReservationManager {
 						reservationRepository.findByDate(reservation.getDate());
 				if (possibleReservation.isEmpty()) {
 					Optional<Client> possibleClient = clientRepository.findById(reservation.getClientUUID());
-					if (possibleClient.isPresent())
+					if (possibleClient.isPresent()) {
+						possibleClient.get().addReservation(reservation);
+						clientRepository.save(possibleClient.get());
 						return reservationRepository.save(reservation);
+					}
 					throw new NoSuchElementException(
 						"The client with uuid: " + reservation.getClientUUID() + ", associated to the reservation "
 						+ "to insert is not in the database. Please, insert the client before the reservation.");

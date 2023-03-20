@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.AdditionalAnswers.answer;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -202,10 +204,7 @@ class TransactionalReservationManagerTest {
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("Reservation to insert cannot be null.");
 			
-			// TODO: change to zero se c'è
-			verifyNoMoreInteractions(transactionManager);
-			verifyNoMoreInteractions(reservationRepository);
-			verifyNoMoreInteractions(clientRepository);
+			verifyNoInteractions(transactionManager, reservationRepository, clientRepository);
 		}
 		
 		@DisplayName("The reservation is actually new and the associated client exists")
@@ -213,13 +212,15 @@ class TransactionalReservationManagerTest {
 		void testInsertNewReservationWhenReservationIsNotYetInDatabaseAndAssociatedClientExists() {
 			Client client = new Client("Mario", "Rossi", new ArrayList<>());
 			UUID clientUUID = client.getUuid();
+			Client spied_client = spy(client);
 			LocalDate a_localdate = LocalDate.parse("2023-04-24");
 			Reservation reservation = new Reservation(clientUUID, a_localdate);
 			when(reservationRepository.findByDate(a_localdate)).thenReturn(Optional.empty());
-			when(clientRepository.findById(clientUUID)).thenReturn(Optional.of(client));
+			when(clientRepository.findById(clientUUID)).thenReturn(Optional.of(spied_client));
+			when(clientRepository.save(spied_client)).thenReturn(spied_client); // TODO: serve?
 			when(reservationRepository.save(reservation)).thenReturn(reservation); // TODO: serve?
 			
-			InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository, clientRepository);
+			InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository, clientRepository, spied_client);
 			
 			assertThat(transactionalReservationManager.insertNewReservation(reservation)).isEqualTo(reservation);
 			
@@ -227,11 +228,14 @@ class TransactionalReservationManagerTest {
 				.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
 			inOrder.verify(reservationRepository).findByDate(a_localdate);
 			inOrder.verify(clientRepository).findById(clientUUID);
+			inOrder.verify(spied_client).addReservation(reservation);
+			inOrder.verify(clientRepository).save(spied_client);
 			inOrder.verify(reservationRepository).save(reservation);
 		
 			verifyNoMoreInteractions(transactionManager);
 			verifyNoMoreInteractions(reservationRepository);
 			verifyNoMoreInteractions(clientRepository);
+			verifyNoMoreInteractions(spied_client);
 		}
 		
 		@DisplayName("Reservation is new and client doesn't exist")
@@ -300,10 +304,7 @@ class TransactionalReservationManagerTest {
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("Date of reservation to remove cannot be null.");
 			
-			// TODO: change to zero se c'è
-			verifyNoMoreInteractions(transactionManager);
-			verifyNoMoreInteractions(reservationRepository);
-			verifyNoMoreInteractions(clientRepository);
+			verifyNoInteractions(transactionManager, reservationRepository, clientRepository);
 		}
 		
 		@DisplayName("The reservation is in database")
