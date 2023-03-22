@@ -18,13 +18,17 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 public class TransactionalClientManager implements ClientManager {
 	private TransactionManager transactionManager;
 
+	/*
+	 * The constructor.
+	 * @param transactionManager	the {@code TransactionManager} used for applying transactions.
+	 */
 	public TransactionalClientManager(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
 	}
 
 	/*
-	 * This method is used to retrieve all the clients saved in the database
-	 * within a transaction.
+	 * This method is used to retrieve all the clients saved in the database within a transaction.
+	 * @return	the list of clients found in the database.
 	 */
 	@Override
 	public List<Client> findAllClients() {
@@ -34,8 +38,11 @@ public class TransactionalClientManager implements ClientManager {
 	/*
 	 * This method is used to retrieve a client with specified name and surname
 	 * from the database within a transaction.
-	 * @throws IllegalArgumentException if firstName or lastName are null.
-	 * @throws NoSuchElementException if there is no client with those names in database.
+	 * @param firstName					the name of the client to find.
+	 * @param lastName					the surname of the client to find.
+	 * @return							the {@code Client} named {@code firstName lastName}.
+	 * @throws IllegalArgumentException	if {@code firstName} or {@code lastName} are null.
+	 * @throws NoSuchElementException	if there is no client with those names in database.
 	 */
 	@Override
 	public Client findClientNamed(String firstName, String lastName) {
@@ -52,10 +59,11 @@ public class TransactionalClientManager implements ClientManager {
 
 	/*
 	 * This method is used to add a new client in the database within a transaction.
-	 * This method checks if the client is already present in the database
-	 * before inserting.
-	 * @throws IllegalArgumentException if client is null.
-	 * @throws InstanceAlreadyExistsException if client is already in database.
+	 * This method checks if the client is present in the database before inserting.
+	 * @param client							the client to be inserting.
+	 * @return									the {@code Client} inserted.
+	 * @throws IllegalArgumentException			if {@code client} is null.
+	 * @throws InstanceAlreadyExistsException	if {@code client} is already in the database.
 	 */
 	@Override
 	public Client insertNewClient(Client client) {
@@ -76,10 +84,13 @@ public class TransactionalClientManager implements ClientManager {
 	}
 
 	/*
-	 * This method is used to remove the client named firstName lastName
+	 * This method is used to remove the client with specified name and surname
 	 * and all his reservation from the database.
-	 * @throws IllegalArgumentException if firstName or lastName are null.
-	 * @throws NoSuchElementException if that client is not in database.
+	 * This method checks if the client is present in the database before removing.
+	 * @param firstName					the name of the client to remove.
+	 * @param lastName					the surname of the client to remove.
+	 * @throws IllegalArgumentException	if {@code firstName} or {@code lastName} are null.
+	 * @throws NoSuchElementException	if there is no client with those names in database.
 	 */
 	@Override
 	public void removeClientNamed(String firstName, String lastName) {

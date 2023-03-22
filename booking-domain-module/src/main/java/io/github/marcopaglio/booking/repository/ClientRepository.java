@@ -28,7 +28,8 @@ public interface ClientRepository {
 	public Optional<Client> findByName(String firstName, String lastName);
 
 	/*
-	 * Insert a new Client in the repository.
+	 * Insert a new Client in the repository
+	 * or saves changes of an existing one.
 	 */
 	public Client save(Client client);
 
