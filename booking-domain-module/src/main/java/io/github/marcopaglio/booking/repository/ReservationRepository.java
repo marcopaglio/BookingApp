@@ -30,6 +30,8 @@ public interface ReservationRepository {
 
 	/*
 	 * Insert a new Reservation in the repository.
+	 * Note: reservation entities are immutable,
+	 * so this method cannot be used for saving changes of existing reservations.
 	 */
 	public Reservation save(Reservation reservation);
 

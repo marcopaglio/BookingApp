@@ -19,13 +19,17 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 public class TransactionalReservationManager implements ReservationManager {
 	private TransactionManager transactionManager;
 
+	/*
+	 * The constructor.
+	 * @param transactionManager	the {@code TransactionManager} used for applying transactions.
+	 */
 	public TransactionalReservationManager(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
 	}
 
 	/*
-	 * This method is used to retrieve all the reservations saved in the database
-	 * within a transaction.
+	 * This method is used to retrieve all the reservations saved in the database within a transaction.
+	 * @return	the list of reservations found in the database.
 	 */
 	@Override
 	public List<Reservation> findAllReservations() {
@@ -35,13 +39,16 @@ public class TransactionalReservationManager implements ReservationManager {
 	/*
 	 * This method is used to retrieve the reservation of the specified date
 	 * from the database within a transaction.
-	 * @throws IllegalArgumentException if date is null.
-	 * @throws NoSuchElementException if there is no reservation on that date in database.
+	 * @param date						the date of the reservation to find.
+	 * @return							the {@code Reservation} on {@code date}.
+	 * @throws IllegalArgumentException	if {@code date} is null.
+	 * @throws NoSuchElementException	if there is no reservation on that date in database.
 	 */
 	@Override
 	public Reservation findReservationOn(LocalDate date) {
 		if (date == null)
 			throw new IllegalArgumentException("Date of reservation to find cannot be null.");
+		
 		return transactionManager.doInTransaction(
 			(ReservationRepository reservationRepository) -> {
 				Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
@@ -53,6 +60,15 @@ public class TransactionalReservationManager implements ReservationManager {
 		);
 	}
 
+	/*
+	 * This method is used to add a new reservation in the database within a transaction.
+	 * This method checks if the reservation is not present and the associated client is present
+	 * in the database before inserting.
+	 * @param reservation						the reservation to be inserting.
+	 * @return									the {@code Reservation} inserted.
+	 * @throws IllegalArgumentException			if {@code reservation} is null.
+	 * @throws InstanceAlreadyExistsException	if {@code reservation} is already in the database.
+	 */
 	@Override
 	public Reservation insertNewReservation(Reservation reservation) {
 		if (reservation == null)
@@ -65,29 +81,47 @@ public class TransactionalReservationManager implements ReservationManager {
 				if (possibleReservation.isEmpty()) {
 					Optional<Client> possibleClient = clientRepository.findById(reservation.getClientUUID());
 					if (possibleClient.isPresent()) {
-						possibleClient.get().addReservation(reservation);
-						clientRepository.save(possibleClient.get());
+						Client client = possibleClient.get();
+						client.addReservation(reservation);
+						clientRepository.save(client);
 						return reservationRepository.save(reservation);
 					}
 					throw new NoSuchElementException(
-						"The client with uuid: " + reservation.getClientUUID() + ", associated to the reservation "
-						+ "to insert is not in the database. Please, insert the client before the reservation.");
+						"The client with uuid: " + reservation.getClientUUID()
+						+ ", associated to the reservation to insert is not in the database. "
+						+ "Please, insert the client before the reservation.");
 				}
-				throw new InstanceAlreadyExistsException(reservation.toString() + " is already in the database.");
+				throw new InstanceAlreadyExistsException(
+					reservation.toString() + " is already in the database.");
 			}
 		);
 	}
 
+	/*
+	 * This method is used to remove the reservation on the specified date from the database.
+	 * This method checks if the reservation is present in the database before removing.
+	 * This method updates the client's reservations list after inserting
+	 * if the client is in the database.
+	 * @param date						the date of the reservation to find.
+	 * @throws IllegalArgumentException	if {@code date} is null.
+	 * @throws NoSuchElementException	if there is no reservation on that date in database.
+	 */
 	@Override
 	public void removeReservationOn(LocalDate date) {
 		if (date == null)
 			throw new IllegalArgumentException("Date of reservation to remove cannot be null.");
 		
 		transactionManager.doInTransaction(
-			(ReservationRepository reservationRepository) -> {
+			(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
 				Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
 				if (possibleReservation.isPresent()) {
 					reservationRepository.delete(date);
+					Optional<Client> possibleClient = clientRepository
+							.findById(possibleReservation.get().getClientUUID());
+					if (possibleClient.isPresent()) {
+						possibleClient.get().removeReservation(possibleReservation.get());
+						clientRepository.save(possibleClient.get());
+					}
 					return null;
 				}
 				throw new NoSuchElementException(
@@ -95,5 +129,4 @@ public class TransactionalReservationManager implements ReservationManager {
 			}
 		);
 	}
-
 }

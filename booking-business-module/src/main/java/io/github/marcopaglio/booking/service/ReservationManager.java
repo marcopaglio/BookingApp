@@ -24,10 +24,12 @@ public interface ReservationManager {
 	 * Saves a new reservation in the repository
 	 * and update the client one.
 	 */
+	// TODO: La Reservation restituita serve?
 	public Reservation insertNewReservation(Reservation reservation);
 
 	/*
-	 * Deletes the reservation of the specific date.
+	 * Deletes the reservation of the specific date
+	 * and update the client one.
 	 */
 	public void removeReservationOn(LocalDate date);
 }
