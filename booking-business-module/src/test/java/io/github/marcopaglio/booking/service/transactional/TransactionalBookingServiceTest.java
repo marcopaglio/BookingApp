@@ -7,6 +7,7 @@ import static org.mockito.AdditionalAnswers.answer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -20,17 +21,18 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.model.Client;
@@ -43,6 +45,7 @@ import io.github.marcopaglio.booking.transaction.code.ReservationTransactionCode
 import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 
 @DisplayName("Tests for TransactionalBookingService class")
+@ExtendWith(MockitoExtension.class)
 class TransactionalBookingServiceTest {
 
 	private static final String A_FIRST_NAME = "Mario";
@@ -63,14 +66,104 @@ class TransactionalBookingServiceTest {
 	
 	@InjectMocks
 	private TransactionalBookingService transactionalBookingService;
-
-	private AutoCloseable closeable;
-
-	@BeforeEach
-	void setUp() throws Exception {
-		closeable = MockitoAnnotations.openMocks(this);
-	}
 	
+	@Nested
+	@DisplayName("Null inputs on methods")
+	class NullInputTest {
+
+		@Test
+		@DisplayName("Null names on 'findClientNamed'")
+		void testFindClientNamedWhenNamesAreNullShouldThrow() {
+			assertThatThrownBy(
+					() -> transactionalBookingService.findClientNamed(null, A_LAST_NAME))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Names of client to find cannot be null.");
+			
+			assertThatThrownBy(
+					() -> transactionalBookingService.findClientNamed(A_FIRST_NAME, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Names of client to find cannot be null.");
+			
+			assertThatThrownBy(
+					() -> transactionalBookingService.findClientNamed(null, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Names of client to find cannot be null.");
+			
+			verify(transactionManager, never()).doInTransaction(
+					ArgumentMatchers.<ClientTransactionCode<?>>any());
+		}
+
+		@Test
+		@DisplayName("Null client on 'insertNewClient'")
+		void testInsertNewClientWhenClientIsNullShouldThrow() {
+			assertThatThrownBy(
+					() -> transactionalBookingService.insertNewClient(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Client to insert cannot be null.");
+			
+			verify(transactionManager, never()).doInTransaction(
+					ArgumentMatchers.<ClientTransactionCode<?>>any());
+		}
+
+		@DisplayName("Null date on 'findReservationOn'")
+		@Test
+		void testFindReservationOnWhenDateIsNullShouldThrow() {
+			assertThatThrownBy(
+					() -> transactionalBookingService.findReservationOn(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Date of reservation to find cannot be null.");
+			
+			verify(transactionManager, never()).doInTransaction(
+					ArgumentMatchers.<ReservationTransactionCode<?>>any());
+		}
+
+		@Test
+		@DisplayName("Null names on 'removeClientNamed'")
+		void testRemoveClientNamedWhenNamesAreNullShouldThrow() {
+			assertThatThrownBy(
+					() -> transactionalBookingService.removeClientNamed(null, A_LAST_NAME))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Names of client to remove cannot be null.");
+			
+			assertThatThrownBy(
+					() -> transactionalBookingService.removeClientNamed(A_FIRST_NAME, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Names of client to remove cannot be null.");
+			
+			assertThatThrownBy(
+					() -> transactionalBookingService.removeClientNamed(null, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Names of client to remove cannot be null.");
+			
+			verify(transactionManager, never()).doInTransaction(
+					ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+		}
+
+		@DisplayName("Null reservation on 'insertNewReservation'")
+		@Test
+		void testInsertNewReservationWhenReservationIsNullShouldThrow() {
+			assertThatThrownBy(
+					() -> transactionalBookingService.insertNewReservation(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Reservation to insert cannot be null.");
+			
+			verify(transactionManager, never()).doInTransaction(
+					ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+		}
+
+		@DisplayName("Null date on 'removeReservationOn'")
+		@Test
+		void testRemoveReservationOnWhenDateIsNullShouldThrow() {
+			assertThatThrownBy(
+					() -> transactionalBookingService.removeReservationOn(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Date of reservation to remove cannot be null.");
+			
+			verify(transactionManager, never()).doInTransaction(
+					ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+		}
+	}
+
 	@Nested
 	@DisplayName("Methods using only ClientRepository")
 	class ClientRepositoryTest {
@@ -147,28 +240,6 @@ class TransactionalBookingServiceTest {
 		class FindClientNamedTest {
 
 			@Test
-			@DisplayName("Names input are null")
-			void testFindClientNamedWhenNamesAreNullShouldThrow() {
-				assertThatThrownBy(
-						() -> transactionalBookingService.findClientNamed(null, A_LAST_NAME))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Names of client to find cannot be null.");
-				
-				assertThatThrownBy(
-						() -> transactionalBookingService.findClientNamed(A_FIRST_NAME, null))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Names of client to find cannot be null.");
-				
-				assertThatThrownBy(
-						() -> transactionalBookingService.findClientNamed(null, null))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Names of client to find cannot be null.");
-				
-				verify(transactionManager, never()).doInTransaction(
-						ArgumentMatchers.<ClientTransactionCode<?>>any());
-			}
-
-			@Test
 			@DisplayName("Client exists")
 			void testFindClientNamedWhenClientExistsShouldReturnTheClient() {
 				when(clientRepository.findByName(A_FIRST_NAME, A_LAST_NAME))
@@ -197,8 +268,8 @@ class TransactionalBookingServiceTest {
 						() -> transactionalBookingService.findClientNamed(A_FIRST_NAME, A_LAST_NAME))
 					.isInstanceOf(NoSuchElementException.class)
 					.hasMessage(
-						"There is no client named \"" + A_FIRST_NAME + " "
-					+ A_LAST_NAME + "\" in the database.");
+						"There is no client named \"" + A_FIRST_NAME
+						+ " " + A_LAST_NAME + "\" in the database.");
 				
 				inOrder.verify(transactionManager)
 					.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
@@ -211,18 +282,6 @@ class TransactionalBookingServiceTest {
 		@Nested
 		@DisplayName("Tests for 'insertNewClient'")
 		class InsertNewClientTest {
-
-			@Test
-			@DisplayName("Client input is null")
-			void testInsertNewClientWhenClientIsNullShouldThrow() {
-				assertThatThrownBy(
-						() -> transactionalBookingService.insertNewClient(null))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Client to insert cannot be null.");
-				
-				verify(transactionManager, never()).doInTransaction(
-						ArgumentMatchers.<ClientTransactionCode<?>>any());
-			}
 
 			@Test
 			@DisplayName("Client is new")
@@ -320,7 +379,7 @@ class TransactionalBookingServiceTest {
 			@DisplayName("Several reservations to retrieve")
 			@Test
 			void testFindAllReservationsWhenThereAreSeveralReservationsToRetrieveShouldReturnReservationsAsList() {
-				LocalDate another_localdate = LocalDate.parse("2023-03-16");
+				LocalDate another_localdate = LocalDate.parse("2023-09-05");
 				Reservation another_reservation = new Reservation(UUID.randomUUID(), another_localdate);
 				List<Reservation> reservations = Arrays.asList(A_RESERVATION, another_reservation);
 				when(reservationRepository.findAll()).thenReturn(reservations);
@@ -340,18 +399,6 @@ class TransactionalBookingServiceTest {
 		@Nested
 		@DisplayName("Tests for 'findReservationOn'")
 		class FindReservationOnTest {
-
-			@DisplayName("Date input is null")
-			@Test
-			void testFindReservationOnWhenDateIsNullShouldThrow() {
-				assertThatThrownBy(
-						() -> transactionalBookingService.findReservationOn(null))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Date of reservation to find cannot be null.");
-				
-				verify(transactionManager, never()).doInTransaction(
-						ArgumentMatchers.<ReservationTransactionCode<?>>any());
-			}
 
 			@DisplayName("Reservation exists")
 			@Test
@@ -407,31 +454,6 @@ class TransactionalBookingServiceTest {
 		@Nested
 		@DisplayName("Tests for 'removeClientNamed'")
 		class RemoveClientNamedTest {
-			private final UUID clientUUID = A_CLIENT.getUuid();
-			private final LocalDate a_localdate = LocalDate.parse("2023-04-24");
-			private final Reservation a_reservation = new Reservation(clientUUID, a_localdate);
-
-			@Test
-			@DisplayName("Names input are null")
-			void testRemoveClientNamedWhenNamesAreNullShouldThrow() {
-				assertThatThrownBy(
-						() -> transactionalBookingService.removeClientNamed(null, A_LAST_NAME))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Names of client to remove cannot be null.");
-				
-				assertThatThrownBy(
-						() -> transactionalBookingService.removeClientNamed(A_FIRST_NAME, null))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Names of client to remove cannot be null.");
-				
-				assertThatThrownBy(
-						() -> transactionalBookingService.removeClientNamed(null, null))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Names of client to remove cannot be null.");
-				
-				verify(transactionManager, never()).doInTransaction(
-						ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-			}
 
 			@Test
 			@DisplayName("Client exists without reservations")
@@ -450,7 +472,7 @@ class TransactionalBookingServiceTest {
 				inOrder.verify(transactionManager)
 					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
 				inOrder.verify(clientRepository).findByName(A_FIRST_NAME, A_LAST_NAME);
-				inOrder.verify(reservationRepository).findByClient(clientUUID);
+				inOrder.verify(reservationRepository).findByClient(A_CLIENT_UUID);
 				inOrder.verify(clientRepository).delete(A_FIRST_NAME, A_LAST_NAME);
 				
 				verifyNoMoreInteractions(transactionManager, clientRepository, reservationRepository);
@@ -461,8 +483,8 @@ class TransactionalBookingServiceTest {
 			void testRemoveClientNamedWhenClientExistsWithSingleExistingReservationShouldRemove() {
 				when(clientRepository.findByName(A_FIRST_NAME, A_LAST_NAME))
 					.thenReturn(Optional.of(A_CLIENT));
-				when(reservationRepository.findByClient(clientUUID))
-					.thenReturn(Arrays.asList(a_reservation));
+				when(reservationRepository.findByClient(A_CLIENT_UUID))
+					.thenReturn(Arrays.asList(A_RESERVATION));
 				// default stubbing for reservationRepository.findByClient(clientUUID)
 				// default stubbing for clientRepository.delete(firstName, lastName)
 				
@@ -475,8 +497,8 @@ class TransactionalBookingServiceTest {
 				inOrder.verify(transactionManager)
 					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
 				inOrder.verify(clientRepository).findByName(A_FIRST_NAME, A_LAST_NAME);
-				inOrder.verify(reservationRepository).findByClient(clientUUID);
-				inOrder.verify(reservationRepository).delete(a_localdate);
+				inOrder.verify(reservationRepository).findByClient(A_CLIENT_UUID);
+				inOrder.verify(reservationRepository).delete(A_LOCALDATE);
 				inOrder.verify(clientRepository).delete(A_FIRST_NAME, A_LAST_NAME);
 				
 				verifyNoMoreInteractions(transactionManager, clientRepository, reservationRepository);
@@ -486,18 +508,20 @@ class TransactionalBookingServiceTest {
 			@DisplayName("Client exists with several existing reservations")
 			void testRemoveClientNamedWhenClientExistsWithSeveralExistingReservationsShouldRemove() {
 				LocalDate another_localdate = LocalDate.parse("2023-03-16");
-				Reservation another_reservation = new Reservation(clientUUID, another_localdate);
+				Reservation another_reservation = new Reservation(A_CLIENT_UUID, another_localdate);
 				List<Reservation> several_reservation_list =
-						new ArrayList<>(Arrays.asList(a_reservation, another_reservation));
+						new ArrayList<>(Arrays.asList(A_RESERVATION, another_reservation));
 				
 				when(clientRepository.findByName(A_FIRST_NAME, A_LAST_NAME))
 					.thenReturn(Optional.of(A_CLIENT));
-				when(reservationRepository.findByClient(clientUUID)).thenReturn(several_reservation_list);
+				when(reservationRepository.findByClient(A_CLIENT_UUID)).thenReturn(several_reservation_list);
 				// default stubbing for reservationRepository.delete(date)
 				// default stubbing for clientRepository.delete(firstName, lastName)
 				
 				InOrder inOrder = Mockito.inOrder(
 						transactionManager, clientRepository, reservationRepository);
+				
+				ArgumentCaptor<LocalDate> dateCaptor = ArgumentCaptor.forClass(LocalDate.class);
 				
 				assertThatNoException().isThrownBy(
 						() -> transactionalBookingService.removeClientNamed(A_FIRST_NAME, A_LAST_NAME));
@@ -505,10 +529,9 @@ class TransactionalBookingServiceTest {
 				inOrder.verify(transactionManager)
 					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
 				inOrder.verify(clientRepository).findByName(A_FIRST_NAME, A_LAST_NAME);
-				inOrder.verify(reservationRepository).findByClient(clientUUID);
-				// TODO: inOrder.verify(reservationRepository, times(2)).delete(isA(LocalDate.class));
-				inOrder.verify(reservationRepository).delete(a_localdate);
-				inOrder.verify(reservationRepository).delete(another_localdate);
+				inOrder.verify(reservationRepository).findByClient(A_CLIENT_UUID);
+				inOrder.verify(reservationRepository, times(2)).delete(dateCaptor.capture());
+				assertThat(dateCaptor.getAllValues()).containsExactly(A_LOCALDATE, another_localdate);
 				inOrder.verify(clientRepository).delete(A_FIRST_NAME, A_LAST_NAME);
 				
 				verifyNoMoreInteractions(transactionManager, clientRepository, reservationRepository);
@@ -541,26 +564,14 @@ class TransactionalBookingServiceTest {
 		@DisplayName("Tests for 'insertNewReservation'")
 		class InsertNewReservationTest {
 
-			@DisplayName("Reservation input is null")
-			@Test
-			void testInsertNewReservationWhenReservationIsNullShouldThrow() {
-				assertThatThrownBy(
-						() -> transactionalBookingService.insertNewReservation(null))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Reservation to insert cannot be null.");
-				
-				verify(transactionManager, never()).doInTransaction(
-						ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-			}
-
 			@DisplayName("Reservation is new and client exists")
 			@Test
 			void testInsertNewReservationWhenReservationDoesNotAlreadyExistAndAssociatedClientExistsShouldUpdateInsertAndReturn() {
 				Client spied_client = spy(A_CLIENT);
 				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.empty());
 				when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.of(spied_client));
-				doNothing().when(spied_client).addReservation(A_RESERVATION); // prevent bad behaviors
-				when(clientRepository.save(spied_client)).thenReturn(spied_client); // TODO: serve?
+				doNothing().when(spied_client).addReservation(A_RESERVATION); // prevents bad behaviors
+				when(clientRepository.save(spied_client)).thenReturn(spied_client); // acts correctly even if returned value is unused
 				when(reservationRepository.save(A_RESERVATION)).thenReturn(A_RESERVATION);
 				
 				InOrder inOrder = Mockito.inOrder(
@@ -631,18 +642,6 @@ class TransactionalBookingServiceTest {
 		@DisplayName("Tests for 'removeReservationOn'")
 		class RemoveReservationOnTest {
 
-			@DisplayName("Date input is null")
-			@Test
-			void testRemoveReservationOnWhenDateIsNullShouldThrow() {
-				assertThatThrownBy(
-						() -> transactionalBookingService.removeReservationOn(null))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Date of reservation to remove cannot be null.");
-				
-				verify(transactionManager, never()).doInTransaction(
-						ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-			}
-
 			@DisplayName("Both reservation and client exist")
 			@Test
 			void testRemoveReservationOnWhenBothReservationAndAssociatedClientExistShouldRemoveAndUpdate() {
@@ -650,8 +649,8 @@ class TransactionalBookingServiceTest {
 				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.of(A_RESERVATION));
 				// default stubbing for reservationRepository.delete(reservation)
 				when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.of(spied_client));
-				doNothing().when(spied_client).removeReservation(A_RESERVATION); // prevent bad behaviors
-				when(clientRepository.save(spied_client)).thenReturn(spied_client); // TODO: serve?
+				doNothing().when(spied_client).removeReservation(A_RESERVATION); // prevents bad behaviors
+				when(clientRepository.save(spied_client)).thenReturn(spied_client); // acts correctly even if returned value is unused
 				
 				InOrder inOrder = Mockito.inOrder(
 						transactionManager, reservationRepository, clientRepository, spied_client);
@@ -714,9 +713,6 @@ class TransactionalBookingServiceTest {
 			}
 		}
 	}
+	// TODO: lancio eccezioni da parte dei collaboratori (mockati e spiati)
 
-	@AfterEach
-	void releaseMocks() throws Exception {
-		closeable.close();
-	}
 }

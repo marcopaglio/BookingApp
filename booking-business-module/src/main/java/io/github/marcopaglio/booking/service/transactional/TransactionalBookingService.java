@@ -53,8 +53,7 @@ public class TransactionalBookingService implements BookingService{
 				(ClientRepository clientRepository) -> clientRepository.findByName(firstName, lastName));
 		if (possibleClient.isPresent())
 			return possibleClient.get();
-		throw new NoSuchElementException(
-			"There is no client named \"" + firstName + " " + lastName + "\" in the database.");
+		throw new NoSuchElementException(clientNotFoundMsg(firstName, lastName));
 	}
 
 	/*
@@ -109,10 +108,18 @@ public class TransactionalBookingService implements BookingService{
 					clientRepository.delete(firstName, lastName);
 					return null;
 				}
-				throw new NoSuchElementException(
-					"There is no client named \"" + firstName + " " + lastName + "\" in the database.");
+				throw new NoSuchElementException(clientNotFoundMsg(firstName, lastName));
 			}
 		);
+	}
+
+	/*
+	 * Generates a message for the client that was not found.
+	 * @param firstName	the name of the client not found.
+	 * @param lastName	the surname of the client not found.
+	 */
+	private String clientNotFoundMsg(String firstName, String lastName) {
+		return "There is no client named \"" + firstName + " " + lastName + "\" in the database.";
 	}
 
 	/*
@@ -141,8 +148,7 @@ public class TransactionalBookingService implements BookingService{
 				Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
 				if (possibleReservation.isPresent())
 					return possibleReservation.get();
-				throw new NoSuchElementException(
-					"There is no reservation on \"" + date.toString() + "\" in the database.");
+				throw new NoSuchElementException(reservationNotFoundMsg(date));
 			}
 		);
 	}
@@ -207,14 +213,22 @@ public class TransactionalBookingService implements BookingService{
 					Optional<Client> possibleClient = clientRepository
 							.findById(possibleReservation.get().getClientUUID());
 					if (possibleClient.isPresent()) {
-						possibleClient.get().removeReservation(possibleReservation.get());
-						clientRepository.save(possibleClient.get());
+						Client client = possibleClient.get();
+						client.removeReservation(possibleReservation.get());
+						clientRepository.save(client);
 					}
 					return null;
 				}
-				throw new NoSuchElementException(
-					"There is no reservation on \"" + date + "\" in the database.");
+				throw new NoSuchElementException(reservationNotFoundMsg(date));
 			}
 		);
+	}
+
+	/*
+	 * Generates a message for the reservation that was not found.
+	 * @param date	the date of the reservation not found.
+	 */
+	private String reservationNotFoundMsg(LocalDate date) {
+		return "There is no reservation on \"" + date + "\" in the database.";
 	}
 }

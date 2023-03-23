@@ -35,7 +35,6 @@ public interface BookingService {
 	 * @throws IllegalArgumentException			if {@code client} is null.
 	 * @throws InstanceAlreadyExistsException	if {@code client} is already in the database.
 	 */
-	// TODO: Il Client restituito serve?
 	public Client insertNewClient(Client client);
 
 	/*
@@ -70,7 +69,6 @@ public interface BookingService {
 	 * @throws IllegalArgumentException			if {@code reservation} is null.
 	 * @throws InstanceAlreadyExistsException	if {@code reservation} is already in the database.
 	 */
-	// TODO: La Reservation restituita serve?
 	public Reservation insertNewReservation(Reservation reservation);
 
 	/*
