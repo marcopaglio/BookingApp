@@ -10,25 +10,113 @@ import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.ClientRepository;
 import io.github.marcopaglio.booking.repository.ReservationRepository;
-import io.github.marcopaglio.booking.service.ReservationManager;
+import io.github.marcopaglio.booking.service.BookingService;
 import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 
 /*
- * Implements methods for operating on Reservation repository using transactions.
+ * Implements methods for operating on Client and Reservation repositories using transactions.
  */
-public class TransactionalReservationManager implements ReservationManager {
+public class TransactionalBookingService implements BookingService{
 	private TransactionManager transactionManager;
 
 	/*
-	 * The constructor.
+	 * Constructs a service for the booking application with a transaction manager.
 	 * @param transactionManager	the {@code TransactionManager} used for applying transactions.
 	 */
-	public TransactionalReservationManager(TransactionManager transactionManager) {
+	public TransactionalBookingService(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
 	}
 
 	/*
-	 * This method is used to retrieve all the reservations saved in the database within a transaction.
+	 * Retrieves all the clients saved in the database within a transaction.
+	 * @return	the list of clients found in the database.
+	 */
+	@Override
+	public List<Client> findAllClients() {
+		return transactionManager.doInTransaction(ClientRepository::findAll);
+	}
+
+	/*
+	 * Retrieves the client with specified name and surname from the database within a transaction.
+	 * @param firstName					the name of the client to find.
+	 * @param lastName					the surname of the client to find.
+	 * @return							the {@code Client} named {@code firstName lastName}.
+	 * @throws IllegalArgumentException	if {@code firstName} or {@code lastName} are null.
+	 * @throws NoSuchElementException	if there is no client with those names in database.
+	 */
+	@Override
+	public Client findClientNamed(String firstName, String lastName) {
+		if (firstName == null || lastName == null)
+			throw new IllegalArgumentException("Names of client to find cannot be null.");
+		
+		Optional<Client> possibleClient = transactionManager.doInTransaction(
+				(ClientRepository clientRepository) -> clientRepository.findByName(firstName, lastName));
+		if (possibleClient.isPresent())
+			return possibleClient.get();
+		throw new NoSuchElementException(
+			"There is no client named \"" + firstName + " " + lastName + "\" in the database.");
+	}
+
+	/*
+	 * Adds a new client in the database within a transaction.
+	 * Eventual reservations of the new client will no be saved.
+	 * This method checks if the client is present in the database before inserting.
+	 * @param client							the client to be inserting.
+	 * @return									the {@code Client} inserted.
+	 * @throws IllegalArgumentException			if {@code client} is null.
+	 * @throws InstanceAlreadyExistsException	if {@code client} is already in the database.
+	 */
+	@Override
+	public Client insertNewClient(Client client) {
+		if (client == null)
+			throw new IllegalArgumentException("Client to insert cannot be null.");
+		
+		return transactionManager.doInTransaction(
+			(ClientRepository clientRepository) -> {
+				Optional<Client> possibleClient = clientRepository
+						.findByName(client.getFirstName(), client.getLastName());
+				if (possibleClient.isEmpty()) {
+					return clientRepository.save(client);
+				}
+				throw new InstanceAlreadyExistsException(
+					client.toString() + " is already in the database.");
+			}
+		);
+	}
+
+	/*
+	 * Deletes the client with specified name and surname
+	 * and all his reservation from the database within a transaction.
+	 * This method checks if the client is present in the database before removing.
+	 * @param firstName					the name of the client to remove.
+	 * @param lastName					the surname of the client to remove.
+	 * @throws IllegalArgumentException	if {@code firstName} or {@code lastName} are null.
+	 * @throws NoSuchElementException	if there is no client with those names in database.
+	 */
+	@Override
+	public void removeClientNamed(String firstName, String lastName) {
+		if (firstName == null || lastName == null)
+			throw new IllegalArgumentException("Names of client to remove cannot be null.");
+		
+		transactionManager.doInTransaction(
+			(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+				Optional<Client> possibleClient = clientRepository.findByName(firstName, lastName);
+				if (possibleClient.isPresent()) {
+					List<Reservation> reservationList = reservationRepository
+						.findByClient(possibleClient.get().getUuid());
+					for (Reservation reservation : reservationList)
+						reservationRepository.delete(reservation.getDate());
+					clientRepository.delete(firstName, lastName);
+					return null;
+				}
+				throw new NoSuchElementException(
+					"There is no client named \"" + firstName + " " + lastName + "\" in the database.");
+			}
+		);
+	}
+
+	/*
+	 * Retrieves all the reservations saved in the database within a transaction.
 	 * @return	the list of reservations found in the database.
 	 */
 	@Override
@@ -37,8 +125,7 @@ public class TransactionalReservationManager implements ReservationManager {
 	}
 
 	/*
-	 * This method is used to retrieve the reservation of the specified date
-	 * from the database within a transaction.
+	 * Retrieves the reservation of the specified date from the database within a transaction.
 	 * @param date						the date of the reservation to find.
 	 * @return							the {@code Reservation} on {@code date}.
 	 * @throws IllegalArgumentException	if {@code date} is null.
@@ -61,7 +148,7 @@ public class TransactionalReservationManager implements ReservationManager {
 	}
 
 	/*
-	 * This method is used to add a new reservation in the database within a transaction.
+	 * Adds a new reservation in the database and to update the associated client within a transaction.
 	 * This method checks if the reservation is not present and the associated client is present
 	 * in the database before inserting.
 	 * @param reservation						the reservation to be inserting.
@@ -98,7 +185,8 @@ public class TransactionalReservationManager implements ReservationManager {
 	}
 
 	/*
-	 * This method is used to remove the reservation on the specified date from the database.
+	 * Deletes the reservation of the specified date from the database
+	 * and update the associated client within a transaction.
 	 * This method checks if the reservation is present in the database before removing.
 	 * This method updates the client's reservations list after inserting
 	 * if the client is in the database.
