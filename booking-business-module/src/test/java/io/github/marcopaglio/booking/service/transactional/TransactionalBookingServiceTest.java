@@ -361,7 +361,7 @@ class TransactionalBookingServiceTest {
 
 			@DisplayName("Single reservation to retrieve")
 			@Test
-			void testFindAllReservationsWhenThereIsASingleReservationToRetrieveShouldReturnTheReservationAsList() {
+			void testFindAllReservationsWhenThereIsASingleReservationToRetrieveShouldReturnReservationAsList() {
 				List<Reservation> reservations = Arrays.asList(A_RESERVATION);
 				when(reservationRepository.findAll()).thenReturn(reservations);
 				

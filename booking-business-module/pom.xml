@@ -58,7 +58,8 @@
           <artifactId>jacoco-maven-plugin</artifactId>
           <configuration>
             <excludes>
-              <!-- HERE ANY EXCLUSION FROM COVERAGE -->
+              <exclude>**/exception/*</exclude>
+              <exclude>**/transaction/code/*</exclude>
             </excludes>
           </configuration>
         </plugin>
@@ -67,13 +68,12 @@
           <artifactId>pitest-maven</artifactId>
           <configuration>
             <targetClasses>
-				<!-- TODO: Il path deve essere completo o va bene il sopra-package? -->
-              <targetClasse>io.github.marcopaglio.booking.transaction.*</targetClasse>
-              <targetClasse>io.github.marcopaglio.booking.service.*</targetClasse>
+              <targetClasse>io.github.marcopaglio.booking.service.transactional.*</targetClasse>
+              <!-- io.github.marcopaglio.booking.transaction.* -->
             </targetClasses>
             <targetTests>
-              <targetTest>io.github.marcopaglio.booking.transaction.*</targetTest>
-              <targetTest>io.github.marcopaglio.booking.service.*</targetTest>
+              <targetTest>io.github.marcopaglio.booking.service.transactional.*</targetTest>
+              <!-- io.github.marcopaglio.booking.transaction.* -->
             </targetTests>
           </configuration>
         </plugin>
@@ -86,7 +86,8 @@
       <id>sonar</id>
       <properties>
         <sonar.coverage.exclusions>
-          <!-- HERE ANY EXCLUSION FROM COVERAGE -->
+          **/exception/*.*,
+          **/transaction/code/*.*
         </sonar.coverage.exclusions>
         <sonar.junit.reportPaths>
           ${project.build.directory}/surefire-reports

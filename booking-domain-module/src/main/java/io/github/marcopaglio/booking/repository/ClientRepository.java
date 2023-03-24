@@ -10,7 +10,6 @@ import io.github.marcopaglio.booking.model.Client;
  * Facade for repository layer for Client entity.
  */
 public interface ClientRepository {
-	// TODO: Valutare se i sequenti metodi vengono utilizzati e se sono sufficienti o ne servono altri.
 
 	/*
 	 * Retrieve all Clients from the repository in a List.

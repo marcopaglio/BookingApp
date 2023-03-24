@@ -11,7 +11,6 @@ import io.github.marcopaglio.booking.model.Reservation;
  * Facade for repository layer for Reservation entity.
  */
 public interface ReservationRepository {
-	// TODO: Valutare se i sequenti metodi vengono utilizzati e se sono sufficienti o ne servono altri.
 
 	/*
 	 * Retrieve all Reservations from the repository in a List.
