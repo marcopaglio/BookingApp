@@ -38,6 +38,8 @@
             <configuration>
               <excludes>
                 <exclude>**/annotation/*</exclude>
+                <exclude>**/exception/*</exclude>
+                <exclude>**/transaction/code/*</exclude>
               </excludes>
             </configuration>
             <executions>

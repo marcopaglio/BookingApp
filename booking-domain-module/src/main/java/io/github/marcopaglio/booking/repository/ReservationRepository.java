@@ -2,6 +2,8 @@ package io.github.marcopaglio.booking.repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import io.github.marcopaglio.booking.model.Reservation;
 
@@ -9,22 +11,28 @@ import io.github.marcopaglio.booking.model.Reservation;
  * Facade for repository layer for Reservation entity.
  */
 public interface ReservationRepository {
-	// TODO: Valutare se i sequenti metodi vengono utilizzati e se sono sufficienti o ne servono altri.
 
 	/*
 	 * Retrieve all Reservations from the repository in a List.
 	 */
 	public List<Reservation> findAll();
+	
+	/*
+	 * Retrieve all the Reservations of Client having clientUUID from the repository in a List.
+	 */
+	public List<Reservation> findByClient(UUID clientUUID);
 
 	/*
 	 * Retrieve the unique Reservation in the given date.
 	 */
-	public Reservation findByDate(LocalDate date);
+	public Optional<Reservation> findByDate(LocalDate date);
 
 	/*
 	 * Insert a new Reservation in the repository.
+	 * Note: reservation entities are immutable,
+	 * so this method cannot be used for saving changes of existing reservations.
 	 */
-	public void save(Reservation reservation);
+	public Reservation save(Reservation reservation);
 
 	/*
 	 * Remove the unique Reservation in the given date from the repository.

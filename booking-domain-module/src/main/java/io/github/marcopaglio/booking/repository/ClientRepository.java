@@ -1,6 +1,7 @@
 package io.github.marcopaglio.booking.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import io.github.marcopaglio.booking.model.Client;
@@ -9,7 +10,6 @@ import io.github.marcopaglio.booking.model.Client;
  * Facade for repository layer for Client entity.
  */
 public interface ClientRepository {
-	// TODO: Valutare se i sequenti metodi vengono utilizzati e se sono sufficienti o ne servono altri.
 
 	/*
 	 * Retrieve all Clients from the repository in a List.
@@ -19,17 +19,18 @@ public interface ClientRepository {
 	/*
 	 * Retrieve the unique Client with given uuid.
 	 */
-	public Client findById(UUID uuid);
+	public Optional<Client> findById(UUID uuid);
 
 	/*
 	 * Retrieve the unique Client with given names.
 	 */
-	public Client findByName(String firstName, String lastName);
+	public Optional<Client> findByName(String firstName, String lastName);
 
 	/*
-	 * Insert a new Client in the repository.
+	 * Insert a new Client in the repository
+	 * or saves changes of an existing one.
 	 */
-	public void save(Client client);
+	public Client save(Client client);
 
 	/*
 	 * Remove the unique Client with given names from the repository.
