@@ -48,6 +48,7 @@
     <maven.reports.version>3.4.2</maven.reports.version>
     <maven.surefire.version>3.0.0-M9</maven.surefire.version>
     <maven.jxr.version>3.3.0</maven.jxr.version>
+    <maven.javadoc.version>3.5.0</maven.javadoc.version>
 
     <!-- VERSIONS FOR OTHER PLUGINS -->
     <pitest.version>1.11.4</pitest.version>
@@ -110,6 +111,18 @@
         <plugin>
           <artifactId>maven-jxr-plugin</artifactId>
           <version>${maven.jxr.version}</version>
+          <configuration>
+            <linkJavadoc>true</linkJavadoc>
+            <javadocDir>${reportOutputDirectory}</javadocDir>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${maven.javadoc.version}</version>
+          <configuration>
+            <outputDirectory>${project.build.directory}/apidocs</outputDirectory>
+            <reportOutputDirectory>${project.reporting.outputDirectory}/apidocs</reportOutputDirectory>
+          </configuration>
         </plugin>
 
         <!-- OTHER PLUGINS -->
@@ -166,6 +179,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-jxr-plugin</artifactId>
+        <!-- main configuration in pluginManagement -->
         <reportSets>
           <reportSet>
             <id>aggregate</id>
@@ -176,7 +190,19 @@
             </reports>
           </reportSet>
         </reportSets>
-        <!-- CONFIGURATION FOR JAVADOC HERE -->
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <!-- main configuration in pluginManagement -->
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <reports>
+              <!-- Goal of maven-javadoc-plugin -->
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-report-plugin</artifactId>
