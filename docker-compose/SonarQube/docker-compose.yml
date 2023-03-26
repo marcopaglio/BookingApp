@@ -1,0 +1,44 @@
+# This docker-compose is used to run locally SonarQube.
+# From the local directory of this file, run the following command on the terminal:
+# docker-compose up 
+# After the images are downloaded and the containers started,
+# you should see this string in the log “SonarQube is up”, stating that SonarQube is ready.
+# Then go to http://localhost:9000 and access with default login configurations
+# [username=admin; password=admin].
+# Go to the settings and generate a new token for project analysis.
+# Then execute the following maven command from booking-aggregator:
+# mvn clean install -Psonar -Dsonar.login=<token>
+# where <token> is the value of generated token.
+version: "3"
+
+services:
+  sonarqube:
+    image: sonarqube:9.9.0-community
+    depends_on:
+    - db
+    ports:
+    - "9000:9000"
+    environment:
+    - sonar.jdbc.url=jdbc:postgresql://db:5432/sonar
+    - sonar.jdbc.username=sonar
+    - sonar.jdbc.passowrd=sonar
+    volumes:
+    - sonarqube_conf:/opt/sonarqube/conf
+    - sonarqube_data:/opt/sonarqube/data
+    - sonarqube_extensions:/opt/sonarqube/extensions
+
+  db:
+    image: postgres:15.2
+    environment:
+    - POSTGRES_USER=sonar
+    - POSTGRES_PASSWORD=sonar
+    volumes:
+    - postgresql:/var/lib/postgresql
+    - postgresql_data:/var/lib/postgresql/data
+
+volumes:
+  sonarqube_conf:
+  sonarqube_data:
+  sonarqube_extensions:
+  postgresql:
+  postgresql_data:
