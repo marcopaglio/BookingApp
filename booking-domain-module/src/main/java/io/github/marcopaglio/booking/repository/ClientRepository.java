@@ -6,34 +6,52 @@ import java.util.UUID;
 
 import io.github.marcopaglio.booking.model.Client;
 
-/*
- * Facade for repository layer for Client entity.
+/**
+ * Facade of repository layer for Client entities.
  */
 public interface ClientRepository {
 
-	/*
-	 * Retrieve all Clients from the repository in a List.
+	/**
+	 * Retrieves all the clients from the database in a list.
+	 * 
+	 * @return	the list of clients found in the repository.
 	 */
 	public List<Client> findAll();
 
-	/*
-	 * Retrieve the unique Client with given uuid.
-	 */
-	public Optional<Client> findById(UUID uuid);
-
-	/*
-	 * Retrieve the unique Client with given names.
+	/**
+	 * Retrieves the unique client with the specified name and surname from the database if exists.
+	 * 
+	 * @param firstName	the name of the client to find.
+	 * @param lastName	the surname of the client to find.
+	 * @return			an {@code Optional} contained the {@code Client}
+	 * 					named {@code firstName} and {@code lastName} if exists;
+	 * 					an {@code Optional} empty if it doesn't exist.
 	 */
 	public Optional<Client> findByName(String firstName, String lastName);
 
-	/*
-	 * Insert a new Client in the repository
-	 * or saves changes of an existing one.
+	/**
+	 * Retrieves the unique client with the specified identifier from the database if exists.
+	 * 
+	 * @param uuid	the identifier of the client to find.
+	 * @return		an {@code Optional} contained the {@code Client}
+	 * 				named {@code firstName} and {@code lastName} if exists;
+	 * 				an {@code Optional} empty if it doesn't exist.
+	 */
+	public Optional<Client> findById(UUID uuid);
+
+	/**
+	 * Insert a new Client in the database or saves changes of an existing one.
+	 *
+	 * @param client	the client to save.
+	 * @return			the {@code Client} saved.
 	 */
 	public Client save(Client client);
 
-	/*
-	 * Remove the unique Client with given names from the repository.
+	/**
+	 * Removes the unique client with specified name and surname from the database.
+	 *
+	 * @param firstName	the name of the client to delete.
+	 * @param lastName	the surname of the client to delete.
 	 */
 	public void delete(String firstName, String lastName);
 }

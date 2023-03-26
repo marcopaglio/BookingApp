@@ -1,4 +1,4 @@
 /**
- * Provides some useful annotations for marking methods.
+ * Provides some useful custom annotations for marking methods.
  */
 package io.github.marcopaglio.booking.annotation;
