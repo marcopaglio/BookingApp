@@ -201,6 +201,6 @@ public class Reservation {
 	@Generated
 	@Override
 	public String toString() {
-		return "Reservation [date=" + this.date + "]";
+		return "Reservation [date=" + date + "]";
 	}
 }

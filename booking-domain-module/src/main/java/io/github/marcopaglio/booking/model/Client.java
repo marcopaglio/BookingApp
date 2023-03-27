@@ -255,6 +255,6 @@ public class Client {
 	 */
 	@Override
 	public String toString() {
-		return "Client [" + this.firstName + " " + this.lastName + "]";
+		return "Client [" + firstName + " " + lastName + "]";
 	}
 }
