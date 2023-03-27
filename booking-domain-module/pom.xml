@@ -45,6 +45,7 @@
           <configuration>
             <excludes>
               <exclude>**/annotation/*</exclude>
+              <exclude>**/exception/*</exclude>
             </excludes>
           </configuration>
         </plugin>
@@ -71,7 +72,8 @@
       <id>sonar</id>
       <properties>
         <sonar.coverage.exclusions>
-          **/annotation/*.*
+          **/annotation/*.*,
+          **/exception/*.*
         </sonar.coverage.exclusions>
         <sonar.junit.reportPaths>
           ${project.build.directory}/surefire-reports

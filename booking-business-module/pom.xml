@@ -58,7 +58,6 @@
           <artifactId>jacoco-maven-plugin</artifactId>
           <configuration>
             <excludes>
-              <exclude>**/exception/*</exclude>
               <exclude>**/transaction/code/*</exclude>
             </excludes>
           </configuration>
@@ -86,7 +85,6 @@
       <id>sonar</id>
       <properties>
         <sonar.coverage.exclusions>
-          **/exception/*.*,
           **/transaction/code/*.*
         </sonar.coverage.exclusions>
         <sonar.junit.reportPaths>
