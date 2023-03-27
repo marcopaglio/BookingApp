@@ -52,11 +52,10 @@ public class Reservation {
 	 * @param client					the associated client of the reservation.
 	 * @param stringDate				the string date of the reservation.
 	 * @throws IllegalArgumentException	if at least one of the argument is null
-	 * 									or {@code stringDate} contains non-valid characters.
-	 * @throws NumberFormatException	if {@code stringDate}'s format is not valid.
+	 * 									or {@code stringDate} contains non-valid characters
+	 * 									or {@code stringDate}'s format is not valid.
 	 */
-	public Reservation(Client client, String stringDate)
-			throws IllegalArgumentException, NumberFormatException {
+	public Reservation(Client client, String stringDate) throws IllegalArgumentException {
 		checkNotNull(client, "client");
 		checkDateValidity(stringDate, "date");
 		
@@ -72,6 +71,7 @@ public class Reservation {
 	 */
 	Reservation(Reservation reservationToCopy) throws IllegalArgumentException {
 		checkNotNull(reservationToCopy, "reservation to copy");
+		
 		this.clientUUID = reservationToCopy.getClientUUID();
 		this.date = reservationToCopy.getDate();
 	}
@@ -83,11 +83,11 @@ public class Reservation {
 	 * @param stringDate				the string to evaluate.
 	 * @param inputName					the role of the string in the reservation's context.
 	 * @throws IllegalArgumentException	if {@code stringDate} is a null string
-	 * 									or contains non-numeric characters.
-	 * @throws NumberFormatException	if {@code stringDate} has a wrong format.
+	 * 									or contains non-numeric characters
+	 * 									or {@code stringDate} has a wrong format.
 	 */
 	private static void checkDateValidity(String stringDate, String inputName)
-			throws IllegalArgumentException, NumberFormatException {
+			throws IllegalArgumentException {
 		checkNotNull(stringDate, inputName);
 		checkOnlyNumeric(stringDate, inputName);
 		checkDateFormat(stringDate, inputName);
@@ -125,15 +125,15 @@ public class Reservation {
 	 *
 	 * @param str						the string to evaluate.
 	 * @param inputName					the role of the string in the reservation's context.
-	 * @throws NumberFormatException	if {@code str} has a different format from aaaa-mm-gg.
+	 * @throws IllegalArgumentException	if {@code str} has a different format from aaaa-mm-gg.
 	 */
-	private static void checkDateFormat(String str, String inputName) throws NumberFormatException {
+	private static void checkDateFormat(String str, String inputName) throws IllegalArgumentException {
 		String[] arrOfStr = str.split("-");
 		if (arrOfStr.length != 3
 			|| arrOfStr[0].length() != 4
 			|| arrOfStr[1].length() != 2
 			|| arrOfStr[2].length() != 2)
-			throw new NumberFormatException(
+			throw new IllegalArgumentException(
 				"Reservation needs a " + inputName + " in format aaaa-mm-dd.");
 	}
 
