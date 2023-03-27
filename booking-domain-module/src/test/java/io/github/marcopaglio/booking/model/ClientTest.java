@@ -24,20 +24,19 @@ import org.junit.jupiter.params.provider.ValueSource;
 class ClientTest {
 	private static final String VALID_FIRST_NAME = "Mario";
 	private static final String VALID_LAST_NAME = "Rossi";
-	private static final String VALID_DATE = "2023-04-24";
 	private static final List<Reservation> EMPTY_LIST = new ArrayList<>();
+	private static final String VALID_DATE = "2023-04-24";
 	private static final Reservation RESERVATION = 
 			new Reservation(UUID.randomUUID(), LocalDate.parse(VALID_DATE));
-	private static final List<Reservation> NON_EMPTY_LIST = 
-			new ArrayList<>(Arrays.asList(RESERVATION));
+	private static final List<Reservation> NON_EMPTY_LIST = Arrays.asList(RESERVATION);
 
 	@Nested
-	@DisplayName("Check constructor inputs")
+	@DisplayName("Constructor")
 	class ConstructorTest {
 
 		@Test
-		@DisplayName("Valid parameters and empty reservations' list")
-		void testConstructorWhenParametersAreValidAndListIsEmptyShouldInsertValues() {
+		@DisplayName("Valid parameters without reservations")
+		void testConstructorWhenParametersAreValidWithoutReservationsShouldInsertValues() {
 			Client client = new Client(VALID_FIRST_NAME, VALID_LAST_NAME, EMPTY_LIST);
 			
 			assertAll(
@@ -49,8 +48,8 @@ class ClientTest {
 		}
 
 		@Test
-		@DisplayName("Valid parameters and non-empty reservations' list")
-		void testConstructorWhenParametersAreValidAndListIsNotEmptyShouldInsertValues() {
+		@DisplayName("Valid parameters with reservations")
+		void testConstructorWhenParametersAreValidWithReservationsShouldInsertValues() {
 			Client client = new Client(VALID_FIRST_NAME, VALID_LAST_NAME, NON_EMPTY_LIST);
 			
 			assertAll(
@@ -66,11 +65,11 @@ class ClientTest {
 		void testConstructorWhenNameIsNullShouldThrow() {
 			assertThatThrownBy(() -> new Client(null, VALID_LAST_NAME, EMPTY_LIST))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client needs a not null first name.");
+				.hasMessage("Client needs a not null name.");
 			
 			assertThatThrownBy(() -> new Client(VALID_FIRST_NAME, null, EMPTY_LIST))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client needs a not null last name.");
+				.hasMessage("Client needs a not null surname.");
 		}
 
 		@Test
@@ -87,11 +86,11 @@ class ClientTest {
 		void testConstructorWhenNameIsEmptyShouldThrow(String emptyName) {
 			assertThatThrownBy(() -> new Client(emptyName, VALID_LAST_NAME, EMPTY_LIST))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client needs a non-empty first name.");
+				.hasMessage("Client needs a non-empty name.");
 			
 			assertThatThrownBy(() -> new Client(VALID_FIRST_NAME, emptyName, EMPTY_LIST))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client needs a non-empty last name.");
+				.hasMessage("Client needs a non-empty surname.");
 		}
 
 		@ParameterizedTest(name = "{index}: ''{0}''")
@@ -101,11 +100,11 @@ class ClientTest {
 				String nonAlphabetName) {
 			assertThatThrownBy(() -> new Client(nonAlphabetName, VALID_LAST_NAME, EMPTY_LIST))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client's first name must contain only alphabet letters.");
+				.hasMessage("Client's name must contain only alphabet letters.");
 			
 			assertThatThrownBy(() -> new Client(VALID_FIRST_NAME, nonAlphabetName, EMPTY_LIST))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client's last name must contain only alphabet letters.");
+				.hasMessage("Client's surname must contain only alphabet letters.");
 		}
 
 		@ParameterizedTest(name = "{index}: ''{0}''")
@@ -135,7 +134,7 @@ class ClientTest {
 		}
 
 		@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
-		@DisplayName("Constructor correctly deletes side spaces")
+		@DisplayName("Side spaced names")
 		@CsvSource({
 			"' Mario', '\tRossi'",
 			"'Mario\t', 'Rossi '",
@@ -153,13 +152,13 @@ class ClientTest {
 		}
 
 		@ParameterizedTest(name = "{index}: ''{0}''''{1}'' => ''{2}''''{3}''")
-		@DisplayName("Constructor correctly converts multiple spaces into single space")
+		@DisplayName("Several spaced names")
 		@CsvSource({
 			"'Maria  Luisa', 'De  Lucia', 'Maria Luisa', 'De Lucia'",
 			"'Mario  Maria  Mario', 'De  Lucio  Lucia', 'Mario Maria Mario', 'De Lucio Lucia'",
 			"'Mario   Maria   Mario', 'De   Lucio   Lucia', 'Mario Maria Mario', 'De Lucio Lucia'"
 		})
-		void testConstructorWhenInputsContainTooMuchSpacesShouldReduce(
+		void testConstructorWhenInputsContainSeveralSpacesShouldReduce(
 				String actualFirstName, String actualLastName,
 				String expectedFirstName, String expectedLastName) {
 			Client client = new Client(actualFirstName, actualLastName, EMPTY_LIST);
@@ -172,8 +171,9 @@ class ClientTest {
 	}
 
 	@Nested
-	@DisplayName("Tests on methods")
+	@DisplayName("Methods")
 	class MethodTest {
+
 		private Client emptyListClient;
 		private Client nonEmptyListClient;
 
@@ -184,14 +184,13 @@ class ClientTest {
 		}
 
 		@Nested
-		@DisplayName("Equality for Clients")
-		class ClientsEqualityTest {
+		@DisplayName("Equalities")
+		class EqualityTest {
 
 			@Test
 			@DisplayName("Same names and reservations")
 			void testEqualsWhenClientsHaveSameNameAndReservationsShouldPass() {
-				Client anotherEmptyListClient =
-						new Client(VALID_FIRST_NAME, VALID_LAST_NAME, EMPTY_LIST);
+				Client anotherEmptyListClient = new Client(VALID_FIRST_NAME, VALID_LAST_NAME, EMPTY_LIST);
 				
 				assertAll(
 					() -> assertThat(emptyListClient).isEqualTo(anotherEmptyListClient),
@@ -212,8 +211,7 @@ class ClientTest {
 			@DisplayName("Different first names")
 			void testEqualsWhenClientsHaveDifferentFirstNamesShouldFail() {
 				String anotherFirstName = "Maria";
-				Client anotherClient =
-						new Client(anotherFirstName, VALID_LAST_NAME, EMPTY_LIST);
+				Client anotherClient = new Client(anotherFirstName, VALID_LAST_NAME, EMPTY_LIST);
 				
 				assertAll(
 					() -> assertThat(emptyListClient).isNotEqualTo(anotherClient),
@@ -226,8 +224,7 @@ class ClientTest {
 			@DisplayName("Different last names")
 			void testEqualsWhenClientsHaveDifferentLastNamesShouldFail() {
 				String anotherLastName = "De Lucia";
-				Client anotherClient =
-						new Client(VALID_FIRST_NAME, anotherLastName, EMPTY_LIST);
+				Client anotherClient = new Client(VALID_FIRST_NAME, anotherLastName, EMPTY_LIST);
 				
 				assertAll(
 					() -> assertThat(emptyListClient).isNotEqualTo(anotherClient),
@@ -238,27 +235,32 @@ class ClientTest {
 		}
 
 		@Nested
-		@DisplayName("Check that attributes are not alterable outside Client class")
+		@DisplayName("Defensive copies")
 		class DefensiveCopyTest {
 
-			@Test
-			@DisplayName("Empty list returned from 'getCopyOfReservations' is modified")
-			void testGetCopyOfReservationsWhenReturnedEmptyListIsModifiedShouldNotChangeAttributeValue() {
-				List<Reservation> returnedReservations = emptyListClient.getCopyOfReservations();
-				
-				returnedReservations.add(RESERVATION);
-				
-				assertThat(emptyListClient.getReservations()).isEqualTo(EMPTY_LIST);
-			}
+			@Nested
+			@DisplayName("Tests for 'GetCopyOfReservations'")
+			class GetCopyOfReservationsTest {
 
-			@Test
-			@DisplayName("Reservation list returned from 'getCopyOfReservations' is modified")
-			void testGetCopyOfReservationsWhenReturnedListIsModifyShouldNotChangeAttributeValue() {
-				List<Reservation> returnedReservations = nonEmptyListClient.getCopyOfReservations();
-				
-				returnedReservations.remove(RESERVATION);
-				
-				assertThat(nonEmptyListClient.getReservations()).isEqualTo(NON_EMPTY_LIST);
+				@Test
+				@DisplayName("Empty reservations' list")
+				void testGetCopyOfReservationsWhenReturnedEmptyListIsModifiedShouldNotChangeAttributeValue() {
+					List<Reservation> returnedReservations = emptyListClient.getCopyOfReservations();
+					
+					returnedReservations.add(RESERVATION);
+					
+					assertThat(emptyListClient.getReservations()).isEqualTo(EMPTY_LIST);
+				}
+
+				@Test
+				@DisplayName("Non-empty reservations' list")
+				void testGetCopyOfReservationsWhenReturnedListIsModifyShouldNotChangeAttributeValue() {
+					List<Reservation> returnedReservations = nonEmptyListClient.getCopyOfReservations();
+					
+					returnedReservations.remove(RESERVATION);
+					
+					assertThat(nonEmptyListClient.getReservations()).isEqualTo(NON_EMPTY_LIST);
+				}
 			}
 		}
 
@@ -271,16 +273,16 @@ class ClientTest {
 			class AddReservationTest {
 
 				@Test
-				@DisplayName("Insert new reservation")
-				void testAddReservationWhenReservationIsValidShouldInsert() {
+				@DisplayName("New reservation")
+				void testAddReservationWhenReservationIsNewShouldInsert() {
 					emptyListClient.addReservation(RESERVATION);
 					
 					assertThat(emptyListClient.getReservations()).containsOnly(RESERVATION);
 				}
 
 				@Test
-				@DisplayName("Insert pre-existing reservation")
-				void testAddReservationWhenReservationIsAlreadyExistingShouldThrow() {
+				@DisplayName("Pre-existing reservation")
+				void testAddReservationWhenReservationAlreadyExistsShouldThrow() {
 					assertThatThrownBy(
 							() -> nonEmptyListClient.addReservation(RESERVATION))
 						.isInstanceOf(IllegalArgumentException.class)
@@ -289,7 +291,7 @@ class ClientTest {
 				}
 
 				@Test
-				@DisplayName("Insert null reservation")
+				@DisplayName("Null reservation")
 				void testAddReservationWhenReservationIsNullShouldThrow() {
 					assertThatThrownBy(() -> emptyListClient.addReservation(null))
 						.isInstanceOf(IllegalArgumentException.class)
@@ -302,7 +304,7 @@ class ClientTest {
 			class RemoveReservationTest {
 
 				@Test
-				@DisplayName("Delete existing reservation")
+				@DisplayName("Existing reservation")
 				void testRemoveReservationWhenReservationExistsShouldRemove() {
 					nonEmptyListClient.removeReservation(RESERVATION); 
 					
@@ -310,7 +312,7 @@ class ClientTest {
 				}
 
 				@Test
-				@DisplayName("Delete non-existent reservation")
+				@DisplayName("Non-existing reservation")
 				void testRemoveReservationWhenReservationDoesNotExistShouldThrow() {
 					assertThatThrownBy(
 							() -> emptyListClient.removeReservation(RESERVATION))

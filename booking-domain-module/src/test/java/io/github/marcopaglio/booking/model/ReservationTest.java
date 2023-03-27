@@ -15,19 +15,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-
 @DisplayName("Tests for Reservation entity")
 class ReservationTest {
 	private static final UUID VALID_UUID = UUID.randomUUID();
-	private static final UUID ANOTHER_VALID_UUID = UUID.randomUUID();
 	private static final LocalDate VALID_DATE = LocalDate.of(2023, 4, 24);
-	private static final LocalDate ANOTHER_VALID_DATE = LocalDate.of(2023, 2, 25);
 
 	@Nested
-	@DisplayName("Check constructor inputs")
+	@DisplayName("Constructors")
 	class ConstructorTest {
-		private final Client client = new Client("Mario", "Rossi", new ArrayList<Reservation>());
-		private final String stringDate = "2022-12-22";
 
 		@Nested
 		@DisplayName("Constructor without conversions")
@@ -49,7 +44,7 @@ class ReservationTest {
 			void testConstructorWithoutConversionsWhenUUIDIsNullShouldThrow() {
 				assertThatThrownBy(() -> new Reservation(null, VALID_DATE))
 					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Reservation needs a not null client uuid.");
+					.hasMessage("Reservation needs a not null client identifier.");
 			}
 
 			@Test
@@ -64,6 +59,8 @@ class ReservationTest {
 		@Nested
 		@DisplayName("Constructor with conversions")
 		class ConstructorWithConversionsTest {
+			private final Client client = new Client("Mario", "Rossi", new ArrayList<Reservation>());
+			private final String stringDate = "2022-12-22";
 
 			@Test
 			@DisplayName("Valid parameters")
@@ -160,7 +157,7 @@ class ReservationTest {
 		}
 
 		@Nested
-		@DisplayName("Tests for copy constructor")
+		@DisplayName("Copy constructor")
 		class CopyConstructorTest {
 
 			@Test
@@ -188,40 +185,42 @@ class ReservationTest {
 	}
 
 	@Nested
-	@DisplayName("Equality for Reservations")
-	class ReservationsEqualityTest {
-		private Reservation reservation1 = new Reservation(VALID_UUID, VALID_DATE);
+	@DisplayName("Equalities")
+	class EqualityTest {
+		private Reservation reservation = new Reservation(VALID_UUID, VALID_DATE);
 
 		@Test
 		@DisplayName("Same date and clientUUID")
 		void testEqualsWhenReservationsHaveSameDateAndClientUUIDShouldPass() {
-			Reservation reservation2 = new Reservation(VALID_UUID, VALID_DATE);
+			Reservation same_reservation = new Reservation(VALID_UUID, VALID_DATE);
 			
 			assertAll(
-				() -> assertThat(reservation1).isEqualTo(reservation2),
-				() -> assertThat(reservation1).hasSameHashCodeAs(reservation2)
+				() -> assertThat(reservation).isEqualTo(same_reservation),
+				() -> assertThat(reservation).hasSameHashCodeAs(same_reservation)
 			);
 		}
 
 		@Test
-		@DisplayName("Same date and differente clientUUID")
+		@DisplayName("Same date and different clientUUID")
 		void testEqualsWhenReservationsHaveSameDateAndDifferentClientUUIDShouldPass() {
-			Reservation reservation2 = new Reservation(ANOTHER_VALID_UUID, VALID_DATE);
+			Reservation different_uuid_reservation = new Reservation(UUID.randomUUID(), VALID_DATE);
 			
 			assertAll(
-				() -> assertThat(reservation1).isEqualTo(reservation2),
-				() -> assertThat(reservation1).hasSameHashCodeAs(reservation2)
+				() -> assertThat(reservation).isEqualTo(different_uuid_reservation),
+				() -> assertThat(reservation).hasSameHashCodeAs(different_uuid_reservation)
 			);
 		}
 
 		@Test
 		@DisplayName("Different date")
 		void testEqualsWhenReservationsHaveDifferentDateShouldFail() {
-			Reservation reservation2 = new Reservation(VALID_UUID, ANOTHER_VALID_DATE);
+			Reservation different_date_reservation =
+					new Reservation(VALID_UUID, LocalDate.of(2023, 2, 25));
 			
 			assertAll(
-				() -> assertThat(reservation1).isNotEqualTo(reservation2),
-				() -> assertThat(reservation1.hashCode()).isNotEqualTo(reservation2.hashCode())
+				() -> assertThat(reservation).isNotEqualTo(different_date_reservation),
+				() -> assertThat(reservation.hashCode())
+					.isNotEqualTo(different_date_reservation.hashCode())
 			);
 		}
 	}

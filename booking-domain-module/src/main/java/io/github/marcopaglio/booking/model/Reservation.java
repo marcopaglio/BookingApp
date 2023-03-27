@@ -37,7 +37,7 @@ public class Reservation {
 	 * @throws IllegalArgumentException	if at least one of the argument is null.
 	 */
 	public Reservation(UUID clientUUID, LocalDate date) throws IllegalArgumentException {
-		checkNotNull(clientUUID, "client uuid");
+		checkNotNull(clientUUID, "client identifier");
 		checkNotNull(date, "date");
 		
 		this.clientUUID = clientUUID;
@@ -171,6 +171,7 @@ public class Reservation {
 
 	/**
 	 * Overridden method for indicating whether some other reservation object is "equal to" this one.
+	 * Two reservation objects are equal if they have the date.
 	 * 
 	 * @param obj	the reference reservation object with which to compare.
 	 * @return		{@code true} if this object is the same as the {@code obj} argument;
@@ -200,6 +201,6 @@ public class Reservation {
 	@Generated
 	@Override
 	public String toString() {
-		return "Reservation [date=" + date + "]";
+		return "Reservation [date=" + this.date + "]";
 	}
 }

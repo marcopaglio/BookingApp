@@ -47,7 +47,6 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 @DisplayName("Tests for TransactionalBookingService class")
 @ExtendWith(MockitoExtension.class)
 class TransactionalBookingServiceTest {
-
 	private static final String A_FIRST_NAME = "Mario";
 	private static final String A_LAST_NAME = "Rossi";
 	private static final Client A_CLIENT = new Client(A_FIRST_NAME, A_LAST_NAME, new ArrayList<>());

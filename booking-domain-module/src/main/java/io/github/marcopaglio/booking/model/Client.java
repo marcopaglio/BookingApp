@@ -53,8 +53,8 @@ public class Client {
 	 */
 	public Client(String firstName, String lastName, List<Reservation> reservations)
 			throws IllegalArgumentException {
-		checkNameValidity(firstName, "first name");
-		checkNameValidity(lastName, "last name");
+		checkNameValidity(firstName, "name");
+		checkNameValidity(lastName, "surname");
 		checkNotNull(reservations, "reservations' list");
 		
 		this.firstName = removeExcessedSpaces(firstName);
@@ -225,6 +225,7 @@ public class Client {
 
 	/**
 	 * Overridden method for indicating whether some other client object is "equal to" this one.
+	 * Two client objects are equal if they have both the same name and surname.
 	 * 
 	 * @param obj	the reference client object with which to compare.
 	 * @return		{@code true} if this object is the same as the {@code obj} argument;
@@ -254,6 +255,6 @@ public class Client {
 	 */
 	@Override
 	public String toString() {
-		return "Client [" + firstName + " " + lastName + "]";
+		return "Client [" + this.firstName + " " + this.lastName + "]";
 	}
 }
