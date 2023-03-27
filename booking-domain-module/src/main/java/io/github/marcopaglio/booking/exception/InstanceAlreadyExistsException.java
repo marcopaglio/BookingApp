@@ -2,6 +2,13 @@ package io.github.marcopaglio.booking.exception;
 
 /**
  * Thrown when you try to create or insert an already existing object in the database.
+ * This annotation is a {@code RuntimeException} version of
+ * {@code javax.management.InstanceAlreadyExistsException}.
+ * 
+ * @see 
+ *   <a href="https://docs.oracle.com/en/java/javase/11/docs/api/java.management/javax/management/InstanceAlreadyExistsException.html">
+ *     javax.management.InstanceAlreadyExistsException
+ *   </a>
  */
 public class InstanceAlreadyExistsException extends RuntimeException {
 
@@ -11,7 +18,15 @@ public class InstanceAlreadyExistsException extends RuntimeException {
 	 * that are compatible with respect to serialization.
 	 */
 	private static final long serialVersionUID = 1L;
+
 	
+	/**
+	 * Default constructor.
+	 */
+	public InstanceAlreadyExistsException() {
+		super();
+	}
+
 	/**
 	 * Constructs an {@code InstanceAlreadyExistsException} with the specified detail message.
 	 * 
