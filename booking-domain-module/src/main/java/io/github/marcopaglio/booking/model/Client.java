@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import io.github.marcopaglio.booking.annotation.Generated;
+import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 
 /**
  * This entity represents the customer's model of the booking application.
@@ -182,16 +183,20 @@ public class Client {
 	/**
 	 * Inserts a new reservation in the list of reservations of the client.
 	 * 
-	 * @param reservation				the reservation to add at the list.
-	 * @throws IllegalArgumentException	if the {@code reservation} is null.
-	 * 									if the {@code reservation} already exists in {@code reservations}.
+	 * @param reservation						the reservation to add at the list.
+	 * @throws IllegalArgumentException			if the {@code reservation} is null.
+	 * @throws InstanceAlreadyExistsException	if the {@code reservation} already exists 
+	 * 											in {@code reservations}.
 	 */
-	public final void addReservation(Reservation reservation) throws IllegalArgumentException {
+	public final void addReservation(Reservation reservation)
+			throws IllegalArgumentException, InstanceAlreadyExistsException {
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to add can't be null.");
+		
 		if (this.reservations.contains(reservation))
-			throw new IllegalArgumentException( // TODO: InstanceAlreadyExistsException
+			throw new InstanceAlreadyExistsException(
 					reservation.toString() + " to add is already in " + this.toString() + "'s list.");
+		
 		this.reservations.add(reservation);
 	}
 
@@ -206,9 +211,11 @@ public class Client {
 			throws IllegalArgumentException, NoSuchElementException {
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to delete can't be null.");
+		
 		if (!this.reservations.contains(reservation))
 			throw new NoSuchElementException(
 					reservation.toString() + " to delete is not in " + this.toString() + "'s list.");
+		
 		this.reservations.remove(reservation);
 	}
 

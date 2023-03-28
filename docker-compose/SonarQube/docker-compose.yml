@@ -1,13 +1,13 @@
 # This docker-compose is used to run locally SonarQube.
 # From the local directory of this file, run the following command on the terminal:
-# docker-compose up 
+# $ docker-compose up 
 # After the images are downloaded and the containers started,
-# you should see this string in the log “SonarQube is up”, stating that SonarQube is ready.
-# Then go to http://localhost:9000 and access with default login configurations
+# you should see this string in the log “ SonarQube is operational”, stating that SonarQube is ready.
+# Then go to "http://localhost:9000" and access with default login configurations
 # [username=admin; password=admin].
 # Go to the settings and generate a new token for project analysis.
 # Then execute the following maven command from booking-aggregator:
-# mvn clean install -Psonar -Dsonar.login=<token>
+# $ mvn clean install -Psonar -Dsonar.login=<token>
 # where <token> is the value of generated token.
 version: "3"
 

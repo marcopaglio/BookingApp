@@ -20,6 +20,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
+
 @DisplayName("Tests for Client entity")
 class ClientTest {
 	private static final String VALID_FIRST_NAME = "Mario";
@@ -285,7 +287,7 @@ class ClientTest {
 				void testAddReservationWhenReservationAlreadyExistsShouldThrow() {
 					assertThatThrownBy(
 							() -> nonEmptyListClient.addReservation(RESERVATION))
-						.isInstanceOf(IllegalArgumentException.class)
+						.isInstanceOf(InstanceAlreadyExistsException.class)
 						.hasMessage("Reservation [date=" + VALID_DATE + "] to add is already in Client ["
 								+ VALID_FIRST_NAME + " " + VALID_LAST_NAME + "]'s list.");
 				}

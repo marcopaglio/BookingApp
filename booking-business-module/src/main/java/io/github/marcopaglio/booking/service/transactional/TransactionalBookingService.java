@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
@@ -20,6 +23,11 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
  * @see <a href="../../repository/ReservationRepository.html">ReservationRepository</a>
  */
 public class TransactionalBookingService implements BookingService{
+	/**
+	 * Creates meaningful logs on behalf of the class.
+	 */
+	private static final Logger LOGGER = LogManager.getLogger(TransactionalBookingService.class);
+
 	/**
 	 * Allows the service to execute transactions.
 	 */
@@ -175,15 +183,17 @@ public class TransactionalBookingService implements BookingService{
 	 * Adds a new reservation in the database and to update the associated client within a transaction.
 	 * This method checks if the reservation is not present and the associated client is present
 	 * in the database before inserting.
+	 * In case of the reservation is already in client's list, the method generates a warning message.
 	 * 
 	 * @param reservation						the reservation to insert.
 	 * @return									the {@code Reservation} inserted.
 	 * @throws IllegalArgumentException			if {@code reservation} is null.
 	 * @throws InstanceAlreadyExistsException	if {@code reservation} is already in the database.
+	 * @throws NoSuchElementException			if the associated client doesn't exists in the database.
 	 */
 	@Override
 	public Reservation insertNewReservation(Reservation reservation)
-			throws IllegalArgumentException, InstanceAlreadyExistsException {
+			throws IllegalArgumentException, InstanceAlreadyExistsException, NoSuchElementException {
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to insert cannot be null.");
 		
@@ -195,8 +205,12 @@ public class TransactionalBookingService implements BookingService{
 					Optional<Client> possibleClient = clientRepository.findById(reservation.getClientUUID());
 					if (possibleClient.isPresent()) {
 						Client client = possibleClient.get();
-						client.addReservation(reservation);
-						clientRepository.save(client);
+						try {
+							client.addReservation(reservation);
+							clientRepository.save(client);
+						} catch (InstanceAlreadyExistsException e) {
+							LOGGER.warn(e.getMessage(), e);
+						}
 						return reservationRepository.save(reservation);
 					}
 					throw new NoSuchElementException(
@@ -216,6 +230,7 @@ public class TransactionalBookingService implements BookingService{
 	 * This method checks if the reservation is present in the database before removing.
 	 * This method updates the client's reservations list after inserting
 	 * if the client is in the database.
+	 * In case of the reservation is not in client's list, the method generates a warning message.
 	 * 
 	 * @param date						the date of the reservation to find.
 	 * @throws IllegalArgumentException	if {@code date} is null.
@@ -236,8 +251,12 @@ public class TransactionalBookingService implements BookingService{
 							.findById(possibleReservation.get().getClientUUID());
 					if (possibleClient.isPresent()) {
 						Client client = possibleClient.get();
-						client.removeReservation(possibleReservation.get());
-						clientRepository.save(client);
+						try {
+							client.removeReservation(possibleReservation.get());
+							clientRepository.save(client);
+						} catch (NoSuchElementException e) {
+							LOGGER.warn(e.getMessage(), e);
+						}
 					}
 					return null;
 				}

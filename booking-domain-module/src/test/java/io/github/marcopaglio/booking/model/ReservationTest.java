@@ -121,7 +121,7 @@ class ReservationTest {
 			void testConstructorWithConversionsWhenStringDateFormatIsWrongShouldThrow(
 					String wrongFormatDate) {
 				assertThatThrownBy(() -> new Reservation(client, wrongFormatDate))
-					.isInstanceOf(NumberFormatException.class)
+					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Reservation needs a date in format aaaa-mm-dd.");
 			}
 
