@@ -27,6 +27,7 @@
     <module>../booking-parent</module>
     <module>../booking-domain-module</module>
     <module>../booking-business-module</module>
+    <module>../booking-ui-module</module>
   </modules>
   
   <properties>
