@@ -16,6 +16,11 @@
   
   <dependencies>
     <dependency>
+      <groupId>io.github.marcopaglio</groupId>
+      <artifactId>booking-domain-module</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <!-- version taken from the parent -->
