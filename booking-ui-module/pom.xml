@@ -10,8 +10,10 @@
   
   <name>BookingApp - User Interface</name>
   <description>
-    Contains parts of the user interface, like the presenter for interacting with the application, and
-    implementations of the view for showing changes in a graphic user interface.
+    Contains parts of the MVP pattern, like the Presenter for interacting with the application
+    and implementations of the View for showing changes in a graphic user interface.
+    This module uses JUnit, AssertJ and Mockito as test dependencies and sets specific configurations
+    of properties and plugins for the Presenter and the View.
   </description>
   
   <dependencies>

@@ -23,56 +23,38 @@ public interface View {
 	public void showAllReservations(List<Reservation> reservations);
 
 	/**
-	 * Retrieves the first name of the selected client on the view.
-	 * @return	a {@code String} contained the {@code firstName} of the selected client.
-	 */
-	public String getNameOfSelectedClient();
-
-	/**
-	 * Retrieves the last name of the selected client on the view.
-	 * @return	a {@code String} contained the {@code lastName} of the selected client.
-	 */
-	public String getSurnameOfSelectedClient();
-
-	/**
-	 * Retrieves the date of the selected reservation on the view.
-	 * @return	the {@code LocalDate} of the selected reservation.
-	 */
-	public String getDateOfSelectedReservation();
-
-	/**
-	 * Displays the new reservation inserted into the repository on the user interface.
+	 * Displays the reservation just inserted into the repository on the user interface.
 	 * @param reservation	the {@code Reservation} to show.
 	 */
 	public void reservationAdded(Reservation reservation);
 
 	/**
-	 * Displays the new client inserted into the repository on the user interface.
+	 * Displays the client just inserted into the repository on the user interface.
 	 * @param client	the {@code Client} to show.
 	 */
 	public void clientAdded(Client client);
 
 	/**
-	 * Makes the deleted reservation disappear from the user interface.
+	 * Makes the just deleted reservation disappear from the user interface.
 	 * @param reservation	the {@code Reservation} to remove from the view.
 	 */
 	public void reservationRemoved(Reservation reservation);
 
 	/**
-	 * Makes the deleted client disappear from the user interface.
+	 * Makes the just deleted client disappear from the user interface.
 	 * @param client	the {@code Client} to remove from the view.
 	 */
 	public void clientRemoved(Client client);
 
 	/**
-	 * Displays an error message that involves a reservation.
+	 * Displays an error message that involves a reservation object.
 	 * @param message		the message to show.
 	 * @param reservation	the reservation involved in the error.
 	 */
 	public void showReservationError(String message, Reservation reservation);
 
 	/**
-	 * Displays an error message that involves a client.
+	 * Displays an error message that involves a client object.
 	 * @param message	the message to show.
 	 * @param client	the client involved in the error.
 	 */
