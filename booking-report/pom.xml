@@ -29,7 +29,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>booking-ui-module</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <!-- version taken from the bom -->
     </dependency>
   </dependencies>
   
