@@ -17,7 +17,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.github.marcopaglio</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>booking-domain-module</artifactId>
       <!-- version taken from the bom -->
     </dependency>
