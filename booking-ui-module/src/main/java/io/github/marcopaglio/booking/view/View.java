@@ -41,22 +41,24 @@ public interface View {
 	public void reservationRemoved(Reservation reservation);
 
 	/**
-	 * Makes the just deleted client disappear from the user interface.
+	 * Makes the just deleted client and all his reservations disappear from the user interface.
 	 * @param client	the {@code Client} to remove from the view.
 	 */
 	public void clientRemoved(Client client);
 
+	// I SEGUENTI METODI NON SONO UNIFICABILI IN showError PERCHé MOSTRERANNO IL MESSAGGIO
+	// DI ERRORE IN POSIZIONI DIFFERENTI DELLA VISTA
 	/**
 	 * Displays an error message that involves a reservation object.
-	 * @param message		the message to show.
 	 * @param reservation	the reservation involved in the error.
+	 * @param message		the message to show.
 	 */
-	public void showReservationError(String message, Reservation reservation);
+	public void showReservationError(Reservation reservation, String message);
 
 	/**
 	 * Displays an error message that involves a client object.
-	 * @param message	the message to show.
 	 * @param client	the client involved in the error.
+	 * @param message	the message to show.
 	 */
-	public void showClientError(String message, Client client);
+	public void showClientError(Client client, String message);
 }
