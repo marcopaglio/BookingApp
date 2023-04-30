@@ -69,8 +69,9 @@ public interface BookingService {
 	 * @return									the {@code Reservation} inserted.
 	 * @throws IllegalArgumentException			if {@code reservation} is null.
 	 * @throws InstanceAlreadyExistsException	if {@code reservation} is already in the database.
+	 * @throws NoSuchElementException			if the associated {@code client} doesn't exist in the database.
 	 */
-	public Reservation insertNewReservation(Reservation reservation) throws IllegalArgumentException, InstanceAlreadyExistsException;
+	public Reservation insertNewReservation(Reservation reservation) throws IllegalArgumentException, InstanceAlreadyExistsException, NoSuchElementException;
 
 	/**
 	 * Deletes the client with specified name and surname

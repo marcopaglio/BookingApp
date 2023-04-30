@@ -63,62 +63,115 @@ public class ServedBookingPresenter implements BookingPresenter {
 	}
 
 	/**
-	 * Creates and inserts a new reservation (and eventually a new client) in the repository and
-	 * notifies the view about the changes. This method checks if objects don't already exist before
-	 * delegating the inserting to the service layer.
+	 * Finds all the existing entities in the repository through the service layer and
+	 * gives the lists to the view for showing them.
+	 */
+	private void updateAll() {
+		allReservations();
+		allClients();
+	}
+
+	/**
+	 * Creates and inserts a new client in the repository and notifies the view
+	 * about the changes. This method delegates the inserting to the service layer.
 	 * 
-	 * @param date		a {@code String} contained the date of the reservation to add.
-	 * @param firstName	the name of the reservation's client to add.
-	 * @param lastName	the surname of the reservation's client to add.
+	 * @param firstName					the name of the client to add.
+	 * @param lastName					the surname of the client to add.
+	 * @return							the {@code Client} added to the repository or the existing one.
+	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
 	 */
 	@Override
-	public void addReservation(String date, String firstName, String lastName) {
-		if (date == null)
-			throw new IllegalArgumentException("Date of reservation to add cannot be null.");
-		if (firstName == null)
-			throw new IllegalArgumentException("Client's name of reservation to add cannot be null.");
-		if (lastName == null)
-			throw new IllegalArgumentException("Client's surname of reservation to add cannot be null.");
-		
+	public Client addClient(String firstName, String lastName) throws IllegalArgumentException {
+		// TODO spostare in view la creazione?
 		Client client;
 		try {
-			client = bookingService.findClientNamed(firstName, lastName);
-		} catch (NoSuchElementException e) {
-			client = new Client(firstName, lastName, new ArrayList<>());
-			bookingService.insertNewClient(client);
-			view.clientAdded(client);
+			client = createClient(firstName, lastName);
+		} catch(IllegalArgumentException e) {
+			view.showFormError("Client's name or surname is not valid.");
+			throw new IllegalArgumentException(e.getMessage());
+			// TODO nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
 		}
 		
-		Reservation reservation = new Reservation(client, date);
+		Client clientInDB = null;
+		do {
+			try {
+				clientInDB = bookingService.insertNewClient(client);
+				view.clientAdded(client);
+			} catch(InstanceAlreadyExistsException e) {
+				logOnConsole(e);
+				try {
+					// FIXME return null se non lo trova
+					clientInDB = bookingService.findClientNamed(firstName, lastName);
+					updateAll();
+				} catch (NoSuchElementException e1) {
+					logOnConsole(e1);
+					clientInDB = null;
+				}
+			}
+		} while (clientInDB == null);
+		return clientInDB;
+	}
+
+	/**
+	 * Creates a new client object.
+	 * 
+	 * @param firstName					the name of the client to create.
+	 * @param lastName					the surname of the client to create.
+	 * @return							the {@code Client} created.
+	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
+
+	 */
+	Client createClient(String firstName, String lastName) throws IllegalArgumentException {
+		return new Client(firstName, lastName, new ArrayList<>());
+	}
+
+	/**
+	 * Creates and inserts a new reservation in the repository and notifies the view
+	 * about the changes. This method delegates the inserting to the service layer.
+	 * 
+	 * @param date						a {@code String} contained the date of the reservation to add.
+	 * @param client					the {@code Client} associated to the reservation to add.
+	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
+	 */
+	@Override
+	public void addReservation(String date, Client client) throws IllegalArgumentException {
+		if (client == null)
+			throw new IllegalArgumentException("Reservation's client to add cannot be null.");
+		
+		// TODO spostare in view la creazione?
+		Reservation reservation;
+		try {
+			reservation = createReservation(client, date);
+		} catch(IllegalArgumentException e) {
+			view.showFormError("Date of reservation is not valid.");
+			throw new IllegalArgumentException(e.getMessage());
+			// TODO nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
+		}
+		
 		try {
 			bookingService.insertNewReservation(reservation);
 			view.reservationAdded(reservation);
-		} catch (InstanceAlreadyExistsException e) {
+		} catch(InstanceAlreadyExistsException e) {
 			view.showReservationError(reservation, " has already been booked.");
-			allClients();
-			allReservations();
+			updateAll();
+			logOnConsole(e);
+		} catch(NoSuchElementException e) {
+			view.showReservationError(reservation, "'s client has been deleted.");
+			updateAll();
+			logOnConsole(e);
 		}
 	}
 
 	/**
-	 * Removes an existing reservation from the repository and notifies the view about the changes.
-	 * This method delegates its elimination to the service layer.
-	 *
-	 * @param reservation				the {@code Reservation} to delete.
-	 * @throws IllegalArgumentException	if {@code reservation} is null.
+	 * Creates a new reservation object.
+	 * 
+	 * @param client	the associated client of the reservation to create.
+	 * @param date		the date of the reservation to create.
+	 * @return			the {@code Reservation} created.
+	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
 	 */
-	@Override
-	public void deleteReservation(Reservation reservation) throws IllegalArgumentException {
-		if (reservation == null)
-			throw new IllegalArgumentException("Reservation to delete cannot be null.");
-		
-		try {
-			bookingService.removeReservationOn(reservation.getDate());
-		} catch (NoSuchElementException e) {
-			view.showReservationError(reservation, " has already been eliminated.");
-			logOnConsole(e);
-		}
-		view.reservationRemoved(reservation);
+	public Reservation createReservation(Client client, String date) throws IllegalArgumentException {
+		return new Reservation(client, date);
 	}
 
 	/**
@@ -141,6 +194,27 @@ public class ServedBookingPresenter implements BookingPresenter {
 			logOnConsole(e);
 		}
 		view.clientRemoved(client);
+	}
+
+	/**
+	 * Removes an existing reservation from the repository and notifies the view about the changes.
+	 * This method delegates its elimination to the service layer.
+	 *
+	 * @param reservation				the {@code Reservation} to delete.
+	 * @throws IllegalArgumentException	if {@code reservation} is null.
+	 */
+	@Override
+	public void deleteReservation(Reservation reservation) throws IllegalArgumentException {
+		if (reservation == null)
+			throw new IllegalArgumentException("Reservation to delete cannot be null.");
+		
+		try {
+			bookingService.removeReservationOn(reservation.getDate());
+		} catch (NoSuchElementException e) {
+			view.showReservationError(reservation, " has already been eliminated.");
+			logOnConsole(e);
+		}
+		view.reservationRemoved(reservation);
 	}
 
 	/**

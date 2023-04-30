@@ -61,4 +61,10 @@ public interface View {
 	 * @param message	the message to show.
 	 */
 	public void showClientError(Client client, String message);
+
+	/**
+	 * Displays an error message that involves a form input.
+	 * @param message	the message to show.
+	 */
+	public void showFormError(String message);
 }
