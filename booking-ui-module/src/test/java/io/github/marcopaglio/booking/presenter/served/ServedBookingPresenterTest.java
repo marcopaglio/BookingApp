@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -43,6 +44,7 @@ class ServedBookingPresenterTest {
 	final static private String A_LASTNAME = "Rossi";
 	final static private Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME, new ArrayList<>());
 	final static private String A_DATE = "2023-04-24";
+	final static private LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
 	final static private Reservation A_RESERVATION = new Reservation(A_CLIENT, A_DATE);
 
 	@Mock
@@ -53,15 +55,52 @@ class ServedBookingPresenterTest {
 
 	@InjectMocks
 	private ServedBookingPresenter servedBookingPresenter;
-
-	@DisplayName("Tests for 'allClients'")
+	
 	@Nested
+	@DisplayName("Null inputs on methods")
+	class NullInputTest {
+
+		@Test
+		@DisplayName("Null client on 'deleteClient'")
+		void testDeleteClientWhenClientIsNullShouldThrow() {
+			assertThatThrownBy(() -> servedBookingPresenter.deleteClient(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Client to delete cannot be null.");
+		
+			verifyNoInteractions(bookingService, view);
+		}
+
+		@Test
+		@DisplayName("Null reservation on 'deleteReservation'")
+		void testDeleteReservationWhenDateIsNullShouldThrow() {
+			assertThatThrownBy(() -> servedBookingPresenter.deleteReservation(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Reservation to delete cannot be null.");
+			
+			verifyNoInteractions(bookingService, view);
+		}
+
+		@DisplayName("Null client on 'addReservation'")
+		@Test
+		void testAddReservationWhenClientIsNullShouldThrow() {
+			assertThatThrownBy(
+					() -> servedBookingPresenter.addReservation(A_DATE, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Reservation's client to add cannot be null.");
+			
+			verifyNoInteractions(bookingService, view);
+		}
+	}
+
+	@Nested
+	@DisplayName("Tests for 'allClients'")
 	class AllClientsTest {
 
-		@DisplayName("No clients in repository")
 		@Test
+		@DisplayName("No clients in repository")
 		void testAllClientsWhenThereAreNoClientsInRepositoryShouldCallTheViewWithEmptyList() {
 			// default stubbing for bookingService.findAllClients()
+			// default stubbing for view.showAllClients(clients)
 			
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
@@ -73,11 +112,13 @@ class ServedBookingPresenterTest {
 			verifyNoMoreInteractions(bookingService, view);
 		}
 
-		@DisplayName("Single client in repository")
 		@Test
+		@DisplayName("Single client in repository")
 		void testAllClientsWhenThereIsASingleClientInRepositoryShouldCallTheViewWithTheClientAsList() {
 			List<Client> clients = Arrays.asList(A_CLIENT);
+			
 			when(bookingService.findAllClients()).thenReturn(clients);
+			// default stubbing for view.showAllClients(clients)
 			
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
@@ -89,12 +130,14 @@ class ServedBookingPresenterTest {
 			verifyNoMoreInteractions(bookingService, view);
 		}
 
-		@DisplayName("Several clients in repository")
 		@Test
+		@DisplayName("Several clients in repository")
 		void testAllClientsWhenThereAreSeveralClientsInRepositoryShouldCallTheViewWithClientsAsList() {
 			Client anotherClient = new Client("Maria", "De Lucia", new ArrayList<>());
 			List<Client> clients = Arrays.asList(A_CLIENT, anotherClient);
+			
 			when(bookingService.findAllClients()).thenReturn(clients);
+			// default stubbing for view.showAllClients(clients)
 			
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
@@ -107,14 +150,15 @@ class ServedBookingPresenterTest {
 		}
 	}
 
-	@DisplayName("Tests for 'allReservations'")
 	@Nested 
+	@DisplayName("Tests for 'allReservations'")
 	class AllReservationsTest {
 
-		@DisplayName("No reservations in repository")
 		@Test
+		@DisplayName("No reservations in repository")
 		void testAllReservationsWhenThereAreNoReservationsInRepositoryShouldCallTheViewWithEmptyList() {
 			// default stubbing for bookingService.findAllReservations()
+			// default stubbing for view.showAllReservations(reservations)
 			
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
@@ -126,11 +170,13 @@ class ServedBookingPresenterTest {
 			verifyNoMoreInteractions(bookingService, view);
 		}
 
-		@DisplayName("Single reservation in repository")
 		@Test
+		@DisplayName("Single reservation in repository")
 		void testAllReservationsWhenThereIsASingleReservationInRepositoryShouldCallTheViewWithTheReservationAsList() {
 			List<Reservation> reservations = Arrays.asList(A_RESERVATION);
+			
 			when(bookingService.findAllReservations()).thenReturn(reservations);
+			// default stubbing for view.showAllReservations(reservations)
 			
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
@@ -142,12 +188,14 @@ class ServedBookingPresenterTest {
 			verifyNoMoreInteractions(bookingService, view);
 		}
 
-		@DisplayName("Several reservations in repository")
 		@Test
+		@DisplayName("Several reservations in repository")
 		void testAllReservationsWhenThereAreSeveralReservationsInRepositoryShouldCallTheViewWithReservationsAsList() {
 			Reservation anotherReservation = new Reservation(A_CLIENT, "2023-09-05");
 			List<Reservation> reservations = Arrays.asList(A_RESERVATION, anotherReservation);
+			
 			when(bookingService.findAllReservations()).thenReturn(reservations);
+			// default stubbing for view.showAllReservations(reservations)
 			
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
@@ -160,22 +208,12 @@ class ServedBookingPresenterTest {
 		}
 	}
 
-	@DisplayName("Tests for 'deleteClient'")
 	@Nested
+	@DisplayName("Tests for 'deleteClient'")
 	class DeleteClientTest {
 
-		@DisplayName("Null client")
 		@Test
-		void testDeleteClientWhenClientIsNullShouldThrow() {
-			assertThatThrownBy(() -> servedBookingPresenter.deleteClient(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client to delete cannot be null.");
-		
-			verifyNoInteractions(bookingService, view);
-		}
-
 		@DisplayName("Client is in repository")
-		@Test
 		void testDeleteClientWhenClientIsInRepositoryShouldDelegateToServiceAndNotifyTheView() {
 			// default stubbing for bookingService.removeClientNamed(firstName, lastName)
 			// default stubbing for view.clientRemoved(client)
@@ -187,15 +225,20 @@ class ServedBookingPresenterTest {
 			
 			inOrder.verify(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 			inOrder.verify(view).clientRemoved(A_CLIENT);
+			
+			verifyNoMoreInteractions(bookingService, view);
 		}
 
-		@DisplayName("Client is not in repository")
 		@Test
+		@DisplayName("Client is not in repository")
 		void testDeleteClientWhenClientIsNotInRepositoryShouldNotifyTheView() {
 			doThrow(new NoSuchElementException())
 				.when(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 			// default stubbing for view.showClientError(client, message)
-			// default stubbing for view.clientRemoved(client)
+			// default stubbing for bookingService.findAllReservation()
+			// default stubbing for view.showAllReservations(reservations)
+			// default stubbing for bookingService.findAllClients()
+			// default stubbing for view.showAllClients(clients)
 			
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
@@ -203,30 +246,24 @@ class ServedBookingPresenterTest {
 					() -> servedBookingPresenter.deleteClient(A_CLIENT));
 			
 			inOrder.verify(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
-			inOrder.verify(view).showClientError(A_CLIENT, " has already been eliminated.");
-			inOrder.verify(view).clientRemoved(A_CLIENT);
+			inOrder.verify(view).showClientError(A_CLIENT, " has already been deleted.");
+			// updateAll
+			inOrder.verify(bookingService).findAllReservations();
+			inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
+			inOrder.verify(bookingService).findAllClients();
+			inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
+			
+			verifyNoMoreInteractions(bookingService, view);
 		}
 	}
 
-	@DisplayName("Tests for 'deleteReservation'")
 	@Nested
+	@DisplayName("Tests for 'deleteReservation'")
 	class DeleteReservationTest {
 
-		@DisplayName("Null reservation")
 		@Test
-		void testDeleteReservationWhenDateIsNullShouldThrow() {
-			assertThatThrownBy(() -> servedBookingPresenter.deleteReservation(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Reservation to delete cannot be null.");
-			
-			verifyNoInteractions(bookingService, view);
-		}
-
 		@DisplayName("Reservation is in repository")
-		@Test
 		void testDeleteReservationWhenReservationIsInRepositoryShouldDelegateToServiceAndNotifyTheView() {
-			LocalDate localDate = LocalDate.parse(A_DATE);
-			
 			// default stubbing for bookingService.removeReservationOn(date)
 			// default stubbing for view.reservationRemoved(reservation)
 			
@@ -235,37 +272,42 @@ class ServedBookingPresenterTest {
 			assertThatNoException().isThrownBy(
 					() -> servedBookingPresenter.deleteReservation(A_RESERVATION));
 			
-			inOrder.verify(bookingService).removeReservationOn(localDate);
+			inOrder.verify(bookingService).removeReservationOn(A_LOCALDATE);
 			inOrder.verify(view).reservationRemoved(A_RESERVATION);
 			
 			verifyNoMoreInteractions(bookingService, view);
 		}
-	
-		@DisplayName("Reservation is not in repository")
+
 		@Test
+		@DisplayName("Reservation is not in repository")
 		void testDeleteReservationWhenReservationIsNotInRepositoryShouldNotifyTheView() {
-			LocalDate localDate = LocalDate.parse(A_DATE);
-			
-			doThrow(new NoSuchElementException()).when(bookingService).removeReservationOn(localDate);
+			doThrow(new NoSuchElementException()).when(bookingService).removeReservationOn(A_LOCALDATE);
 			// default stubbing for view.showReservationError(reservation, message)
-			// default stubbing for view.reservationRemoved(reservation)
+			// default stubbing for bookingService.findAllReservation()
+			// default stubbing for view.showAllReservations(reservations)
+			// default stubbing for bookingService.findAllClients()
+			// default stubbing for view.showAllClients(clients)
 			
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
 			assertThatNoException().isThrownBy(
 					() -> servedBookingPresenter.deleteReservation(A_RESERVATION));
 			
-			inOrder.verify(bookingService).removeReservationOn(localDate);
-			inOrder.verify(view).showReservationError(A_RESERVATION, " has already been eliminated.");
-			inOrder.verify(view).reservationRemoved(A_RESERVATION);
+			inOrder.verify(bookingService).removeReservationOn(A_LOCALDATE);
+			inOrder.verify(view).showReservationError(A_RESERVATION, " has already been deleted.");
+			// updateAll
+			inOrder.verify(bookingService).findAllReservations();
+			inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
+			inOrder.verify(bookingService).findAllClients();
+			inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
 			
 			verifyNoMoreInteractions(bookingService, view);
 		}
 	}
 
-	@DisplayName("Tests for 'addClient'")
 	@Nested
-	class AddClientTest {
+	@DisplayName("Tests using spied presenter")
+	class spiedPresenterTest {
 		private ServedBookingPresenter spiedServedBookingPresenter;
 
 		@BeforeEach
@@ -273,214 +315,197 @@ class ServedBookingPresenterTest {
 			spiedServedBookingPresenter = spy(servedBookingPresenter);
 		}
 
-		@DisplayName("Client is new")
-		@Test
-		void testAddClientWhenClientIsNewShouldCreateDelegateNotifyAndReturn() {
-			doReturn(A_CLIENT).when(spiedServedBookingPresenter).createClient(A_FIRSTNAME, A_LASTNAME);
-			when(bookingService.insertNewClient(A_CLIENT)).thenReturn(A_CLIENT);
-			// default stubbing for view.clientAdded(client)
-			
-			InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter);
-			
-			assertThat(spiedServedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
-				.isEqualTo(A_CLIENT);
-			
-			inOrder.verify(spiedServedBookingPresenter).createClient(A_FIRSTNAME, A_LASTNAME);
-			inOrder.verify(bookingService).insertNewClient(A_CLIENT);
-			inOrder.verify(view).clientAdded(A_CLIENT);
-			
-			verifyNoMoreInteractions(bookingService, view);
-		}
-
-		@DisplayName("Client is not new")
-		@Test
-		void testAddClientWhenClientIsNotNewShouldReturnTheExistingOne() {
-			doReturn(A_CLIENT).when(spiedServedBookingPresenter).createClient(A_FIRSTNAME, A_LASTNAME);
-			when(bookingService.insertNewClient(A_CLIENT)).thenThrow(new InstanceAlreadyExistsException());
-			when(bookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME)).thenReturn(A_CLIENT);
-			
-			InOrder inOrder = Mockito.inOrder(bookingService, spiedServedBookingPresenter);
-			
-			assertThat(spiedServedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
-				.isEqualTo(A_CLIENT);
-			
-			inOrder.verify(spiedServedBookingPresenter).createClient(A_FIRSTNAME, A_LASTNAME);
-			inOrder.verify(bookingService).insertNewClient(A_CLIENT);
-			inOrder.verify(bookingService).findClientNamed(A_FIRSTNAME, A_LASTNAME);
-			// updateAll
-			inOrder.verify(spiedServedBookingPresenter).allReservations();
-			inOrder.verify(spiedServedBookingPresenter).allClients();
-		}
-
-		@DisplayName("Client deleted before being found")
-		@Test
-		void testAddClientWhenClientIsDeletedBeforeBeingFoundShouldRetryToInsert() {
-			doReturn(A_CLIENT).when(spiedServedBookingPresenter).createClient(A_FIRSTNAME, A_LASTNAME);
-			when(bookingService.insertNewClient(A_CLIENT))
-				.thenThrow(new InstanceAlreadyExistsException())
-				.thenReturn(A_CLIENT);
-			when(bookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
-				.thenThrow(new NoSuchElementException());
-			
-			InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter);
-			
-			assertThat(spiedServedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
-				.isEqualTo(A_CLIENT);
-			
-			inOrder.verify(spiedServedBookingPresenter).createClient(A_FIRSTNAME, A_LASTNAME);
-			inOrder.verify(bookingService).insertNewClient(A_CLIENT);
-			inOrder.verify(bookingService).findClientNamed(A_FIRSTNAME, A_LASTNAME);
-			// FIXME times(2)?
-			inOrder.verify(bookingService).insertNewClient(A_CLIENT);
-			inOrder.verify(view).clientAdded(A_CLIENT);
-			
-			verifyNoMoreInteractions(bookingService, view);
-		}
-
-		@DisplayName("Invalid inputs")
 		@Nested
-		class InvalidInputsTest {
+		@DisplayName("Tests for 'addClient'")
+		class AddClientTest {
 
-			@ParameterizedTest(name = "{index}: ''{0}''")
-			@DisplayName("Name is not valid")
-			@NullSource
-			@ValueSource(strings = {" ", "Mari0", "Mario!"})
-			void testAddClientWhenNameIsNotValidShouldShowErrorAndThrow(String invalidName) {
-				doThrow(new IllegalArgumentException())
-					.when(spiedServedBookingPresenter).createClient(invalidName, A_LASTNAME);
-				
-				InOrder inOrder = Mockito.inOrder(view, spiedServedBookingPresenter);
-				
-				assertThatThrownBy(
-						() -> spiedServedBookingPresenter.addClient(invalidName, A_LASTNAME))
-					.isInstanceOf(IllegalArgumentException.class);
-				
-				inOrder.verify(spiedServedBookingPresenter).createClient(invalidName, A_LASTNAME);
-				inOrder.verify(view).showFormError("Client's name or surname is not valid.");
-				
-				//verify(bookingService, never()).insertNewClient(any());
-				//verify(view, never()).clientAdded(any()); TODO
-				verifyNoMoreInteractions(view);
-				verifyNoInteractions(bookingService);
-			}
-
-			@ParameterizedTest(name = "{index}: ''{0}''")
-			@DisplayName("Surname is not valid")
-			@NullSource
-			@ValueSource(strings = {" ", "Ro55i", "Rossi@"})
-			void testAddClientWhenSurnameIsNotValidShouldShowErrorAndThrow(String invalidSurname) {
-				doThrow(new IllegalArgumentException())
-					.when(spiedServedBookingPresenter).createClient(A_FIRSTNAME, invalidSurname);
-				
-				InOrder inOrder = Mockito.inOrder(view, spiedServedBookingPresenter);
-				
-				assertThatThrownBy(
-						() -> spiedServedBookingPresenter.addClient(A_FIRSTNAME, invalidSurname))
-					.isInstanceOf(IllegalArgumentException.class);
-				
-				inOrder.verify(spiedServedBookingPresenter).createClient(A_FIRSTNAME, invalidSurname);
-				inOrder.verify(view).showFormError("Client's name or surname is not valid.");
-				
-				//verify(bookingService, never()).insertNewClient(any());
-				//verify(view, never()).clientAdded(any());
-				verifyNoMoreInteractions(view);
-				verifyNoInteractions(bookingService);
-			}
-		}
-	}
-
-	@DisplayName("Tests for 'addReservation'")
-	@Nested
-	class AddReservationTest {
-		private ServedBookingPresenter spiedServedBookingPresenter;
-
-		@BeforeEach
-		void setUp() {
-			spiedServedBookingPresenter = spy(servedBookingPresenter);
-		}
-
-		@DisplayName("Reservation is new")
-		@Test
-		void testAddReservationWhenReservationIsNewShouldCreateDelegateAndNotify() {
-			doReturn(A_RESERVATION).when(spiedServedBookingPresenter).createReservation(A_CLIENT, A_DATE);
-			// default stubbing for bookingService.insertNewReservation(reservation)
-			// default stubbing for view.reservationAdded(reservation)
-			
-			InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter);
-			
-			assertThatNoException().isThrownBy(
-					() -> spiedServedBookingPresenter.addReservation(A_DATE, A_CLIENT));
-			
-			inOrder.verify(spiedServedBookingPresenter).createReservation(A_CLIENT, A_DATE);
-			inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
-			inOrder.verify(view).reservationAdded(A_RESERVATION);
-			
-			verifyNoMoreInteractions(bookingService, view);
-		}
-
-		@DisplayName("Reservation is not new")
-		@Test
-		void testNewReservationWhenReservationIsNotNewShouldShowErrorAndUpdateView() {
-			doReturn(A_RESERVATION).when(spiedServedBookingPresenter).createReservation(A_CLIENT, A_DATE);
-			when(bookingService.insertNewReservation(A_RESERVATION))
-				.thenThrow(new InstanceAlreadyExistsException());
-			// default stubbing for view.showReservationError(reservation, message)
-			// default stubbing for bookingService.findAllReservations()
-			// default stubbing for view.showAllReservations(reservations)
-			// default stubbing for bookingService.findAllClients()
-			// default stubbing for view.showAllClients(clients)
-			
-			InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter);
-			
-			assertThatNoException().isThrownBy(
-					() -> spiedServedBookingPresenter.addReservation(A_DATE, A_CLIENT));
-			
-			inOrder.verify(spiedServedBookingPresenter).createReservation(A_CLIENT, A_DATE);
-			inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
-			inOrder.verify(view).showReservationError(A_RESERVATION, " has already been booked.");
-			// updateAll
-			inOrder.verify(spiedServedBookingPresenter).allReservations();
-			inOrder.verify(spiedServedBookingPresenter).allClients();
-		}
-
-		@DisplayName("Reservation's client is not in database")
-		@Test
-		void testNewReservationWhenClientIsNotInDatabaseShouldShowErrorAndUpdateView() {
-			doReturn(A_RESERVATION).when(spiedServedBookingPresenter).createReservation(A_CLIENT, A_DATE);
-			when(bookingService.insertNewReservation(A_RESERVATION))
-				.thenThrow(new NoSuchElementException());
-			// default stubbing for view.showReservationError(reservation, message)
-			// default stubbing for bookingService.findAllClients()
-			// default stubbing for view.showAllClients(clients)
-			// default stubbing for bookingService.findAllReservations()
-			// default stubbing for view.showAllReservations(reservations)
-			
-			InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter);
-			
-			assertThatNoException().isThrownBy(
-					() -> spiedServedBookingPresenter.addReservation(A_DATE, A_CLIENT));
-			
-			inOrder.verify(spiedServedBookingPresenter).createReservation(A_CLIENT, A_DATE);
-			inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
-			inOrder.verify(view).showReservationError(A_RESERVATION, "'s client has been deleted.");
-			// updateAll
-			inOrder.verify(spiedServedBookingPresenter).allReservations();
-			inOrder.verify(spiedServedBookingPresenter).allClients();
-		}
-
-		@DisplayName("Invalid inputs")
-		@Nested
-		class InvalidInputsTest {
-
-			@DisplayName("Client is null")
 			@Test
-			void testAddReservationWhenClientIsNullShouldThrow() {
-				assertThatThrownBy(
-						() -> servedBookingPresenter.addReservation(A_DATE, null))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Reservation's client to add cannot be null.");
+			@DisplayName("Client is new")
+			void testAddClientWhenClientIsNewShouldCreateDelegateNotifyAndReturn() {
+				doReturn(A_CLIENT).when(spiedServedBookingPresenter).createClient(A_FIRSTNAME, A_LASTNAME);
+				when(bookingService.insertNewClient(A_CLIENT)).thenReturn(A_CLIENT);
+				// default stubbing for view.clientAdded(client)
 				
-				verifyNoInteractions(bookingService, view);
+				InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter);
+				
+				assertThat(spiedServedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
+					.isEqualTo(A_CLIENT);
+				
+				inOrder.verify(spiedServedBookingPresenter).createClient(A_FIRSTNAME, A_LASTNAME);
+				inOrder.verify(bookingService).insertNewClient(A_CLIENT);
+				inOrder.verify(view).clientAdded(A_CLIENT);
+				
+				verifyNoMoreInteractions(bookingService, view);
+			}
+
+			@Test
+			@DisplayName("Client is not new")
+			void testAddClientWhenClientIsNotNewShouldReturnTheExistingOne() {
+				doReturn(A_CLIENT).when(spiedServedBookingPresenter).createClient(A_FIRSTNAME, A_LASTNAME);
+				when(bookingService.insertNewClient(A_CLIENT)).thenThrow(new InstanceAlreadyExistsException());
+				when(bookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME)).thenReturn(A_CLIENT);
+				
+				InOrder inOrder = Mockito.inOrder(bookingService, spiedServedBookingPresenter);
+				
+				assertThat(spiedServedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
+					.isEqualTo(A_CLIENT);
+				
+				inOrder.verify(spiedServedBookingPresenter).createClient(A_FIRSTNAME, A_LASTNAME);
+				inOrder.verify(bookingService).insertNewClient(A_CLIENT);
+				inOrder.verify(bookingService).findClientNamed(A_FIRSTNAME, A_LASTNAME);
+				// updateAll
+				inOrder.verify(spiedServedBookingPresenter).allReservations();
+				inOrder.verify(spiedServedBookingPresenter).allClients();
+			}
+
+			@Test
+			@DisplayName("Client deleted before being found")
+			void testAddClientWhenClientIsDeletedBeforeBeingFoundShouldRetryToInsert() {
+				doReturn(A_CLIENT).when(spiedServedBookingPresenter).createClient(A_FIRSTNAME, A_LASTNAME);
+				when(bookingService.insertNewClient(A_CLIENT))
+					.thenThrow(new InstanceAlreadyExistsException())
+					.thenReturn(A_CLIENT);
+				when(bookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
+					.thenThrow(new NoSuchElementException());
+				
+				InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter);
+				
+				assertThat(spiedServedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
+					.isEqualTo(A_CLIENT);
+				
+				inOrder.verify(spiedServedBookingPresenter).createClient(A_FIRSTNAME, A_LASTNAME);
+				inOrder.verify(bookingService).insertNewClient(A_CLIENT);
+				inOrder.verify(bookingService).findClientNamed(A_FIRSTNAME, A_LASTNAME);
+				// FIXME times(2)?
+				inOrder.verify(bookingService).insertNewClient(A_CLIENT);
+				inOrder.verify(view).clientAdded(A_CLIENT);
+				
+				verifyNoMoreInteractions(bookingService, view);
+			}
+
+			@Nested
+			@DisplayName("Invalid inputs")
+			class InvalidInputsTest {
+
+				@ParameterizedTest(name = "{index}: ''{0}''")
+				@DisplayName("Name is not valid")
+				@NullSource
+				@ValueSource(strings = {" ", "Mari0", "Mario!"})
+				void testAddClientWhenNameIsNotValidShouldShowErrorAndThrow(String invalidName) {
+					doThrow(new IllegalArgumentException())
+						.when(spiedServedBookingPresenter).createClient(invalidName, A_LASTNAME);
+					
+					InOrder inOrder = Mockito.inOrder(view, spiedServedBookingPresenter);
+					
+					assertThatThrownBy(
+							() -> spiedServedBookingPresenter.addClient(invalidName, A_LASTNAME))
+						.isInstanceOf(IllegalArgumentException.class);
+					
+					inOrder.verify(spiedServedBookingPresenter).createClient(invalidName, A_LASTNAME);
+					inOrder.verify(view).showFormError("Client's name or surname is not valid.");
+					
+					//verify(bookingService, never()).insertNewClient(any());
+					//verify(view, never()).clientAdded(any()); TODO
+					verifyNoMoreInteractions(view);
+					verifyNoInteractions(bookingService);
+				}
+
+				@ParameterizedTest(name = "{index}: ''{0}''")
+				@DisplayName("Surname is not valid")
+				@NullSource
+				@ValueSource(strings = {" ", "Ro55i", "Rossi@"})
+				void testAddClientWhenSurnameIsNotValidShouldShowErrorAndThrow(String invalidSurname) {
+					doThrow(new IllegalArgumentException())
+						.when(spiedServedBookingPresenter).createClient(A_FIRSTNAME, invalidSurname);
+					
+					InOrder inOrder = Mockito.inOrder(view, spiedServedBookingPresenter);
+					
+					assertThatThrownBy(
+							() -> spiedServedBookingPresenter.addClient(A_FIRSTNAME, invalidSurname))
+						.isInstanceOf(IllegalArgumentException.class);
+					
+					inOrder.verify(spiedServedBookingPresenter).createClient(A_FIRSTNAME, invalidSurname);
+					inOrder.verify(view).showFormError("Client's name or surname is not valid.");
+					
+					//verify(bookingService, never()).insertNewClient(any());
+					//verify(view, never()).clientAdded(any());
+					verifyNoMoreInteractions(view);
+					verifyNoInteractions(bookingService);
+				}
+			}
+		}
+
+		@Nested
+		@DisplayName("Tests for 'addReservation'")
+		class AddReservationTest {
+
+			@Test
+			@DisplayName("Reservation is new")
+			void testAddReservationWhenReservationIsNewShouldCreateDelegateAndNotify() {
+				doReturn(A_RESERVATION).when(spiedServedBookingPresenter).createReservation(A_CLIENT, A_DATE);
+				// default stubbing for bookingService.insertNewReservation(reservation)
+				// default stubbing for view.reservationAdded(reservation)
+				
+				InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter);
+				
+				assertThatNoException().isThrownBy(
+						() -> spiedServedBookingPresenter.addReservation(A_DATE, A_CLIENT));
+				
+				inOrder.verify(spiedServedBookingPresenter).createReservation(A_CLIENT, A_DATE);
+				inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
+				inOrder.verify(view).reservationAdded(A_RESERVATION);
+				
+				verifyNoMoreInteractions(bookingService, view);
+			}
+
+			@Test
+			@DisplayName("Reservation is not new")
+			void testNewReservationWhenReservationIsNotNewShouldShowErrorAndUpdateView() {
+				doReturn(A_RESERVATION).when(spiedServedBookingPresenter).createReservation(A_CLIENT, A_DATE);
+				when(bookingService.insertNewReservation(A_RESERVATION))
+					.thenThrow(new InstanceAlreadyExistsException());
+				// default stubbing for view.showReservationError(reservation, message)
+				// default stubbing for bookingService.findAllReservations()
+				// default stubbing for view.showAllReservations(reservations)
+				// default stubbing for bookingService.findAllClients()
+				// default stubbing for view.showAllClients(clients)
+				
+				InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter);
+				
+				assertThatNoException().isThrownBy(
+						() -> spiedServedBookingPresenter.addReservation(A_DATE, A_CLIENT));
+				
+				inOrder.verify(spiedServedBookingPresenter).createReservation(A_CLIENT, A_DATE);
+				inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
+				inOrder.verify(view).showReservationError(A_RESERVATION, " has already been booked.");
+				// updateAll
+				inOrder.verify(spiedServedBookingPresenter).allReservations();
+				inOrder.verify(spiedServedBookingPresenter).allClients();
+			}
+
+			@Test
+			@DisplayName("Reservation's client is not in database")
+			void testNewReservationWhenClientIsNotInDatabaseShouldShowErrorAndUpdateView() {
+				doReturn(A_RESERVATION).when(spiedServedBookingPresenter).createReservation(A_CLIENT, A_DATE);
+				when(bookingService.insertNewReservation(A_RESERVATION))
+					.thenThrow(new NoSuchElementException());
+				// default stubbing for view.showReservationError(reservation, message)
+				// default stubbing for bookingService.findAllClients()
+				// default stubbing for view.showAllClients(clients)
+				// default stubbing for bookingService.findAllReservations()
+				// default stubbing for view.showAllReservations(reservations)
+				
+				InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter);
+				
+				assertThatNoException().isThrownBy(
+						() -> spiedServedBookingPresenter.addReservation(A_DATE, A_CLIENT));
+				
+				inOrder.verify(spiedServedBookingPresenter).createReservation(A_CLIENT, A_DATE);
+				inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
+				inOrder.verify(view).showReservationError(A_RESERVATION, "'s client has been deleted.");
+				// updateAll
+				inOrder.verify(spiedServedBookingPresenter).allReservations();
+				inOrder.verify(spiedServedBookingPresenter).allClients();
 			}
 
 			@ParameterizedTest(name = "{index}: ''{0}''")

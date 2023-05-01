@@ -107,8 +107,8 @@ class TransactionalBookingServiceTest {
 					ArgumentMatchers.<ClientTransactionCode<?>>any());
 		}
 
-		@DisplayName("Null date on 'findReservationOn'")
 		@Test
+		@DisplayName("Null date on 'findReservationOn'")
 		void testFindReservationOnWhenDateIsNullShouldThrow() {
 			assertThatThrownBy(
 					() -> transactionalBookingService.findReservationOn(null))
@@ -141,8 +141,8 @@ class TransactionalBookingServiceTest {
 					ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
 		}
 
-		@DisplayName("Null reservation on 'insertNewReservation'")
 		@Test
+		@DisplayName("Null reservation on 'insertNewReservation'")
 		void testInsertNewReservationWhenReservationIsNullShouldThrow() {
 			assertThatThrownBy(
 					() -> transactionalBookingService.insertNewReservation(null))
@@ -153,8 +153,8 @@ class TransactionalBookingServiceTest {
 					ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
 		}
 
-		@DisplayName("Null date on 'removeReservationOn'")
 		@Test
+		@DisplayName("Null date on 'removeReservationOn'")
 		void testRemoveReservationOnWhenDateIsNullShouldThrow() {
 			assertThatThrownBy(
 					() -> transactionalBookingService.removeReservationOn(null))
@@ -344,8 +344,8 @@ class TransactionalBookingServiceTest {
 		@DisplayName("Tests for 'findAllReservations'")
 		class FindAllReservationsTest {
 
-			@DisplayName("No reservations to retrieve")
 			@Test
+			@DisplayName("No reservations to retrieve")
 			void testFindAllReservationsWhenThereAreNotReservationsToRetrieveShouldReturnEmptyList() {
 				// default stubbing for reservationRepository.findAll()
 				
@@ -361,8 +361,8 @@ class TransactionalBookingServiceTest {
 				verifyNoMoreInteractions(transactionManager, reservationRepository);
 			}
 
-			@DisplayName("Single reservation to retrieve")
 			@Test
+			@DisplayName("Single reservation to retrieve")
 			void testFindAllReservationsWhenThereIsASingleReservationToRetrieveShouldReturnReservationAsList() {
 				List<Reservation> reservations = Arrays.asList(A_RESERVATION);
 				when(reservationRepository.findAll()).thenReturn(reservations);
@@ -378,8 +378,8 @@ class TransactionalBookingServiceTest {
 				verifyNoMoreInteractions(transactionManager, reservationRepository);
 			}
 
-			@DisplayName("Several reservations to retrieve")
 			@Test
+			@DisplayName("Several reservations to retrieve")
 			void testFindAllReservationsWhenThereAreSeveralReservationsToRetrieveShouldReturnReservationsAsList() {
 				LocalDate another_localdate = LocalDate.parse("2023-09-05");
 				Reservation another_reservation = new Reservation(UUID.randomUUID(), another_localdate);
@@ -419,8 +419,8 @@ class TransactionalBookingServiceTest {
 				verifyNoMoreInteractions(transactionManager, reservationRepository);
 			}
 
-			@DisplayName("Reservation doesn't exist")
 			@Test
+			@DisplayName("Reservation doesn't exist")
 			void testFindReservationOnWhenReservationDoesNotExistShouldThrow() {
 				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.empty());
 				
@@ -594,8 +594,8 @@ class TransactionalBookingServiceTest {
 						transactionManager, reservationRepository, clientRepository, spied_client);
 			}
 
-			@DisplayName("Reservation is new and is already in client's list")
 			@Test
+			@DisplayName("Reservation is new and is already in client's list")
 			void testInsertNewReservationWhenReservationDoesNotAlreadyExistAndIsAlreadyInTheListOfAssociatedClientShouldNotThrowInsertAndReturn() {
 				Client spied_client = spy(A_CLIENT);
 				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.empty());
@@ -621,8 +621,8 @@ class TransactionalBookingServiceTest {
 						transactionManager, reservationRepository, clientRepository, spied_client);
 			}
 
-			@DisplayName("Reservation is new and client doesn't exist")
 			@Test
+			@DisplayName("Reservation is new and client doesn't exist")
 			void testInsertNewReservationWhenReservationDoesNotAlreadyExistAndAssociatedClientDoesNotExistShouldNotInsertAndThrow() {
 				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.empty());
 				when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.empty());
@@ -645,8 +645,8 @@ class TransactionalBookingServiceTest {
 				verifyNoMoreInteractions(transactionManager, reservationRepository, clientRepository);
 			}
 
-			@DisplayName("Reservation already exists")
 			@Test
+			@DisplayName("Reservation already exists")
 			void testInsertNewReservationWhenReservationAlreadyExistsShouldThrow() {
 				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.of(A_RESERVATION));
 				
@@ -671,8 +671,8 @@ class TransactionalBookingServiceTest {
 		@DisplayName("Tests for 'removeReservationOn'")
 		class RemoveReservationOnTest {
 
-			@DisplayName("Both reservation and client exist")
 			@Test
+			@DisplayName("Both reservation and client exist")
 			void testRemoveReservationOnWhenBothReservationAndAssociatedClientExistShouldRemoveAndUpdate() {
 				Client spied_client = spy(A_CLIENT);
 				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.of(A_RESERVATION));
@@ -699,8 +699,8 @@ class TransactionalBookingServiceTest {
 						transactionManager, reservationRepository, clientRepository, spied_client);
 			}
 
-			@DisplayName("Reservation exists and is not in client's list")
 			@Test
+			@DisplayName("Reservation exists and is not in client's list")
 			void testRemoveReservationOnWhenReservationExistsAndIsNotInTheListOfAssociatedClientShouldRemoveAndNotThrow() {
 				Client spied_client = spy(A_CLIENT);
 				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.of(A_RESERVATION));
@@ -726,8 +726,8 @@ class TransactionalBookingServiceTest {
 						transactionManager, reservationRepository, clientRepository, spied_client);
 			}
 
-			@DisplayName("Reservation exists and client doesn't exist")
 			@Test
+			@DisplayName("Reservation exists and client doesn't exist")
 			void testRemoveReservationOnWhenReservationExistsAndAssociatedClientDoesNotExistShouldRemoveAndNotThrow() {
 				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.of(A_RESERVATION));
 				// default stubbing for reservationRepository.delete(reservation)
@@ -748,8 +748,8 @@ class TransactionalBookingServiceTest {
 				verifyNoMoreInteractions(transactionManager, reservationRepository, clientRepository);
 			}
 
-			@DisplayName("Reservation doesn't exist")
 			@Test
+			@DisplayName("Reservation doesn't exist")
 			void testRemoveReservationOnWhenReservationDoesNotExistShouldThrow() {
 				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.empty());
 				

@@ -166,8 +166,10 @@ public class TransactionalBookingService implements BookingService{
 						try {
 							client.addReservation(reservation);
 							clientRepository.save(client);
+							LOGGER.info(() -> String.format("%s has been inserted to %s with success.",
+									reservation.toString(), client.toString()));
 						} catch (InstanceAlreadyExistsException e) {
-							logOnConsole(e);
+							logWarningOnConsole(e);
 						}
 						return reservationRepository.save(reservation);
 					}
@@ -236,16 +238,19 @@ public class TransactionalBookingService implements BookingService{
 			(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
 				Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
 				if (possibleReservation.isPresent()) {
+					Reservation reservation = possibleReservation.get();
 					reservationRepository.delete(date);
 					Optional<Client> possibleClient = clientRepository
-							.findById(possibleReservation.get().getClientUUID());
+							.findById(reservation.getClientUUID());
 					if (possibleClient.isPresent()) {
 						Client client = possibleClient.get();
 						try {
-							client.removeReservation(possibleReservation.get());
+							client.removeReservation(reservation);
 							clientRepository.save(client);
+							LOGGER.info(() -> String.format("%s has been removed from %s with success.",
+									reservation.toString(), client.toString()));
 						} catch (NoSuchElementException e) {
-							logOnConsole(e);
+							logWarningOnConsole(e);
 						}
 					}
 					return null;
@@ -260,7 +265,7 @@ public class TransactionalBookingService implements BookingService{
 	 * 
 	 * @param e	the exception containing logging informations.
 	 */
-	private void logOnConsole(RuntimeException e) {
+	private void logWarningOnConsole(RuntimeException e) {
 		if (LOGGER.isDebugEnabled())
 			LOGGER.debug(e.getMessage(), e);
 		else

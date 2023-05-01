@@ -51,6 +51,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	@Override
 	public void allClients() {
 		view.showAllClients(bookingService.findAllClients());
+		LOGGER.info("All clients have been retrieved with success.");
 	}
 
 	/**
@@ -60,6 +61,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	@Override
 	public void allReservations() {
 		view.showAllReservations(bookingService.findAllReservations());
+		LOGGER.info("All reservations have been retrieved with success.");
 	}
 
 	/**
@@ -82,7 +84,6 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 */
 	@Override
 	public Client addClient(String firstName, String lastName) throws IllegalArgumentException {
-		// TODO spostare in view la creazione?
 		Client client;
 		try {
 			client = createClient(firstName, lastName);
@@ -96,15 +97,15 @@ public class ServedBookingPresenter implements BookingPresenter {
 		do {
 			try {
 				clientInDB = bookingService.insertNewClient(client);
-				view.clientAdded(client);
+				view.clientAdded(clientInDB);
+				LOGGER.info(() -> String.format("%s has been added with success.", client.toString()));
 			} catch(InstanceAlreadyExistsException e) {
-				logOnConsole(e);
+				logWarningOnConsole(e);
 				try {
-					// FIXME return null se non lo trova
 					clientInDB = bookingService.findClientNamed(firstName, lastName);
 					updateAll();
 				} catch (NoSuchElementException e1) {
-					logOnConsole(e1);
+					logWarningOnConsole(e1);
 					clientInDB = null;
 				}
 			}
@@ -138,7 +139,6 @@ public class ServedBookingPresenter implements BookingPresenter {
 		if (client == null)
 			throw new IllegalArgumentException("Reservation's client to add cannot be null.");
 		
-		// TODO spostare in view la creazione?
 		Reservation reservation;
 		try {
 			reservation = createReservation(client, date);
@@ -151,23 +151,24 @@ public class ServedBookingPresenter implements BookingPresenter {
 		try {
 			bookingService.insertNewReservation(reservation);
 			view.reservationAdded(reservation);
+			LOGGER.info(() -> String.format("%s has been added with success.", reservation.toString()));
 		} catch(InstanceAlreadyExistsException e) {
+			logWarningOnConsole(e);
 			view.showReservationError(reservation, " has already been booked.");
 			updateAll();
-			logOnConsole(e);
 		} catch(NoSuchElementException e) {
+			logWarningOnConsole(e);
 			view.showReservationError(reservation, "'s client has been deleted.");
 			updateAll();
-			logOnConsole(e);
 		}
 	}
 
 	/**
 	 * Creates a new reservation object.
 	 * 
-	 * @param client	the associated client of the reservation to create.
-	 * @param date		the date of the reservation to create.
-	 * @return			the {@code Reservation} created.
+	 * @param client					the associated client of the reservation to create.
+	 * @param date						the date of the reservation to create.
+	 * @return							the {@code Reservation} created.
 	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
 	 */
 	public Reservation createReservation(Client client, String date) throws IllegalArgumentException {
@@ -189,11 +190,13 @@ public class ServedBookingPresenter implements BookingPresenter {
 		
 		try {
 			bookingService.removeClientNamed(client.getFirstName(), client.getLastName());
+			view.clientRemoved(client);
+			LOGGER.info(() -> String.format("%s has been deleted with success.", client.toString()));
 		} catch (NoSuchElementException e) {
-			view.showClientError(client, " has already been eliminated.");
-			logOnConsole(e);
+			logWarningOnConsole(e);
+			view.showClientError(client, " has already been deleted.");
+			updateAll();
 		}
-		view.clientRemoved(client);
 	}
 
 	/**
@@ -210,11 +213,13 @@ public class ServedBookingPresenter implements BookingPresenter {
 		
 		try {
 			bookingService.removeReservationOn(reservation.getDate());
+			view.reservationRemoved(reservation);
+			LOGGER.info(() -> String.format("%s has been deleted with success.", reservation.toString()));
 		} catch (NoSuchElementException e) {
-			view.showReservationError(reservation, " has already been eliminated.");
-			logOnConsole(e);
+			logWarningOnConsole(e);
+			view.showReservationError(reservation, " has already been deleted.");
+			updateAll();
 		}
-		view.reservationRemoved(reservation);
 	}
 
 	/**
@@ -222,7 +227,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * 
 	 * @param e	the exception containing logging informations.
 	 */
-	private void logOnConsole(RuntimeException e) {
+	private void logWarningOnConsole(RuntimeException e) {
 		if (LOGGER.isDebugEnabled())
 			LOGGER.debug(e.getMessage(), e);
 		else
