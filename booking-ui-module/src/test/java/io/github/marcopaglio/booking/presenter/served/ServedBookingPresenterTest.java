@@ -376,7 +376,7 @@ class ServedBookingPresenterTest {
 				inOrder.verify(spiedServedBookingPresenter).newClient(A_FIRSTNAME, A_LASTNAME);
 				inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 				inOrder.verify(bookingService).findClientNamed(A_FIRSTNAME, A_LASTNAME);
-				// FIXME times(2)?
+				// times(2)?
 				inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 				inOrder.verify(view).clientAdded(A_CLIENT);
 				
@@ -405,7 +405,7 @@ class ServedBookingPresenterTest {
 					inOrder.verify(view).showFormError("Client's name or surname is not valid.");
 					
 					//verify(bookingService, never()).insertNewClient(any());
-					//verify(view, never()).clientAdded(any()); TODO
+					//verify(view, never()).clientAdded(any());
 					verifyNoMoreInteractions(view);
 					verifyNoInteractions(bookingService);
 				}

@@ -45,8 +45,6 @@ import io.github.marcopaglio.booking.transaction.code.ClientTransactionCode;
 import io.github.marcopaglio.booking.transaction.code.ReservationTransactionCode;
 import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 
-// TODO: lancio eccezioni da parte dei collaboratori (mockati e spiati)
-
 @DisplayName("Tests for TransactionalBookingService class")
 @ExtendWith(MockitoExtension.class)
 class TransactionalBookingServiceTest {

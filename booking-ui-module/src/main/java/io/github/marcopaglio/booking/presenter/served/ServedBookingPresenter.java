@@ -121,7 +121,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 		} catch(IllegalArgumentException e) {
 			view.showFormError("Client's name or surname is not valid.");
 			throw new IllegalArgumentException(e.getMessage());
-			// TODO nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
+			// nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
 		}
 	}
 
@@ -132,7 +132,6 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @param lastName					the surname of the client to create.
 	 * @return							the {@code Client} created.
 	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
-
 	 */
 	Client newClient(String firstName, String lastName) throws IllegalArgumentException {
 		return new Client(firstName, lastName, new ArrayList<>());
@@ -183,7 +182,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 		} catch(IllegalArgumentException e) {
 			view.showFormError("Date of reservation is not valid.");
 			throw new IllegalArgumentException(e.getMessage());
-			// TODO nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
+			// nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
 		}
 	}
 
