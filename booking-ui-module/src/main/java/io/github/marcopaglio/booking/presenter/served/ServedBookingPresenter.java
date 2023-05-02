@@ -84,14 +84,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 */
 	@Override
 	public Client addClient(String firstName, String lastName) throws IllegalArgumentException {
-		Client client;
-		try {
-			client = createClient(firstName, lastName);
-		} catch(IllegalArgumentException e) {
-			view.showFormError("Client's name or surname is not valid.");
-			throw new IllegalArgumentException(e.getMessage());
-			// TODO nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
-		}
+		Client client = createClient(firstName, lastName);
 		
 		Client clientInDB = null;
 		do {
@@ -114,6 +107,25 @@ public class ServedBookingPresenter implements BookingPresenter {
 	}
 
 	/**
+	 * Manages the creation of a client object. If the creation goes wrong,
+	 * the method notifies the view before throwing an exception.
+	 * 
+	 * @param firstName					the name of the client to create.
+	 * @param lastName					the surname of the client to create.
+	 * @return							the {@code Client} created.
+	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
+	 */
+	private Client createClient(String firstName, String lastName) throws IllegalArgumentException {
+		try {
+			return newClient(firstName, lastName);
+		} catch(IllegalArgumentException e) {
+			view.showFormError("Client's name or surname is not valid.");
+			throw new IllegalArgumentException(e.getMessage());
+			// TODO nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
+		}
+	}
+
+	/**
 	 * Creates a new client object.
 	 * 
 	 * @param firstName					the name of the client to create.
@@ -122,7 +134,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
 
 	 */
-	Client createClient(String firstName, String lastName) throws IllegalArgumentException {
+	Client newClient(String firstName, String lastName) throws IllegalArgumentException {
 		return new Client(firstName, lastName, new ArrayList<>());
 	}
 
@@ -136,17 +148,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 */
 	@Override
 	public void addReservation(String date, Client client) throws IllegalArgumentException {
-		if (client == null)
-			throw new IllegalArgumentException("Reservation's client to add cannot be null.");
-		
-		Reservation reservation;
-		try {
-			reservation = createReservation(client, date);
-		} catch(IllegalArgumentException e) {
-			view.showFormError("Date of reservation is not valid.");
-			throw new IllegalArgumentException(e.getMessage());
-			// TODO nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
-		}
+		Reservation reservation = createReservation(date, client);
 		
 		try {
 			bookingService.insertNewReservation(reservation);
@@ -164,6 +166,28 @@ public class ServedBookingPresenter implements BookingPresenter {
 	}
 
 	/**
+	 * Manages the creation of a reservation object. If the creation goes wrong,
+	 * the method notifies the view before throwing an exception.
+	 * 
+	 * @param client					the associated client of the reservation to create.
+	 * @param date						the date of the reservation to create.
+	 * @return							the {@code Reservation} created.
+	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
+	 */
+	private Reservation createReservation(String date, Client client) throws IllegalArgumentException {
+		if (client == null)
+			throw new IllegalArgumentException("Reservation's client to add cannot be null.");
+		
+		try {
+			return newReservation(client, date);
+		} catch(IllegalArgumentException e) {
+			view.showFormError("Date of reservation is not valid.");
+			throw new IllegalArgumentException(e.getMessage());
+			// TODO nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
+		}
+	}
+
+	/**
 	 * Creates a new reservation object.
 	 * 
 	 * @param client					the associated client of the reservation to create.
@@ -171,7 +195,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @return							the {@code Reservation} created.
 	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
 	 */
-	public Reservation createReservation(Client client, String date) throws IllegalArgumentException {
+	Reservation newReservation(Client client, String date) throws IllegalArgumentException {
 		return new Reservation(client, date);
 	}
 
