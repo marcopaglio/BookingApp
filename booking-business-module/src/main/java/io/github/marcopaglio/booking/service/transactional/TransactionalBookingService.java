@@ -169,7 +169,7 @@ public class TransactionalBookingService implements BookingService{
 							LOGGER.info(() -> String.format("%s has been inserted to %s with success.",
 									reservation.toString(), client.toString()));
 						} catch (InstanceAlreadyExistsException e) {
-							logWarningOnConsole(e);
+							LOGGER.warn(e.getMessage());
 						}
 						return reservationRepository.save(reservation);
 					}
@@ -250,7 +250,7 @@ public class TransactionalBookingService implements BookingService{
 							LOGGER.info(() -> String.format("%s has been removed from %s with success.",
 									reservation.toString(), client.toString()));
 						} catch (NoSuchElementException e) {
-							logWarningOnConsole(e);
+							LOGGER.warn(e.getMessage());
 						}
 					}
 					return null;
@@ -258,18 +258,6 @@ public class TransactionalBookingService implements BookingService{
 				throw new NoSuchElementException(reservationNotFoundMsg(date));
 			}
 		);
-	}
-
-	/**
-	 * Used for generating the right level of information to display on the console.
-	 * 
-	 * @param e	the exception containing logging informations.
-	 */
-	private void logWarningOnConsole(RuntimeException e) {
-		if (LOGGER.isDebugEnabled())
-			LOGGER.debug(e.getMessage(), e);
-		else
-			LOGGER.warn(e.getMessage());
 	}
 
 	/**

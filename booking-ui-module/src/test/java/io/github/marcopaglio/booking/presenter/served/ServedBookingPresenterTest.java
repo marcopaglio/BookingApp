@@ -3,7 +3,6 @@ package io.github.marcopaglio.booking.presenter.served;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -322,7 +321,7 @@ class ServedBookingPresenterTest {
 			@Test
 			@DisplayName("Client is new")
 			void testAddClientWhenClientIsNewShouldCreateDelegateNotifyAndReturn() {
-				doReturn(A_CLIENT).when(spiedServedBookingPresenter).newClient(A_FIRSTNAME, A_LASTNAME);
+				when(spiedServedBookingPresenter.newClient(A_FIRSTNAME, A_LASTNAME)).thenReturn(A_CLIENT);
 				when(bookingService.insertNewClient(A_CLIENT)).thenReturn(A_CLIENT);
 				// default stubbing for view.clientAdded(client)
 				
@@ -341,7 +340,7 @@ class ServedBookingPresenterTest {
 			@Test
 			@DisplayName("Client is not new")
 			void testAddClientWhenClientIsNotNewShouldReturnTheExistingOne() {
-				doReturn(A_CLIENT).when(spiedServedBookingPresenter).newClient(A_FIRSTNAME, A_LASTNAME);
+				when(spiedServedBookingPresenter.newClient(A_FIRSTNAME, A_LASTNAME)).thenReturn(A_CLIENT);
 				when(bookingService.insertNewClient(A_CLIENT)).thenThrow(new InstanceAlreadyExistsException());
 				when(bookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME)).thenReturn(A_CLIENT);
 				
@@ -361,7 +360,7 @@ class ServedBookingPresenterTest {
 			@Test
 			@DisplayName("Client deleted before being found")
 			void testAddClientWhenClientIsDeletedBeforeBeingFoundShouldRetryToInsert() {
-				doReturn(A_CLIENT).when(spiedServedBookingPresenter).newClient(A_FIRSTNAME, A_LASTNAME);
+				when(spiedServedBookingPresenter.newClient(A_FIRSTNAME, A_LASTNAME)).thenReturn(A_CLIENT);
 				when(bookingService.insertNewClient(A_CLIENT))
 					.thenThrow(new InstanceAlreadyExistsException())
 					.thenReturn(A_CLIENT);
@@ -442,7 +441,7 @@ class ServedBookingPresenterTest {
 			@Test
 			@DisplayName("Reservation is new")
 			void testAddReservationWhenReservationIsNewShouldCreateDelegateAndNotify() {
-				doReturn(A_RESERVATION).when(spiedServedBookingPresenter).newReservation(A_CLIENT, A_DATE);
+				when(spiedServedBookingPresenter.newReservation(A_CLIENT, A_DATE)).thenReturn(A_RESERVATION);
 				// default stubbing for bookingService.insertNewReservation(reservation)
 				// default stubbing for view.reservationAdded(reservation)
 				
@@ -461,7 +460,7 @@ class ServedBookingPresenterTest {
 			@Test
 			@DisplayName("Reservation is not new")
 			void testNewReservationWhenReservationIsNotNewShouldShowErrorAndUpdateView() {
-				doReturn(A_RESERVATION).when(spiedServedBookingPresenter).newReservation(A_CLIENT, A_DATE);
+				when(spiedServedBookingPresenter.newReservation(A_CLIENT, A_DATE)).thenReturn(A_RESERVATION);
 				when(bookingService.insertNewReservation(A_RESERVATION))
 					.thenThrow(new InstanceAlreadyExistsException());
 				// default stubbing for view.showReservationError(reservation, message)
@@ -486,7 +485,7 @@ class ServedBookingPresenterTest {
 			@Test
 			@DisplayName("Reservation's client is not in database")
 			void testNewReservationWhenClientIsNotInDatabaseShouldShowErrorAndUpdateView() {
-				doReturn(A_RESERVATION).when(spiedServedBookingPresenter).newReservation(A_CLIENT, A_DATE);
+				when(spiedServedBookingPresenter.newReservation(A_CLIENT, A_DATE)).thenReturn(A_RESERVATION);
 				when(bookingService.insertNewReservation(A_RESERVATION))
 					.thenThrow(new NoSuchElementException());
 				// default stubbing for view.showReservationError(reservation, message)

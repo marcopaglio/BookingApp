@@ -93,12 +93,12 @@ public class ServedBookingPresenter implements BookingPresenter {
 				view.clientAdded(clientInDB);
 				LOGGER.info(() -> String.format("%s has been added with success.", client.toString()));
 			} catch(InstanceAlreadyExistsException e) {
-				logWarningOnConsole(e);
+				LOGGER.warn(e.getMessage());
 				try {
 					clientInDB = bookingService.findClientNamed(firstName, lastName);
 					updateAll();
 				} catch (NoSuchElementException e1) {
-					logWarningOnConsole(e1);
+					LOGGER.warn(e1.getMessage());
 					clientInDB = null;
 				}
 			}
@@ -154,11 +154,11 @@ public class ServedBookingPresenter implements BookingPresenter {
 			view.reservationAdded(reservation);
 			LOGGER.info(() -> String.format("%s has been added with success.", reservation.toString()));
 		} catch(InstanceAlreadyExistsException e) {
-			logWarningOnConsole(e);
+			LOGGER.warn(e.getMessage());
 			view.showReservationError(reservation, " has already been booked.");
 			updateAll();
 		} catch(NoSuchElementException e) {
-			logWarningOnConsole(e);
+			LOGGER.warn(e.getMessage());
 			view.showReservationError(reservation, "'s client has been deleted.");
 			updateAll();
 		}
@@ -216,7 +216,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			view.clientRemoved(client);
 			LOGGER.info(() -> String.format("%s has been deleted with success.", client.toString()));
 		} catch (NoSuchElementException e) {
-			logWarningOnConsole(e);
+			LOGGER.warn(e.getMessage());
 			view.showClientError(client, " has already been deleted.");
 			updateAll();
 		}
@@ -239,21 +239,9 @@ public class ServedBookingPresenter implements BookingPresenter {
 			view.reservationRemoved(reservation);
 			LOGGER.info(() -> String.format("%s has been deleted with success.", reservation.toString()));
 		} catch (NoSuchElementException e) {
-			logWarningOnConsole(e);
+			LOGGER.warn(e.getMessage());
 			view.showReservationError(reservation, " has already been deleted.");
 			updateAll();
 		}
-	}
-
-	/**
-	 * Used for generating the right level of information to display on the console.
-	 * 
-	 * @param e	the exception containing logging informations.
-	 */
-	private void logWarningOnConsole(RuntimeException e) {
-		if (LOGGER.isDebugEnabled())
-			LOGGER.debug(e.getMessage(), e);
-		else
-			LOGGER.warn(e.getMessage());
 	}
 }
