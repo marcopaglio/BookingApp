@@ -24,6 +24,13 @@ public interface BookingService {
 	public List<Client> findAllClients();
 
 	/**
+	 * Retrieves all the reservations saved in the database.
+	 * 
+	 * @return	the list of reservations found in the database.
+	 */
+	public List<Reservation> findAllReservations();
+
+	/**
 	 * Retrieves the client with specified name and surname from the database.
 	 * 
 	 * @param firstName					the name of the client to find.
@@ -33,6 +40,16 @@ public interface BookingService {
 	 * @throws NoSuchElementException	if there is no client with those names in database.
 	 */
 	public Client findClientNamed(String firstName, String lastName) throws IllegalArgumentException, NoSuchElementException;
+
+	/**
+	 * Retrieves the reservation of the specified date from the database.
+	 * 
+	 * @param date						the date of the reservation to find.
+	 * @return							the {@code Reservation} on {@code date}.
+	 * @throws IllegalArgumentException	if {@code date} is null.
+	 * @throws NoSuchElementException	if there is no reservation on that date in database.
+	 */
+	public Reservation findReservationOn(LocalDate date) throws IllegalArgumentException, NoSuchElementException;
 
 	/**
 	 * Adds a new client in the database.
@@ -46,6 +63,17 @@ public interface BookingService {
 	public Client insertNewClient(Client client) throws IllegalArgumentException, InstanceAlreadyExistsException;
 
 	/**
+	 * Adds a new reservation in the database and updates the associated client.
+	 * 
+	 * @param reservation						the reservation to insert.
+	 * @return									the {@code Reservation} inserted.
+	 * @throws IllegalArgumentException			if {@code reservation} is null.
+	 * @throws InstanceAlreadyExistsException	if {@code reservation} is already in the database.
+	 * @throws NoSuchElementException			if the associated {@code client} doesn't exist in the database.
+	 */
+	public Reservation insertNewReservation(Reservation reservation) throws IllegalArgumentException, InstanceAlreadyExistsException, NoSuchElementException;
+
+	/**
 	 * Deletes the client with specified name and surname
 	 * and all his reservation from the database.
 	 * 
@@ -55,33 +83,6 @@ public interface BookingService {
 	 * @throws NoSuchElementException	if there is no client with those names in database.
 	 */
 	public void removeClientNamed(String firstName, String lastName) throws IllegalArgumentException, NoSuchElementException;
-
-	/**
-	 * Retrieves all the reservations saved in the database.
-	 * 
-	 * @return	the list of reservations found in the database.
-	 */
-	public List<Reservation> findAllReservations();
-
-	/**
-	 * Retrieves the reservation of the specified date from the database.
-	 * 
-	 * @param date						the date of the reservation to find.
-	 * @return							the {@code Reservation} on {@code date}.
-	 * @throws IllegalArgumentException	if {@code date} is null.
-	 * @throws NoSuchElementException	if there is no reservation on that date in database.
-	 */
-	public Reservation findReservationOn(LocalDate date) throws IllegalArgumentException, NoSuchElementException;
-
-	/**
-	 * Adds a new reservation in the database and updates the associated client.
-	 * 
-	 * @param reservation						the reservation to insert.
-	 * @return									the {@code Reservation} inserted.
-	 * @throws IllegalArgumentException			if {@code reservation} is null.
-	 * @throws InstanceAlreadyExistsException	if {@code reservation} is already in the database.
-	 */
-	public Reservation insertNewReservation(Reservation reservation) throws IllegalArgumentException, InstanceAlreadyExistsException;
 
 	/**
 	 * Deletes the reservation of the specified date from the database

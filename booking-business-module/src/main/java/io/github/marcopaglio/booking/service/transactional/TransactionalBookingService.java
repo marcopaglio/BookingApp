@@ -53,6 +53,16 @@ public class TransactionalBookingService implements BookingService{
 	}
 
 	/**
+	 * Retrieves all the reservations saved in the database within a transaction.
+	 * 
+	 * @return	the list of reservations found in the database.
+	 */
+	@Override
+	public List<Reservation> findAllReservations() {
+		return transactionManager.doInTransaction(ReservationRepository::findAll);
+	}
+
+	/**
 	 * Retrieves the client with specified name and surname from the database within a transaction.
 	 * 
 	 * @param firstName					the name of the client to find.
@@ -72,6 +82,30 @@ public class TransactionalBookingService implements BookingService{
 		if (possibleClient.isPresent())
 			return possibleClient.get();
 		throw new NoSuchElementException(clientNotFoundMsg(firstName, lastName));
+	}
+
+	/**
+	 * Retrieves the reservation of the specified date from the database within a transaction.
+	 * 
+	 * @param date						the date of the reservation to find.
+	 * @return							the {@code Reservation} on {@code date}.
+	 * @throws IllegalArgumentException	if {@code date} is null.
+	 * @throws NoSuchElementException	if there is no reservation on that date in database.
+	 */
+	@Override
+	public Reservation findReservationOn(LocalDate date)
+			throws IllegalArgumentException, NoSuchElementException {
+		if (date == null)
+			throw new IllegalArgumentException("Date of reservation to find cannot be null.");
+		
+		return transactionManager.doInTransaction(
+			(ReservationRepository reservationRepository) -> {
+				Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
+				if (possibleReservation.isPresent())
+					return possibleReservation.get();
+				throw new NoSuchElementException(reservationNotFoundMsg(date));
+			}
+		);
 	}
 
 	/**
@@ -99,6 +133,53 @@ public class TransactionalBookingService implements BookingService{
 				}
 				throw new InstanceAlreadyExistsException(
 					client.toString() + " is already in the database.");
+			}
+		);
+	}
+
+	/**
+	 * Adds a new reservation in the database and to update the associated client within a transaction.
+	 * This method checks if the reservation is not present and the associated client is present
+	 * in the database before inserting.
+	 * In case of the reservation is already in client's list, the method generates a warning message.
+	 * 
+	 * @param reservation						the reservation to insert.
+	 * @return									the {@code Reservation} inserted.
+	 * @throws IllegalArgumentException			if {@code reservation} is null.
+	 * @throws InstanceAlreadyExistsException	if {@code reservation} is already in the database.
+	 * @throws NoSuchElementException			if the associated {@code client} doesn't exist in the database.
+	 */
+	@Override
+	public Reservation insertNewReservation(Reservation reservation)
+			throws IllegalArgumentException, InstanceAlreadyExistsException, NoSuchElementException {
+		if (reservation == null)
+			throw new IllegalArgumentException("Reservation to insert cannot be null.");
+		
+		return transactionManager.doInTransaction(
+			(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+				Optional<Reservation> possibleReservation =
+						reservationRepository.findByDate(reservation.getDate());
+				if (possibleReservation.isEmpty()) {
+					Optional<Client> possibleClient = clientRepository.findById(reservation.getClientUUID());
+					if (possibleClient.isPresent()) {
+						Client client = possibleClient.get();
+						try {
+							client.addReservation(reservation);
+							clientRepository.save(client);
+							LOGGER.info(() -> String.format("%s has been inserted to %s with success.",
+									reservation.toString(), client.toString()));
+						} catch (InstanceAlreadyExistsException e) {
+							LOGGER.warn(e.getMessage());
+						}
+						return reservationRepository.save(reservation);
+					}
+					throw new NoSuchElementException(
+						"The client with uuid: " + reservation.getClientUUID()
+						+ ", associated to the reservation to insert is not in the database. "
+						+ "Please, insert the client before the reservation.");
+				}
+				throw new InstanceAlreadyExistsException(
+					reservation.toString() + " is already in the database.");
 			}
 		);
 	}
@@ -136,95 +217,6 @@ public class TransactionalBookingService implements BookingService{
 	}
 
 	/**
-	 * Generates a message for the client that was not found.
-	 * 
-	 * @param firstName	the name of the client not found.
-	 * @param lastName	the surname of the client not found.
-	 */
-	private String clientNotFoundMsg(String firstName, String lastName) {
-		return "There is no client named \"" + firstName + " " + lastName + "\" in the database.";
-	}
-
-	/**
-	 * Retrieves all the reservations saved in the database within a transaction.
-	 * 
-	 * @return	the list of reservations found in the database.
-	 */
-	@Override
-	public List<Reservation> findAllReservations() {
-		return transactionManager.doInTransaction(ReservationRepository::findAll);
-	}
-
-	/**
-	 * Retrieves the reservation of the specified date from the database within a transaction.
-	 * 
-	 * @param date						the date of the reservation to find.
-	 * @return							the {@code Reservation} on {@code date}.
-	 * @throws IllegalArgumentException	if {@code date} is null.
-	 * @throws NoSuchElementException	if there is no reservation on that date in database.
-	 */
-	@Override
-	public Reservation findReservationOn(LocalDate date)
-			throws IllegalArgumentException, NoSuchElementException {
-		if (date == null)
-			throw new IllegalArgumentException("Date of reservation to find cannot be null.");
-		
-		return transactionManager.doInTransaction(
-			(ReservationRepository reservationRepository) -> {
-				Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
-				if (possibleReservation.isPresent())
-					return possibleReservation.get();
-				throw new NoSuchElementException(reservationNotFoundMsg(date));
-			}
-		);
-	}
-
-	/**
-	 * Adds a new reservation in the database and to update the associated client within a transaction.
-	 * This method checks if the reservation is not present and the associated client is present
-	 * in the database before inserting.
-	 * In case of the reservation is already in client's list, the method generates a warning message.
-	 * 
-	 * @param reservation						the reservation to insert.
-	 * @return									the {@code Reservation} inserted.
-	 * @throws IllegalArgumentException			if {@code reservation} is null.
-	 * @throws InstanceAlreadyExistsException	if {@code reservation} is already in the database.
-	 * @throws NoSuchElementException			if the associated client doesn't exists in the database.
-	 */
-	@Override
-	public Reservation insertNewReservation(Reservation reservation)
-			throws IllegalArgumentException, InstanceAlreadyExistsException, NoSuchElementException {
-		if (reservation == null)
-			throw new IllegalArgumentException("Reservation to insert cannot be null.");
-		
-		return transactionManager.doInTransaction(
-			(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-				Optional<Reservation> possibleReservation =
-						reservationRepository.findByDate(reservation.getDate());
-				if (possibleReservation.isEmpty()) {
-					Optional<Client> possibleClient = clientRepository.findById(reservation.getClientUUID());
-					if (possibleClient.isPresent()) {
-						Client client = possibleClient.get();
-						try {
-							client.addReservation(reservation);
-							clientRepository.save(client);
-						} catch (InstanceAlreadyExistsException e) {
-							LOGGER.warn(e.getMessage(), e);
-						}
-						return reservationRepository.save(reservation);
-					}
-					throw new NoSuchElementException(
-						"The client with uuid: " + reservation.getClientUUID()
-						+ ", associated to the reservation to insert is not in the database. "
-						+ "Please, insert the client before the reservation.");
-				}
-				throw new InstanceAlreadyExistsException(
-					reservation.toString() + " is already in the database.");
-			}
-		);
-	}
-
-	/**
 	 * Deletes the reservation of the specified date from the database
 	 * and update the associated client within a transaction.
 	 * This method checks if the reservation is present in the database before removing.
@@ -238,7 +230,7 @@ public class TransactionalBookingService implements BookingService{
 	 */
 	@Override
 	public void removeReservationOn(LocalDate date)
-			throws IllegalArgumentException, NoSuchElementException{
+			throws IllegalArgumentException, NoSuchElementException {
 		if (date == null)
 			throw new IllegalArgumentException("Date of reservation to remove cannot be null.");
 		
@@ -246,16 +238,19 @@ public class TransactionalBookingService implements BookingService{
 			(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
 				Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
 				if (possibleReservation.isPresent()) {
+					Reservation reservation = possibleReservation.get();
 					reservationRepository.delete(date);
 					Optional<Client> possibleClient = clientRepository
-							.findById(possibleReservation.get().getClientUUID());
+							.findById(reservation.getClientUUID());
 					if (possibleClient.isPresent()) {
 						Client client = possibleClient.get();
 						try {
-							client.removeReservation(possibleReservation.get());
+							client.removeReservation(reservation);
 							clientRepository.save(client);
+							LOGGER.info(() -> String.format("%s has been removed from %s with success.",
+									reservation.toString(), client.toString()));
 						} catch (NoSuchElementException e) {
-							LOGGER.warn(e.getMessage(), e);
+							LOGGER.warn(e.getMessage());
 						}
 					}
 					return null;
@@ -263,6 +258,16 @@ public class TransactionalBookingService implements BookingService{
 				throw new NoSuchElementException(reservationNotFoundMsg(date));
 			}
 		);
+	}
+
+	/**
+	 * Generates a message for the client that was not found.
+	 * 
+	 * @param firstName	the name of the client not found.
+	 * @param lastName	the surname of the client not found.
+	 */
+	private String clientNotFoundMsg(String firstName, String lastName) {
+		return "There is no client named \"" + firstName + " " + lastName + "\" in the database.";
 	}
 
 	/**

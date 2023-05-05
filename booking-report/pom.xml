@@ -26,6 +26,11 @@
       <artifactId>booking-business-module</artifactId>
       <!-- version taken from the bom -->
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>booking-ui-module</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
   </dependencies>
   
   <build>
@@ -37,6 +42,7 @@
           <!-- version taken from the parent -->
             <configuration>
               <excludes>
+                <!-- HERE FOR OTHER EXCLUSIONS -->
                 <exclude>**/annotation/*</exclude>
                 <exclude>**/exception/*</exclude>
                 <exclude>**/transaction/code/*</exclude>
@@ -68,6 +74,7 @@
                 <!--          then: path is ../booking-domain-module/src/main/java/ -->
                 <sourceDirectory>../booking-domain-module/src/main/java/</sourceDirectory>
                 <sourceDirectory>../booking-business-module/src/main/java/</sourceDirectory>
+                <sourceDirectory>../booking-ui-module/src/main/java/</sourceDirectory>
               </sourceDirectories>
             </configuration>
             <executions>

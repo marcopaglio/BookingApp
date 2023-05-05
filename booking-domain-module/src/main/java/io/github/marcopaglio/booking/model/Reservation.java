@@ -1,6 +1,7 @@
 package io.github.marcopaglio.booking.model;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -54,8 +55,9 @@ public class Reservation {
 	 * @throws IllegalArgumentException	if at least one of the argument is null
 	 * 									or {@code stringDate} contains non-valid characters
 	 * 									or {@code stringDate}'s format is not valid.
+	 * 									or {@code stringDate} is out of range.
 	 */
-	public Reservation(Client client, String stringDate) throws IllegalArgumentException {
+	public Reservation(Client client, String stringDate) throws IllegalArgumentException, DateTimeParseException {
 		checkNotNull(client, "client");
 		checkDateValidity(stringDate, "date");
 		
@@ -83,14 +85,16 @@ public class Reservation {
 	 * @param stringDate				the string to evaluate.
 	 * @param inputName					the role of the string in the reservation's context.
 	 * @throws IllegalArgumentException	if {@code stringDate} is a null string
-	 * 									or contains non-numeric characters
-	 * 									or {@code stringDate} has a wrong format.
+	 * 									or {@code stringDate} contains non-numeric characters
+	 * 									or {@code stringDate} has a wrong format
+	 * 									or {@code stringDate} is out of range.
 	 */
 	private static void checkDateValidity(String stringDate, String inputName)
 			throws IllegalArgumentException {
 		checkNotNull(stringDate, inputName);
 		checkOnlyNumeric(stringDate, inputName);
 		checkDateFormat(stringDate, inputName);
+		checkDateInRange(stringDate);
 	}
 
 	/**
@@ -110,31 +114,47 @@ public class Reservation {
 	 * Checks if the string contains only accepted characters that is
 	 * numeric digits and dash separators {@code -}.
 	 *
-	 * @param str						the string to evaluate.
+	 * @param stringDate				the string to evaluate.
 	 * @param inputName					the role of the string in the reservation's context.
-	 * @throws IllegalArgumentException	if {@code str} contains non-valid characters.
+	 * @throws IllegalArgumentException	if {@code stringDate} contains non-valid characters.
 	 */
-	private static void checkOnlyNumeric(String str, String inputName) throws IllegalArgumentException {
-		if (notOnlyNumeric.matcher(str).find())
+	private static void checkOnlyNumeric(String stringDate, String inputName)
+			throws IllegalArgumentException {
+		if (notOnlyNumeric.matcher(stringDate).find())
 			throw new IllegalArgumentException(
 				"Reservation needs a only numeric " + inputName + ".");
 	}
 
 	/**
-	 * Check if the string has the format aaaa-mm-dd
+	 * Check if the string has the format aaaa-mm-dd.
 	 *
-	 * @param str						the string to evaluate.
+	 * @param stringDate				the string to evaluate.
 	 * @param inputName					the role of the string in the reservation's context.
-	 * @throws IllegalArgumentException	if {@code str} has a different format from aaaa-mm-gg.
+	 * @throws IllegalArgumentException	if {@code stringDate} has a different format from aaaa-mm-gg.
 	 */
-	private static void checkDateFormat(String str, String inputName) throws IllegalArgumentException {
-		String[] arrOfStr = str.split("-");
+	private static void checkDateFormat(String stringDate, String inputName)
+			throws IllegalArgumentException {
+		String[] arrOfStr = stringDate.split("-");
 		if (arrOfStr.length != 3
 			|| arrOfStr[0].length() != 4
 			|| arrOfStr[1].length() != 2
 			|| arrOfStr[2].length() != 2)
 			throw new IllegalArgumentException(
 				"Reservation needs a " + inputName + " in format aaaa-mm-dd.");
+	}
+
+	/**
+	 * Check if the string has data values in the ranges.
+	 *
+	 * @param stringDate				the date string to evaluate.
+	 * @throws IllegalArgumentException	if {@code stringDate} is out of ranges.
+	 */
+	private static void checkDateInRange(String stringDate) throws IllegalArgumentException {
+		try {
+			LocalDate.parse(stringDate);
+		} catch (DateTimeParseException e) {
+			throw new IllegalArgumentException(e.getMessage());
+		}
 	}
 
 	/**

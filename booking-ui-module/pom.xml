@@ -6,22 +6,28 @@
     <version>0.0.1-SNAPSHOT</version>
     <relativePath>../booking-parent</relativePath>
   </parent>
-  <artifactId>booking-business-module</artifactId>
+  <artifactId>booking-ui-module</artifactId>
   
-  <name>BookingApp - Business Logic</name>
+  <name>BookingApp - User Interface</name>
   <description>
-    Contains the implementation of the Business Logic and transaction's managing with the corresponding tests.
+    Contains parts of the MVP pattern, like the Presenter for interacting with the application
+    and implementations of the View for showing changes in a graphic user interface.
     This module uses JUnit, AssertJ and Mockito as test dependencies and sets specific configurations
-    of properties and plugins for the Business Logic and transaction's managing.
+    of properties and plugins for the Presenter and the View.
   </description>
-
+  
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>booking-domain-module</artifactId>
       <!-- version taken from the bom -->
     </dependency>
-        <dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>booking-business-module</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <!-- version taken from the parent -->
@@ -39,16 +45,6 @@
       <!-- version taken from the parent -->
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <!-- version taken from the parent -->
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <!-- version taken from the parent -->
-    </dependency>
   </dependencies>
   
   <build>
@@ -59,7 +55,7 @@
           <artifactId>jacoco-maven-plugin</artifactId>
           <configuration>
             <excludes>
-              <exclude>**/transaction/code/*</exclude>
+              <!-- HERE SOME EXCLUSIONS -->
             </excludes>
           </configuration>
         </plugin>
@@ -68,12 +64,10 @@
           <artifactId>pitest-maven</artifactId>
           <configuration>
             <targetClasses>
-              <targetClasse>io.github.marcopaglio.booking.service.transactional.*</targetClasse>
-              <!-- io.github.marcopaglio.booking.transaction.* -->
+              <!-- HERE CLASSES TO MUTATE -->
             </targetClasses>
             <targetTests>
-              <targetTest>io.github.marcopaglio.booking.service.transactional.*</targetTest>
-              <!-- io.github.marcopaglio.booking.transaction.* -->
+              <!-- HERE TESTS TO KILL MUTANS -->
             </targetTests>
           </configuration>
         </plugin>
@@ -86,7 +80,7 @@
       <id>sonar</id>
       <properties>
         <sonar.coverage.exclusions>
-          **/transaction/code/*.*
+          <!-- HERE SOME EXCLUSIONS -->
         </sonar.coverage.exclusions>
         <sonar.junit.reportPaths>
           ${project.build.directory}/surefire-reports

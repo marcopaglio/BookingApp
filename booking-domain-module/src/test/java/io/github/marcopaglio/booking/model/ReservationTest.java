@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.UUID;
-import java.time.format.DateTimeParseException;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -125,17 +124,10 @@ class ReservationTest {
 					.hasMessage("Reservation needs a date in format aaaa-mm-dd.");
 			}
 
-			@Test
-			@DisplayName("Wrong month")
-			void testConstructorWithConversionsWhenMonthInDateIsWrongShouldThrow() {
-				String wrongMonthDate = "2022-13-12";
-				assertThatThrownBy(() -> new Reservation(client, wrongMonthDate))
-					.isInstanceOf(DateTimeParseException.class);
-			}
-
 			@ParameterizedTest(name = "{index}: ''{0}''")
-			@DisplayName("Wrong day")
+			@DisplayName("Date out of range")
 			@ValueSource(strings = {
+				"2022-13-12",	// Month
 				"2022-01-32",	// January
 				"2022-02-29",	// February in not leap year
 				"2024-02-30",	// February in leap year
@@ -150,9 +142,9 @@ class ReservationTest {
 				"2022-11-31",	// November
 				"2022-12-32"	// December 
 			})
-			void testConstructorWithConversionsWhenDayInDateIsWrongShouldThrow(String wrongDayDate) {
-				assertThatThrownBy(() -> new Reservation(client, wrongDayDate))
-					.isInstanceOf(DateTimeParseException.class);
+			void testConstructorWithConversionsWhenDayInDateIsWrongShouldThrow(String outOfRangeDate) {
+				assertThatThrownBy(() -> new Reservation(client, outOfRangeDate))
+					.isInstanceOf(IllegalArgumentException.class);
 			}
 		}
 
