@@ -41,7 +41,7 @@ import io.github.marcopaglio.booking.view.View;
 class ServedBookingPresenterTest {
 	final static private String A_FIRSTNAME = "Mario";
 	final static private String A_LASTNAME = "Rossi";
-	final static private Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME, new ArrayList<>());
+	final static private Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME);
 	final static private String A_DATE = "2023-04-24";
 	final static private LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
 	final static private Reservation A_RESERVATION = new Reservation(A_CLIENT, A_DATE);
@@ -132,7 +132,7 @@ class ServedBookingPresenterTest {
 		@Test
 		@DisplayName("Several clients in repository")
 		void testAllClientsWhenThereAreSeveralClientsInRepositoryShouldCallTheViewWithClientsAsList() {
-			Client anotherClient = new Client("Maria", "De Lucia", new ArrayList<>());
+			Client anotherClient = new Client("Maria", "De Lucia");
 			List<Client> clients = Arrays.asList(A_CLIENT, anotherClient);
 			
 			when(bookingService.findAllClients()).thenReturn(clients);

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.UUID;
 
 import org.junit.jupiter.api.DisplayName;
@@ -58,7 +57,7 @@ class ReservationTest {
 		@Nested
 		@DisplayName("Constructor with conversions")
 		class ConstructorWithConversionsTest {
-			private final Client client = new Client("Mario", "Rossi", new ArrayList<Reservation>());
+			private final Client client = new Client("Mario", "Rossi");
 			private final String stringDate = "2022-12-22";
 
 			@Test

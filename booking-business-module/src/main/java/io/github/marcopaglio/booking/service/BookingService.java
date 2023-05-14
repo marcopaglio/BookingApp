@@ -53,7 +53,6 @@ public interface BookingService {
 
 	/**
 	 * Adds a new client in the database.
-	 * Eventual reservations of the new client will no be saved.
 	 * 
 	 * @param client							the client to insert.
 	 * @return									the {@code Client} inserted.
@@ -63,7 +62,7 @@ public interface BookingService {
 	public Client insertNewClient(Client client) throws IllegalArgumentException, InstanceAlreadyExistsException;
 
 	/**
-	 * Adds a new reservation in the database and updates the associated client.
+	 * Adds a new reservation in the database.
 	 * 
 	 * @param reservation						the reservation to insert.
 	 * @return									the {@code Reservation} inserted.
@@ -85,8 +84,7 @@ public interface BookingService {
 	public void removeClientNamed(String firstName, String lastName) throws IllegalArgumentException, NoSuchElementException;
 
 	/**
-	 * Deletes the reservation of the specified date from the database
-	 * and update the associated client.
+	 * Deletes the reservation of the specified date from the database.
 	 * 
 	 * @param date						the date of the reservation to find.
 	 * @throws IllegalArgumentException	if {@code date} is null.
