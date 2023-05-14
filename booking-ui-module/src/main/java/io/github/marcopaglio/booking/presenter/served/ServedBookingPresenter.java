@@ -1,5 +1,6 @@
 package io.github.marcopaglio.booking.presenter.served;
 
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 import org.apache.logging.log4j.LogManager;
@@ -135,7 +136,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 */
 	@Generated
 	Client newClient(String firstName, String lastName) throws IllegalArgumentException {
-		return new Client(firstName, lastName);
+		return new Client(firstName, lastName, new ArrayList<>());
 	}
 
 	/**

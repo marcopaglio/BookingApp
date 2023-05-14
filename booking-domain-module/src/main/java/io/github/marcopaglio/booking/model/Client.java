@@ -1,10 +1,14 @@
 package io.github.marcopaglio.booking.model;
 
+import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import io.github.marcopaglio.booking.annotation.Generated;
+import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 
 /**
  * This entity represents the customer's model of the booking application.
@@ -34,23 +38,31 @@ public class Client {
 	private final String lastName;
 
 	/**
+	 * The list of reservations booked by the client entity.
+	 */
+	private List<Reservation> reservations;
+
+	/**
 	 * Constructs a client for the booking application with a name,
 	 * a surname and a initial list of reservations.
 	 * The constructor checks if the parameters are valid for the creation of the client.
 	 * 
 	 * @param firstName					the name of the client.
 	 * @param lastName					the surname of the client.
+	 * @param reservations				the list of initial reservations of the client.
 	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
 	 */
-	public Client(String firstName, String lastName)
+	public Client(String firstName, String lastName, List<Reservation> reservations)
 			throws IllegalArgumentException {
 		checkNameValidity(firstName, "name");
 		checkNameValidity(lastName, "surname");
+		checkNotNull(reservations, "reservations' list");
 		
 		this.firstName = removeExcessedSpaces(firstName);
 		this.lastName = removeExcessedSpaces(lastName);
 		
 		this.uuid = UUID.randomUUID();
+		this.reservations = reservations.stream().map(Reservation::new).collect(Collectors.toList());
 	}
 
 	/**
@@ -147,6 +159,67 @@ public class Client {
 	}
 
 	/**
+	 * Retrieves the reservations of the client in a list.
+	 * Note: this method is used only for test purposes.
+	 *
+	 * @return	the {@code reservations} of the client in a {@code List}.
+	 */
+	@Generated
+	final List<Reservation> getReservations() {
+		return reservations;
+	}
+
+	/**
+	 * Retrieves a copy of the reservations of the client in a list.
+	 * Note: Java Collection Objects are mutable. In order to protect reservations,
+	 * a defensive copy is returned.
+	 *
+	 * @return	a defensive copy of {@code reservations}' list of the client.
+	 */
+	public final List<Reservation> getCopyOfReservations() {
+		return this.reservations.stream().map(Reservation::new).collect(Collectors.toList());
+	}
+
+	/**
+	 * Inserts a new reservation in the list of reservations of the client.
+	 * 
+	 * @param reservation						the reservation to add at the list.
+	 * @throws IllegalArgumentException			if the {@code reservation} is null.
+	 * @throws InstanceAlreadyExistsException	if the {@code reservation} already exists 
+	 * 											in {@code reservations}.
+	 */
+	public final void addReservation(Reservation reservation)
+			throws IllegalArgumentException, InstanceAlreadyExistsException {
+		if (reservation == null)
+			throw new IllegalArgumentException("Reservation to add can't be null.");
+		
+		if (this.reservations.contains(reservation))
+			throw new InstanceAlreadyExistsException(
+					reservation.toString() + " to add is already in " + this.toString() + "'s list.");
+		
+		this.reservations.add(reservation);
+	}
+
+	/**
+	 * Deletes a reservation from the list of reservations of the client.
+	 * 
+	 * @param reservation				the reservation to remove from the list.
+	 * @throws IllegalArgumentException	if {@code reservation} is null.
+	 * @throws NoSuchElementException	if the {@code reservation} doesn't exist in {@code reservations}.
+	 */
+	public final void removeReservation(Reservation reservation)
+			throws IllegalArgumentException, NoSuchElementException {
+		if (reservation == null)
+			throw new IllegalArgumentException("Reservation to delete can't be null.");
+		
+		if (!this.reservations.contains(reservation))
+			throw new NoSuchElementException(
+					reservation.toString() + " to delete is not in " + this.toString() + "'s list.");
+		
+		this.reservations.remove(reservation);
+	}
+
+	/**
 	 * Overridden method for returning a hash code value for the client object.
 	 * 
 	 * @return	a hash code value for this client object.
@@ -187,7 +260,6 @@ public class Client {
 	 *
 	 * @return	a string representation of the client.
 	 */
-	@Generated
 	@Override
 	public String toString() {
 		return "Client [" + firstName + " " + lastName + "]";

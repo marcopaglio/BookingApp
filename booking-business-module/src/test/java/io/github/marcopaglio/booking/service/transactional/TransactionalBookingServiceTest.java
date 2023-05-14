@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.AdditionalAnswers.answer;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -47,7 +50,7 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 class TransactionalBookingServiceTest {
 	private static final String A_FIRST_NAME = "Mario";
 	private static final String A_LAST_NAME = "Rossi";
-	private static final Client A_CLIENT = new Client(A_FIRST_NAME, A_LAST_NAME);
+	private static final Client A_CLIENT = new Client(A_FIRST_NAME, A_LAST_NAME, new ArrayList<>());
 	private static final UUID A_CLIENT_UUID = A_CLIENT.getUuid();
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2023-04-24");
 	private static final Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
@@ -216,7 +219,7 @@ class TransactionalBookingServiceTest {
 			@Test
 			@DisplayName("Several clients to retrieve")
 			void testFindAllClientsWhenThereAreSeveralClientsToRetrieveShouldReturnClientsAsList() {
-				Client another_client = new Client("Maria", "De Lucia");
+				Client another_client = new Client("Maria", "De Lucia", new ArrayList<>());
 				List<Client> clients = Arrays.asList(A_CLIENT, another_client);
 				when(clientRepository.findAll()).thenReturn(clients);
 				
@@ -433,50 +436,6 @@ class TransactionalBookingServiceTest {
 				verifyNoMoreInteractions(transactionManager, reservationRepository);
 			}
 		}
-
-		@Nested
-		@DisplayName("Tests for 'removeReservationOn'")
-		class RemoveReservationOnTest {
-
-			@Test
-			@DisplayName("Reservation exists")
-			void testRemoveReservationOnWhenReservationExistsShouldRemove() {
-				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.of(A_RESERVATION));
-				// default stubbing for reservationRepository.delete(reservation)
-				
-				InOrder inOrder = Mockito.inOrder(
-						transactionManager, reservationRepository);
-				
-				assertThatNoException().isThrownBy(
-						() -> transactionalBookingService.removeReservationOn(A_LOCALDATE));
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
-				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
-				inOrder.verify(reservationRepository).delete(A_LOCALDATE);
-				
-				verifyNoMoreInteractions(transactionManager, reservationRepository);
-			}
-
-			@Test
-			@DisplayName("Reservation doesn't exist")
-			void testRemoveReservationOnWhenReservationDoesNotExistShouldThrow() {
-				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.empty());
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
-				
-				assertThatThrownBy(
-						() -> transactionalBookingService.removeReservationOn(A_LOCALDATE))
-					.isInstanceOf(NoSuchElementException.class)
-					.hasMessage("There is no reservation on \"" + A_LOCALDATE + "\" in the database.");
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
-				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
-				
-				verifyNoMoreInteractions(transactionManager, reservationRepository);
-			}
-		}
 	}
 
 	@Nested
@@ -608,12 +567,15 @@ class TransactionalBookingServiceTest {
 			@DisplayName("Reservation is new and client exists")
 			@Test
 			void testInsertNewReservationWhenReservationDoesNotAlreadyExistAndAssociatedClientExistsShouldUpdateInsertAndReturn() {
+				Client spied_client = spy(A_CLIENT);
 				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.empty());
-				when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.of(A_CLIENT));
+				when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.of(spied_client));
+				doNothing().when(spied_client).addReservation(A_RESERVATION); // prevents bad behaviors
+				when(clientRepository.save(spied_client)).thenReturn(spied_client); // acts correctly even if returned value is unused
 				when(reservationRepository.save(A_RESERVATION)).thenReturn(A_RESERVATION);
 				
 				InOrder inOrder = Mockito.inOrder(
-						transactionManager, reservationRepository, clientRepository);
+						transactionManager, reservationRepository, clientRepository, spied_client);
 				
 				assertThat(transactionalBookingService.insertNewReservation(A_RESERVATION))
 					.isEqualTo(A_RESERVATION);
@@ -622,9 +584,39 @@ class TransactionalBookingServiceTest {
 					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
 				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
 				inOrder.verify(clientRepository).findById(A_CLIENT_UUID);
+				inOrder.verify(spied_client).addReservation(A_RESERVATION);
+				inOrder.verify(clientRepository).save(spied_client);
 				inOrder.verify(reservationRepository).save(A_RESERVATION);
 			
-				verifyNoMoreInteractions(transactionManager, reservationRepository, clientRepository);
+				verifyNoMoreInteractions(
+						transactionManager, reservationRepository, clientRepository, spied_client);
+			}
+
+			@Test
+			@DisplayName("Reservation is new and is already in client's list")
+			void testInsertNewReservationWhenReservationDoesNotAlreadyExistAndIsAlreadyInTheListOfAssociatedClientShouldNotThrowInsertAndReturn() {
+				Client spied_client = spy(A_CLIENT);
+				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.empty());
+				when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.of(spied_client));
+				doThrow(new InstanceAlreadyExistsException())
+					.when(spied_client).addReservation(A_RESERVATION); // prevents bad behaviors
+				when(reservationRepository.save(A_RESERVATION)).thenReturn(A_RESERVATION);
+				
+				InOrder inOrder = Mockito.inOrder(
+						transactionManager, reservationRepository, clientRepository, spied_client);
+				
+				assertThat(transactionalBookingService.insertNewReservation(A_RESERVATION))
+					.isEqualTo(A_RESERVATION);
+				
+				inOrder.verify(transactionManager)
+					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
+				inOrder.verify(clientRepository).findById(A_CLIENT_UUID);
+				inOrder.verify(spied_client).addReservation(A_RESERVATION);
+				inOrder.verify(reservationRepository).save(A_RESERVATION);
+			
+				verifyNoMoreInteractions(
+						transactionManager, reservationRepository, clientRepository, spied_client);
 			}
 
 			@Test
@@ -668,6 +660,108 @@ class TransactionalBookingServiceTest {
 					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
 				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
 			
+				verifyNoMoreInteractions(transactionManager, reservationRepository);
+				verifyNoInteractions(clientRepository);
+			}
+		}
+
+		@Nested
+		@DisplayName("Tests for 'removeReservationOn'")
+		class RemoveReservationOnTest {
+
+			@Test
+			@DisplayName("Both reservation and client exist")
+			void testRemoveReservationOnWhenBothReservationAndAssociatedClientExistShouldRemoveAndUpdate() {
+				Client spied_client = spy(A_CLIENT);
+				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.of(A_RESERVATION));
+				// default stubbing for reservationRepository.delete(reservation)
+				when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.of(spied_client));
+				doNothing().when(spied_client).removeReservation(A_RESERVATION); // prevents bad behaviors
+				when(clientRepository.save(spied_client)).thenReturn(spied_client); // acts correctly even if returned value is unused
+				
+				InOrder inOrder = Mockito.inOrder(
+						transactionManager, reservationRepository, clientRepository, spied_client);
+				
+				assertThatNoException().isThrownBy(
+						() -> transactionalBookingService.removeReservationOn(A_LOCALDATE));
+				
+				inOrder.verify(transactionManager)
+					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
+				inOrder.verify(reservationRepository).delete(A_LOCALDATE);
+				inOrder.verify(clientRepository).findById(A_CLIENT_UUID);
+				inOrder.verify(spied_client).removeReservation(A_RESERVATION);
+				inOrder.verify(clientRepository).save(spied_client);
+				
+				verifyNoMoreInteractions(
+						transactionManager, reservationRepository, clientRepository, spied_client);
+			}
+
+			@Test
+			@DisplayName("Reservation exists and is not in client's list")
+			void testRemoveReservationOnWhenReservationExistsAndIsNotInTheListOfAssociatedClientShouldRemoveAndNotThrow() {
+				Client spied_client = spy(A_CLIENT);
+				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.of(A_RESERVATION));
+				// default stubbing for reservationRepository.delete(reservation)
+				when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.of(spied_client));
+				doThrow(new NoSuchElementException())
+					.when(spied_client).removeReservation(A_RESERVATION); // prevents bad behaviors
+				
+				InOrder inOrder = Mockito.inOrder(
+						transactionManager, reservationRepository, clientRepository, spied_client);
+				
+				assertThatNoException().isThrownBy(
+						() -> transactionalBookingService.removeReservationOn(A_LOCALDATE));
+				
+				inOrder.verify(transactionManager)
+					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
+				inOrder.verify(reservationRepository).delete(A_LOCALDATE);
+				inOrder.verify(clientRepository).findById(A_CLIENT_UUID);
+				inOrder.verify(spied_client).removeReservation(A_RESERVATION);
+				
+				verifyNoMoreInteractions(
+						transactionManager, reservationRepository, clientRepository, spied_client);
+			}
+
+			@Test
+			@DisplayName("Reservation exists and client doesn't exist")
+			void testRemoveReservationOnWhenReservationExistsAndAssociatedClientDoesNotExistShouldRemoveAndNotThrow() {
+				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.of(A_RESERVATION));
+				// default stubbing for reservationRepository.delete(reservation)
+				when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.empty());
+				
+				InOrder inOrder = Mockito.inOrder(
+						transactionManager, reservationRepository, clientRepository);
+				
+				assertThatNoException().isThrownBy(
+						() -> transactionalBookingService.removeReservationOn(A_LOCALDATE));
+				
+				inOrder.verify(transactionManager)
+					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
+				inOrder.verify(reservationRepository).delete(A_LOCALDATE);
+				inOrder.verify(clientRepository).findById(A_CLIENT_UUID);
+				
+				verifyNoMoreInteractions(transactionManager, reservationRepository, clientRepository);
+			}
+
+			@Test
+			@DisplayName("Reservation doesn't exist")
+			void testRemoveReservationOnWhenReservationDoesNotExistShouldThrow() {
+				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.empty());
+				
+				InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
+				
+				assertThatThrownBy(
+						() -> transactionalBookingService.removeReservationOn(A_LOCALDATE))
+					.isInstanceOf(NoSuchElementException.class)
+					.hasMessage("There is no reservation on \"" + A_LOCALDATE + "\" in the database.");
+				
+				inOrder.verify(transactionManager)
+					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
+				
 				verifyNoMoreInteractions(transactionManager, reservationRepository);
 				verifyNoInteractions(clientRepository);
 			}
