@@ -133,7 +133,6 @@ public class TransactionalBookingService implements BookingService{
 	 * Adds a new reservation in the database within a transaction.
 	 * This method checks if the reservation is not present and the associated client is present
 	 * in the database before inserting.
-	 * In case of the reservation is already in client's list, the method generates a warning message.
 	 * 
 	 * @param reservation						the reservation to insert.
 	 * @return									the {@code Reservation} inserted.
