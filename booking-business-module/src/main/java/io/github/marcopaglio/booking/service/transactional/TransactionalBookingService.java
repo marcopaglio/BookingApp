@@ -5,9 +5,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
@@ -23,10 +20,6 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
  * @see <a href="../../repository/ReservationRepository.html">ReservationRepository</a>
  */
 public class TransactionalBookingService implements BookingService{
-	/**
-	 * Creates meaningful logs on behalf of the class.
-	 */
-	private static final Logger LOGGER = LogManager.getLogger(TransactionalBookingService.class);
 
 	/**
 	 * Allows the service to execute transactions.
@@ -110,7 +103,6 @@ public class TransactionalBookingService implements BookingService{
 
 	/**
 	 * Adds a new client in the database within a transaction.
-	 * Eventual reservations of the new client will no be saved.
 	 * This method checks if the client is present in the database before inserting.
 	 * 
 	 * @param client							the client to insert.
@@ -138,7 +130,7 @@ public class TransactionalBookingService implements BookingService{
 	}
 
 	/**
-	 * Adds a new reservation in the database and to update the associated client within a transaction.
+	 * Adds a new reservation in the database within a transaction.
 	 * This method checks if the reservation is not present and the associated client is present
 	 * in the database before inserting.
 	 * In case of the reservation is already in client's list, the method generates a warning message.
@@ -162,15 +154,6 @@ public class TransactionalBookingService implements BookingService{
 				if (possibleReservation.isEmpty()) {
 					Optional<Client> possibleClient = clientRepository.findById(reservation.getClientUUID());
 					if (possibleClient.isPresent()) {
-						Client client = possibleClient.get();
-						try {
-							client.addReservation(reservation);
-							clientRepository.save(client);
-							LOGGER.info(() -> String.format("%s has been inserted to %s with success.",
-									reservation.toString(), client.toString()));
-						} catch (InstanceAlreadyExistsException e) {
-							LOGGER.warn(e.getMessage());
-						}
 						return reservationRepository.save(reservation);
 					}
 					throw new NoSuchElementException(
@@ -217,12 +200,8 @@ public class TransactionalBookingService implements BookingService{
 	}
 
 	/**
-	 * Deletes the reservation of the specified date from the database
-	 * and update the associated client within a transaction.
+	 * Deletes the reservation of the specified date from the database within a transaction.
 	 * This method checks if the reservation is present in the database before removing.
-	 * This method updates the client's reservations list after inserting
-	 * if the client is in the database.
-	 * In case of the reservation is not in client's list, the method generates a warning message.
 	 * 
 	 * @param date						the date of the reservation to find.
 	 * @throws IllegalArgumentException	if {@code date} is null.
@@ -235,24 +214,10 @@ public class TransactionalBookingService implements BookingService{
 			throw new IllegalArgumentException("Date of reservation to remove cannot be null.");
 		
 		transactionManager.doInTransaction(
-			(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+			(ReservationRepository reservationRepository) -> {
 				Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
 				if (possibleReservation.isPresent()) {
-					Reservation reservation = possibleReservation.get();
 					reservationRepository.delete(date);
-					Optional<Client> possibleClient = clientRepository
-							.findById(reservation.getClientUUID());
-					if (possibleClient.isPresent()) {
-						Client client = possibleClient.get();
-						try {
-							client.removeReservation(reservation);
-							clientRepository.save(client);
-							LOGGER.info(() -> String.format("%s has been removed from %s with success.",
-									reservation.toString(), client.toString()));
-						} catch (NoSuchElementException e) {
-							LOGGER.warn(e.getMessage());
-						}
-					}
 					return null;
 				}
 				throw new NoSuchElementException(reservationNotFoundMsg(date));
