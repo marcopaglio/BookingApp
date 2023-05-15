@@ -39,16 +39,6 @@
       <!-- version taken from the parent -->
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <!-- version taken from the parent -->
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-core</artifactId>
-      <!-- version taken from the parent -->
-    </dependency>
   </dependencies>
   
   <build>
