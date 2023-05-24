@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -27,6 +28,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -34,6 +36,7 @@ import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.service.BookingService;
+import io.github.marcopaglio.booking.validator.ClientValidator;
 import io.github.marcopaglio.booking.view.View;
 
 @DisplayName("Tests for ServedBookingPresenter class")
@@ -307,11 +310,18 @@ class ServedBookingPresenterTest {
 	@Nested
 	@DisplayName("Tests using spied presenter")
 	class spiedPresenterTest {
+		private MockedStatic<ClientValidator> mockedClientValidator;
 		private ServedBookingPresenter spiedServedBookingPresenter;
 
 		@BeforeEach
 		void setUp() {
+			mockedClientValidator = Mockito.mockStatic(ClientValidator.class);
 			spiedServedBookingPresenter = spy(servedBookingPresenter);
+		}
+		
+		@AfterEach
+		void close() { //TODO provvisorio
+			mockedClientValidator.close();
 		}
 
 		@Nested
@@ -321,35 +331,41 @@ class ServedBookingPresenterTest {
 			@Test
 			@DisplayName("Client is new")
 			void testAddClientWhenClientIsNewShouldCreateDelegateNotifyAndReturn() {
-				when(spiedServedBookingPresenter.newClient(A_FIRSTNAME, A_LASTNAME)).thenReturn(A_CLIENT);
+				mockedClientValidator.when(
+						() -> ClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME))
+					.thenReturn(A_CLIENT);
 				when(bookingService.insertNewClient(A_CLIENT)).thenReturn(A_CLIENT);
 				// default stubbing for view.clientAdded(client)
 				
-				InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter);
+				InOrder inOrder = Mockito.inOrder(bookingService, view, ClientValidator.class);
 				
-				assertThat(spiedServedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
+				assertThat(servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
 					.isEqualTo(A_CLIENT);
 				
-				inOrder.verify(spiedServedBookingPresenter).newClient(A_FIRSTNAME, A_LASTNAME);
+				inOrder.verify(mockedClientValidator,
+						() -> ClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME));
 				inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 				inOrder.verify(view).clientAdded(A_CLIENT);
 				
-				verifyNoMoreInteractions(bookingService, view);
+				verifyNoMoreInteractions(bookingService, view, ClientValidator.class);
 			}
 
 			@Test
 			@DisplayName("Client is not new")
 			void testAddClientWhenClientIsNotNewShouldReturnTheExistingOne() {
-				when(spiedServedBookingPresenter.newClient(A_FIRSTNAME, A_LASTNAME)).thenReturn(A_CLIENT);
+				mockedClientValidator.when(
+						() -> ClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME))
+					.thenReturn(A_CLIENT);
 				when(bookingService.insertNewClient(A_CLIENT)).thenThrow(new InstanceAlreadyExistsException());
 				when(bookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME)).thenReturn(A_CLIENT);
 				
-				InOrder inOrder = Mockito.inOrder(bookingService, spiedServedBookingPresenter);
+				InOrder inOrder = Mockito.inOrder(bookingService, spiedServedBookingPresenter, ClientValidator.class);
 				
 				assertThat(spiedServedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
 					.isEqualTo(A_CLIENT);
 				
-				inOrder.verify(spiedServedBookingPresenter).newClient(A_FIRSTNAME, A_LASTNAME);
+				inOrder.verify(mockedClientValidator,
+						() -> ClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME));
 				inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 				inOrder.verify(bookingService).findClientNamed(A_FIRSTNAME, A_LASTNAME);
 				// updateAll
@@ -360,26 +376,29 @@ class ServedBookingPresenterTest {
 			@Test
 			@DisplayName("Client deleted before being found")
 			void testAddClientWhenClientIsDeletedBeforeBeingFoundShouldRetryToInsert() {
-				when(spiedServedBookingPresenter.newClient(A_FIRSTNAME, A_LASTNAME)).thenReturn(A_CLIENT);
+				mockedClientValidator.when(
+						() -> ClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME))
+					.thenReturn(A_CLIENT);
 				when(bookingService.insertNewClient(A_CLIENT))
 					.thenThrow(new InstanceAlreadyExistsException())
 					.thenReturn(A_CLIENT);
 				when(bookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
 					.thenThrow(new NoSuchElementException());
 				
-				InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter);
+				InOrder inOrder = Mockito.inOrder(bookingService, view, ClientValidator.class);
 				
-				assertThat(spiedServedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
+				assertThat(servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
 					.isEqualTo(A_CLIENT);
 				
-				inOrder.verify(spiedServedBookingPresenter).newClient(A_FIRSTNAME, A_LASTNAME);
+				inOrder.verify(mockedClientValidator,
+						() -> ClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME));
 				inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 				inOrder.verify(bookingService).findClientNamed(A_FIRSTNAME, A_LASTNAME);
 				// times(2)?
 				inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 				inOrder.verify(view).clientAdded(A_CLIENT);
 				
-				verifyNoMoreInteractions(bookingService, view);
+				verifyNoMoreInteractions(bookingService, view, ClientValidator.class);
 			}
 
 			@Nested
@@ -391,21 +410,23 @@ class ServedBookingPresenterTest {
 				@NullSource
 				@ValueSource(strings = {" ", "Mari0", "Mario!"})
 				void testAddClientWhenNameIsNotValidShouldShowErrorAndThrow(String invalidName) {
-					doThrow(new IllegalArgumentException())
-						.when(spiedServedBookingPresenter).newClient(invalidName, A_LASTNAME);
+					mockedClientValidator.when(
+							() -> ClientValidator.newValidatedClient(invalidName, A_LASTNAME))
+						.thenThrow(new IllegalArgumentException());
 					
-					InOrder inOrder = Mockito.inOrder(view, spiedServedBookingPresenter);
+					InOrder inOrder = Mockito.inOrder(view, ClientValidator.class);
 					
 					assertThatThrownBy(
-							() -> spiedServedBookingPresenter.addClient(invalidName, A_LASTNAME))
+							() -> servedBookingPresenter.addClient(invalidName, A_LASTNAME))
 						.isInstanceOf(IllegalArgumentException.class);
 					
-					inOrder.verify(spiedServedBookingPresenter).newClient(invalidName, A_LASTNAME);
+					inOrder.verify(mockedClientValidator,
+							() -> ClientValidator.newValidatedClient(invalidName, A_LASTNAME));
 					inOrder.verify(view).showFormError("Client's name or surname is not valid.");
 					
 					//verify(bookingService, never()).insertNewClient(any());
 					//verify(view, never()).clientAdded(any());
-					verifyNoMoreInteractions(view);
+					verifyNoMoreInteractions(view, ClientValidator.class);
 					verifyNoInteractions(bookingService);
 				}
 
@@ -414,21 +435,23 @@ class ServedBookingPresenterTest {
 				@NullSource
 				@ValueSource(strings = {" ", "Ro55i", "Rossi@"})
 				void testAddClientWhenSurnameIsNotValidShouldShowErrorAndThrow(String invalidSurname) {
-					doThrow(new IllegalArgumentException())
-						.when(spiedServedBookingPresenter).newClient(A_FIRSTNAME, invalidSurname);
+					mockedClientValidator.when(
+							() -> ClientValidator.newValidatedClient(A_FIRSTNAME, invalidSurname))
+						.thenThrow(new IllegalArgumentException());
 					
-					InOrder inOrder = Mockito.inOrder(view, spiedServedBookingPresenter);
+					InOrder inOrder = Mockito.inOrder(view, ClientValidator.class);
 					
 					assertThatThrownBy(
-							() -> spiedServedBookingPresenter.addClient(A_FIRSTNAME, invalidSurname))
+							() -> servedBookingPresenter.addClient(A_FIRSTNAME, invalidSurname))
 						.isInstanceOf(IllegalArgumentException.class);
 					
-					inOrder.verify(spiedServedBookingPresenter).newClient(A_FIRSTNAME, invalidSurname);
+					inOrder.verify(mockedClientValidator,
+							() -> ClientValidator.newValidatedClient(A_FIRSTNAME, invalidSurname));
 					inOrder.verify(view).showFormError("Client's name or surname is not valid.");
 					
 					//verify(bookingService, never()).insertNewClient(any());
 					//verify(view, never()).clientAdded(any());
-					verifyNoMoreInteractions(view);
+					verifyNoMoreInteractions(view, ClientValidator.class);
 					verifyNoInteractions(bookingService);
 				}
 			}
