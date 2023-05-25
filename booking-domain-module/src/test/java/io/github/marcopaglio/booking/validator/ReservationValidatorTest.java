@@ -31,7 +31,7 @@ class ReservationValidatorTest {
 		@Test
 		@DisplayName("Valid parameters")
 		void testNewValidatedReservationWithConversionsWhenParametersAreValidShouldReturnReservation() {
-			Reservation reservation = ReservationValidator
+			Reservation reservation = RestrictedReservationValidator
 					.newValidatedReservation(VALID_CLIENT, VALID_STRING_DATE);
 			
 			assertAll(
@@ -47,7 +47,7 @@ class ReservationValidatorTest {
 			@Test
 			@DisplayName("Null client")
 			void testNewValidatedReservationWhenClientIsNullShouldThrow() {
-				assertThatThrownBy(() -> ReservationValidator
+				assertThatThrownBy(() -> RestrictedReservationValidator
 						.newValidatedReservation(null, VALID_STRING_DATE))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Reservation needs a not null client.");
@@ -59,7 +59,7 @@ class ReservationValidatorTest {
 				Client spied_client = spy(VALID_CLIENT);
 				when(spied_client.getUuid()).thenReturn(null);
 				
-				assertThatThrownBy(() -> ReservationValidator
+				assertThatThrownBy(() -> RestrictedReservationValidator
 						.newValidatedReservation(spied_client, VALID_STRING_DATE))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Reservation needs a not null client identifier.");
@@ -68,7 +68,7 @@ class ReservationValidatorTest {
 			@Test
 			@DisplayName("Null date")
 			void testNewValidatedReservationWhenDateIsNullShouldThrow() {
-				assertThatThrownBy(() -> ReservationValidator
+				assertThatThrownBy(() -> RestrictedReservationValidator
 						.newValidatedReservation(VALID_CLIENT, null))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Reservation needs a not null date.");
@@ -95,7 +95,7 @@ class ReservationValidatorTest {
 			})
 			void testNewValidatedReservationWhenDateContainsNonNumericCharactersShouldThrow(
 					String nonNumericDate) {
-				assertThatThrownBy(() -> ReservationValidator
+				assertThatThrownBy(() -> RestrictedReservationValidator
 						.newValidatedReservation(VALID_CLIENT, nonNumericDate))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Reservation needs a only numeric date.");
@@ -111,7 +111,7 @@ class ReservationValidatorTest {
 			})
 			void testConstructorWithConversionsWhenStringDateFormatIsWrongShouldThrow(
 					String wrongFormatDate) {
-				assertThatThrownBy(() -> ReservationValidator
+				assertThatThrownBy(() -> RestrictedReservationValidator
 						.newValidatedReservation(VALID_CLIENT, wrongFormatDate))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Reservation needs a date in format aaaa-mm-dd.");
@@ -136,7 +136,7 @@ class ReservationValidatorTest {
 				"2022-12-32"	// December 
 			})
 			void testConstructorWithConversionsWhenDayInDateIsWrongShouldThrow(String outOfRangeDate) {
-				assertThatThrownBy(() -> ReservationValidator
+				assertThatThrownBy(() -> RestrictedReservationValidator
 						.newValidatedReservation(VALID_CLIENT, outOfRangeDate))
 					.isInstanceOf(IllegalArgumentException.class);
 			}

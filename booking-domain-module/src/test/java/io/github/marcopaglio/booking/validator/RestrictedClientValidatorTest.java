@@ -15,8 +15,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 import io.github.marcopaglio.booking.model.Client;
 
 
-@DisplayName("Tests for ClientValidator")
-class ClientValidatorTest {
+@DisplayName("Tests for RestrictedClientValidator")
+class RestrictedClientValidatorTest {
 	private static final String VALID_FIRST_NAME = "Mario";
 	private static final String VALID_LAST_NAME = "Rossi";
 
@@ -25,13 +25,13 @@ class ClientValidatorTest {
 	class NewValidatedClientTest {
 
 		@Nested
-		@DisplayName("Valid Names")
+		@DisplayName("Valid names")
 		class ValidNamesTest {
 
 			@Test
 			@DisplayName("Creation has success")
 			void testNewValidatedClientWhenNamesAreValidShouldReturnClient() {
-				Client client = ClientValidator.newValidatedClient(VALID_FIRST_NAME, VALID_LAST_NAME);
+				Client client = RestrictedClientValidator.newValidatedClient(VALID_FIRST_NAME, VALID_LAST_NAME);
 				
 				assertAll(
 					() -> assertThat(client.getFirstName()).isEqualTo(VALID_FIRST_NAME),
@@ -48,9 +48,9 @@ class ClientValidatorTest {
 			})
 			void testNewValidatedClientWhenNameAreAccentedShouldNotThrow(String accentedName) {
 				assertThatNoException().isThrownBy(
-						() -> ClientValidator.newValidatedClient(accentedName, VALID_LAST_NAME));
+						() -> RestrictedClientValidator.newValidatedClient(accentedName, VALID_LAST_NAME));
 				assertThatNoException().isThrownBy(
-						() -> ClientValidator.newValidatedClient(VALID_FIRST_NAME, accentedName));
+						() -> RestrictedClientValidator.newValidatedClient(VALID_FIRST_NAME, accentedName));
 			}
 
 			@ParameterizedTest(name = "{index}: ''{0}''")
@@ -61,37 +61,37 @@ class ClientValidatorTest {
 			})
 			void testConstructorWhenNameContainsSpacesShouldNotThrow(String spacedName) {
 				assertThatNoException().isThrownBy(
-						() -> ClientValidator.newValidatedClient(spacedName, VALID_LAST_NAME));
+						() -> RestrictedClientValidator.newValidatedClient(spacedName, VALID_LAST_NAME));
 				assertThatNoException().isThrownBy(
-						() -> ClientValidator.newValidatedClient(VALID_FIRST_NAME, spacedName));
+						() -> RestrictedClientValidator.newValidatedClient(VALID_FIRST_NAME, spacedName));
 			}
 		}
 
 		@Test
 		@DisplayName("Null names")
 		void testNewValidatedClientWhenNameIsNullShouldThrow() {
-			assertThatThrownBy(() -> ClientValidator.newValidatedClient(null, VALID_LAST_NAME))
+			assertThatThrownBy(() -> RestrictedClientValidator.newValidatedClient(null, VALID_LAST_NAME))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("Client needs a not null name.");
 			
-			assertThatThrownBy(() -> ClientValidator.newValidatedClient(VALID_FIRST_NAME, null))
+			assertThatThrownBy(() -> RestrictedClientValidator.newValidatedClient(VALID_FIRST_NAME, null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("Client needs a not null surname.");
 		}
 
 		@Nested
-		@DisplayName("InvalidNames")
+		@DisplayName("Invalid names")
 		class InvalidNamesTest {
 
 			@ParameterizedTest(name = "{index}: ''{0}''")
 			@DisplayName("Empty or only-spaces names")
 			@ValueSource(strings = {"", " ", "  ", "\t ", " \n", " \r ", "\f  "})
 			void testNewValidatedClientWhenNameIsEmptyShouldThrow(String emptyName) {
-				assertThatThrownBy(() -> ClientValidator.newValidatedClient(emptyName, VALID_LAST_NAME))
+				assertThatThrownBy(() -> RestrictedClientValidator.newValidatedClient(emptyName, VALID_LAST_NAME))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Client needs a non-empty name.");
 				
-				assertThatThrownBy(() -> ClientValidator.newValidatedClient(VALID_FIRST_NAME, emptyName))
+				assertThatThrownBy(() -> RestrictedClientValidator.newValidatedClient(VALID_FIRST_NAME, emptyName))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Client needs a non-empty surname.");
 			}
@@ -101,11 +101,11 @@ class ClientValidatorTest {
 			@ValueSource(strings = {"Mari0", "Ro55i", "Mario!", "Rossi@"})
 			void testNewValidatedClientWhenNameContainsNonAlphabetCharactersShouldThrow(
 					String nonAlphabetName) {
-				assertThatThrownBy(() -> ClientValidator.newValidatedClient(nonAlphabetName, VALID_LAST_NAME))
+				assertThatThrownBy(() -> RestrictedClientValidator.newValidatedClient(nonAlphabetName, VALID_LAST_NAME))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Client's name must contain only alphabet letters.");
 				
-				assertThatThrownBy(() -> ClientValidator.newValidatedClient(VALID_FIRST_NAME, nonAlphabetName))
+				assertThatThrownBy(() -> RestrictedClientValidator.newValidatedClient(VALID_FIRST_NAME, nonAlphabetName))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Client's surname must contain only alphabet letters.");
 			}
@@ -125,7 +125,7 @@ class ClientValidatorTest {
 			})
 			void testConstructorWhenInputsContainSideSpacesShouldRemove(
 					String sideSpacedFirstName, String sideSpacedLastName) {
-				Client client = ClientValidator.newValidatedClient(sideSpacedFirstName, sideSpacedLastName);
+				Client client = RestrictedClientValidator.newValidatedClient(sideSpacedFirstName, sideSpacedLastName);
 				
 				assertAll(
 					() -> assertThat(client.getFirstName()).isEqualTo(VALID_FIRST_NAME),
@@ -143,7 +143,7 @@ class ClientValidatorTest {
 			void testConstructorWhenInputsContainSeveralSpacesShouldReduce(
 					String actualFirstName, String actualLastName,
 					String expectedFirstName, String expectedLastName) {
-				Client client = ClientValidator.newValidatedClient(actualFirstName, actualLastName);
+				Client client = RestrictedClientValidator.newValidatedClient(actualFirstName, actualLastName);
 				
 				assertAll(
 					() -> assertThat(client.getFirstName()).isEqualTo(expectedFirstName),

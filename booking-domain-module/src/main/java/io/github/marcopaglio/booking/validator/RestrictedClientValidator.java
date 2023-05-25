@@ -5,25 +5,33 @@ import java.util.regex.Pattern;
 import io.github.marcopaglio.booking.model.Client;
 
 /**
- * A validator for client entities that verifies if parameters are valid,
+ * A validator for client entities that verifies if parameters are not null or empty string
+ * neither they contain non-alphabetic characters,
  * and fixes them if possible.
+ *  * A validator for client entities that verifies if parameters are valid.
  */
-public class ClientValidator {
+public final class RestrictedClientValidator {
 	/**
 	 * Regular expression for stating other characters except the alphabetic ones and horizontal spaces.
 	 */
-	private static final Pattern notOnlyAlphabetic =
-			Pattern.compile("[^\\p{IsAlphabetic}\\h]");
+	private static final Pattern notOnlyAlphabetic = Pattern.compile("[^\\p{IsAlphabetic}\\h]");
 
 	/**
-	 * Checks if parameters are valid for the creation of a client entity for the booking application.
+	 * Private constructors provided for avoiding the creation of this only-static-method class.
+	 */
+	private RestrictedClientValidator() {}
+
+	/**
+	 * Checks if parameters are valid for the creation of a client entity for the booking application,
+	 * then creates it.
 	 * 
 	 * @param firstName					the name of the client.
 	 * @param lastName					the surname of the client.
 	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
 	 * @return							a valid {@code Client} entity.
 	 */
-	public static Client newValidatedClient(String firstName, String lastName) throws IllegalArgumentException {
+	public static Client newValidatedClient(String firstName, String lastName)
+			throws IllegalArgumentException {
 		checkNameValidity(firstName, "name");
 		checkNameValidity(lastName, "surname");
 		
