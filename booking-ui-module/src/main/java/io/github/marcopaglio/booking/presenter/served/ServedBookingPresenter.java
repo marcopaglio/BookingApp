@@ -10,8 +10,8 @@ import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.presenter.BookingPresenter;
 import io.github.marcopaglio.booking.service.BookingService;
-import io.github.marcopaglio.booking.validator.RestrictedClientValidator;
-import io.github.marcopaglio.booking.validator.RestrictedReservationValidator;
+import io.github.marcopaglio.booking.validator.ClientValidator;
+import io.github.marcopaglio.booking.validator.ReservationValidator;
 import io.github.marcopaglio.booking.view.View;
 
 /**
@@ -118,7 +118,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 */
 	private Client createClient(String firstName, String lastName) throws IllegalArgumentException {
 		try {
-			return RestrictedClientValidator.newValidatedClient(firstName, lastName);
+			return ClientValidator.newValidatedClient(firstName, lastName);
 		} catch(IllegalArgumentException e) {
 			view.showFormError("Client's name or surname is not valid.");
 			throw new IllegalArgumentException(e.getMessage());
@@ -167,7 +167,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			throw new IllegalArgumentException("Reservation's client to add cannot be null.");
 		
 		try {
-			return RestrictedReservationValidator.newValidatedReservation(client, date);
+			return ReservationValidator.newValidatedReservation(client, date);
 		} catch(IllegalArgumentException e) {
 			view.showFormError("Date of reservation is not valid.");
 			throw new IllegalArgumentException(e.getMessage());

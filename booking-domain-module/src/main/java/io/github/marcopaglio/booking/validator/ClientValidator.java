@@ -10,7 +10,7 @@ import io.github.marcopaglio.booking.model.Client;
  * and fixes them if possible.
  *  * A validator for client entities that verifies if parameters are valid.
  */
-public final class RestrictedClientValidator {
+public final class ClientValidator {
 	/**
 	 * Regular expression for stating other characters except the alphabetic ones and horizontal spaces.
 	 */
@@ -19,7 +19,7 @@ public final class RestrictedClientValidator {
 	/**
 	 * Private constructors provided for avoiding the creation of this only-static-method class.
 	 */
-	private RestrictedClientValidator() {}
+	private ClientValidator() {}
 
 	/**
 	 * Checks if parameters are valid for the creation of a client entity for the booking application,

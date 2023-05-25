@@ -37,8 +37,8 @@ import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.service.BookingService;
-import io.github.marcopaglio.booking.validator.RestrictedClientValidator;
-import io.github.marcopaglio.booking.validator.RestrictedReservationValidator;
+import io.github.marcopaglio.booking.validator.ClientValidator;
+import io.github.marcopaglio.booking.validator.ReservationValidator;
 import io.github.marcopaglio.booking.view.View;
 
 @DisplayName("Tests for ServedBookingPresenter class")
@@ -324,8 +324,8 @@ class ServedBookingPresenterTest {
 		@Nested
 		@DisplayName("Tests using ClientValidator")
 		class ClientValidatorTest {
-			private MockedStatic<RestrictedClientValidator> mockedClientValidator =
-					Mockito.mockStatic(RestrictedClientValidator.class);
+			private MockedStatic<ClientValidator> mockedClientValidator =
+					Mockito.mockStatic(ClientValidator.class);
 
 			@AfterEach
 			void close() {
@@ -340,40 +340,40 @@ class ServedBookingPresenterTest {
 				@DisplayName("Client is new")
 				void testAddClientWhenClientIsNewShouldCreateDelegateNotifyAndReturn() {
 					mockedClientValidator.when(
-							() -> RestrictedClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME))
+							() -> ClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME))
 						.thenReturn(A_CLIENT);
 					when(bookingService.insertNewClient(A_CLIENT)).thenReturn(A_CLIENT);
 					// default stubbing for view.clientAdded(client)
 					
-					InOrder inOrder = Mockito.inOrder(bookingService, view, RestrictedClientValidator.class);
+					InOrder inOrder = Mockito.inOrder(bookingService, view, ClientValidator.class);
 					
 					assertThat(servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
 						.isEqualTo(A_CLIENT);
 					
 					inOrder.verify(mockedClientValidator,
-							() -> RestrictedClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME));
+							() -> ClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME));
 					inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 					inOrder.verify(view).clientAdded(A_CLIENT);
 					
-					verifyNoMoreInteractions(bookingService, view, RestrictedClientValidator.class);
+					verifyNoMoreInteractions(bookingService, view, ClientValidator.class);
 				}
 
 				@Test
 				@DisplayName("Client is not new")
 				void testAddClientWhenClientIsNotNewShouldReturnTheExistingOne() {
 					mockedClientValidator.when(
-							() -> RestrictedClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME))
+							() -> ClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME))
 						.thenReturn(A_CLIENT);
 					when(bookingService.insertNewClient(A_CLIENT)).thenThrow(new InstanceAlreadyExistsException());
 					when(bookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME)).thenReturn(A_CLIENT);
 					
-					InOrder inOrder = Mockito.inOrder(bookingService, spiedServedBookingPresenter, RestrictedClientValidator.class);
+					InOrder inOrder = Mockito.inOrder(bookingService, spiedServedBookingPresenter, ClientValidator.class);
 					
 					assertThat(spiedServedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
 						.isEqualTo(A_CLIENT);
 					
 					inOrder.verify(mockedClientValidator,
-							() -> RestrictedClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME));
+							() -> ClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME));
 					inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 					inOrder.verify(bookingService).findClientNamed(A_FIRSTNAME, A_LASTNAME);
 					// updateAll
@@ -385,7 +385,7 @@ class ServedBookingPresenterTest {
 				@DisplayName("Client deleted before being found")
 				void testAddClientWhenClientIsDeletedBeforeBeingFoundShouldRetryToInsert() {
 					mockedClientValidator.when(
-							() -> RestrictedClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME))
+							() -> ClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME))
 						.thenReturn(A_CLIENT);
 					when(bookingService.insertNewClient(A_CLIENT))
 						.thenThrow(new InstanceAlreadyExistsException())
@@ -393,20 +393,20 @@ class ServedBookingPresenterTest {
 					when(bookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
 						.thenThrow(new NoSuchElementException());
 					
-					InOrder inOrder = Mockito.inOrder(bookingService, view, RestrictedClientValidator.class);
+					InOrder inOrder = Mockito.inOrder(bookingService, view, ClientValidator.class);
 					
 					assertThat(servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
 						.isEqualTo(A_CLIENT);
 					
 					inOrder.verify(mockedClientValidator,
-							() -> RestrictedClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME));
+							() -> ClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME));
 					inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 					inOrder.verify(bookingService).findClientNamed(A_FIRSTNAME, A_LASTNAME);
 					// times(2)?
 					inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 					inOrder.verify(view).clientAdded(A_CLIENT);
 					
-					verifyNoMoreInteractions(bookingService, view, RestrictedClientValidator.class);
+					verifyNoMoreInteractions(bookingService, view, ClientValidator.class);
 				}
 
 				@Nested
@@ -419,22 +419,22 @@ class ServedBookingPresenterTest {
 					@ValueSource(strings = {" ", "Mari0", "Mario!"})
 					void testAddClientWhenNameIsNotValidShouldShowErrorAndThrow(String invalidName) {
 						mockedClientValidator.when(
-								() -> RestrictedClientValidator.newValidatedClient(invalidName, A_LASTNAME))
+								() -> ClientValidator.newValidatedClient(invalidName, A_LASTNAME))
 							.thenThrow(new IllegalArgumentException());
 						
-						InOrder inOrder = Mockito.inOrder(view, RestrictedClientValidator.class);
+						InOrder inOrder = Mockito.inOrder(view, ClientValidator.class);
 						
 						assertThatThrownBy(
 								() -> servedBookingPresenter.addClient(invalidName, A_LASTNAME))
 							.isInstanceOf(IllegalArgumentException.class);
 						
 						inOrder.verify(mockedClientValidator,
-								() -> RestrictedClientValidator.newValidatedClient(invalidName, A_LASTNAME));
+								() -> ClientValidator.newValidatedClient(invalidName, A_LASTNAME));
 						inOrder.verify(view).showFormError("Client's name or surname is not valid.");
 						
 						//verify(bookingService, never()).insertNewClient(any());
 						//verify(view, never()).clientAdded(any());
-						verifyNoMoreInteractions(view, RestrictedClientValidator.class);
+						verifyNoMoreInteractions(view, ClientValidator.class);
 						verifyNoInteractions(bookingService);
 					}
 
@@ -444,22 +444,22 @@ class ServedBookingPresenterTest {
 					@ValueSource(strings = {" ", "Ro55i", "Rossi@"})
 					void testAddClientWhenSurnameIsNotValidShouldShowErrorAndThrow(String invalidSurname) {
 						mockedClientValidator.when(
-								() -> RestrictedClientValidator.newValidatedClient(A_FIRSTNAME, invalidSurname))
+								() -> ClientValidator.newValidatedClient(A_FIRSTNAME, invalidSurname))
 							.thenThrow(new IllegalArgumentException());
 						
-						InOrder inOrder = Mockito.inOrder(view, RestrictedClientValidator.class);
+						InOrder inOrder = Mockito.inOrder(view, ClientValidator.class);
 						
 						assertThatThrownBy(
 								() -> servedBookingPresenter.addClient(A_FIRSTNAME, invalidSurname))
 							.isInstanceOf(IllegalArgumentException.class);
 						
 						inOrder.verify(mockedClientValidator,
-								() -> RestrictedClientValidator.newValidatedClient(A_FIRSTNAME, invalidSurname));
+								() -> ClientValidator.newValidatedClient(A_FIRSTNAME, invalidSurname));
 						inOrder.verify(view).showFormError("Client's name or surname is not valid.");
 						
 						//verify(bookingService, never()).insertNewClient(any());
 						//verify(view, never()).clientAdded(any());
-						verifyNoMoreInteractions(view, RestrictedClientValidator.class);
+						verifyNoMoreInteractions(view, ClientValidator.class);
 						verifyNoInteractions(bookingService);
 					}
 				}
@@ -469,8 +469,8 @@ class ServedBookingPresenterTest {
 		@Nested
 		@DisplayName("Tests using ReservationValidator")
 		class ReservationValidatorTest {
-			private MockedStatic<RestrictedReservationValidator> mockedReservationValidator =
-					Mockito.mockStatic(RestrictedReservationValidator.class);
+			private MockedStatic<ReservationValidator> mockedReservationValidator =
+					Mockito.mockStatic(ReservationValidator.class);
 
 			@AfterEach
 			void close() {
@@ -485,29 +485,29 @@ class ServedBookingPresenterTest {
 				@DisplayName("Reservation is new")
 				void testAddReservationWhenReservationIsNewShouldCreateDelegateAndNotify() {
 					mockedReservationValidator.when(
-							() -> RestrictedReservationValidator.newValidatedReservation(A_CLIENT, A_DATE))
+							() -> ReservationValidator.newValidatedReservation(A_CLIENT, A_DATE))
 						.thenReturn(A_RESERVATION);
 					// default stubbing for bookingService.insertNewReservation(reservation)
 					// default stubbing for view.reservationAdded(reservation)
 					
-					InOrder inOrder = Mockito.inOrder(bookingService, view, RestrictedReservationValidator.class);
+					InOrder inOrder = Mockito.inOrder(bookingService, view, ReservationValidator.class);
 					
 					assertThatNoException().isThrownBy(
 							() -> servedBookingPresenter.addReservation(A_DATE, A_CLIENT));
 					
 					inOrder.verify(mockedReservationValidator,
-							() -> RestrictedReservationValidator.newValidatedReservation(A_CLIENT, A_DATE));
+							() -> ReservationValidator.newValidatedReservation(A_CLIENT, A_DATE));
 					inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
 					inOrder.verify(view).reservationAdded(A_RESERVATION);
 					
-					verifyNoMoreInteractions(bookingService, view, RestrictedReservationValidator.class);
+					verifyNoMoreInteractions(bookingService, view, ReservationValidator.class);
 				}
 
 				@Test
 				@DisplayName("Reservation is not new")
 				void testNewReservationWhenReservationIsNotNewShouldShowErrorAndUpdateView() {
 					mockedReservationValidator.when(
-							() -> RestrictedReservationValidator.newValidatedReservation(A_CLIENT, A_DATE))
+							() -> ReservationValidator.newValidatedReservation(A_CLIENT, A_DATE))
 						.thenReturn(A_RESERVATION);
 					when(bookingService.insertNewReservation(A_RESERVATION))
 						.thenThrow(new InstanceAlreadyExistsException());
@@ -517,13 +517,13 @@ class ServedBookingPresenterTest {
 					// default stubbing for bookingService.findAllClients()
 					// default stubbing for view.showAllClients(clients)
 					
-					InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter, RestrictedReservationValidator.class);
+					InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter, ReservationValidator.class);
 					
 					assertThatNoException().isThrownBy(
 							() -> spiedServedBookingPresenter.addReservation(A_DATE, A_CLIENT));
 					
 					inOrder.verify(mockedReservationValidator,
-							() -> RestrictedReservationValidator.newValidatedReservation(A_CLIENT, A_DATE));
+							() -> ReservationValidator.newValidatedReservation(A_CLIENT, A_DATE));
 					inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
 					inOrder.verify(view).showReservationError(A_RESERVATION, " has already been booked.");
 					// updateAll
@@ -535,7 +535,7 @@ class ServedBookingPresenterTest {
 				@DisplayName("Reservation's client is not in database")
 				void testNewReservationWhenClientIsNotInDatabaseShouldShowErrorAndUpdateView() {
 					mockedReservationValidator.when(
-							() -> RestrictedReservationValidator.newValidatedReservation(A_CLIENT, A_DATE))
+							() -> ReservationValidator.newValidatedReservation(A_CLIENT, A_DATE))
 						.thenReturn(A_RESERVATION);
 					when(bookingService.insertNewReservation(A_RESERVATION))
 						.thenThrow(new NoSuchElementException());
@@ -545,13 +545,13 @@ class ServedBookingPresenterTest {
 					// default stubbing for bookingService.findAllReservations()
 					// default stubbing for view.showAllReservations(reservations)
 					
-					InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter, RestrictedReservationValidator.class);
+					InOrder inOrder = Mockito.inOrder(bookingService, view, spiedServedBookingPresenter, ReservationValidator.class);
 					
 					assertThatNoException().isThrownBy(
 							() -> spiedServedBookingPresenter.addReservation(A_DATE, A_CLIENT));
 					
 					inOrder.verify(mockedReservationValidator,
-							() -> RestrictedReservationValidator.newValidatedReservation(A_CLIENT, A_DATE));
+							() -> ReservationValidator.newValidatedReservation(A_CLIENT, A_DATE));
 					inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
 					inOrder.verify(view).showReservationError(A_RESERVATION, "'s client has been deleted.");
 					// updateAll
@@ -565,17 +565,17 @@ class ServedBookingPresenterTest {
 				@ValueSource(strings = {"2O23-O4-24", "24-04-2023", "2022-13-12", "2022-08-32"})
 				void testAddReservationWhenDateIsNotValidShouldShowErrorAndThrow(String invalid_date) {
 					mockedReservationValidator.when(
-							() -> RestrictedReservationValidator.newValidatedReservation(A_CLIENT, invalid_date))
+							() -> ReservationValidator.newValidatedReservation(A_CLIENT, invalid_date))
 						.thenThrow(new IllegalArgumentException());
 					
-					InOrder inOrder = Mockito.inOrder(view, RestrictedReservationValidator.class);
+					InOrder inOrder = Mockito.inOrder(view, ReservationValidator.class);
 					
 					assertThatThrownBy(
 							() -> servedBookingPresenter.addReservation(invalid_date, A_CLIENT))
 						.isInstanceOf(IllegalArgumentException.class);
 					
 					inOrder.verify(mockedReservationValidator,
-							() -> RestrictedReservationValidator.newValidatedReservation(A_CLIENT, invalid_date));
+							() -> ReservationValidator.newValidatedReservation(A_CLIENT, invalid_date));
 					inOrder.verify(view).showFormError("Date of reservation is not valid.");
 					
 					//verify(bookingService, never()).insertNewReservation(any());

@@ -13,7 +13,7 @@ import io.github.marcopaglio.booking.model.Reservation;
  * or are in a non-valid format or out of range.
  * A validator for reservation entities that verifies if parameters are valid.
  */
-public final class RestrictedReservationValidator {
+public final class ReservationValidator {
 	/**
 	 * Regular expression for stating other characters except the numeric and the dash ones.
 	 */
@@ -22,7 +22,7 @@ public final class RestrictedReservationValidator {
 	/**
 	 * Private constructors provided for avoiding the creation of this only-static-method class.
 	 */
-	private RestrictedReservationValidator() {}
+	private ReservationValidator() {}
 
 	/**
 	 * Checks if parameters are valid for the creation of a reservation entity for the
