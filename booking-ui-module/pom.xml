@@ -75,9 +75,11 @@
           <configuration>
             <targetClasses>
               <!-- HERE CLASSES TO MUTATE -->
+              <targetClasse>io.github.marcopaglio.booking.presenter.served.*</targetClasse>
             </targetClasses>
             <targetTests>
               <!-- HERE TESTS TO KILL MUTANS -->
+              <targetTest>io.github.marcopaglio.booking.presenter.served.*</targetTest>
             </targetTests>
           </configuration>
         </plugin>
