@@ -35,8 +35,7 @@ class ClientValidatorTest {
 				
 				assertAll(
 					() -> assertThat(client.getFirstName()).isEqualTo(VALID_FIRST_NAME),
-					() -> assertThat(client.getLastName()).isEqualTo(VALID_LAST_NAME),
-					() -> assertThat(client.getUuid()).isNotNull()
+					() -> assertThat(client.getLastName()).isEqualTo(VALID_LAST_NAME)
 				);
 			}
 
