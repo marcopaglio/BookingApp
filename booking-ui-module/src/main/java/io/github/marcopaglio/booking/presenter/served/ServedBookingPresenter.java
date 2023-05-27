@@ -5,12 +5,13 @@ import java.util.NoSuchElementException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.github.marcopaglio.booking.annotation.Generated;
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.presenter.BookingPresenter;
 import io.github.marcopaglio.booking.service.BookingService;
+import io.github.marcopaglio.booking.validator.ClientValidator;
+import io.github.marcopaglio.booking.validator.ReservationValidator;
 import io.github.marcopaglio.booking.view.View;
 
 /**
@@ -117,25 +118,12 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 */
 	private Client createClient(String firstName, String lastName) throws IllegalArgumentException {
 		try {
-			return newClient(firstName, lastName);
+			return ClientValidator.newValidatedClient(firstName, lastName);
 		} catch(IllegalArgumentException e) {
 			view.showFormError("Client's name or surname is not valid.");
 			throw new IllegalArgumentException(e.getMessage());
 			// nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
 		}
-	}
-
-	/**
-	 * Creates a new client object.
-	 * 
-	 * @param firstName					the name of the client to create.
-	 * @param lastName					the surname of the client to create.
-	 * @return							the {@code Client} created.
-	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
-	 */
-	@Generated
-	Client newClient(String firstName, String lastName) throws IllegalArgumentException {
-		return new Client(firstName, lastName);
 	}
 
 	/**
@@ -179,25 +167,12 @@ public class ServedBookingPresenter implements BookingPresenter {
 			throw new IllegalArgumentException("Reservation's client to add cannot be null.");
 		
 		try {
-			return newReservation(client, date);
+			return ReservationValidator.newValidatedReservation(client, date);
 		} catch(IllegalArgumentException e) {
 			view.showFormError("Date of reservation is not valid.");
 			throw new IllegalArgumentException(e.getMessage());
 			// nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
 		}
-	}
-
-	/**
-	 * Creates a new reservation object.
-	 * 
-	 * @param client					the associated client of the reservation to create.
-	 * @param date						the date of the reservation to create.
-	 * @return							the {@code Reservation} created.
-	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
-	 */
-	@Generated
-	Reservation newReservation(Client client, String date) throws IllegalArgumentException {
-		return new Reservation(client, date);
 	}
 
 	/**

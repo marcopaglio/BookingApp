@@ -2,20 +2,11 @@ package io.github.marcopaglio.booking.model;
 
 import java.util.Objects;
 import java.util.UUID;
-import java.util.regex.Pattern;
-
-import io.github.marcopaglio.booking.annotation.Generated;
 
 /**
  * This entity represents the customer's model of the booking application.
  */
 public class Client {
-	/**
-	 * Regular expression for stating other characters except the alphabetic ones and horizontal spaces.
-	 */
-	private static final Pattern notOnlyAlphabetic =
-			Pattern.compile("[^\\p{IsAlphabetic}\\h]");
-
 	/**
 	 * The identifier of the client entity.
 	 */
@@ -34,86 +25,16 @@ public class Client {
 	private final String lastName;
 
 	/**
-	 * Constructs a client for the booking application with a name,
-	 * a surname and a initial list of reservations.
-	 * The constructor checks if the parameters are valid for the creation of the client.
+	 * Constructs a client for the booking application with a name and a surname.
 	 * 
 	 * @param firstName					the name of the client.
 	 * @param lastName					the surname of the client.
-	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
 	 */
-	public Client(String firstName, String lastName)
-			throws IllegalArgumentException {
-		checkNameValidity(firstName, "name");
-		checkNameValidity(lastName, "surname");
-		
-		this.firstName = removeExcessedSpaces(firstName);
-		this.lastName = removeExcessedSpaces(lastName);
+	public Client(String firstName, String lastName) {
+		this.firstName = firstName;
+		this.lastName = lastName;
 		
 		this.uuid = UUID.randomUUID();
-	}
-
-	/**
-	 * Checks if the string is a valid name that is not null neither empty,
-	 * and contains only alphabetic and horizontal whitespace characters.
-	 *
-	 * @param name						the string to evaluate.
-	 * @param inputName					the role of the string in the client's context.
-	 * @throws IllegalArgumentException	if {@code name} is a null or empty string,
-	 * 									or it contains non-alphabetic characters.
-	 */
-	private static void checkNameValidity(String name, String inputName) throws IllegalArgumentException {
-		checkNotNull(name, inputName);
-		checkNotEmpty(name, inputName);
-		checkOnlyAlphabetic(name, inputName);
-	}
-
-	/**
-	 * Checks if the object is not null.
-	 *
-	 * @param o							the object to evaluate.
-	 * @param inputName					the role of the object in the client's context.
-	 * @throws IllegalArgumentException	if {@code o} is null.
-	 */
-	private static void checkNotNull(Object o, String inputName) throws IllegalArgumentException {
-		if (o == null)
-			throw new IllegalArgumentException(
-				"Client needs a not null " + inputName + ".");
-	}
-
-	/**
-	 * Checks if the string is not empty.
-	 *
-	 * @param str						the string to evaluate.
-	 * @param inputName					the role of the string in the client's context.
-	 * @throws IllegalArgumentException	if {@code str} is empty.
-	 */
-	private static void checkNotEmpty(String str, String inputName) {
-		if (str.trim().isEmpty()) 
-			throw new IllegalArgumentException(
-				"Client needs a non-empty " + inputName + ".");
-	}
-
-	/**
-	 * Checks if the string contains only accepted characters that is
-	 * (lower and upper) alphabetic and accented letters, and horizontal whitespace character.
-	 *
-	 * @param str						the string to evaluate.
-	 * @param inputName					the role of the string in the client's context.
-	 * @throws IllegalArgumentException	if {@code str} contains non-valid characters.
-	 */
-	private static void checkOnlyAlphabetic(String str, String inputName)
-			throws IllegalArgumentException {
-		if (notOnlyAlphabetic.matcher(str).find())
-			throw new IllegalArgumentException(
-				"Client's " + inputName + " must contain only alphabet letters.");
-	}
-
-	/**
-	 * Removes side spaces and reduces multiple spaces into a single whitespace.
-	 */
-	private static String removeExcessedSpaces(String name) {
-		return name.trim().replaceAll("\\s+", " ");
 	}
 
 	/**
@@ -121,7 +42,6 @@ public class Client {
 	 *
 	 * @return	the {@code firstName} of the client.
 	 */
-	@Generated
 	public final String getFirstName() {
 		return this.firstName;
 	}
@@ -131,7 +51,6 @@ public class Client {
 	 *
 	 * @return	the {@code lastName} of the client.
 	 */
-	@Generated
 	public final String getLastName() {
 		return this.lastName;
 	}
@@ -141,7 +60,6 @@ public class Client {
 	 *
 	 * @return	the {@code uuid} of the client.
 	 */
-	@Generated
 	public final UUID getUuid() {
 		return this.uuid;
 	}
@@ -151,7 +69,6 @@ public class Client {
 	 * 
 	 * @return	a hash code value for this client object.
 	 */
-	@Generated
 	@Override
 	public int hashCode() {
 		return Objects.hash(firstName, lastName);
@@ -165,7 +82,6 @@ public class Client {
 	 * @return		{@code true} if this object is the same as the {@code obj} argument;
 	 * 				{@code false} otherwise.
 	 */
-	@Generated
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -187,7 +103,6 @@ public class Client {
 	 *
 	 * @return	a string representation of the client.
 	 */
-	@Generated
 	@Override
 	public String toString() {
 		return "Client [" + firstName + " " + lastName + "]";

@@ -43,6 +43,7 @@
             <configuration>
               <excludes>
                 <!-- HERE FOR OTHER EXCLUSIONS -->
+                <exclude>**/model/*</exclude>
                 <exclude>**/annotation/*</exclude>
                 <exclude>**/exception/*</exclude>
                 <exclude>**/transaction/code/*</exclude>
