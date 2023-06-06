@@ -1,5 +1,6 @@
 package io.github.marcopaglio.booking.validator;
 
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import io.github.marcopaglio.booking.model.Client;
@@ -27,15 +28,17 @@ public final class ClientValidator {
 	 * 
 	 * @param firstName					the name of the client.
 	 * @param lastName					the surname of the client.
+	 * @param id						the identifier of the client.
 	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
 	 * @return							a valid {@code Client} entity.
 	 */
-	public static Client newValidatedClient(String firstName, String lastName)
+	public static Client newValidatedClient(String firstName, String lastName, UUID id)
 			throws IllegalArgumentException {
 		checkNameValidity(firstName, "name");
 		checkNameValidity(lastName, "surname");
+		checkNotNull(id, "identifier");
 		
-		return new Client(removeExcessedSpaces(firstName), removeExcessedSpaces(lastName));
+		return new Client(removeExcessedSpaces(firstName), removeExcessedSpaces(lastName), id);
 	}
 
 	/**

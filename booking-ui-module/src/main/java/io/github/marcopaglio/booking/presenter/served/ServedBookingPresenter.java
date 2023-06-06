@@ -1,6 +1,7 @@
 package io.github.marcopaglio.booking.presenter.served;
 
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -118,7 +119,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 */
 	private Client createClient(String firstName, String lastName) throws IllegalArgumentException {
 		try {
-			return ClientValidator.newValidatedClient(firstName, lastName);
+			return ClientValidator.newValidatedClient(firstName, lastName, UUID.randomUUID());
 		} catch(IllegalArgumentException e) {
 			view.showFormError("Client's name or surname is not valid.");
 			throw new IllegalArgumentException(e.getMessage());

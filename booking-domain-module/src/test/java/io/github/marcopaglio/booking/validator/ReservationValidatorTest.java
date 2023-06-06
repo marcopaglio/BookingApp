@@ -19,7 +19,7 @@ import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 
 class ReservationValidatorTest {
-	private static final Client VALID_CLIENT = new Client("Mario", "Rossi");
+	private static final Client VALID_CLIENT = new Client("Mario", "Rossi", UUID.randomUUID());
 	private static final UUID VALID_UUID = VALID_CLIENT.getId();
 	private static final String VALID_STRING_DATE = "2022-12-22";
 	private static final LocalDate VALID_DATE = LocalDate.parse(VALID_STRING_DATE);
