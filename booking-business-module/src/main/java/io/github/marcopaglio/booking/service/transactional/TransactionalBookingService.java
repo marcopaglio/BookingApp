@@ -151,12 +151,12 @@ public class TransactionalBookingService implements BookingService{
 				Optional<Reservation> possibleReservation =
 						reservationRepository.findByDate(reservation.getDate());
 				if (possibleReservation.isEmpty()) {
-					Optional<Client> possibleClient = clientRepository.findById(reservation.getClientUUID());
+					Optional<Client> possibleClient = clientRepository.findById(reservation.getClientId());
 					if (possibleClient.isPresent()) {
 						return reservationRepository.save(reservation);
 					}
 					throw new NoSuchElementException(
-						"The client with uuid: " + reservation.getClientUUID()
+						"The client with id: " + reservation.getClientId()
 						+ ", associated to the reservation to insert is not in the database. "
 						+ "Please, insert the client before the reservation.");
 				}
@@ -187,7 +187,7 @@ public class TransactionalBookingService implements BookingService{
 				Optional<Client> possibleClient = clientRepository.findByName(firstName, lastName);
 				if (possibleClient.isPresent()) {
 					List<Reservation> reservationList = reservationRepository
-						.findByClient(possibleClient.get().getUuid());
+						.findByClient(possibleClient.get().getId());
 					for (Reservation reservation : reservationList)
 						reservationRepository.delete(reservation.getDate());
 					clientRepository.delete(firstName, lastName);

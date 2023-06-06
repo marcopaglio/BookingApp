@@ -33,10 +33,10 @@ public interface ReservationRepository {
 	 * Retrieves all the reservations associated at the specified client's identifier
 	 * from the database in a list.
 	 * 
-	 * @param clientUUID	the identifier of the associated client.
-	 * @return				the list of reservations found in the repository.
+	 * @param clientId	the identifier of the associated client.
+	 * @return			the list of reservations found in the repository.
 	 */
-	public List<Reservation> findByClient(UUID clientUUID);
+	public List<Reservation> findByClient(UUID clientId);
 
 	/**
 	 * Insert a new reservation in the database.

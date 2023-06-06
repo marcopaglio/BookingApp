@@ -47,7 +47,7 @@ class ServedBookingPresenterTest {
 	final static private String A_FIRSTNAME = "Mario";
 	final static private String A_LASTNAME = "Rossi";
 	final static private Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME);
-	final static private UUID A_CLIENT_UUID = A_CLIENT.getUuid();
+	final static private UUID A_CLIENT_UUID = A_CLIENT.getId();
 	final static private String A_DATE = "2023-04-24";
 	final static private LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
 	final static private Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);

@@ -10,7 +10,7 @@ public class Client {
 	/**
 	 * The identifier of the client entity.
 	 */
-	private final UUID uuid;
+	private final UUID id;
 
 	/**
 	 * The name of the client entity.
@@ -34,7 +34,7 @@ public class Client {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		
-		this.uuid = UUID.randomUUID();
+		this.id = UUID.randomUUID();
 	}
 
 	/**
@@ -58,10 +58,10 @@ public class Client {
 	/**
 	 * Retrieves the identifier of the client. Note: UUID Objects are immutable.
 	 *
-	 * @return	the {@code uuid} of the client.
+	 * @return	the {@code UUID} of the client.
 	 */
-	public final UUID getUuid() {
-		return this.uuid;
+	public final UUID getId() {
+		return this.id;
 	}
 
 	/**

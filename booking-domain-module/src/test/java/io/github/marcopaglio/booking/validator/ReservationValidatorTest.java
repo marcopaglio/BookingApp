@@ -20,7 +20,7 @@ import io.github.marcopaglio.booking.model.Reservation;
 
 class ReservationValidatorTest {
 	private static final Client VALID_CLIENT = new Client("Mario", "Rossi");
-	private static final UUID VALID_UUID = VALID_CLIENT.getUuid();
+	private static final UUID VALID_UUID = VALID_CLIENT.getId();
 	private static final String VALID_STRING_DATE = "2022-12-22";
 	private static final LocalDate VALID_DATE = LocalDate.parse(VALID_STRING_DATE);
 
@@ -35,7 +35,7 @@ class ReservationValidatorTest {
 					.newValidatedReservation(VALID_CLIENT, VALID_STRING_DATE);
 			
 			assertAll(
-				() -> assertThat(reservation.getClientUUID()).isEqualTo(VALID_UUID),
+				() -> assertThat(reservation.getClientId()).isEqualTo(VALID_UUID),
 				() -> assertThat(reservation.getDate()).isEqualTo(VALID_DATE)
 			);
 		}
@@ -57,7 +57,7 @@ class ReservationValidatorTest {
 			@DisplayName("Null clientUUID")
 			void testNewValidatedReservationWhenUUIDIsNullShouldThrow() {
 				Client spied_client = spy(VALID_CLIENT);
-				when(spied_client.getUuid()).thenReturn(null);
+				when(spied_client.getId()).thenReturn(null);
 				
 				assertThatThrownBy(() -> ReservationValidator
 						.newValidatedReservation(spied_client, VALID_STRING_DATE))

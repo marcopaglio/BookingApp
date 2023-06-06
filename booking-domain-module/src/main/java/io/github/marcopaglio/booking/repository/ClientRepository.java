@@ -32,12 +32,12 @@ public interface ClientRepository {
 	/**
 	 * Retrieves the unique client with the specified identifier from the database if exists.
 	 * 
-	 * @param uuid	the identifier of the client to find.
+	 * @param id	the identifier of the client to find.
 	 * @return		an {@code Optional} contained the {@code Client}
 	 * 				named {@code firstName} and {@code lastName} if exists;
 	 * 				an {@code Optional} empty if it doesn't exist.
 	 */
-	public Optional<Client> findById(UUID uuid);
+	public Optional<Client> findById(UUID id);
 
 	/**
 	 * Insert a new Client in the database or saves changes of an existing one.

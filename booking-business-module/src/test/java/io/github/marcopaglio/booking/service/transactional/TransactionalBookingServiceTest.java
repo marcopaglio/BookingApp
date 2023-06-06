@@ -48,7 +48,7 @@ class TransactionalBookingServiceTest {
 	private static final String A_FIRST_NAME = "Mario";
 	private static final String A_LAST_NAME = "Rossi";
 	private static final Client A_CLIENT = new Client(A_FIRST_NAME, A_LAST_NAME);
-	private static final UUID A_CLIENT_UUID = A_CLIENT.getUuid();
+	private static final UUID A_CLIENT_UUID = A_CLIENT.getId();
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2023-04-24");
 	private static final Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 
@@ -640,7 +640,7 @@ class TransactionalBookingServiceTest {
 						() -> transactionalBookingService.insertNewReservation(A_RESERVATION))
 					.isInstanceOf(NoSuchElementException.class)
 					.hasMessage(
-						"The client with uuid: " + A_CLIENT_UUID + ", associated to the reservation to insert "
+						"The client with id: " + A_CLIENT_UUID + ", associated to the reservation to insert "
 						+ "is not in the database. Please, insert the client before the reservation.");
 				
 				inOrder.verify(transactionManager)

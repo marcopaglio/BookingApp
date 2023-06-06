@@ -39,10 +39,10 @@ public final class ReservationValidator {
 	public static Reservation newValidatedReservation(Client client, String stringDate)
 			throws IllegalArgumentException {
 		checkNotNull(client, "client");
-		checkNotNull(client.getUuid(), "client identifier");
+		checkNotNull(client.getId(), "client identifier");
 		checkDateValidity(stringDate, "date");
 		
-		return new Reservation(client.getUuid(), LocalDate.parse(stringDate));
+		return new Reservation(client.getId(), LocalDate.parse(stringDate));
 	}
 
 	/**

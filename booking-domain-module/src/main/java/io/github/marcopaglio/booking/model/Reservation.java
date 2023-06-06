@@ -14,7 +14,7 @@ public class Reservation {
 	/**
 	 * The identifier of the associated client entity.
 	 */
-	private final UUID clientUUID;
+	private final UUID clientId;
 
 	/**
 	 * The date of the reservation. Note: {@code date} is unique among reservation entities.
@@ -26,11 +26,11 @@ public class Reservation {
 	 * from the associated client's identifier and a date.
 	 * The constructor checks if the parameters are valid for the creation of the reservation.
 	 * 
-	 * @param clientUUID				the identifier of the associated client of the reservation.
+	 * @param clientId				the identifier of the associated client of the reservation.
 	 * @param date						the date of the reservation.
 	 */
-	public Reservation(UUID clientUUID, LocalDate date) {
-		this.clientUUID = clientUUID;
+	public Reservation(UUID clientId, LocalDate date) {
+		this.clientId = clientId;
 		this.date = date;
 	}
 
@@ -38,11 +38,11 @@ public class Reservation {
 	 * Retrieves the identifier of the associated client of the reservation.
 	 * Note: UUID Objects are immutable.
 	 *
-	 * @return	the {@code clientUUID} of the associated client of the reservation.
+	 * @return	the {@code UUID} of the associated client of the reservation.
 	 */
 	@Generated
-	public final UUID getClientUUID() {
-		return clientUUID;
+	public final UUID getClientId() {
+		return clientId;
 	}
 
 	/**
