@@ -26,8 +26,8 @@ public class Reservation {
 	 * from the associated client's identifier and a date.
 	 * The constructor checks if the parameters are valid for the creation of the reservation.
 	 * 
-	 * @param clientId				the identifier of the associated client of the reservation.
-	 * @param date						the date of the reservation.
+	 * @param clientId	the identifier of the associated client of the reservation.
+	 * @param date		the date of the reservation.
 	 */
 	public Reservation(UUID clientId, LocalDate date) {
 		this.clientId = clientId;

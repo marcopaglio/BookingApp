@@ -23,8 +23,8 @@ public final class ClientValidator {
 	private ClientValidator() {}
 
 	/**
-	 * Checks if parameters are valid for the creation of a client entity for the booking application,
-	 * then creates it.
+	 * Checks if parameters are valid for the creation of a client for the booking application,
+	 * then creates an instance of the entity.
 	 * 
 	 * @param firstName					the name of the client.
 	 * @param lastName					the surname of the client.

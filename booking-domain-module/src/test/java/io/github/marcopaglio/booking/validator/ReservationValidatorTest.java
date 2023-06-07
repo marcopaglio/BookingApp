@@ -18,49 +18,51 @@ import org.junit.jupiter.params.provider.ValueSource;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 
+@DisplayName("Tests for ReservationValidator")
 class ReservationValidatorTest {
-	private static final Client VALID_CLIENT = new Client("Mario", "Rossi", UUID.randomUUID());
+	private static final Client VALID_CLIENT =
+			new Client("Mario", "Rossi", UUID.fromString("95a995a6-6461-4bae-a88c-2ac40e26accd"));
 	private static final UUID VALID_UUID = VALID_CLIENT.getId();
-	private static final String VALID_STRING_DATE = "2022-12-22";
-	private static final LocalDate VALID_DATE = LocalDate.parse(VALID_STRING_DATE);
+	private static final String VALID_DATE = "2022-12-22";
+	private static final LocalDate VALID_LOCALDATE = LocalDate.parse(VALID_DATE);
 
 	@Nested
 	@DisplayName("Tests for 'newValidatedReservation'")
 	class NewValidatedReservationTest {
 
 		@Test
-		@DisplayName("Valid parameters")
-		void testNewValidatedReservationWithConversionsWhenParametersAreValidShouldReturnReservation() {
+		@DisplayName("Creation has success")
+		void testNewValidatedReservationWhenInputsAreValidShouldReturnReservation() {
 			Reservation reservation = ReservationValidator
-					.newValidatedReservation(VALID_CLIENT, VALID_STRING_DATE);
+					.newValidatedReservation(VALID_CLIENT, VALID_DATE);
 			
 			assertAll(
 				() -> assertThat(reservation.getClientId()).isEqualTo(VALID_UUID),
-				() -> assertThat(reservation.getDate()).isEqualTo(VALID_DATE)
+				() -> assertThat(reservation.getDate()).isEqualTo(VALID_LOCALDATE)
 			);
 		}
 
 		@Nested
-		@DisplayName("Null parameters")
-		class NullParametersTest {
+		@DisplayName("Null inputs")
+		class NullInputsTest {
 
 			@Test
 			@DisplayName("Null client")
 			void testNewValidatedReservationWhenClientIsNullShouldThrow() {
 				assertThatThrownBy(() -> ReservationValidator
-						.newValidatedReservation(null, VALID_STRING_DATE))
+						.newValidatedReservation(null, VALID_DATE))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Reservation needs a not null client.");
 			}
 
 			@Test
-			@DisplayName("Null clientUUID")
-			void testNewValidatedReservationWhenUUIDIsNullShouldThrow() {
-				Client spied_client = spy(VALID_CLIENT);
-				when(spied_client.getId()).thenReturn(null);
+			@DisplayName("Null clientId")
+			void testNewValidatedReservationWhenClientIdIsNullShouldThrow() {
+				Client spiedClient = spy(VALID_CLIENT);
+				when(spiedClient.getId()).thenReturn(null);
 				
 				assertThatThrownBy(() -> ReservationValidator
-						.newValidatedReservation(spied_client, VALID_STRING_DATE))
+						.newValidatedReservation(spiedClient, VALID_DATE))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Reservation needs a not null client identifier.");
 			}
@@ -109,7 +111,7 @@ class ReservationValidatorTest {
 				"20226-12-21", "2022-126-21", "2022-12-216",			// different number of digits
 				"202-212-21", "20221-2-12", "2022-122-1", "2022-1-221"	// different number of digits
 			})
-			void testConstructorWithConversionsWhenStringDateFormatIsWrongShouldThrow(
+			void testNewValidatedReservationWhenDateFormatIsWrongShouldThrow(
 					String wrongFormatDate) {
 				assertThatThrownBy(() -> ReservationValidator
 						.newValidatedReservation(VALID_CLIENT, wrongFormatDate))
@@ -135,7 +137,7 @@ class ReservationValidatorTest {
 				"2022-11-31",	// November
 				"2022-12-32"	// December 
 			})
-			void testConstructorWithConversionsWhenDayInDateIsWrongShouldThrow(String outOfRangeDate) {
+			void testNewValidatedReservationWhenDayInDateIsWrongShouldThrow(String outOfRangeDate) {
 				assertThatThrownBy(() -> ReservationValidator
 						.newValidatedReservation(VALID_CLIENT, outOfRangeDate))
 					.isInstanceOf(IllegalArgumentException.class);

@@ -25,11 +25,11 @@ public class Client {
 	private final String lastName;
 
 	/**
-	 * Constructs a client for the booking application with a name and a surname.
+	 * Constructs a client for the booking application with a name, a surname and an identifier.
 	 * 
-	 * @param firstName		the name of the client.
-	 * @param lastName		the surname of the client.
-	 * @param id			the identifier of the client.
+	 * @param firstName	the name of the client.
+	 * @param lastName	the surname of the client.
+	 * @param id		the identifier of the client.
 	 */
 	public Client(String firstName, String lastName, UUID id) {
 		this.firstName = firstName;

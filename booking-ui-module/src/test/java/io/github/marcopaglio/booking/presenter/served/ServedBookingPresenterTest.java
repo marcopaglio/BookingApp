@@ -48,7 +48,7 @@ import io.github.marcopaglio.booking.view.View;
 class ServedBookingPresenterTest {
 	final static private String A_FIRSTNAME = "Mario";
 	final static private String A_LASTNAME = "Rossi";
-	final static private UUID A_CLIENT_UUID = UUID.randomUUID();
+	final static private UUID A_CLIENT_UUID = UUID.fromString("0617d050-9cde-49e5-8fca-d448a7115ccd");
 	final static private Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME, A_CLIENT_UUID);
 	final static private String A_DATE = "2023-04-24";
 	final static private LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
@@ -65,7 +65,7 @@ class ServedBookingPresenterTest {
 	
 	@Nested
 	@DisplayName("Null inputs on methods")
-	class NullInputTest {
+	class NullInputsTest {
 
 		@Test
 		@DisplayName("Null client on 'deleteClient'")
@@ -140,7 +140,8 @@ class ServedBookingPresenterTest {
 		@Test
 		@DisplayName("Several clients in repository")
 		void testAllClientsWhenThereAreSeveralClientsInRepositoryShouldCallTheViewWithClientsAsList() {
-			Client anotherClient = new Client("Maria", "De Lucia", UUID.randomUUID());
+			UUID anotherUuid = UUID.fromString("ac9c9315-6e61-43bd-a4f8-6ac3319de01c");
+			Client anotherClient = new Client("Maria", "De Lucia", anotherUuid);
 			List<Client> clients = Arrays.asList(A_CLIENT, anotherClient);
 			
 			when(bookingService.findAllClients()).thenReturn(clients);
@@ -575,19 +576,19 @@ class ServedBookingPresenterTest {
 				@DisplayName("Date is not valid")
 				@NullSource
 				@ValueSource(strings = {"2O23-O4-24", "24-04-2023", "2022-13-12", "2022-08-32"})
-				void testAddReservationWhenDateIsNotValidShouldShowErrorAndThrow(String invalid_date) {
+				void testAddReservationWhenDateIsNotValidShouldShowErrorAndThrow(String invalidDate) {
 					mockedReservationValidator.when(
-							() -> ReservationValidator.newValidatedReservation(A_CLIENT, invalid_date))
+							() -> ReservationValidator.newValidatedReservation(A_CLIENT, invalidDate))
 						.thenThrow(new IllegalArgumentException());
 					
 					InOrder inOrder = Mockito.inOrder(view, ReservationValidator.class);
 					
 					assertThatThrownBy(
-							() -> servedBookingPresenter.addReservation(invalid_date, A_CLIENT))
+							() -> servedBookingPresenter.addReservation(invalidDate, A_CLIENT))
 						.isInstanceOf(IllegalArgumentException.class);
 					
 					inOrder.verify(mockedReservationValidator,
-							() -> ReservationValidator.newValidatedReservation(A_CLIENT, invalid_date));
+							() -> ReservationValidator.newValidatedReservation(A_CLIENT, invalidDate));
 					inOrder.verify(view).showFormError("Date of reservation is not valid.");
 					
 					//verify(bookingService, never()).insertNewReservation(any());
