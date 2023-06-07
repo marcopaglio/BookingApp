@@ -86,10 +86,10 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 */
 	@Override
 	public Client addClient(String firstName, String lastName) throws IllegalArgumentException {
-		Client client = createClient(firstName, lastName);
-		
 		Client clientInDB = null;
 		do {
+			Client client = createClient(firstName, lastName);
+			
 			try {
 				clientInDB = bookingService.insertNewClient(client);
 				view.clientAdded(clientInDB);

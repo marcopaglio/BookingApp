@@ -400,6 +400,7 @@ class ServedBookingPresenterTest {
 						.thenReturn(A_CLIENT);
 					when(bookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
 						.thenThrow(new NoSuchElementException());
+					// default stubbing for view.clientAdded(client)
 					
 					InOrder inOrder = Mockito.inOrder(bookingService, view, ClientValidator.class);
 					
@@ -411,7 +412,48 @@ class ServedBookingPresenterTest {
 									same(A_FIRSTNAME), same(A_LASTNAME), isA(UUID.class)));
 					inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 					inOrder.verify(bookingService).findClientNamed(A_FIRSTNAME, A_LASTNAME);
-					// times(2)?
+					// TODO times(2)?
+					inOrder.verify(mockedClientValidator,
+							() -> ClientValidator.newValidatedClient(
+									same(A_FIRSTNAME), same(A_LASTNAME), isA(UUID.class)));
+					inOrder.verify(bookingService).insertNewClient(A_CLIENT);
+					inOrder.verify(view).clientAdded(A_CLIENT);
+					
+					verifyNoMoreInteractions(bookingService, view, ClientValidator.class);
+				}
+
+				@Test
+				@DisplayName("ClientId clashes in DB")
+				void testAddClientWhenThereIsAConflictInDBDuesToIdShouldRecreateAndRetryToInsert() {
+					UUID anotherUUID = UUID.fromString("e23c08d4-7b62-49f9-8ab4-743b441537ef");
+					Client anotherClientWithSameNames = new Client(A_FIRSTNAME, A_LASTNAME, anotherUUID);
+					
+					mockedClientValidator.when(
+							() -> ClientValidator.newValidatedClient(
+									same(A_FIRSTNAME), same(A_LASTNAME), isA(UUID.class)))
+						.thenReturn(A_CLIENT)
+						.thenReturn(anotherClientWithSameNames);
+					when(bookingService.insertNewClient(A_CLIENT))
+						.thenThrow(new InstanceAlreadyExistsException())
+						.thenReturn(anotherClientWithSameNames);
+					when(bookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
+						.thenThrow(new NoSuchElementException());
+					// default stubbing for view.clientAdded(client)
+					
+					InOrder inOrder = Mockito.inOrder(bookingService, view, ClientValidator.class);
+					
+					assertThat(servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME))
+						.isEqualTo(A_CLIENT);
+					
+					inOrder.verify(mockedClientValidator,
+							() -> ClientValidator.newValidatedClient(
+									same(A_FIRSTNAME), same(A_LASTNAME), isA(UUID.class)));
+					inOrder.verify(bookingService).insertNewClient(A_CLIENT);
+					inOrder.verify(bookingService).findClientNamed(A_FIRSTNAME, A_LASTNAME);
+					// TODO times(2)?
+					inOrder.verify(mockedClientValidator,
+							() -> ClientValidator.newValidatedClient(
+									same(A_FIRSTNAME), same(A_LASTNAME), isA(UUID.class)));
 					inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 					inOrder.verify(view).clientAdded(A_CLIENT);
 					
