@@ -9,9 +9,7 @@ import io.github.marcopaglio.booking.model.Reservation;
 
 /**
  * A validator for reservation entities that verifies if parameters are not null
- * neither date string contains non-valid characters,
- * or are in a non-valid format or out of range.
- * * A validator for reservation entities that verifies if parameters are valid.
+ * neither date string contains non-valid characters, or are in a non-valid format or out of range.
  */
 public final class ReservationValidator {
 	/**

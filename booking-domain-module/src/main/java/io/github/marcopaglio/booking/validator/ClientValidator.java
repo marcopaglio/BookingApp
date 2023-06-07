@@ -7,9 +7,7 @@ import io.github.marcopaglio.booking.model.Client;
 
 /**
  * A validator for client entities that verifies if parameters are not null or empty string
- * neither they contain non-alphabetic characters,
- * and fixes them if possible.
- *  * A validator for client entities that verifies if parameters are valid.
+ * neither they contain non-alphabetic characters, and fixes them if possible.
  */
 public final class ClientValidator {
 	/**
