@@ -27,6 +27,8 @@
     
     <!-- VERSIONS FOR DEPENDENCIES -->
     <log4j.version>2.20.0</log4j.version>
+    <mongo.version>4.9.1</mongo.version>
+    <logback.version>1.4.7</logback.version>
 
     <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
     <maven.antrun.version>3.1.0</maven.antrun.version>
@@ -67,6 +69,17 @@
         <version>${log4j.version}</version>
         <scope>import</scope>
         <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.mongodb</groupId>
+        <artifactId>mongodb-driver-sync</artifactId>
+        <version>${mongo.version}</version>
+      </dependency>
+      <dependency>
+        <!-- required to see Mongo Java Driver logs -->
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

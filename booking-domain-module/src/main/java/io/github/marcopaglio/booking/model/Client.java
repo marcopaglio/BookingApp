@@ -10,19 +10,19 @@ public class Client {
 	/**
 	 * The identifier of the client entity.
 	 */
-	private final UUID id;
+	private UUID id;
 
 	/**
 	 * The name of the client entity.
 	 * Note: the couple [{@code firstName}, {@code lastName}] is unique among client entities.
 	 */
-	private final String firstName;
+	private String firstName;
 
 	/**
 	 * The surname of the client entity.
 	 * Note: the couple [{@code firstName}, {@code lastName}] is unique in the client entity.
 	 */
-	private final String lastName;
+	private String lastName;
 
 	/**
 	 * Constructs a client for the booking application with a name, a surname and an identifier.
@@ -36,6 +36,11 @@ public class Client {
 		this.lastName = lastName;
 		this.id = id;
 	}
+	
+	/**
+	 * Public empty constructor needed for database purposes
+	 */
+	public Client() {}
 
 	/**
 	 * Retrieves the name of the client. Note: Java String Objects are immutable.
