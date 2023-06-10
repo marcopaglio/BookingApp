@@ -11,8 +11,8 @@ import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.repository.ClientRepository;
 
 /**
- * @author marco
- *
+ * Implementation of repository layer through MongoDB
+ * for client entities of the booking application.
  */
 public class ClientMongoRepository implements ClientRepository {
 

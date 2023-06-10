@@ -1,5 +1,5 @@
 /**
- * Contains implementations for using the database layer through MongoDB
- * for client entities of the booking application.
+ * Contains implementations for using the repository layer through MongoDB
+ * for entities of the booking application.
  */
 package io.github.marcopaglio.booking.repository.mongo;

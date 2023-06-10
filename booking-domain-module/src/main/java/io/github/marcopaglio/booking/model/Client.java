@@ -3,6 +3,13 @@ package io.github.marcopaglio.booking.model;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.bson.codecs.pojo.annotations.BsonCreator;
+import org.bson.codecs.pojo.annotations.BsonId;
+import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.bson.codecs.pojo.annotations.BsonRepresentation;
+
+import static org.bson.BsonType.STRING;
+
 /**
  * This entity represents the customer's model of the booking application.
  */
@@ -10,18 +17,24 @@ public class Client {
 	/**
 	 * The identifier of the client entity.
 	 */
+	@BsonId
+	@BsonProperty(value = "_id")
 	private UUID id;
 
 	/**
 	 * The name of the client entity.
 	 * Note: the couple [{@code firstName}, {@code lastName}] is unique among client entities.
 	 */
+	@BsonProperty(value = "name")
+	@BsonRepresentation(value = STRING)
 	private String firstName;
 
 	/**
 	 * The surname of the client entity.
 	 * Note: the couple [{@code firstName}, {@code lastName}] is unique in the client entity.
 	 */
+	@BsonProperty(value = "surname")
+	@BsonRepresentation(value = STRING)
 	private String lastName;
 
 	/**
@@ -31,16 +44,19 @@ public class Client {
 	 * @param lastName	the surname of the client.
 	 * @param id		the identifier of the client.
 	 */
-	public Client(String firstName, String lastName, UUID id) {
+	@BsonCreator
+	public Client(@BsonProperty(value = "name") String firstName,
+				@BsonProperty(value = "surname") String lastName,
+				@BsonProperty(value = "_id") UUID id) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.id = id;
 	}
 	
 	/**
-	 * Public empty constructor needed for database purposes
+	 * Empty constructor needed for database purposes.
 	 */
-	public Client() {}
+	//protected Client() {}
 
 	/**
 	 * Retrieves the name of the client. Note: Java String Objects are immutable.
