@@ -4,6 +4,10 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.bson.codecs.pojo.annotations.BsonCreator;
+import org.bson.codecs.pojo.annotations.BsonId;
+import org.bson.codecs.pojo.annotations.BsonProperty;
+
 import io.github.marcopaglio.booking.annotation.Generated;
 
 /**
@@ -14,11 +18,14 @@ public class Reservation {
 	/**
 	 * The identifier of the associated client entity.
 	 */
+	@BsonProperty(value = "client")
 	private final UUID clientId;
 
 	/**
 	 * The date of the reservation. Note: {@code date} is unique among reservation entities.
 	 */
+	@BsonId
+	@BsonProperty(value = "date")
 	private final LocalDate date;
 
 	/**
@@ -29,10 +36,17 @@ public class Reservation {
 	 * @param clientId	the identifier of the associated client of the reservation.
 	 * @param date		the date of the reservation.
 	 */
-	public Reservation(UUID clientId, LocalDate date) {
+	@BsonCreator
+	public Reservation(@BsonProperty(value = "client") UUID clientId,
+			@BsonProperty(value = "date") LocalDate date) {
 		this.clientId = clientId;
 		this.date = date;
 	}
+
+	/**
+	 * Empty constructor needed for database purposes.
+	 */
+	//protected Reservation() {}
 
 	/**
 	 * Retrieves the identifier of the associated client of the reservation.
@@ -94,7 +108,7 @@ public class Reservation {
 	 * @return	a string representation of the reservation.
 	 */
 	@Override
-	public String toString() {
-		return "Reservation [date=" + date + "]";
+	public String toString() { // FIXME remove id
+		return "Reservation [date=" + date + " " + clientId + "]";
 	}
 }

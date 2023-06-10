@@ -11,11 +11,9 @@ import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.repository.ClientRepository;
 
 /**
- * Implementation of repository layer through MongoDB
- * for client entities of the booking application.
+ * Implementation of repository layer through MongoDB for client entities of the booking application.
  */
 public class ClientMongoRepository implements ClientRepository {
-
 	public static final String BOOKING_DB_NAME = "booking_db";
 	public static final String CLIENT_COLLECTION_NAME = "booking_client";
 

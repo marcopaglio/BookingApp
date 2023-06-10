@@ -55,7 +55,7 @@ class ClientMongoRepositoryTest {
 	private ClientMongoRepository clientRepository;
 
 	@BeforeAll
-	public static void setupServer() {
+	public static void setupServer() throws Exception {
 		server = new MongoServer(new MemoryBackend());
 		
 		// bind on a random local port
@@ -100,7 +100,7 @@ class ClientMongoRepositoryTest {
 	}
 
 	@AfterAll
-	public static void shutdownServer() {
+	public static void shutdownServer() throws Exception {
 		server.shutdown();
 	}
 
