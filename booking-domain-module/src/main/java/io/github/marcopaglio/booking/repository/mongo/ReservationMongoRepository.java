@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
 
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.ReservationRepository;
@@ -14,16 +13,14 @@ import io.github.marcopaglio.booking.repository.ReservationRepository;
 /**
  * Implementation of repository layer through MongoDB for reservation entities of the booking application.
  */
-public class ReservationMongoRepository implements ReservationRepository {
+public class ReservationMongoRepository extends MongoRepository<Reservation> implements ReservationRepository {
 	public static final String BOOKING_DB_NAME = "booking_db";
 	public static final String RESERVATION_COLLECTION_NAME = "booking_reservation";
 
-	private MongoCollection<Reservation> reservationCollection;
-
 	public ReservationMongoRepository(MongoClient client) {
-		reservationCollection = client
+		super(client
 				.getDatabase(BOOKING_DB_NAME)
-				.getCollection(RESERVATION_COLLECTION_NAME, Reservation.class);
+				.getCollection(RESERVATION_COLLECTION_NAME, Reservation.class));
 	}
 
 	@Override

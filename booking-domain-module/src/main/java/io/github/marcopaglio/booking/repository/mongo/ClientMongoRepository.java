@@ -5,7 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Indexes;
 
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.repository.ClientRepository;
@@ -13,16 +14,18 @@ import io.github.marcopaglio.booking.repository.ClientRepository;
 /**
  * Implementation of repository layer through MongoDB for client entities of the booking application.
  */
-public class ClientMongoRepository implements ClientRepository {
+public class ClientMongoRepository extends MongoRepository<Client> implements ClientRepository {
 	public static final String BOOKING_DB_NAME = "booking_db";
 	public static final String CLIENT_COLLECTION_NAME = "booking_client";
 
-	private MongoCollection<Client> clientCollection;
-
-	public ClientMongoRepository(MongoClient client) {
-		clientCollection = client
+	public ClientMongoRepository(MongoClient mongoClient) {
+		super(mongoClient
 				.getDatabase(BOOKING_DB_NAME)
-				.getCollection(CLIENT_COLLECTION_NAME, Client.class);
+				.getCollection(CLIENT_COLLECTION_NAME, Client.class));
+		
+		// collection configuration
+		getCollection().createIndex(Indexes.descending("name", "surname"), 
+				new IndexOptions().unique(true));
 	}
 
 	@Override
@@ -54,5 +57,4 @@ public class ClientMongoRepository implements ClientRepository {
 		// TODO Auto-generated method stub
 
 	}
-
 }
