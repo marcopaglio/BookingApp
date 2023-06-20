@@ -8,6 +8,7 @@ import static org.bson.UuidRepresentation.STANDARD;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static org.bson.codecs.pojo.Conventions.ANNOTATION_CONVENTION;
+import static org.bson.codecs.pojo.Conventions.USE_GETTERS_FOR_SETTERS;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -58,7 +59,7 @@ class ReservationMongoRepositoryTest {
 		
 		// define the CodecProvider for POJO classes
 		CodecProvider pojoCodecProvider = PojoCodecProvider.builder()
-				.conventions(Arrays.asList(ANNOTATION_CONVENTION))
+				.conventions(Arrays.asList(ANNOTATION_CONVENTION, USE_GETTERS_FOR_SETTERS))
 				.automatic(true)
 				.build();
 		
@@ -106,6 +107,7 @@ class ReservationMongoRepositoryTest {
 
 		// make a document and insert it
 		Reservation ada = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+		ada.setId(A_CLIENT_UUID);
 		System.out.println("Original Reservation Model: " + ada);
 		reservationCollection.insertOne(ada);
 
@@ -114,6 +116,7 @@ class ReservationMongoRepositoryTest {
 		assertThat(reservationCollection.countDocuments()).isEqualTo(1L);
 		
 		Reservation oda = new Reservation(ANOTHER_CLIENT_UUID, A_LOCALDATE);
+		oda.setId(ANOTHER_CLIENT_UUID);
 		System.out.println("Original Reservation Model: " + oda);
 		assertThatThrownBy(() -> reservationCollection.insertOne(oda)).isInstanceOf(MongoWriteException.class);
 

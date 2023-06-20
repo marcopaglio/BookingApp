@@ -37,14 +37,14 @@ import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static org.bson.UuidRepresentation.STANDARD;
 import static org.bson.codecs.pojo.Conventions.ANNOTATION_CONVENTION;
+import static org.bson.codecs.pojo.Conventions.USE_GETTERS_FOR_SETTERS;
 import static io.github.marcopaglio.booking.repository.mongo.ClientMongoRepository.BOOKING_DB_NAME;
 
 class ClientMongoRepositoryTest {
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
 	private static final UUID A_CLIENT_UUID = UUID.fromString("5a583373-c1b4-4913-82b6-5ea76fb1b1be");
-	private static final Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME, A_CLIENT_UUID);
-	
+	private static final Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME);
 	private static final UUID ANOTHER_CLIENT_UUID = UUID.randomUUID();
 
 	private static MongoServer server;
@@ -65,7 +65,7 @@ class ClientMongoRepositoryTest {
 		
 		// define the CodecProvider for POJO classes
 		CodecProvider pojoCodecProvider = PojoCodecProvider.builder()
-				.conventions(Arrays.asList(ANNOTATION_CONVENTION))
+				.conventions(Arrays.asList(ANNOTATION_CONVENTION, USE_GETTERS_FOR_SETTERS))
 				.automatic(true)
 				.build();
 		
@@ -113,7 +113,8 @@ class ClientMongoRepositoryTest {
 		assertThat(clientCollection.countDocuments()).isZero();
 
 		// make a document and insert it
-		Client ada = new Client("Ada", "Byron", A_CLIENT_UUID);
+		Client ada = new Client("Ada", "Byron");
+		ada.setId(A_CLIENT_UUID);
 		System.out.println("Original Person Model: " + ada);
 		clientCollection.insertOne(ada);
 
@@ -121,7 +122,8 @@ class ClientMongoRepositoryTest {
 		System.out.println("Mutated Person Model: " + ada);
 		assertThat(clientCollection.countDocuments()).isEqualTo(1L);
 		
-		Client oda = new Client("Ada", "Byron", ANOTHER_CLIENT_UUID);
+		Client oda = new Client("Ada", "Byron");
+		oda.setId(ANOTHER_CLIENT_UUID);
 		System.out.println("Original Client Model: " + oda);
 		//clientCollection.insertOne(oda);
 		assertThatThrownBy(() -> clientCollection.insertOne(oda)).isInstanceOf(MongoWriteException.class);
@@ -138,7 +140,8 @@ class ClientMongoRepositoryTest {
 		assertThat(clientCollection.countDocuments()).isZero();
 
 		// make a document and insert it
-		Client ada = new Client("Ada", "Byron", A_CLIENT_UUID);
+		Client ada = new Client("Ada", "Byron");
+		ada.setId(A_CLIENT_UUID);
 		System.out.println("Original Person Model: " + ada);
 		clientCollection.insertOne(ada);
 
@@ -146,7 +149,8 @@ class ClientMongoRepositoryTest {
 		System.out.println("Mutated Person Model: " + ada);
 		assertThat(clientCollection.countDocuments()).isEqualTo(1L);
 		
-		Client oda = new Client("Ada", "Byron", ANOTHER_CLIENT_UUID);
+		Client oda = new Client("Ada", "Byron");
+		oda.setId(ANOTHER_CLIENT_UUID);
 		System.out.println("Original Client Model: " + oda);
 		assertThatThrownBy(() -> clientCollection.insertOne(oda)).isInstanceOf(MongoWriteException.class);
 

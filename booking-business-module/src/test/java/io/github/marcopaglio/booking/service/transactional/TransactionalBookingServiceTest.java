@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.AdditionalAnswers.answer;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -48,7 +49,7 @@ class TransactionalBookingServiceTest {
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
 	private static final UUID A_CLIENT_UUID = UUID.fromString("bc49bffa-0766-4e5d-90af-d8a6ef516df4");
-	private static final Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME, A_CLIENT_UUID);
+	private static final Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME);
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2023-04-24");
 	private static final Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 
@@ -63,7 +64,7 @@ class TransactionalBookingServiceTest {
 	
 	@InjectMocks
 	private TransactionalBookingService transactionalBookingService;
-	
+
 	@Nested
 	@DisplayName("Null inputs on methods")
 	class NullInputTest {
@@ -216,8 +217,7 @@ class TransactionalBookingServiceTest {
 			@Test
 			@DisplayName("Several clients to retrieve")
 			void testFindAllClientsWhenThereAreSeveralClientsToRetrieveShouldReturnClientsAsList() {
-				UUID anotherUuid = UUID.fromString("13d18623-6f22-4d30-baba-6a490e921808");
-				Client anotherClient = new Client("Maria", "De Lucia", anotherUuid);
+				Client anotherClient = new Client("Maria", "De Lucia");
 				List<Client> clients = Arrays.asList(A_CLIENT, anotherClient);
 				when(clientRepository.findAll()).thenReturn(clients);
 				
@@ -377,9 +377,11 @@ class TransactionalBookingServiceTest {
 			@Test
 			@DisplayName("Several reservations to retrieve")
 			void testFindAllReservationsWhenThereAreSeveralReservationsToRetrieveShouldReturnReservationsAsList() {
-				LocalDate anotherLocaldate = LocalDate.parse("2023-09-05");
-				Reservation anotherReservation = new Reservation(UUID.randomUUID(), anotherLocaldate);
+				Reservation anotherReservation = new Reservation(
+						UUID.fromString("6845b378-8800-4434-8495-ca69cf981983"),
+						LocalDate.parse("2023-09-05"));
 				List<Reservation> reservations = Arrays.asList(A_RESERVATION, anotherReservation);
+				
 				when(reservationRepository.findAll()).thenReturn(reservations);
 				
 				InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
@@ -483,6 +485,7 @@ class TransactionalBookingServiceTest {
 	@Nested
 	@DisplayName("Methods using both repositories")
 	class BothRepositoriesTest {
+		private final Client spiedClient = spy(A_CLIENT);
 
 		@BeforeEach
 		void doStubbing() throws Exception {
@@ -491,6 +494,8 @@ class TransactionalBookingServiceTest {
 			.thenAnswer(
 				answer((ClientReservationTransactionCode<?> code) -> 
 					code.apply(clientRepository, reservationRepository)));
+			
+			when(spiedClient.getId()).thenReturn(A_CLIENT_UUID);
 		}
 
 		@Nested
@@ -501,7 +506,7 @@ class TransactionalBookingServiceTest {
 			@DisplayName("Client exists without reservations")
 			void testRemoveClientNamedWhenClientExistsWithoutExistingReservationsShouldRemove() {
 				when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
-					.thenReturn(Optional.of(A_CLIENT));
+					.thenReturn(Optional.of(spiedClient));
 				// default stubbing for reservationRepository.findByClient(clientUUID)
 				// default stubbing for clientRepository.delete(firstName, lastName)
 				
@@ -524,7 +529,7 @@ class TransactionalBookingServiceTest {
 			@DisplayName("Client exists with single existing reservation")
 			void testRemoveClientNamedWhenClientExistsWithSingleExistingReservationShouldRemove() {
 				when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
-					.thenReturn(Optional.of(A_CLIENT));
+					.thenReturn(Optional.of(spiedClient));
 				when(reservationRepository.findByClient(A_CLIENT_UUID))
 					.thenReturn(Arrays.asList(A_RESERVATION));
 				// default stubbing for reservationRepository.findByClient(clientUUID)
@@ -555,7 +560,7 @@ class TransactionalBookingServiceTest {
 						new ArrayList<>(Arrays.asList(A_RESERVATION, anotherReservation));
 				
 				when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
-					.thenReturn(Optional.of(A_CLIENT));
+					.thenReturn(Optional.of(spiedClient));
 				when(reservationRepository.findByClient(A_CLIENT_UUID)).thenReturn(severalReservationList);
 				// default stubbing for reservationRepository.delete(date)
 				// default stubbing for clientRepository.delete(firstName, lastName)

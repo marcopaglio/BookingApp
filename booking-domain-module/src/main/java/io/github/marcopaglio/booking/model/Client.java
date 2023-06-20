@@ -1,10 +1,8 @@
 package io.github.marcopaglio.booking.model;
 
 import java.util.Objects;
-import java.util.UUID;
 
 import org.bson.codecs.pojo.annotations.BsonCreator;
-import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.codecs.pojo.annotations.BsonRepresentation;
 
@@ -13,14 +11,7 @@ import static org.bson.BsonType.STRING;
 /**
  * This entity represents the customer's model of the booking application.
  */
-public class Client {
-	/**
-	 * The identifier of the client entity.
-	 */
-	@BsonId
-	@BsonProperty(value = "_id")
-	private UUID id;
-
+public class Client extends Entity {
 	/**
 	 * The name of the client entity.
 	 * Note: the couple [{@code firstName}, {@code lastName}] is unique among client entities.
@@ -42,15 +33,13 @@ public class Client {
 	 * 
 	 * @param firstName	the name of the client.
 	 * @param lastName	the surname of the client.
-	 * @param id		the identifier of the client.
 	 */
 	@BsonCreator
 	public Client(@BsonProperty(value = "name") String firstName,
-				@BsonProperty(value = "surname") String lastName,
-				@BsonProperty(value = "_id") UUID id) {
+				@BsonProperty(value = "surname") String lastName) {
+		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.id = id;
 	}
 	
 	/**
@@ -74,15 +63,6 @@ public class Client {
 	 */
 	public final String getLastName() {
 		return this.lastName;
-	}
-
-	/**
-	 * Retrieves the identifier of the client. Note: UUID Objects are immutable.
-	 *
-	 * @return	the {@code UUID} of the client.
-	 */
-	public final UUID getId() {
-		return this.id;
 	}
 
 	/**

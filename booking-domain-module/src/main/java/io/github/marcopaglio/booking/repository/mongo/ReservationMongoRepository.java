@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.mongodb.client.MongoClient;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Indexes;
 
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.ReservationRepository;
@@ -21,6 +23,9 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 		super(client
 				.getDatabase(BOOKING_DB_NAME)
 				.getCollection(RESERVATION_COLLECTION_NAME, Reservation.class));
+		
+		// collection configuration
+		getCollection().createIndex(Indexes.descending("date"), new IndexOptions().unique(true));
 	}
 
 	@Override
