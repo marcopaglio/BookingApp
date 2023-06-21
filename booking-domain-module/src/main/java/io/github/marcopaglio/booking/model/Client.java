@@ -22,7 +22,7 @@ public class Client extends Entity {
 
 	/**
 	 * The surname of the client entity.
-	 * Note: the couple [{@code firstName}, {@code lastName}] is unique in the client entity.
+	 * Note: the couple [{@code firstName}, {@code lastName}] is unique among client entities.
 	 */
 	@BsonProperty(value = "surname")
 	@BsonRepresentation(value = STRING)
