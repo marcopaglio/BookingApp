@@ -2,7 +2,7 @@ package io.github.marcopaglio.booking.repository.mongo;
 
 import com.mongodb.client.MongoCollection;
 
-abstract class MongoRepository<T> {
+public abstract class MongoRepository<T> {
 	
 	private MongoCollection<T> collection;
 

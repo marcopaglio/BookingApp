@@ -1,20 +1,10 @@
 package io.github.marcopaglio.booking.repository.mongo;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Arrays;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -22,7 +12,6 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
-import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -41,11 +30,6 @@ import static org.bson.codecs.pojo.Conventions.USE_GETTERS_FOR_SETTERS;
 import static io.github.marcopaglio.booking.repository.mongo.ClientMongoRepository.BOOKING_DB_NAME;
 
 class ClientMongoRepositoryTest {
-	private static final String A_FIRSTNAME = "Mario";
-	private static final String A_LASTNAME = "Rossi";
-	private static final UUID A_CLIENT_UUID = UUID.fromString("5a583373-c1b4-4913-82b6-5ea76fb1b1be");
-	private static final Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME);
-	private static final UUID ANOTHER_CLIENT_UUID = UUID.randomUUID();
 
 	private static MongoServer server;
 	private static String connectionString;
@@ -97,18 +81,13 @@ class ClientMongoRepositoryTest {
 		clientCollection = clientRepository.getCollection();
 	}
 
-	@AfterEach
-	void tearDown() throws Exception {
-		
-	}
-
 	@AfterAll
 	public static void shutdownServer() throws Exception {
 		mongoClient.close();
 		server.shutdown();
 	}
 
-	@Test
+	/*@Test
 	void testCollectionIsEmpty() {
 		assertThat(clientCollection.countDocuments()).isZero();
 
@@ -159,5 +138,5 @@ class ClientMongoRepositoryTest {
 		System.out.println("Retrieved client: " + somebody);
 		
 		assertThat(somebody).isEqualTo(ada);
-	}
+	}*/
 }

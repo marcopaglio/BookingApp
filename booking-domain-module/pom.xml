@@ -72,11 +72,11 @@
           <configuration>
             <targetClasses>
               <targetClasse>io.github.marcopaglio.booking.validator.*</targetClasse>
-              <!-- io.github.marcopaglio.booking.repository.* -->
+              <targetClasse>io.github.marcopaglio.booking.repository.mongo.*</targetClasse>
             </targetClasses>
             <targetTests>
               <targetTest>io.github.marcopaglio.booking.validator.*</targetTest>
-              <!-- io.github.marcopaglio.booking.repository.* -->
+              <targetTest>io.github.marcopaglio.booking.repository.mongo.*</targetTest>
             </targetTests>
           </configuration>
         </plugin>
