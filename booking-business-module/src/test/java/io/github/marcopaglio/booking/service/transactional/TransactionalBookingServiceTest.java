@@ -456,7 +456,7 @@ class TransactionalBookingServiceTest {
 				inOrder.verify(transactionManager)
 					.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
 				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
-				inOrder.verify(reservationRepository).delete(A_LOCALDATE);
+				inOrder.verify(reservationRepository).delete(A_RESERVATION);
 				
 				verifyNoMoreInteractions(transactionManager, reservationRepository);
 			}
@@ -520,7 +520,7 @@ class TransactionalBookingServiceTest {
 					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
 				inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
 				inOrder.verify(reservationRepository).findByClient(A_CLIENT_UUID);
-				inOrder.verify(clientRepository).delete(A_FIRSTNAME, A_LASTNAME);
+				inOrder.verify(clientRepository).delete(spiedClient);
 				
 				verifyNoMoreInteractions(transactionManager, clientRepository, reservationRepository);
 			}
@@ -545,8 +545,8 @@ class TransactionalBookingServiceTest {
 					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
 				inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
 				inOrder.verify(reservationRepository).findByClient(A_CLIENT_UUID);
-				inOrder.verify(reservationRepository).delete(A_LOCALDATE);
-				inOrder.verify(clientRepository).delete(A_FIRSTNAME, A_LASTNAME);
+				inOrder.verify(reservationRepository).delete(A_RESERVATION);
+				inOrder.verify(clientRepository).delete(spiedClient);
 				
 				verifyNoMoreInteractions(transactionManager, clientRepository, reservationRepository);
 			}
@@ -568,7 +568,7 @@ class TransactionalBookingServiceTest {
 				InOrder inOrder = Mockito.inOrder(
 						transactionManager, clientRepository, reservationRepository);
 				
-				ArgumentCaptor<LocalDate> dateCaptor = ArgumentCaptor.forClass(LocalDate.class);
+				ArgumentCaptor<Reservation> dateCaptor = ArgumentCaptor.forClass(Reservation.class);
 				
 				assertThatNoException().isThrownBy(
 						() -> transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME));
@@ -578,8 +578,8 @@ class TransactionalBookingServiceTest {
 				inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
 				inOrder.verify(reservationRepository).findByClient(A_CLIENT_UUID);
 				inOrder.verify(reservationRepository, times(2)).delete(dateCaptor.capture());
-				assertThat(dateCaptor.getAllValues()).containsExactly(A_LOCALDATE, anotherLocaldate);
-				inOrder.verify(clientRepository).delete(A_FIRSTNAME, A_LASTNAME);
+				assertThat(dateCaptor.getAllValues()).containsExactly(A_RESERVATION, anotherReservation);
+				inOrder.verify(clientRepository).delete(spiedClient);
 				
 				verifyNoMoreInteractions(transactionManager, clientRepository, reservationRepository);
 			}

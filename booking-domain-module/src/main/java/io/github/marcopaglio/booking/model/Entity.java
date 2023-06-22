@@ -9,11 +9,12 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
  * Contains the necessary structure of a generic entity.
  */
 public abstract class Entity {
+	public static final String ID_DB = "_id";
 	/**
 	 * The identifier of the entity.
 	 */
 	@BsonId
-	@BsonProperty(value = "_id")
+	@BsonProperty(value = ID_DB)
 	private UUID id;
 
 	/**

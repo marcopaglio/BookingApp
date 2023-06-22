@@ -53,7 +53,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	}
 
 	@Override
-	public void delete(LocalDate date) {
+	public void delete(Reservation reservation) {
 		// TODO Auto-generated method stub
 
 	}

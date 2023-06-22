@@ -186,11 +186,12 @@ public class TransactionalBookingService implements BookingService{
 			(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
 				Optional<Client> possibleClient = clientRepository.findByName(firstName, lastName);
 				if (possibleClient.isPresent()) {
+					Client clientToRemove = possibleClient.get();
 					List<Reservation> reservationList = reservationRepository
-						.findByClient(possibleClient.get().getId());
+						.findByClient(clientToRemove.getId());
 					for (Reservation reservation : reservationList)
-						reservationRepository.delete(reservation.getDate());
-					clientRepository.delete(firstName, lastName);
+						reservationRepository.delete(reservation);
+					clientRepository.delete(clientToRemove);
 					return null;
 				}
 				throw new NoSuchElementException(clientNotFoundMsg(firstName, lastName));
@@ -216,7 +217,7 @@ public class TransactionalBookingService implements BookingService{
 			(ReservationRepository reservationRepository) -> {
 				Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
 				if (possibleReservation.isPresent()) {
-					reservationRepository.delete(date);
+					reservationRepository.delete(possibleReservation.get());
 					return null;
 				}
 				throw new NoSuchElementException(reservationNotFoundMsg(date));

@@ -12,11 +12,14 @@ import static org.bson.BsonType.STRING;
  * This entity represents the customer's model of the booking application.
  */
 public class Client extends Entity {
+	public static final String FIRSTNAME_DB = "name";
+	public static final String LASTNAME_DB = "surname";
+
 	/**
 	 * The name of the client entity.
 	 * Note: the couple [{@code firstName}, {@code lastName}] is unique among client entities.
 	 */
-	@BsonProperty(value = "name")
+	@BsonProperty(value = FIRSTNAME_DB)
 	@BsonRepresentation(value = STRING)
 	private String firstName;
 
@@ -24,7 +27,7 @@ public class Client extends Entity {
 	 * The surname of the client entity.
 	 * Note: the couple [{@code firstName}, {@code lastName}] is unique among client entities.
 	 */
-	@BsonProperty(value = "surname")
+	@BsonProperty(value = LASTNAME_DB)
 	@BsonRepresentation(value = STRING)
 	private String lastName;
 
@@ -35,8 +38,8 @@ public class Client extends Entity {
 	 * @param lastName	the surname of the client.
 	 */
 	@BsonCreator
-	public Client(@BsonProperty(value = "name") String firstName,
-				@BsonProperty(value = "surname") String lastName) {
+	public Client(@BsonProperty(value = FIRSTNAME_DB) String firstName,
+				@BsonProperty(value = LASTNAME_DB) String lastName) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;

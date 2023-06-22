@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.model.Client;
 
 /**
@@ -42,16 +43,19 @@ public interface ClientRepository {
 	/**
 	 * Insert a new Client in the database or saves changes of an existing one.
 	 *
-	 * @param client	the client to save.
-	 * @return			the {@code Client} saved.
+	 * @param client							the client to save.
+	 * @return									the {@code Client} saved.
+	 * @throws IllegalArgumentException			if {@code client} is null
+	 * 											or a not-null constraint is violated in the database.
+	 * @throws InstanceAlreadyExistsException	if a uniqueness constraint is violated in the database.
 	 */
-	public Client save(Client client);
+	public Client save(Client client) throws IllegalArgumentException, InstanceAlreadyExistsException;
 
 	/**
 	 * Removes the unique client with specified name and surname from the database.
 	 *
-	 * @param firstName	the name of the client to delete.
-	 * @param lastName	the surname of the client to delete.
+	 * @param client						the client to delete.
+	 * @throws IllegalArgumentException		if {@code client} is null.
 	 */
-	public void delete(String firstName, String lastName);
+	public void delete(Client client);
 }

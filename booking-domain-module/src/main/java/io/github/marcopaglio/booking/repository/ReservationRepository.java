@@ -51,7 +51,7 @@ public interface ReservationRepository {
 	/**
 	 * Removes the unique reservation of the specified date from the database.
 	 *
-	 * @param date	the date of the reservation to delete.
+	 * @param reservation	the reservation to delete.
 	 */
-	public void delete(LocalDate date);
+	public void delete(Reservation reservation);
 }

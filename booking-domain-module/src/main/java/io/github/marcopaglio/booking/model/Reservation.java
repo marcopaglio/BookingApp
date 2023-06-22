@@ -13,16 +13,18 @@ import io.github.marcopaglio.booking.annotation.Generated;
  * This entity represents the reservation's model of the booking application.
  */
 public class Reservation extends Entity {
+	public static final String CLIENTID_DB = "client";
+	public static final String DATE_DB = "date";
 	/**
 	 * The identifier of the associated client entity.
 	 */
-	@BsonProperty(value = "client")
+	@BsonProperty(value = CLIENTID_DB)
 	private final UUID clientId;
 
 	/**
 	 * The date of the reservation. Note: {@code date} is unique among reservation entities.
 	 */
-	@BsonProperty(value = "date")
+	@BsonProperty(value = DATE_DB)
 	private final LocalDate date;
 
 	/**
@@ -34,8 +36,8 @@ public class Reservation extends Entity {
 	 * @param date		the date of the reservation.
 	 */
 	@BsonCreator
-	public Reservation(@BsonProperty(value = "client") UUID clientId,
-			@BsonProperty(value = "date") LocalDate date) {
+	public Reservation(@BsonProperty(value = CLIENTID_DB) UUID clientId,
+			@BsonProperty(value = DATE_DB) LocalDate date) {
 		super();
 		this.clientId = clientId;
 		this.date = date;
