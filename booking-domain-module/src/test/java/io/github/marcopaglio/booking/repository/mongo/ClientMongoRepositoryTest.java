@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -139,7 +140,15 @@ class ClientMongoRepositoryTest {
 	@Nested
 	@DisplayName("Tests for 'findById'")
 	class FindByIdTest {
-// TODO: id nullo?
+
+		@Test
+		@DisplayName("Null id")
+		void testFindByIdWhenIdIsNullShouldThrow() {
+			assertThatThrownBy(() -> clientRepository.findById(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Identifier of client to find cannot be null.");
+		}
+
 		@Test
 		@DisplayName("Database is empty")
 		void testFindByIdWhenDatabaseIsEmptyShouldReturnOptionalOfEmpty() {
@@ -158,15 +167,33 @@ class ClientMongoRepositoryTest {
 		@DisplayName("Client is in database")
 		void testFindByIdWhenClientIsInDatabaseShouldReturnOptionalOfClient() {
 			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
+			addTestClientToDatabase(ANOTHER_CLIENT, ANOTHER_CLIENT_UUID);
 			
-			assertThat(clientRepository.findById(A_CLIENT_UUID)).isEqualTo(Optional.of(A_CLIENT));
+			assertThat(clientRepository.findById(ANOTHER_CLIENT_UUID))
+				.isEqualTo(Optional.of(ANOTHER_CLIENT));
 		}
 	}
 
 	@Nested
 	@DisplayName("Tests for 'findByName'")
 	class FindByNameTest {
-// TODO: name e surname nulli?
+
+		@Test
+		@DisplayName("Null names")
+		void testFindByNameWhenNamesAreNullShouldThrow() {
+			assertThatThrownBy(() -> clientRepository.findByName(null, A_LASTNAME))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Name(s) of client to find cannot be null.");
+			
+			assertThatThrownBy(() -> clientRepository.findByName(A_FIRSTNAME, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Name(s) of client to find cannot be null.");
+			
+			assertThatThrownBy(() -> clientRepository.findByName(null, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Name(s) of client to find cannot be null.");
+		}
+
 		@Test
 		@DisplayName("Database is empty")
 		void testFindByNameWhenDatabaseIsEmptyShouldReturnOptionalOfEmpty() {
@@ -182,25 +209,28 @@ class ClientMongoRepositoryTest {
 		}
 
 		@Test
-		@DisplayName("There is another client of the same name")
-		void testFindByNameWhenThereIsAnotherClientOfTheSameNameShouldReturnOptionalOfEmpty() {
+		@DisplayName("Another same name client in database")
+		void testFindByNameWhenThereIsAnotherClientWithTheSameNameShouldNotMatchIt() {
 			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
 			
-			assertThat(clientRepository.findByName(A_FIRSTNAME, ANOTHER_LASTNAME)).isEmpty();
+			assertThat(clientRepository.findByName(A_FIRSTNAME, ANOTHER_LASTNAME))
+				.isNotEqualTo(Optional.of(A_CLIENT));
 		}
 
 		@Test
-		@DisplayName("There is another client of the same surname")
-		void testFindByNameWhenThereIsAnotherClientOfTheSameSurnameShouldReturnOptionalOfEmpty() {
+		@DisplayName("Another same surname client in database")
+		void testFindByNameWhenThereIsAnotherClientWithTheSameSurnameShouldNotMatchIt() {
 			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
 			
-			assertThat(clientRepository.findByName(ANOTHER_FIRSTNAME, A_LASTNAME)).isEmpty();
+			assertThat(clientRepository.findByName(ANOTHER_FIRSTNAME, A_LASTNAME))
+				.isNotEqualTo(Optional.of(A_CLIENT));
 		}
 
 		@Test
 		@DisplayName("Client is in database")
 		void testFindByNameWhenClientIsInDatabaseShouldReturnOptionalOfClient() {
 			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
+			addTestClientToDatabase(ANOTHER_CLIENT, ANOTHER_CLIENT_UUID);
 			
 			assertThat(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
 				.isEqualTo(Optional.of(A_CLIENT));
@@ -219,7 +249,7 @@ class ClientMongoRepositoryTest {
 
 		@Test
 		@DisplayName("Client is new")
-		void testSaveWhenClientIsNewShouldInsertInDatabaseAndReturnClientWithId() {
+		void testSaveWhenClientIsNewShouldInsertAndReturnClientWithId() {
 			assertThat(client.getId()).isNull();
 			Client returnedClient = clientRepository.save(client);
 			
@@ -230,7 +260,7 @@ class ClientMongoRepositoryTest {
 
 		@Test
 		@DisplayName("Client already has an id")
-		void testSaveWhenClientAlreadyHasAnIdShouldNotChangeTheIdAndInsertInDatabase() {
+		void testSaveWhenClientAlreadyHasAnIdShouldNotChangeTheIdAndInsert() { //TODO: update or replace
 			client.setId(A_CLIENT_UUID);
 			
 			Client returnedClient = clientRepository.save(client);
@@ -240,8 +270,8 @@ class ClientMongoRepositoryTest {
 		}
 
 		@Test
-		@DisplayName("Id collision in database")
-		void testSaveWhenThereIsAnIdCollisionInDatabaseShouldNotInsertAndThrow() {
+		@DisplayName("Id collision")
+		void testSaveWhenThereIsAnIdCollisionInDatabaseShouldNotInsertAndThrow() { //TODO: CONSEGUENZE
 			addTestClientToDatabase(client, A_CLIENT_UUID);
 			
 			Client clientWithSameId = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
@@ -255,12 +285,12 @@ class ClientMongoRepositoryTest {
 		}
 
 		@Test
-		@DisplayName("Names collision in database")
-		void testsaveWhenThereIsANamesCollisionInDatabaseShouldNotInsertAndThrow() {
+		@DisplayName("Names collision")
+		void testSaveWhenThereIsANamesCollisionInDatabaseShouldNotInsertAndThrow() { //TODO: CONSEGUENZE
 			addTestClientToDatabase(client, A_CLIENT_UUID);
 			
 			Client clientWithSameNames = new Client(A_FIRSTNAME, A_LASTNAME);
-			// set different id
+			// sets different id
 			clientWithSameNames.setId(ANOTHER_CLIENT_UUID);
 			
 			assertThatThrownBy(() -> clientRepository.save(clientWithSameNames))
@@ -273,31 +303,31 @@ class ClientMongoRepositoryTest {
 		}
 
 		@Test
-		@DisplayName("Client with same name")
-		void testsaveWhenThereIsAnotherClientWithSameNameAndDifferentSurnameAndIdInDatabaseShouldNotThrowAndInsert() {
+		@DisplayName("Another same name client in database")
+		void testSaveWhenThereIsAnotherClientWithSameNameShouldNotThrowAndInsert() { //TODO: CONSEGUENZE
 			addTestClientToDatabase(client, A_CLIENT_UUID);
 			
-			Client clientWithSameName = new Client(A_FIRSTNAME, ANOTHER_LASTNAME);
-			// set different id
-			clientWithSameName.setId(ANOTHER_CLIENT_UUID);
+			Client sameNameClient = new Client(A_FIRSTNAME, ANOTHER_LASTNAME);
+			// sets different id
+			sameNameClient.setId(ANOTHER_CLIENT_UUID);
 			
-			assertThatNoException().isThrownBy(() -> clientRepository.save(clientWithSameName));
+			assertThatNoException().isThrownBy(() -> clientRepository.save(sameNameClient));
 			
-			assertThat(readAllClientsFromDatabase()).containsExactlyInAnyOrder(client, clientWithSameName);
+			assertThat(readAllClientsFromDatabase()).containsExactlyInAnyOrder(client, sameNameClient);
 		}
 
 		@Test
-		@DisplayName("Client with same surname")
-		void testsaveWhenThereIsAnotherClientWithSameSurnameAndDifferentNameAndIdInDatabaseShouldNotThrowAndInsert() {
+		@DisplayName("Another same surname client in database")
+		void testSaveWhenThereIsAnotherClientWithSameSurnameShouldNotThrowAndInsert() { //TODO: CONSEGUENZE
 			addTestClientToDatabase(client, A_CLIENT_UUID);
 			
-			Client clientWithSameSurname = new Client(ANOTHER_FIRSTNAME, A_LASTNAME);
-			// set different id
-			clientWithSameSurname.setId(ANOTHER_CLIENT_UUID);
+			Client sameSurnameClient = new Client(ANOTHER_FIRSTNAME, A_LASTNAME);
+			// sets different id
+			sameSurnameClient.setId(ANOTHER_CLIENT_UUID);
 			
-			assertThatNoException().isThrownBy(() -> clientRepository.save(clientWithSameSurname));
+			assertThatNoException().isThrownBy(() -> clientRepository.save(sameSurnameClient));
 			
-			assertThat(readAllClientsFromDatabase()).containsExactlyInAnyOrder(client, clientWithSameSurname);
+			assertThat(readAllClientsFromDatabase()).containsExactlyInAnyOrder(client, sameSurnameClient);
 		}
 
 		@Test
@@ -312,11 +342,11 @@ class ClientMongoRepositoryTest {
 		@DisplayName("Client with null name")
 		void testSaveWhenClientHasNullNameShouldNotInsertAndThrow() {
 			assertThat(readAllClientsFromDatabase()).isEmpty();
-			Client clientWithNullName = new Client(null, A_LASTNAME);
+			Client nullNameClient = new Client(null, A_LASTNAME);
 			
-			assertThatThrownBy(() -> clientRepository.save(clientWithNullName))
+			assertThatThrownBy(() -> clientRepository.save(nullNameClient))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client to save cannot have a null name.");
+				.hasMessage("Client to save must have both not-null names.");
 			
 			assertThat(readAllClientsFromDatabase()).isEmpty();
 		}
@@ -325,73 +355,64 @@ class ClientMongoRepositoryTest {
 		@DisplayName("Client with null surname")
 		void testSaveWhenClientHasNullSurnameShouldNotInsertAndThrow() {
 			assertThat(readAllClientsFromDatabase()).isEmpty();
-			Client clientWithNullName = new Client(A_FIRSTNAME, null);
+			Client nullSurnameClient = new Client(A_FIRSTNAME, null);
 			
-			assertThatThrownBy(() -> clientRepository.save(clientWithNullName))
+			assertThatThrownBy(() -> clientRepository.save(nullSurnameClient))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client to save cannot have a null name.");
+				.hasMessage("Client to save must have both not-null names.");
 			
 			assertThat(readAllClientsFromDatabase()).isEmpty();
 		}
 
 		@Test
-		@DisplayName("Client with null both name and surname")
+		@DisplayName("Client with both null name and surname")
 		void testSaveWhenClientHasNullBothNameAndSurnameShouldNotInsertAndThrow() {
 			assertThat(readAllClientsFromDatabase()).isEmpty();
-			Client clientWithNullName = new Client(null, null);
+			Client unnamedClient = new Client(null, null);
 			
-			assertThatThrownBy(() -> clientRepository.save(clientWithNullName))
+			assertThatThrownBy(() -> clientRepository.save(unnamedClient))
 				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client to save cannot have a null name.");
+				.hasMessage("Client to save must have both not-null names.");
 			
 			assertThat(readAllClientsFromDatabase()).isEmpty();
 		}
+	}
 
-		@Nested
-		@DisplayName("Tests for 'delete'")
-		class DeleteTest {
+	@Nested
+	@DisplayName("Tests for 'delete'")
+	class DeleteTest {
 
-			@Test
-			@DisplayName("Null client")
-			void testDeleteWhenClientIsNullShouldThrow() {
-				assertThatThrownBy(() -> clientRepository.delete(null))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Client to delete cannot be null.");
-			}
+		@Test
+		@DisplayName("Null client")
+		void testDeleteWhenClientIsNullShouldThrow() {
+			assertThatThrownBy(() -> clientRepository.delete(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Client to delete cannot be null.");
+		}
 
-			@Test
-			@DisplayName("Client with id is in database")
-			void testDeleteWhenClientWithIdIsInDatabaseShouldRemove() {
-				assertThat(readAllClientsFromDatabase()).isEmpty();
-				addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-				
-				clientRepository.delete(A_CLIENT);
-				
-				assertThat(readAllClientsFromDatabase()).doesNotContain(A_CLIENT);
-				assertThat(readAllClientsFromDatabase()).isEmpty();
-			}
+		@Test
+		@DisplayName("Client with id is in database")
+		void testDeleteWhenClientWithIdIsInDatabaseShouldRemove() {
+			assertThat(readAllClientsFromDatabase()).isEmpty();
+			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
+			
+			clientRepository.delete(A_CLIENT);
+			
+			assertThat(readAllClientsFromDatabase()).doesNotContain(A_CLIENT);
+			assertThat(readAllClientsFromDatabase()).isEmpty();
+		}
 
-			@Test
-			@DisplayName("Client without id is in database")
-			void testDeleteWhenClientWithoutIdIsInDatabaseShouldRemove() {
-				assertThat(readAllClientsFromDatabase()).isEmpty();
-				addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-				
-				clientRepository.delete(new Client(A_FIRSTNAME, A_LASTNAME));
-				
-				assertThat(readAllClientsFromDatabase()).doesNotContain(A_CLIENT);
-				assertThat(readAllClientsFromDatabase()).isEmpty();
-			}
-
-			@Test
-			@DisplayName("Client is not in database")
-			void testDeleteWhenClientIsNotInDatabaseShouldNotThrowAndNotRemoveAnything() {
-				addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-				
-				clientRepository.delete(ANOTHER_CLIENT);
-				
-				assertThat(readAllClientsFromDatabase()).containsExactly(A_CLIENT);
-			}
+		@Test
+		@DisplayName("Client is not in database")
+		void testDeleteWhenClientIsNotInDatabaseShouldNotRemoveAnythingAndThrow() {
+			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
+			
+			assertThatThrownBy(() -> clientRepository.delete(ANOTHER_CLIENT))
+				.isInstanceOf(NoSuchElementException.class)
+				.hasMessage("Client [" + ANOTHER_FIRSTNAME + " " + ANOTHER_LASTNAME
+						+ "] to delete is not in database.");
+			
+			assertThat(readAllClientsFromDatabase()).containsExactly(A_CLIENT);
 		}
 	}
 

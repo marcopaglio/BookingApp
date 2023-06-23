@@ -2,17 +2,29 @@ package io.github.marcopaglio.booking.repository.mongo;
 
 import com.mongodb.client.MongoCollection;
 
+/**
+ * Facade of repository layer for using with MongoDB database.
+ */
 public abstract class MongoRepository<T> {
-	
-	private MongoCollection<T> collection;
+	/**
+	 * Collection of entities of type T used by the repository layer.
+	 */
+	protected MongoCollection<T> collection;
 
+	/**
+	 * Sets the collection of entities of type T used by the repository layer.
+	 * 
+	 * @param collection	the {@code MongoCollection} of type {@code T} to set.
+	 */
 	protected MongoRepository(MongoCollection<T> collection) {
 		super();
 		this.collection = collection;
 	}
 
 	/**
-	 * @return the collection
+	 * Retrieves the collection of entities of type T used by the repository layer.
+	 * 
+	 * @return collection	the {@code MongoCollection} of type {@code T} used by the repository.
 	 */
 	public final MongoCollection<T> getCollection() {
 		return collection;
