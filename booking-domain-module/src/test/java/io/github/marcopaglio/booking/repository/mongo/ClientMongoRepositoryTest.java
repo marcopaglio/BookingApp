@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.AdditionalMatchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -41,6 +42,9 @@ import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static org.bson.UuidRepresentation.STANDARD;
 import static org.bson.codecs.pojo.Conventions.ANNOTATION_CONVENTION;
 import static org.bson.codecs.pojo.Conventions.USE_GETTERS_FOR_SETTERS;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.spy;
 import static io.github.marcopaglio.booking.repository.mongo.ClientMongoRepository.BOOKING_DB_NAME;
 
 class ClientMongoRepositoryTest {
@@ -260,9 +264,10 @@ class ClientMongoRepositoryTest {
 
 		@Test
 		@DisplayName("Client already has an id")
-		void testSaveWhenClientAlreadyHasAnIdShouldNotChangeTheIdAndInsert() { //TODO: update or replace
-			client.setId(A_CLIENT_UUID);
+		void testSaveWhenClientAlreadyHasAnIdShouldNotChangeTheIdAndUpdate() {
+			addTestClientToDatabase(client, A_CLIENT_UUID);
 			
+			client.setId(A_CLIENT_UUID);
 			Client returnedClient = clientRepository.save(client);
 			
 			assertThat(returnedClient.getId()).isEqualTo(A_CLIENT_UUID);
@@ -270,30 +275,47 @@ class ClientMongoRepositoryTest {
 		}
 
 		@Test
+		@DisplayName("Client already has an id but is not in database")
+		void testSaveWhenClientAlreadyHasAnIdButIsNotInDatabaseShouldThrow() {
+			client.setId(A_CLIENT_UUID);
+			
+			assertThatThrownBy(() -> clientRepository.save(client))
+				.isInstanceOf(NoSuchElementException.class)
+				.hasMessage("Client [" + A_FIRSTNAME + " " + A_LASTNAME
+						+ "] to update is no longer present in the database.");
+		}
+
+		@Test
 		@DisplayName("Id collision")
-		void testSaveWhenThereIsAnIdCollisionInDatabaseShouldNotInsertAndThrow() { //TODO: CONSEGUENZE
+		void testSaveWhenThereIsAnIdCollisionInDatabaseShouldNotInsertAndThrow() {
 			addTestClientToDatabase(client, A_CLIENT_UUID);
 			
-			Client clientWithSameId = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
-			clientWithSameId.setId(A_CLIENT_UUID);
+			Client spied_client = spy(new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME));
+			doAnswer(invocation -> {
+				((Client) invocation.getMock()).setId(A_CLIENT_UUID);
+				return null;
+			}).when(spied_client).setId(AdditionalMatchers.not(eq(A_CLIENT_UUID)));
 			
-			assertThatThrownBy(() -> clientRepository.save(clientWithSameId))
+			assertThatThrownBy(() -> clientRepository.save(spied_client))
 				.isInstanceOf(InstanceAlreadyExistsException.class)
 				.hasMessage("The insertion violates uniqueness constraints.");
 			
-			assertThat(readAllClientsFromDatabase()).doesNotContain(clientWithSameId);
+			assertThat(readAllClientsFromDatabase()).doesNotContain(spied_client);
 		}
 
 		@Test
 		@DisplayName("Names collision")
-		void testSaveWhenThereIsANamesCollisionInDatabaseShouldNotInsertAndThrow() { //TODO: CONSEGUENZE
+		void testSaveWhenThereIsANamesCollisionInDatabaseShouldNotInsertAndThrow() {
 			addTestClientToDatabase(client, A_CLIENT_UUID);
 			
-			Client clientWithSameNames = new Client(A_FIRSTNAME, A_LASTNAME);
+			Client spied_client = spy(new Client(A_FIRSTNAME, A_LASTNAME));
 			// sets different id
-			clientWithSameNames.setId(ANOTHER_CLIENT_UUID);
+			doAnswer(invocation -> {
+				((Client) invocation.getMock()).setId(ANOTHER_CLIENT_UUID);
+				return null;
+			}).when(spied_client).setId(A_CLIENT_UUID);
 			
-			assertThatThrownBy(() -> clientRepository.save(clientWithSameNames))
+			assertThatThrownBy(() -> clientRepository.save(spied_client))
 				.isInstanceOf(InstanceAlreadyExistsException.class)
 				.hasMessage("The insertion violates uniqueness constraints.");
 			
@@ -304,30 +326,36 @@ class ClientMongoRepositoryTest {
 
 		@Test
 		@DisplayName("Another same name client in database")
-		void testSaveWhenThereIsAnotherClientWithSameNameShouldNotThrowAndInsert() { //TODO: CONSEGUENZE
+		void testSaveWhenThereIsAnotherClientWithSameNameShouldNotThrowAndInsert() {
 			addTestClientToDatabase(client, A_CLIENT_UUID);
 			
-			Client sameNameClient = new Client(A_FIRSTNAME, ANOTHER_LASTNAME);
+			Client spied_client = spy(new Client(A_FIRSTNAME, ANOTHER_LASTNAME));
 			// sets different id
-			sameNameClient.setId(ANOTHER_CLIENT_UUID);
+			doAnswer(invocation -> {
+				((Client) invocation.getMock()).setId(ANOTHER_CLIENT_UUID);
+				return null;
+			}).when(spied_client).setId(A_CLIENT_UUID);
 			
-			assertThatNoException().isThrownBy(() -> clientRepository.save(sameNameClient));
+			assertThatNoException().isThrownBy(() -> clientRepository.save(spied_client));
 			
-			assertThat(readAllClientsFromDatabase()).containsExactlyInAnyOrder(client, sameNameClient);
+			assertThat(readAllClientsFromDatabase()).containsExactlyInAnyOrder(client, spied_client);
 		}
 
 		@Test
 		@DisplayName("Another same surname client in database")
-		void testSaveWhenThereIsAnotherClientWithSameSurnameShouldNotThrowAndInsert() { //TODO: CONSEGUENZE
+		void testSaveWhenThereIsAnotherClientWithSameSurnameShouldNotThrowAndInsert() {
 			addTestClientToDatabase(client, A_CLIENT_UUID);
 			
-			Client sameSurnameClient = new Client(ANOTHER_FIRSTNAME, A_LASTNAME);
+			Client spied_client = spy(new Client(ANOTHER_FIRSTNAME, A_LASTNAME));
 			// sets different id
-			sameSurnameClient.setId(ANOTHER_CLIENT_UUID);
+			doAnswer(invocation -> {
+				((Client) invocation.getMock()).setId(ANOTHER_CLIENT_UUID);
+				return null;
+			}).when(spied_client).setId(A_CLIENT_UUID);
 			
-			assertThatNoException().isThrownBy(() -> clientRepository.save(sameSurnameClient));
+			assertThatNoException().isThrownBy(() -> clientRepository.save(spied_client));
 			
-			assertThat(readAllClientsFromDatabase()).containsExactlyInAnyOrder(client, sameSurnameClient);
+			assertThat(readAllClientsFromDatabase()).containsExactlyInAnyOrder(client, spied_client);
 		}
 
 		@Test
@@ -426,56 +454,4 @@ class ClientMongoRepositoryTest {
 		client.setId(id);
 		clientCollection.insertOne(client);
 	}
-	/*@Test
-	void testCollectionIsEmpty() {
-		assertThat(clientCollection.countDocuments()).isZero();
-
-		// make a document and insert it
-		Client ada = new Client("Ada", "Byron");
-		ada.setId(A_CLIENT_UUID);
-		System.out.println("Original Person Model: " + ada);
-		clientCollection.insertOne(ada);
-
-		// Person will now have an ObjectId
-		System.out.println("Mutated Person Model: " + ada);
-		assertThat(clientCollection.countDocuments()).isEqualTo(1L);
-		
-		Client oda = new Client("Ada", "Byron");
-		oda.setId(ANOTHER_CLIENT_UUID);
-		System.out.println("Original Client Model: " + oda);
-		//clientCollection.insertOne(oda);
-		assertThatThrownBy(() -> clientCollection.insertOne(oda)).isInstanceOf(MongoWriteException.class);
-
-		// get it (since it's the only one in there since we dropped the rest earlier on)
-		Client somebody = clientCollection.find().first();
-		System.out.println("Retrieved client: " + somebody);
-		
-		assertThat(somebody).isEqualTo(ada);
-	}
-	
-	@Test
-	void testCollectionIsEmpty2() {
-		assertThat(clientCollection.countDocuments()).isZero();
-
-		// make a document and insert it
-		Client ada = new Client("Ada", "Byron");
-		ada.setId(A_CLIENT_UUID);
-		System.out.println("Original Person Model: " + ada);
-		clientCollection.insertOne(ada);
-
-		// Person will now have an ObjectId
-		System.out.println("Mutated Person Model: " + ada);
-		assertThat(clientCollection.countDocuments()).isEqualTo(1L);
-		
-		Client oda = new Client("Ada", "Byron");
-		oda.setId(ANOTHER_CLIENT_UUID);
-		System.out.println("Original Client Model: " + oda);
-		assertThatThrownBy(() -> clientCollection.insertOne(oda)).isInstanceOf(MongoWriteException.class);
-
-		// get it (since it's the only one in there since we dropped the rest earlier on)
-		Client somebody = clientCollection.find().first();
-		System.out.println("Retrieved client: " + somebody);
-		
-		assertThat(somebody).isEqualTo(ada);
-	}*/
 }

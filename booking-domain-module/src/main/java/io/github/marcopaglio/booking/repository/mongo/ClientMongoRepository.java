@@ -13,6 +13,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.model.Client;
@@ -119,25 +120,29 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	 * @throws IllegalArgumentException			if {@code client} is null
 	 * 											or a not-null constraint is violated.
 	 * @throws InstanceAlreadyExistsException	if a uniqueness constraint is violated.
+	 * @throws NoSuchElementException			if the client to upgrade is not in the database.
 	 */
 	@Override
-	public Client save(Client client) throws IllegalArgumentException, InstanceAlreadyExistsException {
+	public Client save(Client client)
+			throws IllegalArgumentException, InstanceAlreadyExistsException, NoSuchElementException {
 		if (client == null)
 			throw new IllegalArgumentException("Client to save cannot be null.");
 		
 		if (client.getFirstName() == null || client.getLastName() == null)
 			throw new IllegalArgumentException("Client to save must have both not-null names.");
 		
-		if(client.getId() == null)
+		if(client.getId() == null) {
 			client.setId(UUID.randomUUID());
-		// TODO: Update or replace: cambiare anche javadoc
-		// TODO: CONSEGUENZE: cambia la logica con cui testare le collissioni di id perché
-		// anziché usare setId fuori dal metodo va stubbato quello dentro al metodo
-
-		try {
-			collection.insertOne(client);
-		} catch(MongoWriteException e) {
-			throw new InstanceAlreadyExistsException("The insertion violates uniqueness constraints.");
+			try {
+				collection.insertOne(client);
+			} catch(MongoWriteException e) {
+				throw new InstanceAlreadyExistsException("The insertion violates uniqueness constraints.");
+			}
+		} else {
+			UpdateResult result = collection.replaceOne(Filters.eq(ID_DB, client.getId()), client);
+			if (result.getMatchedCount() == 0L)
+				throw new NoSuchElementException(
+						client.toString() + " to update is no longer present in the database.");
 		}
 		return client;
 	}

@@ -51,6 +51,7 @@ public interface ClientRepository {
 	 * @throws IllegalArgumentException			if {@code client} is null
 	 * 											or a not-null constraint is violated.
 	 * @throws InstanceAlreadyExistsException	if a uniqueness constraint is violated.
+	 * @throws NoSuchElementException			if the client to upgrade is not in the database.
 	 */
 	public Client save(Client client) throws IllegalArgumentException, InstanceAlreadyExistsException;
 
