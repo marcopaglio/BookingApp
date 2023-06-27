@@ -6,6 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.AdditionalMatchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -379,42 +381,16 @@ class ClientMongoRepositoryTest {
 				.hasMessage("Client to save cannot be null.");
 		}
 
-		// TODO: parametrized
-		@Test
-		@DisplayName("Client with null name")
-		void testSaveWhenClientHasNullNameShouldNotInsertAndThrow() {
+		@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
+		@DisplayName("Client with null names")
+		@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
+				nullValues = {"null"}
+		)
+		void testSaveWhenClientHasNullNamesShouldNotInsertAndThrow(String firstName, String lastName) {
 			assertThat(readAllClientsFromDatabase()).isEmpty();
-			Client nullNameClient = new Client(null, A_LASTNAME);
+			Client nullNameClient = new Client(firstName, lastName);
 			
 			assertThatThrownBy(() -> clientRepository.save(nullNameClient))
-				.isInstanceOf(NotNullConstraintViolationException.class)
-				.hasMessage("Client to save must have both not-null names.");
-			
-			assertThat(readAllClientsFromDatabase()).isEmpty();
-		}
-
-		// TODO: parametrized
-		@Test
-		@DisplayName("Client with null surname")
-		void testSaveWhenClientHasNullSurnameShouldNotInsertAndThrow() {
-			assertThat(readAllClientsFromDatabase()).isEmpty();
-			Client nullSurnameClient = new Client(A_FIRSTNAME, null);
-			
-			assertThatThrownBy(() -> clientRepository.save(nullSurnameClient))
-				.isInstanceOf(NotNullConstraintViolationException.class)
-				.hasMessage("Client to save must have both not-null names.");
-			
-			assertThat(readAllClientsFromDatabase()).isEmpty();
-		}
-
-		// TODO: parametrized
-		@Test
-		@DisplayName("Client with both null name and surname")
-		void testSaveWhenClientHasNullBothNameAndSurnameShouldNotInsertAndThrow() {
-			assertThat(readAllClientsFromDatabase()).isEmpty();
-			Client unnamedClient = new Client(null, null);
-			
-			assertThatThrownBy(() -> clientRepository.save(unnamedClient))
 				.isInstanceOf(NotNullConstraintViolationException.class)
 				.hasMessage("Client to save must have both not-null names.");
 			
