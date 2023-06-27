@@ -16,7 +16,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,6 +33,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
+import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.ClientRepository;
@@ -264,7 +264,7 @@ class TransactionalBookingServiceTest {
 				
 				assertThatThrownBy(
 						() -> transactionalBookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
-					.isInstanceOf(NoSuchElementException.class)
+					.isInstanceOf(InstanceNotFoundException.class)
 					.hasMessage(
 						"There is no client named \"" + A_FIRSTNAME
 						+ " " + A_LASTNAME + "\" in the database.");
@@ -426,7 +426,7 @@ class TransactionalBookingServiceTest {
 				
 				assertThatThrownBy(
 						() -> transactionalBookingService.findReservationOn(A_LOCALDATE))
-					.isInstanceOf(NoSuchElementException.class)
+					.isInstanceOf(InstanceNotFoundException.class)
 					.hasMessage("There is no reservation on \"" + A_LOCALDATE + "\" in the database.");
 				
 				inOrder.verify(transactionManager)
@@ -470,7 +470,7 @@ class TransactionalBookingServiceTest {
 				
 				assertThatThrownBy(
 						() -> transactionalBookingService.removeReservationOn(A_LOCALDATE))
-					.isInstanceOf(NoSuchElementException.class)
+					.isInstanceOf(InstanceNotFoundException.class)
 					.hasMessage("There is no reservation on \"" + A_LOCALDATE + "\" in the database.");
 				
 				inOrder.verify(transactionManager)
@@ -593,7 +593,7 @@ class TransactionalBookingServiceTest {
 				
 				assertThatThrownBy(
 						() -> transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME))
-					.isInstanceOf(NoSuchElementException.class)
+					.isInstanceOf(InstanceNotFoundException.class)
 					.hasMessage(
 						"There is no client named \"" + A_FIRSTNAME + " "
 						+ A_LASTNAME + "\" in the database.");
@@ -644,7 +644,7 @@ class TransactionalBookingServiceTest {
 				
 				assertThatThrownBy(
 						() -> transactionalBookingService.insertNewReservation(A_RESERVATION))
-					.isInstanceOf(NoSuchElementException.class)
+					.isInstanceOf(InstanceNotFoundException.class)
 					.hasMessage(
 						"The client with id: " + A_CLIENT_UUID + ", associated to the reservation to insert "
 						+ "is not in the database. Please, insert the client before the reservation.");

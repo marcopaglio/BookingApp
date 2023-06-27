@@ -2,10 +2,10 @@ package io.github.marcopaglio.booking.service.transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
+import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.ClientRepository;
@@ -58,15 +58,15 @@ public class TransactionalBookingService implements BookingService{
 	/**
 	 * Retrieves the client with specified name and surname from the database within a transaction.
 	 * 
-	 * @param firstName					the name of the client to find.
-	 * @param lastName					the surname of the client to find.
-	 * @return							the {@code Client} named {@code firstName} and {@code lastName}.
-	 * @throws IllegalArgumentException	if {@code firstName} or {@code lastName} are null.
-	 * @throws NoSuchElementException	if there is no client with those names in database.
+	 * @param firstName						the name of the client to find.
+	 * @param lastName						the surname of the client to find.
+	 * @return								the {@code Client} named {@code firstName} and {@code lastName}.
+	 * @throws IllegalArgumentException		if {@code firstName} or {@code lastName} are null.
+	 * @throws InstanceNotFoundException	if there is no client with those names in database.
 	 */
 	@Override
 	public Client findClientNamed(String firstName, String lastName)
-			throws IllegalArgumentException, NoSuchElementException {
+			throws IllegalArgumentException, InstanceNotFoundException {
 		if (firstName == null || lastName == null)
 			throw new IllegalArgumentException("Names of client to find cannot be null.");
 		
@@ -74,20 +74,20 @@ public class TransactionalBookingService implements BookingService{
 				(ClientRepository clientRepository) -> clientRepository.findByName(firstName, lastName));
 		if (possibleClient.isPresent())
 			return possibleClient.get();
-		throw new NoSuchElementException(clientNotFoundMsg(firstName, lastName));
+		throw new InstanceNotFoundException(clientNotFoundMsg(firstName, lastName));
 	}
 
 	/**
 	 * Retrieves the reservation of the specified date from the database within a transaction.
 	 * 
-	 * @param date						the date of the reservation to find.
-	 * @return							the {@code Reservation} on {@code date}.
-	 * @throws IllegalArgumentException	if {@code date} is null.
-	 * @throws NoSuchElementException	if there is no reservation on that date in database.
+	 * @param date							the date of the reservation to find.
+	 * @return								the {@code Reservation} on {@code date}.
+	 * @throws IllegalArgumentException		if {@code date} is null.
+	 * @throws InstanceNotFoundException	if there is no reservation on that date in database.
 	 */
 	@Override
 	public Reservation findReservationOn(LocalDate date)
-			throws IllegalArgumentException, NoSuchElementException {
+			throws IllegalArgumentException, InstanceNotFoundException {
 		if (date == null)
 			throw new IllegalArgumentException("Date of reservation to find cannot be null.");
 		
@@ -96,7 +96,7 @@ public class TransactionalBookingService implements BookingService{
 				Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
 				if (possibleReservation.isPresent())
 					return possibleReservation.get();
-				throw new NoSuchElementException(reservationNotFoundMsg(date));
+				throw new InstanceNotFoundException(reservationNotFoundMsg(date));
 			}
 		);
 	}
@@ -138,11 +138,11 @@ public class TransactionalBookingService implements BookingService{
 	 * @return									the {@code Reservation} inserted.
 	 * @throws IllegalArgumentException			if {@code reservation} is null.
 	 * @throws InstanceAlreadyExistsException	if {@code reservation} is already in the database.
-	 * @throws NoSuchElementException			if the associated {@code client} doesn't exist in the database.
+	 * @throws InstanceNotFoundException		if the associated {@code client} doesn't exist in the database.
 	 */
 	@Override
 	public Reservation insertNewReservation(Reservation reservation)
-			throws IllegalArgumentException, InstanceAlreadyExistsException, NoSuchElementException {
+			throws IllegalArgumentException, InstanceAlreadyExistsException, InstanceNotFoundException {
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to insert cannot be null.");
 		
@@ -155,7 +155,7 @@ public class TransactionalBookingService implements BookingService{
 					if (possibleClient.isPresent()) {
 						return reservationRepository.save(reservation);
 					}
-					throw new NoSuchElementException(
+					throw new InstanceNotFoundException(
 						"The client with id: " + reservation.getClientId()
 						+ ", associated to the reservation to insert is not in the database. "
 						+ "Please, insert the client before the reservation.");
@@ -171,14 +171,14 @@ public class TransactionalBookingService implements BookingService{
 	 * and all his reservation from the database within a transaction.
 	 * This method checks if the client is present in the database before removing.
 	 * 
-	 * @param firstName					the name of the client to remove.
-	 * @param lastName					the surname of the client to remove.
-	 * @throws IllegalArgumentException	if {@code firstName} or {@code lastName} are null.
-	 * @throws NoSuchElementException	if there is no client with those names in database.
+	 * @param firstName						the name of the client to remove.
+	 * @param lastName						the surname of the client to remove.
+	 * @throws IllegalArgumentException		if {@code firstName} or {@code lastName} are null.
+	 * @throws InstanceNotFoundException	if there is no client with those names in database.
 	 */
 	@Override
 	public void removeClientNamed(String firstName, String lastName)
-			throws IllegalArgumentException, NoSuchElementException {
+			throws IllegalArgumentException, InstanceNotFoundException {
 		if (firstName == null || lastName == null)
 			throw new IllegalArgumentException("Names of client to remove cannot be null.");
 		
@@ -194,7 +194,7 @@ public class TransactionalBookingService implements BookingService{
 					clientRepository.delete(clientToRemove);
 					return null;
 				}
-				throw new NoSuchElementException(clientNotFoundMsg(firstName, lastName));
+				throw new InstanceNotFoundException(clientNotFoundMsg(firstName, lastName));
 			}
 		);
 	}
@@ -203,13 +203,13 @@ public class TransactionalBookingService implements BookingService{
 	 * Deletes the reservation of the specified date from the database within a transaction.
 	 * This method checks if the reservation is present in the database before removing.
 	 * 
-	 * @param date						the date of the reservation to find.
-	 * @throws IllegalArgumentException	if {@code date} is null.
-	 * @throws NoSuchElementException	if there is no reservation on that date in database.
+	 * @param date							the date of the reservation to find.
+	 * @throws IllegalArgumentException		if {@code date} is null.
+	 * @throws InstanceNotFoundException	if there is no reservation on that date in database.
 	 */
 	@Override
 	public void removeReservationOn(LocalDate date)
-			throws IllegalArgumentException, NoSuchElementException {
+			throws IllegalArgumentException, InstanceNotFoundException {
 		if (date == null)
 			throw new IllegalArgumentException("Date of reservation to remove cannot be null.");
 		
@@ -220,7 +220,7 @@ public class TransactionalBookingService implements BookingService{
 					reservationRepository.delete(possibleReservation.get());
 					return null;
 				}
-				throw new NoSuchElementException(reservationNotFoundMsg(date));
+				throw new InstanceNotFoundException(reservationNotFoundMsg(date));
 			}
 		);
 	}

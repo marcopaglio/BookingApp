@@ -2,9 +2,9 @@ package io.github.marcopaglio.booking.service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
+import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 
@@ -33,23 +33,23 @@ public interface BookingService {
 	/**
 	 * Retrieves the client with specified name and surname from the database.
 	 * 
-	 * @param firstName					the name of the client to find.
-	 * @param lastName					the surname of the client to find.
-	 * @return							the {@code Client} named {@code firstName} and {@code lastName}.
-	 * @throws IllegalArgumentException	if {@code firstName} or {@code lastName} are null.
-	 * @throws NoSuchElementException	if there is no client with those names in database.
+	 * @param firstName						the name of the client to find.
+	 * @param lastName						the surname of the client to find.
+	 * @return								the {@code Client} named {@code firstName} and {@code lastName}.
+	 * @throws IllegalArgumentException		if {@code firstName} or {@code lastName} are null.
+	 * @throws InstanceNotFoundException	if there is no client with those names in database.
 	 */
-	public Client findClientNamed(String firstName, String lastName) throws IllegalArgumentException, NoSuchElementException;
+	public Client findClientNamed(String firstName, String lastName) throws IllegalArgumentException, InstanceNotFoundException;
 
 	/**
 	 * Retrieves the reservation of the specified date from the database.
 	 * 
-	 * @param date						the date of the reservation to find.
-	 * @return							the {@code Reservation} on {@code date}.
-	 * @throws IllegalArgumentException	if {@code date} is null.
-	 * @throws NoSuchElementException	if there is no reservation on that date in database.
+	 * @param date							the date of the reservation to find.
+	 * @return								the {@code Reservation} on {@code date}.
+	 * @throws IllegalArgumentException		if {@code date} is null.
+	 * @throws InstanceNotFoundException	if there is no reservation on that date in database.
 	 */
-	public Reservation findReservationOn(LocalDate date) throws IllegalArgumentException, NoSuchElementException;
+	public Reservation findReservationOn(LocalDate date) throws IllegalArgumentException, InstanceNotFoundException;
 
 	/**
 	 * Adds a new client in the database.
@@ -68,27 +68,27 @@ public interface BookingService {
 	 * @return									the {@code Reservation} inserted.
 	 * @throws IllegalArgumentException			if {@code reservation} is null.
 	 * @throws InstanceAlreadyExistsException	if {@code reservation} is already in the database.
-	 * @throws NoSuchElementException			if the associated {@code client} doesn't exist in the database.
+	 * @throws InstanceNotFoundException		if the associated {@code client} doesn't exist in the database.
 	 */
-	public Reservation insertNewReservation(Reservation reservation) throws IllegalArgumentException, InstanceAlreadyExistsException, NoSuchElementException;
+	public Reservation insertNewReservation(Reservation reservation) throws IllegalArgumentException, InstanceAlreadyExistsException, InstanceNotFoundException;
 
 	/**
 	 * Deletes the client with specified name and surname
 	 * and all his reservation from the database.
 	 * 
-	 * @param firstName					the name of the client to remove.
-	 * @param lastName					the surname of the client to remove.
-	 * @throws IllegalArgumentException	if {@code firstName} or {@code lastName} are null.
-	 * @throws NoSuchElementException	if there is no client with those names in database.
+	 * @param firstName						the name of the client to remove.
+	 * @param lastName						the surname of the client to remove.
+	 * @throws IllegalArgumentException		if {@code firstName} or {@code lastName} are null.
+	 * @throws InstanceNotFoundException	if there is no client with those names in database.
 	 */
-	public void removeClientNamed(String firstName, String lastName) throws IllegalArgumentException, NoSuchElementException;
+	public void removeClientNamed(String firstName, String lastName) throws IllegalArgumentException, InstanceNotFoundException;
 
 	/**
 	 * Deletes the reservation of the specified date from the database.
 	 * 
-	 * @param date						the date of the reservation to find.
-	 * @throws IllegalArgumentException	if {@code date} is null.
-	 * @throws NoSuchElementException	if there is no reservation on that date in database.
+	 * @param date							the date of the reservation to find.
+	 * @throws IllegalArgumentException		if {@code date} is null.
+	 * @throws InstanceNotFoundException	if there is no reservation on that date in database.
 	 */
-	public void removeReservationOn(LocalDate date) throws IllegalArgumentException, NoSuchElementException;
+	public void removeReservationOn(LocalDate date) throws IllegalArgumentException, InstanceNotFoundException;
 }

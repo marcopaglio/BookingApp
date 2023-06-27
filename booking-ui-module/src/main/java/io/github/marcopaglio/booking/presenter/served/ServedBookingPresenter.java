@@ -1,11 +1,11 @@
 package io.github.marcopaglio.booking.presenter.served;
 
-import java.util.NoSuchElementException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
+import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.presenter.BookingPresenter;
@@ -99,7 +99,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 				try {
 					clientInDB = bookingService.findClientNamed(firstName, lastName);
 					updateAll();
-				} catch (NoSuchElementException e1) {
+				} catch (InstanceNotFoundException e1) {
 					LOGGER.warn(e1.getMessage());
 					clientInDB = null;
 				}
@@ -147,7 +147,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.warn(e.getMessage());
 			view.showReservationError(reservation, " has already been booked.");
 			updateAll();
-		} catch(NoSuchElementException e) {
+		} catch(InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
 			view.showReservationError(reservation, "'s client has been deleted.");
 			updateAll();
@@ -193,7 +193,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			bookingService.removeClientNamed(client.getFirstName(), client.getLastName());
 			view.clientRemoved(client);
 			LOGGER.info(() -> String.format("%s has been deleted with success.", client.toString()));
-		} catch (NoSuchElementException e) {
+		} catch (InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
 			view.showClientError(client, " has already been deleted.");
 			updateAll();
@@ -216,7 +216,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			bookingService.removeReservationOn(reservation.getDate());
 			view.reservationRemoved(reservation);
 			LOGGER.info(() -> String.format("%s has been deleted with success.", reservation.toString()));
-		} catch (NoSuchElementException e) {
+		} catch (InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
 			view.showReservationError(reservation, " has already been deleted.");
 			updateAll();

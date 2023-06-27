@@ -13,7 +13,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterEach;
@@ -34,6 +33,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
+import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.service.BookingService;
@@ -237,7 +237,7 @@ class ServedBookingPresenterTest {
 		@Test
 		@DisplayName("Client is not in repository")
 		void testDeleteClientWhenClientIsNotInRepositoryShouldNotifyTheView() {
-			doThrow(new NoSuchElementException())
+			doThrow(new InstanceNotFoundException())
 				.when(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 			// default stubbing for view.showClientError(client, message)
 			// default stubbing for bookingService.findAllReservation()
@@ -286,7 +286,8 @@ class ServedBookingPresenterTest {
 		@Test
 		@DisplayName("Reservation is not in repository")
 		void testDeleteReservationWhenReservationIsNotInRepositoryShouldNotifyTheView() {
-			doThrow(new NoSuchElementException()).when(bookingService).removeReservationOn(A_LOCALDATE);
+			doThrow(new InstanceNotFoundException())
+				.when(bookingService).removeReservationOn(A_LOCALDATE);
 			// default stubbing for view.showReservationError(reservation, message)
 			// default stubbing for bookingService.findAllReservation()
 			// default stubbing for view.showAllReservations(reservations)
@@ -391,7 +392,7 @@ class ServedBookingPresenterTest {
 						.thenThrow(new InstanceAlreadyExistsException())
 						.thenReturn(A_CLIENT);
 					when(bookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
-						.thenThrow(new NoSuchElementException());
+						.thenThrow(new InstanceNotFoundException());
 					// default stubbing for view.clientAdded(client)
 					
 					InOrder inOrder = Mockito.inOrder(bookingService, view, ClientValidator.class);
@@ -539,7 +540,7 @@ class ServedBookingPresenterTest {
 							() -> ReservationValidator.newValidatedReservation(A_CLIENT, A_DATE))
 						.thenReturn(A_RESERVATION);
 					when(bookingService.insertNewReservation(A_RESERVATION))
-						.thenThrow(new NoSuchElementException());
+						.thenThrow(new InstanceNotFoundException());
 					// default stubbing for view.showReservationError(reservation, message)
 					// default stubbing for bookingService.findAllClients()
 					// default stubbing for view.showAllClients(clients)
