@@ -12,7 +12,14 @@ import static org.bson.BsonType.STRING;
  * This entity represents the customer's model of the booking application.
  */
 public class Client extends Entity {
+	/**
+	 * Field name used in a database to access the {@code firstName} attribute.
+	 */
 	public static final String FIRSTNAME_DB = "name";
+
+	/**
+	 * Field name used in a database to access the {@code lastName} attribute.
+	 */
 	public static final String LASTNAME_DB = "surname";
 
 	/**

@@ -13,9 +13,10 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -33,7 +34,8 @@ import com.mongodb.client.MongoDatabase;
 
 import de.bwaldvogel.mongo.MongoServer;
 import de.bwaldvogel.mongo.backend.memory.MemoryBackend;
-import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
+import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
+import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
 import io.github.marcopaglio.booking.model.Client;
 
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
@@ -147,10 +149,8 @@ class ClientMongoRepositoryTest {
 
 		@Test
 		@DisplayName("Null id")
-		void testFindByIdWhenIdIsNullShouldThrow() {
-			assertThatThrownBy(() -> clientRepository.findById(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Identifier of client to find cannot be null.");
+		void testFindByIdWhenIdIsNullShouldReturnOptionalOfEmpty() {
+			assertThat(clientRepository.findById(null)).isEmpty();
 		}
 
 		@Test
@@ -184,18 +184,12 @@ class ClientMongoRepositoryTest {
 
 		@Test
 		@DisplayName("Null names")
-		void testFindByNameWhenNamesAreNullShouldThrow() {
-			assertThatThrownBy(() -> clientRepository.findByName(null, A_LASTNAME))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Name(s) of client to find cannot be null.");
+		void testFindByNameWhenNamesAreNullShouldReturnOptionalOfEmpty() {
+			assertThat(clientRepository.findByName(null, A_LASTNAME)).isEmpty();
 			
-			assertThatThrownBy(() -> clientRepository.findByName(A_FIRSTNAME, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Name(s) of client to find cannot be null.");
+			assertThat(clientRepository.findByName(A_FIRSTNAME, null)).isEmpty();
 			
-			assertThatThrownBy(() -> clientRepository.findByName(null, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Name(s) of client to find cannot be null.");
+			assertThat(clientRepository.findByName(null, null)).isEmpty();
 		}
 
 		@Test
@@ -276,13 +270,32 @@ class ClientMongoRepositoryTest {
 
 		@Test
 		@DisplayName("Client already has an id but is not in database")
-		void testSaveWhenClientAlreadyHasAnIdButIsNotInDatabaseShouldThrow() {
+		void testSaveWhenClientAlreadyHasAnIdButIsNotInDatabaseShouldNotThrow() {
 			client.setId(A_CLIENT_UUID);
 			
-			assertThatThrownBy(() -> clientRepository.save(client))
-				.isInstanceOf(NoSuchElementException.class)
-				.hasMessage("Client [" + A_FIRSTNAME + " " + A_LASTNAME
-						+ "] to update is no longer present in the database.");
+			assertThatNoException().isThrownBy(() -> clientRepository.save(client));
+		}
+
+		@Test
+		@DisplayName("Update violates constrains")
+		void testSaveWhenUpdateViolatesConstraintsShouldNotUpdateAndThrow() {
+			Client another_client = new Client(ANOTHER_FIRSTNAME, A_LASTNAME);
+			
+			addTestClientToDatabase(client, A_CLIENT_UUID);
+			addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
+			
+			Client clientToModify = new Client(ANOTHER_FIRSTNAME, A_LASTNAME);
+			clientToModify.setId(A_CLIENT_UUID);
+			
+			assertThatThrownBy(() -> clientRepository.save(clientToModify))
+				.isInstanceOf(UniquenessConstraintViolationException.class)
+				.hasMessage("The insertion violates uniqueness constraints.");
+			
+			List<Client> clientInDb = readAllClientsFromDatabase();
+			assertThat(clientInDb).containsExactlyInAnyOrder(client, another_client);
+			Set<UUID> clientIdInDB = new HashSet<>();
+			clientInDb.forEach((c) -> clientIdInDB.add(c.getId()));
+			assertThat(clientIdInDB).containsExactlyInAnyOrder(A_CLIENT_UUID, ANOTHER_CLIENT_UUID);
 		}
 
 		@Test
@@ -297,7 +310,7 @@ class ClientMongoRepositoryTest {
 			}).when(spied_client).setId(AdditionalMatchers.not(eq(A_CLIENT_UUID)));
 			
 			assertThatThrownBy(() -> clientRepository.save(spied_client))
-				.isInstanceOf(InstanceAlreadyExistsException.class)
+				.isInstanceOf(UniquenessConstraintViolationException.class)
 				.hasMessage("The insertion violates uniqueness constraints.");
 			
 			assertThat(readAllClientsFromDatabase()).doesNotContain(spied_client);
@@ -316,7 +329,7 @@ class ClientMongoRepositoryTest {
 			}).when(spied_client).setId(A_CLIENT_UUID);
 			
 			assertThatThrownBy(() -> clientRepository.save(spied_client))
-				.isInstanceOf(InstanceAlreadyExistsException.class)
+				.isInstanceOf(UniquenessConstraintViolationException.class)
 				.hasMessage("The insertion violates uniqueness constraints.");
 			
 			List<Client> clientsInDB = readAllClientsFromDatabase();
@@ -366,6 +379,7 @@ class ClientMongoRepositoryTest {
 				.hasMessage("Client to save cannot be null.");
 		}
 
+		// TODO: parametrized
 		@Test
 		@DisplayName("Client with null name")
 		void testSaveWhenClientHasNullNameShouldNotInsertAndThrow() {
@@ -373,12 +387,13 @@ class ClientMongoRepositoryTest {
 			Client nullNameClient = new Client(null, A_LASTNAME);
 			
 			assertThatThrownBy(() -> clientRepository.save(nullNameClient))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(NotNullConstraintViolationException.class)
 				.hasMessage("Client to save must have both not-null names.");
 			
 			assertThat(readAllClientsFromDatabase()).isEmpty();
 		}
 
+		// TODO: parametrized
 		@Test
 		@DisplayName("Client with null surname")
 		void testSaveWhenClientHasNullSurnameShouldNotInsertAndThrow() {
@@ -386,12 +401,13 @@ class ClientMongoRepositoryTest {
 			Client nullSurnameClient = new Client(A_FIRSTNAME, null);
 			
 			assertThatThrownBy(() -> clientRepository.save(nullSurnameClient))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(NotNullConstraintViolationException.class)
 				.hasMessage("Client to save must have both not-null names.");
 			
 			assertThat(readAllClientsFromDatabase()).isEmpty();
 		}
 
+		// TODO: parametrized
 		@Test
 		@DisplayName("Client with both null name and surname")
 		void testSaveWhenClientHasNullBothNameAndSurnameShouldNotInsertAndThrow() {
@@ -399,7 +415,7 @@ class ClientMongoRepositoryTest {
 			Client unnamedClient = new Client(null, null);
 			
 			assertThatThrownBy(() -> clientRepository.save(unnamedClient))
-				.isInstanceOf(IllegalArgumentException.class)
+				.isInstanceOf(NotNullConstraintViolationException.class)
 				.hasMessage("Client to save must have both not-null names.");
 			
 			assertThat(readAllClientsFromDatabase()).isEmpty();
@@ -432,13 +448,10 @@ class ClientMongoRepositoryTest {
 
 		@Test
 		@DisplayName("Client is not in database")
-		void testDeleteWhenClientIsNotInDatabaseShouldNotRemoveAnythingAndThrow() {
+		void testDeleteWhenClientIsNotInDatabaseShouldNotRemoveAnythingAndNotThrow() {
 			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
 			
-			assertThatThrownBy(() -> clientRepository.delete(ANOTHER_CLIENT))
-				.isInstanceOf(NoSuchElementException.class)
-				.hasMessage("Client [" + ANOTHER_FIRSTNAME + " " + ANOTHER_LASTNAME
-						+ "] to delete is not in database.");
+			assertThatNoException().isThrownBy(() -> clientRepository.delete(ANOTHER_CLIENT));
 			
 			assertThat(readAllClientsFromDatabase()).containsExactly(A_CLIENT);
 		}

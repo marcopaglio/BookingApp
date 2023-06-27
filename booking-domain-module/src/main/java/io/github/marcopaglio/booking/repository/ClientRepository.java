@@ -1,11 +1,11 @@
 package io.github.marcopaglio.booking.repository;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
-import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
+import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
+import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
 import io.github.marcopaglio.booking.model.Client;
 
 /**
@@ -27,9 +27,8 @@ public interface ClientRepository {
 	 * @return							an {@code Optional} contained the {@code Client}
 	 * 									named {@code id} if exists;
 	 * 									an {@code Optional} empty if it doesn't exist.
-	 * @throws IllegalArgumentException	if {@code id} is null.
 	 */
-	public Optional<Client> findById(UUID id) throws IllegalArgumentException;
+	public Optional<Client> findById(UUID id);
 
 	/**
 	 * Retrieves the unique client with the specified name and surname from the database if exists.
@@ -39,28 +38,25 @@ public interface ClientRepository {
 	 * @return							an {@code Optional} contained the {@code Client}
 	 * 									named {@code firstName} and {@code lastName} if exists;
 	 * 									an {@code Optional} empty if it doesn't exist.
-	 * @throws IllegalArgumentException	if {@code firstName} or {@code lastName} are null.
 	 */
 	public Optional<Client> findByName(String firstName, String lastName);
 
 	/**
 	 * Inserts a new Client in the database or saves changes of an existing one.
 	 *
-	 * @param client							the client to save.
-	 * @return									the {@code Client} saved.
-	 * @throws IllegalArgumentException			if {@code client} is null
-	 * 											or a not-null constraint is violated.
-	 * @throws InstanceAlreadyExistsException	if a uniqueness constraint is violated.
-	 * @throws NoSuchElementException			if the client to upgrade is not in the database.
+	 * @param client									the client to save.
+	 * @return											the {@code Client} saved.
+	 * @throws IllegalArgumentException					if {@code client} is null
+	 * @throws NotNullConstraintViolationException		if a not-null constraint is violated.
+	 * @throws UniquenessConstraintViolationException	if a uniqueness constraint is violated.
 	 */
-	public Client save(Client client) throws IllegalArgumentException, InstanceAlreadyExistsException;
+	public Client save(Client client) throws IllegalArgumentException, NotNullConstraintViolationException, UniquenessConstraintViolationException;
 
 	/**
-	 * Removes the unique client with specified name and surname from the database.
+	 * Removes the unique specified client from the database.
 	 *
 	 * @param client					the client to delete.
 	 * @throws IllegalArgumentException	if {@code client} is null.
-	 * @throws NoSuchElementException	if {@code client} is not in database.
 	 */
-	public void delete(Client client) throws IllegalArgumentException, NoSuchElementException;
+	public void delete(Client client) throws IllegalArgumentException;
 }

@@ -9,7 +9,11 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
  * Contains the necessary structure of a generic entity.
  */
 public abstract class Entity {
+	/**
+	 * Field name used in a database to access the {@code id} attribute.
+	 */
 	public static final String ID_DB = "_id";
+
 	/**
 	 * The identifier of the entity.
 	 */

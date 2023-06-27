@@ -1,7 +1,6 @@
 package io.github.marcopaglio.booking.repository.mongo;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -12,10 +11,9 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
-import com.mongodb.client.result.DeleteResult;
-import com.mongodb.client.result.UpdateResult;
 
-import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
+import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
+import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.repository.ClientRepository;
 
@@ -72,14 +70,11 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	 * @return							an {@code Optional} contained the {@code Client}
 	 * 									with {@code id} if exists;
 	 * 									an {@code Optional} empty if it doesn't exist.
-	 * @throws IllegalArgumentException	if {@code id} is null.
 	 */
 	@Override
-	public Optional<Client> findById(UUID id) throws IllegalArgumentException {
-		if (id == null)
-			throw new IllegalArgumentException("Identifier of client to find cannot be null.");
-		
+	public Optional<Client> findById(UUID id) {
 		Client client = collection.find(Filters.eq(ID_DB, id)).first();
+		
 		if (client != null)
 			return Optional.of(client);
 		return Optional.empty();
@@ -94,14 +89,9 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	 * @return							an {@code Optional} contained the {@code Client}
 	 * 									named {@code firstName} and {@code lastName} if exists;
 	 * 									an {@code Optional} empty if it doesn't exist.
-	 * @throws IllegalArgumentException	if {@code firstName} or {@code lastName} are null.
 	 */
 	@Override
-	public Optional<Client> findByName(String firstName, String lastName)
-			throws IllegalArgumentException {
-		if (firstName == null || lastName == null)
-			throw new IllegalArgumentException("Name(s) of client to find cannot be null.");
-		
+	public Optional<Client> findByName(String firstName, String lastName) {
 		Client client = collection.find(Filters.and(
 					Filters.eq(FIRSTNAME_DB, firstName),
 					Filters.eq(LASTNAME_DB, lastName)
@@ -114,54 +104,56 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 
 	/**
 	 * Inserts a new Client in the MongoDB database or saves changes of an existing one.
+	 * Note: a Client without an identifier is considered to be entered,
+	 * while with the identifier it will be updated.
 	 *
-	 * @param client							the Client to save.
-	 * @return									the {@code Client} saved.
-	 * @throws IllegalArgumentException			if {@code client} is null
-	 * 											or a not-null constraint is violated.
-	 * @throws InstanceAlreadyExistsException	if a uniqueness constraint is violated.
-	 * @throws NoSuchElementException			if the client to upgrade is not in the database.
+	 * @param client									the Client to save.
+	 * @return											the {@code Client} saved.
+	 * @throws IllegalArgumentException					if {@code client} is null
+	 * @throws NotNullConstraintViolationException		if {@code firstName} or {@code lastName}
+	 * 													of {@code client} to save are null.
+	 * @throws UniquenessConstraintViolationException	if {@code id} or {@code [firstName, lastName]}
+	 * 													of {@code client} to save are already present.
 	 */
 	@Override
-	public Client save(Client client)
-			throws IllegalArgumentException, InstanceAlreadyExistsException, NoSuchElementException {
+	public Client save(Client client) throws IllegalArgumentException,
+			NotNullConstraintViolationException, UniquenessConstraintViolationException {
 		if (client == null)
 			throw new IllegalArgumentException("Client to save cannot be null.");
 		
 		if (client.getFirstName() == null || client.getLastName() == null)
-			throw new IllegalArgumentException("Client to save must have both not-null names.");
+			throw new NotNullConstraintViolationException("Client to save must have both not-null names.");
 		
 		if(client.getId() == null) {
 			client.setId(UUID.randomUUID());
 			try {
 				collection.insertOne(client);
 			} catch(MongoWriteException e) {
-				throw new InstanceAlreadyExistsException("The insertion violates uniqueness constraints.");
+				throw new UniquenessConstraintViolationException(
+						"The insertion violates uniqueness constraints.");
 			}
 		} else {
-			UpdateResult result = collection.replaceOne(Filters.eq(ID_DB, client.getId()), client);
-			if (result.getMatchedCount() == 0L)
-				throw new NoSuchElementException(
-						client.toString() + " to update is no longer present in the database.");
+			try {
+				collection.replaceOne(Filters.eq(ID_DB, client.getId()), client);
+			} catch(MongoWriteException e) {
+				throw new UniquenessConstraintViolationException(
+						"The insertion violates uniqueness constraints.");
+			}
 		}
 		return client;
 	}
 
 	/**
-	 * Removes the unique client with specified name and surname from the MongoDB database.
+	 * Removes the unique specified client from the MongoDB database.
 	 *
 	 * @param client					the client to delete.
 	 * @throws IllegalArgumentException	if {@code client} is null.
-	 * @throws NoSuchElementException	if {@code client} is not in database.
 	 */
 	@Override
-	public void delete(Client client) throws IllegalArgumentException, NoSuchElementException {
+	public void delete(Client client) throws IllegalArgumentException {
 		if(client == null)
 			throw new IllegalArgumentException("Client to delete cannot be null.");
 		
-		DeleteResult result = collection.deleteOne(Filters.eq(ID_DB, client.getId()));
-		
-		if (result.getDeletedCount() == 0)
-			throw new NoSuchElementException(client.toString() + " to delete is not in database.");
+		collection.deleteOne(Filters.eq(ID_DB, client.getId()));
 	}
 }
