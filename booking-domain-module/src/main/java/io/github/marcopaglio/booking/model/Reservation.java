@@ -7,25 +7,31 @@ import java.util.UUID;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
-import io.github.marcopaglio.booking.annotation.Generated;
-
 /**
  * This entity represents the reservation's model of the booking application.
  */
 public class Reservation extends Entity {
+	/**
+	 * Field name used in a database to access the {@code clientId} attribute.
+	 */
 	public static final String CLIENTID_DB = "client";
+
+	/**
+	 * Field name used in a database to access the {@code date} attribute.
+	 */
 	public static final String DATE_DB = "date";
+
 	/**
 	 * The identifier of the associated client entity.
 	 */
 	@BsonProperty(value = CLIENTID_DB)
-	private final UUID clientId;
+	private UUID clientId;
 
 	/**
 	 * The date of the reservation. Note: {@code date} is unique among reservation entities.
 	 */
 	@BsonProperty(value = DATE_DB)
-	private final LocalDate date;
+	private LocalDate date;
 
 	/**
 	 * Constructs a reservation for the booking application
@@ -54,9 +60,17 @@ public class Reservation extends Entity {
 	 *
 	 * @return	the {@code UUID} of the associated client of the reservation.
 	 */
-	@Generated
 	public final UUID getClientId() {
 		return clientId;
+	}
+
+	/**
+	 * Sets the client's identifier of the reservation.
+	 * 
+	 * @param clientId	the client's identifier to set.
+	 */
+	public final void setClientId(UUID clientId) {
+		this.clientId = clientId;
 	}
 
 	/**
@@ -64,9 +78,17 @@ public class Reservation extends Entity {
 	 *
 	 * @return	the {@code date} of the reservation.
 	 */
-	@Generated
 	public final LocalDate getDate() {
 		return date;
+	}
+
+	/**
+	 * Sets the date of the reservation.
+	 * 
+	 * @param date	the date to set.
+	 */
+	public final void setDate(LocalDate date) {
+		this.date = date;
 	}
 
 	/**

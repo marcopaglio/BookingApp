@@ -67,12 +67,30 @@ public class Client extends Entity {
 	}
 
 	/**
+	 * Sets the name of the client.
+	 * 
+	 * @param firstName	the name to set.
+	 */
+	public final void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	/**
 	 * Retrieves the surname of the client. Note: Java String Objects are immutable.
 	 *
 	 * @return	the {@code lastName} of the client.
 	 */
 	public final String getLastName() {
 		return this.lastName;
+	}
+
+	/**
+	 * Sets the surname of the client.
+	 * 
+	 * @param lastName	the surname to set.
+	 */
+	public final void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 
 	/**
