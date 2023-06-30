@@ -189,8 +189,7 @@ class ReservationMongoRepositoryTest {
 			
 			assertThatThrownBy(() -> reservationRepository.save(spied_reservation))
 				.isInstanceOf(UniquenessConstraintViolationException.class)
-				.hasMessage("Reservation [date=" + ANOTHER_LOCALDATE.toString() +
-						"] to insert violates uniqueness constraints.");
+				.hasMessage("The insertion violates uniqueness constraints.");
 			
 			assertThat(readAllReservationsFromDatabase()).doesNotContain(spied_reservation);
 		}
@@ -210,8 +209,7 @@ class ReservationMongoRepositoryTest {
 			
 			assertThatThrownBy(() -> reservationRepository.save(spied_reservation))
 				.isInstanceOf(UniquenessConstraintViolationException.class)
-				.hasMessage("Reservation [date=" + A_LOCALDATE.toString()
-						+ "] to insert violates uniqueness constraints.");
+				.hasMessage("The insertion violates uniqueness constraints.");
 			
 			List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
 			assertThat(reservationsInDB).containsExactly(reservation);
@@ -291,8 +289,7 @@ class ReservationMongoRepositoryTest {
 			
 			assertThatThrownBy(() -> reservationRepository.save(reservationToUpdate))
 				.isInstanceOf(UniquenessConstraintViolationException.class)
-				.hasMessage("Reservation [date=" + A_LOCALDATE.toString() +
-						"] to update violates uniqueness constraints.");
+				.hasMessage("The update violates uniqueness constraints.");
 			
 			Set<LocalDate> datesInDB = new HashSet<>();
 			readAllReservationsFromDatabase().forEach((r) -> datesInDB.add(r.getDate()));

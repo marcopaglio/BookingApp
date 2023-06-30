@@ -303,8 +303,7 @@ class ClientMongoRepositoryTest {
 			
 			assertThatThrownBy(() -> clientRepository.save(spied_client))
 				.isInstanceOf(UniquenessConstraintViolationException.class)
-				.hasMessage("Client [" + ANOTHER_FIRSTNAME + " " + ANOTHER_LASTNAME
-						+ "] to insert violates uniqueness constraints.");
+				.hasMessage("The insertion violates uniqueness constraints.");
 			
 			assertThat(readAllClientsFromDatabase()).doesNotContain(spied_client);
 		}
@@ -323,8 +322,7 @@ class ClientMongoRepositoryTest {
 			
 			assertThatThrownBy(() -> clientRepository.save(spied_client))
 				.isInstanceOf(UniquenessConstraintViolationException.class)
-				.hasMessage("Client [" + A_FIRSTNAME + " " + A_LASTNAME
-						+ "] to insert violates uniqueness constraints."); // TODO: esiste già
+				.hasMessage("The insertion violates uniqueness constraints.");
 			
 			List<Client> clientsInDB = readAllClientsFromDatabase();
 			assertThat(clientsInDB).containsExactly(client);
@@ -405,8 +403,7 @@ class ClientMongoRepositoryTest {
 			
 			assertThatThrownBy(() -> clientRepository.save(clientToUpdate))
 				.isInstanceOf(UniquenessConstraintViolationException.class)
-				.hasMessage("Client [" + A_FIRSTNAME + " " + A_LASTNAME
-						+ "] to update violates uniqueness constraints.");
+				.hasMessage("The update violates uniqueness constraints.");
 			
 			Set<String> namesInDB = new HashSet<>();
 			readAllClientsFromDatabase().forEach((c) -> namesInDB.add(c.getFirstName()));

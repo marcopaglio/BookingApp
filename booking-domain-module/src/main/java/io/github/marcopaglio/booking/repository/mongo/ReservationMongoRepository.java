@@ -77,15 +77,15 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 			try {
 				collection.insertOne(reservation);
 			} catch(MongoWriteException e) {
-				throw new UniquenessConstraintViolationException(reservation.toString()
-						+ " to insert violates uniqueness constraints.");
+				throw new UniquenessConstraintViolationException(
+						"The insertion violates uniqueness constraints.");
 			}
 		} else {
 			try {
 				collection.replaceOne(Filters.eq(ID_DB, reservation.getId()), reservation);
 			} catch(MongoWriteException e) {
-				throw new UniquenessConstraintViolationException(reservation.toString()
-						+ " to update violates uniqueness constraints.");
+				throw new UniquenessConstraintViolationException(
+						"The update violates uniqueness constraints.");
 			}
 		}
 		return reservation;
