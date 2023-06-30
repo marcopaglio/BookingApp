@@ -109,7 +109,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	 *
 	 * @param client									the Client to save.
 	 * @return											the {@code Client} saved.
-	 * @throws IllegalArgumentException					if {@code client} is null
+	 * @throws IllegalArgumentException					if {@code client} is null.
 	 * @throws NotNullConstraintViolationException		if {@code firstName} or {@code lastName}
 	 * 													of {@code client} to save are null.
 	 * @throws UniquenessConstraintViolationException	if {@code id} or {@code [firstName, lastName]}

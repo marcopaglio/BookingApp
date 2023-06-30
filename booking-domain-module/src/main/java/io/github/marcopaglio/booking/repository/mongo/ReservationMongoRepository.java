@@ -23,9 +23,22 @@ import static io.github.marcopaglio.booking.model.Entity.ID_DB;
  * Implementation of repository layer through MongoDB for reservation entities of the booking application.
  */
 public class ReservationMongoRepository extends MongoRepository<Reservation> implements ReservationRepository {
+	/**
+	 * Name of the database in which the repository works.
+	 */
 	public static final String BOOKING_DB_NAME = "booking_db";
+
+	/**
+	 * Name of the collection managed by the repository.
+	 */
 	public static final String RESERVATION_COLLECTION_NAME = "booking_reservation";
 
+	/**
+	 * Constructs a repository layer for Reservation entities using MongoDB database. 
+	 * The construction generates and configures a collection for using by the repository.
+	 * 
+	 * @param mongoClient	the {@code MongoClient} used to retrieve the collection.
+	 */
 	public ReservationMongoRepository(MongoClient client) {
 		super(client
 				.getDatabase(BOOKING_DB_NAME)
@@ -59,6 +72,19 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 		return null;
 	}
 
+	/**
+	 * Insert a new reservation in the MongoDB database or saves changes of an existing one.
+	 * Note: a Reservation without an identifier is considered to be entered,
+	 * while with the identifier it will be updated.
+	 *
+	 * @param reservation								the reservation to save.
+	 * @return											the {@code Reservation} saved.
+	 * @throws IllegalArgumentException					if {@code reservation} is null.
+	 * @throws NotNullConstraintViolationException		if {@code date} or {@code clientId}
+	 * 													of {@code reservation} to save are null.
+	 * @throws UniquenessConstraintViolationException	if {@code id} or {@code date}
+	 * 													of {@code reservation} to save are already present.
+	 */
 	@Override
 	public Reservation save(Reservation reservation) throws IllegalArgumentException,
 			NotNullConstraintViolationException, UniquenessConstraintViolationException {

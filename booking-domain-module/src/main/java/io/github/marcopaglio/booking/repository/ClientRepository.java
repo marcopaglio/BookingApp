@@ -46,7 +46,7 @@ public interface ClientRepository {
 	 *
 	 * @param client									the client to save.
 	 * @return											the {@code Client} saved.
-	 * @throws IllegalArgumentException					if {@code client} is null
+	 * @throws IllegalArgumentException					if {@code client} is null.
 	 * @throws NotNullConstraintViolationException		if a not-null constraint is violated.
 	 * @throws UniquenessConstraintViolationException	if a uniqueness constraint is violated.
 	 */
