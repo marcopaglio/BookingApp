@@ -63,9 +63,10 @@ public interface ReservationRepository {
 	public Reservation save(Reservation reservation) throws IllegalArgumentException, NotNullConstraintViolationException, UniquenessConstraintViolationException;
 
 	/**
-	 * Removes the unique reservation of the specified date from the database.
+	 * Removes the unique specified reservation from the database.
 	 *
-	 * @param reservation	the reservation to delete.
+	 * @param reservation				the reservation to delete.
+	 * @throws IllegalArgumentException	if {@code reservation} is null.
 	 */
-	public void delete(Reservation reservation);
+	public void delete(Reservation reservation) throws IllegalArgumentException;
 }

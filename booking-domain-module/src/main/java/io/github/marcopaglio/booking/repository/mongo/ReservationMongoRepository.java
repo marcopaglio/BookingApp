@@ -117,10 +117,18 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 		return reservation;
 	}
 
+	/**
+	 * Removes the unique specified reservation from the MongoDB database.
+	 *
+	 * @param reservation				the reservation to delete.
+	 * @throws IllegalArgumentException	if {@code reservation} is null.
+	 */
 	@Override
-	public void delete(Reservation reservation) {
-		// TODO Auto-generated method stub
-
+	public void delete(Reservation reservation) throws IllegalArgumentException {
+		if (reservation == null)
+			throw new IllegalArgumentException("Reservation to delete cannot be null.");
+		
+		collection.deleteOne(Filters.eq(ID_DB, reservation.getId()));
 	}
 
 }

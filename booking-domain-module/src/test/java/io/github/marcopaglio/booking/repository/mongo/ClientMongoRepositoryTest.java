@@ -427,21 +427,21 @@ class ClientMongoRepositoryTest {
 		}
 
 		@Test
-		@DisplayName("Client with id is in database")
-		void testDeleteWhenClientWithIdIsInDatabaseShouldRemove() {
-			assertThat(readAllClientsFromDatabase()).isEmpty();
+		@DisplayName("Client is in database")
+		void testDeleteWhenClientIsInDatabaseShouldRemove() {
 			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
+			assertThat(readAllClientsFromDatabase()).contains(A_CLIENT);
 			
 			clientRepository.delete(A_CLIENT);
 			
 			assertThat(readAllClientsFromDatabase()).doesNotContain(A_CLIENT);
-			assertThat(readAllClientsFromDatabase()).isEmpty();
 		}
 
 		@Test
 		@DisplayName("Client is not in database")
 		void testDeleteWhenClientIsNotInDatabaseShouldNotRemoveAnythingAndNotThrow() {
 			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
+			assertThat(readAllClientsFromDatabase()).containsExactly(A_CLIENT);
 			
 			assertThatNoException().isThrownBy(() -> clientRepository.delete(ANOTHER_CLIENT));
 			

@@ -307,29 +307,54 @@ class ReservationMongoRepositoryTest {
 			reservationCollection.insertOne(reservation);
 		}
 	}
-	/*@Test
-	void test() {
-		assertThat(reservationCollection.countDocuments()).isZero();
 
-		// make a document and insert it
-		Reservation ada = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
-		ada.setId(A_CLIENT_UUID);
-		System.out.println("Original Reservation Model: " + ada);
-		reservationCollection.insertOne(ada);
+	@Nested
+	@DisplayName("Tests for 'delete'")
+	class DeleteTest {
 
-		// Person will now have an ObjectId
-		System.out.println("Mutated Reservation Model: " + ada);
-		assertThat(reservationCollection.countDocuments()).isEqualTo(1L);
-		
-		Reservation oda = new Reservation(ANOTHER_CLIENT_UUID, A_LOCALDATE);
-		oda.setId(ANOTHER_CLIENT_UUID);
-		System.out.println("Original Reservation Model: " + oda);
-		assertThatThrownBy(() -> reservationCollection.insertOne(oda)).isInstanceOf(MongoWriteException.class);
+		@Test
+		@DisplayName("Null reservation")
+		void testDeleteWhenReservationIsNullShouldThrow() {
+			assertThatThrownBy(() -> reservationRepository.delete(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Reservation to delete cannot be null.");
+		}
 
-		// get it (since it's the only one in there since we dropped the rest earlier on)
-		Reservation something = reservationCollection.find().first();
-		System.out.println("Retrieved Reservation: " + something);
-		
-		assertThat(something).isEqualTo(ada);
-	}*/
+		@Test
+		@DisplayName("Reservation is in database")
+		void testDeleteWhenReservationIsInDatabaseShouldRemove() {
+			Reservation reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+			assertThat(readAllReservationsFromDatabase()).contains(reservation);
+			
+			reservationRepository.delete(reservation);
+			
+			assertThat(readAllReservationsFromDatabase()).doesNotContain(reservation);
+		}
+
+		@Test
+		@DisplayName("Reservation is not in database")
+		void testDeleteWhenReservationIsNotInDatabaseShouldNotRemoveAnythingAndNotThrow() {
+			Reservation reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+			assertThat(readAllReservationsFromDatabase()).containsExactly(reservation);
+			
+			Reservation another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
+			
+			assertThatNoException().isThrownBy(() -> reservationRepository.delete(another_reservation));
+			
+			assertThat(readAllReservationsFromDatabase()).containsExactly(reservation);
+		}
+
+		private void addTestReservationToDatabase(Reservation reservation, UUID id) {
+			reservation.setId(id);
+			reservationCollection.insertOne(reservation);
+		}
+
+		private List<Reservation> readAllReservationsFromDatabase() {
+			return StreamSupport
+					.stream(reservationCollection.find().spliterator(), false)
+					.collect(Collectors.toList());
+		}
+	}
 }
