@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
-import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 
 /**
@@ -23,33 +22,32 @@ public interface ReservationRepository {
 	public List<Reservation> findAll();
 
 	/**
-	 * Retrieves the unique client with the specified identifier from the database if exists.
+	 * Retrieves all the reservations associated with the specified client's identifier
+	 * from the database in a list.
 	 * 
-	 * @param id	the identifier of the client to find.
-	 * @return		an {@code Optional} contained the {@code Client}
-	 * 				named {@code firstName} and {@code lastName} if exists;
+	 * @param clientId	the identifier of the associated client.
+	 * @return			the {@code List} of {@code Reservation}s associated
+	 * 					with {@code clientId} found in the repository.
+	 */
+	public List<Reservation> findByClient(UUID clientId);
+
+	/**
+	 * Retrieves the unique reservation with the specified identifier from the database if exists.
+	 * 
+	 * @param id	the identifier of the reservation to find.
+	 * @return		an {@code Optional} contained the {@code Reservation} identified by {@code id} if exists;
 	 * 				an {@code Optional} empty if it doesn't exist.
 	 */
-	public Optional<Client> findById(UUID id);
+	public Optional<Reservation> findById(UUID id);
 
 	/**
 	 * Retrieves the unique reservation of the specified date from the database if exists.
 	 * 
 	 * @param date	the date of the reservation to find.
-	 * @return		an {@code Optional} contained the {@code Reservation}
-	 * 				on {@code date} if exists;
+	 * @return		an {@code Optional} contained the {@code Reservation} on {@code date} if exists;
 	 * 				an {@code Optional} empty if it doesn't exist.
 	 */
 	public Optional<Reservation> findByDate(LocalDate date);
-
-	/**
-	 * Retrieves all the reservations associated at the specified client's identifier
-	 * from the database in a list.
-	 * 
-	 * @param clientId	the identifier of the associated client.
-	 * @return			the list of reservations found in the repository.
-	 */
-	public List<Reservation> findByClient(UUID clientId);
 
 	/**
 	 * Insert a new reservation in the database or saves changes of an existing one.

@@ -23,10 +23,9 @@ public interface ClientRepository {
 	/**
 	 * Retrieves the unique client with the specified identifier from the database if exists.
 	 * 
-	 * @param id						the identifier of the client to find.
-	 * @return							an {@code Optional} contained the {@code Client}
-	 * 									named {@code id} if exists;
-	 * 									an {@code Optional} empty if it doesn't exist.
+	 * @param id	the identifier of the client to find.
+	 * @return		an {@code Optional} contained the {@code Client} identified by {@code id} if exists;
+	 * 				an {@code Optional} empty if it doesn't exist.
 	 */
 	public Optional<Client> findById(UUID id);
 

@@ -66,10 +66,9 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	/**
 	 * Retrieves the unique client with the specified identifier from the MongoDB database if exists.
 	 * 
-	 * @param id						the identifier of the client to find.
-	 * @return							an {@code Optional} contained the {@code Client}
-	 * 									with {@code id} if exists;
-	 * 									an {@code Optional} empty if it doesn't exist.
+	 * @param id	the identifier of the client to find.
+	 * @return		an {@code Optional} contained the {@code Client} identified by {@code id} if exists;
+	 * 				an {@code Optional} empty if it doesn't exist.
 	 */
 	@Override
 	public Optional<Client> findById(UUID id) {

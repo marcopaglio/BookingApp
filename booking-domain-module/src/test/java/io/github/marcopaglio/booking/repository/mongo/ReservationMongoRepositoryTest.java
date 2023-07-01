@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -139,6 +140,119 @@ class ReservationMongoRepositoryTest {
 			
 			assertThat(reservationRepository.findAll())
 				.containsExactlyInAnyOrder(reservation, another_reservation);
+		}
+
+		private void addTestReservationToDatabase(Reservation reservation, UUID id) {
+			reservation.setId(id);
+			reservationCollection.insertOne(reservation);
+		}
+	}
+
+	@Nested
+	@DisplayName("Tests for 'findByClient'")
+	class FindByClientTest {
+
+		@Test
+		@DisplayName("Null clientId")
+		void testFindByClientWhenClientIdIsNullShouldReturnEmptyList() {
+			assertThat(reservationRepository.findByClient(null)).isEmpty();
+		}
+
+		@Test
+		@DisplayName("No associated reservations")
+		void testFindByClientWhenThereAreNoAssociatedReservationsShouldReturnEmptyList() {
+			assertThat(reservationRepository.findByClient(ANOTHER_CLIENT_UUID)).isEmpty();
+		}
+
+		@Test
+		@DisplayName("Single associated reservation")
+		void testFindByClientWhenThereIsASingleAssociatedReservationShouldReturnTheReservationAsList() {
+			Reservation reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+			Reservation another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
+			addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+			
+			assertThat(reservationRepository.findByClient(A_CLIENT_UUID)).containsExactly(reservation);
+		}
+
+		@Test
+		@DisplayName("Several associated reservation")
+		void testFindByClientWhenThereAreSeveralAssociatedReservationsShouldReturnReservationsAsList() {
+			Reservation reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+			Reservation another_reservation = new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE);
+			addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+			
+			assertThat(reservationRepository.findByClient(A_CLIENT_UUID))
+				.containsExactly(reservation, another_reservation);
+		}
+
+		private void addTestReservationToDatabase(Reservation reservation, UUID id) {
+			reservation.setId(id);
+			reservationCollection.insertOne(reservation);
+		}
+	}
+
+	@Nested
+	@DisplayName("Tests for 'findById'")
+	class FindByIdTest {
+
+		@Test
+		@DisplayName("Null id")
+		void testFindByIdWhenIdIsNullShouldReturnOptionalOfEmpty() {
+			assertThat(reservationRepository.findById(null)).isEmpty();
+		}
+
+		@Test
+		@DisplayName("Reservation is not in database")
+		void testFindByIdWhenReservationIsNotInDatabaseShouldReturnOptionalOfEmpty() {
+			assertThat(reservationRepository.findById(A_RESERVATION_UUID)).isEmpty();
+		}
+
+		@Test
+		@DisplayName("Reservation is in database")
+		void testFindByIdWhenReservationIsInDatabaseShouldReturnOptionalOfReservation() {
+			Reservation reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+			Reservation another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
+			addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+			
+			assertThat(reservationRepository.findById(A_RESERVATION_UUID))
+				.isEqualTo(Optional.of(reservation));
+		}
+
+		private void addTestReservationToDatabase(Reservation reservation, UUID id) {
+			reservation.setId(id);
+			reservationCollection.insertOne(reservation);
+		}
+	}
+
+	@Nested
+	@DisplayName("Tests for 'findByDate'")
+	class FindByDate {
+
+		@Test
+		@DisplayName("Null date")
+		void testFindByDateWhenDateIsNullShouldReturnOptionalOfEmpty() {
+			assertThat(reservationRepository.findByDate(null)).isEmpty();
+		}
+
+		@Test
+		@DisplayName("Reservation is not in database")
+		void testFindByDateWhenReservationIsNotInDatabaseShouldReturnOptionalOfEmpty() {
+			assertThat(reservationRepository.findByDate(ANOTHER_LOCALDATE)).isEmpty();
+		}
+
+		@Test
+		@DisplayName("Reservation is in database")
+		void testFindByDateWhenReservationIsInDatabaseShouldReturnOptionalOfReservation() {
+			Reservation reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+			Reservation another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
+			addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+			
+			assertThat(reservationRepository.findByDate(A_LOCALDATE))
+				.isEqualTo(Optional.of(reservation));
 		}
 
 		private void addTestReservationToDatabase(Reservation reservation, UUID id) {

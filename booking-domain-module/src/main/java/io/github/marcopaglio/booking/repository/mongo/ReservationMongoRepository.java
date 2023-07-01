@@ -15,11 +15,12 @@ import com.mongodb.client.model.Indexes;
 
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
-import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.ReservationRepository;
 
 import static io.github.marcopaglio.booking.model.Entity.ID_DB;
+import static io.github.marcopaglio.booking.model.Reservation.DATE_DB;
+import static io.github.marcopaglio.booking.model.Reservation.CLIENTID_DB;
 
 /**
  * Implementation of repository layer through MongoDB for reservation entities of the booking application.
@@ -62,22 +63,51 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 				.collect(Collectors.toList());
 	}
 
-	@Override
-	public Optional<Client> findById(UUID id) {
-		// TODO Auto-generated method stub
-		return Optional.empty();
-	}
-
-	@Override
-	public Optional<Reservation> findByDate(LocalDate date) {
-		// TODO Auto-generated method stub
-		return Optional.empty();
-	}
-
+	/**
+	 * Retrieves all the reservations associated with the specified client's identifier
+	 * from the MongoDB database in a list.
+	 * 
+	 * @param clientId	the identifier of the associated client.
+	 * @return			the {@code List} of {@code Reservation}s associated
+	 * 					with {@code clientId} found in the repository.
+	 */
 	@Override
 	public List<Reservation> findByClient(UUID clientId) {
-		// TODO Auto-generated method stub
-		return null;
+		return StreamSupport
+				.stream(collection.find(Filters.eq(CLIENTID_DB, clientId)).spliterator(), false)
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Retrieves the unique reservation with the specified identifier from the MongoDB database if exists.
+	 * 
+	 * @param id	the identifier of the reservation to find.
+	 * @return		an {@code Optional} contained the {@code Reservation} identified by {@code id} if exists;
+	 * 				an {@code Optional} empty if it doesn't exist.
+	 */
+	@Override
+	public Optional<Reservation> findById(UUID id) {
+		Reservation reservation = collection.find(Filters.eq(ID_DB, id)).first();
+		
+		if (reservation != null)
+			return Optional.of(reservation);
+		return Optional.empty();
+	}
+
+	/**
+	 * Retrieves the unique reservation of the specified date from the MongoDB database if exists.
+	 * 
+	 * @param date	the date of the reservation to find.
+	 * @return		an {@code Optional} contained the {@code Reservation} on {@code date} if exists;
+	 * 				an {@code Optional} empty if it doesn't exist.
+	 */
+	@Override
+	public Optional<Reservation> findByDate(LocalDate date) {
+		Reservation reservation = collection.find(Filters.eq(DATE_DB, date)).first();
+		
+		if (reservation != null)
+			return Optional.of(reservation);
+		return Optional.empty();
 	}
 
 	/**

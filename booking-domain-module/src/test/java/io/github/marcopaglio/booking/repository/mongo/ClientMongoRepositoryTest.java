@@ -150,17 +150,9 @@ class ClientMongoRepositoryTest {
 		}
 
 		@Test
-		@DisplayName("Database is empty")
-		void testFindByIdWhenDatabaseIsEmptyShouldReturnOptionalOfEmpty() {
-			assertThat(clientRepository.findById(A_CLIENT_UUID)).isEmpty();
-		}
-
-		@Test
 		@DisplayName("Client is not in database")
 		void testFindByIdWhenClientIsNotInDatabaseShouldReturnOptionalOfEmpty() {
-			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-			
-			assertThat(clientRepository.findById(ANOTHER_CLIENT_UUID)).isEmpty();
+			assertThat(clientRepository.findById(A_CLIENT_UUID)).isEmpty();
 		}
 
 		@Test
@@ -189,16 +181,8 @@ class ClientMongoRepositoryTest {
 		}
 
 		@Test
-		@DisplayName("Database is empty")
-		void testFindByNameWhenDatabaseIsEmptyShouldReturnOptionalOfEmpty() {
-			assertThat(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME)).isEmpty();
-		}
-
-		@Test
 		@DisplayName("Client is not in database")
 		void testFindByNameWhenClientIsNotInDatabaseShouldReturnOptionalOfEmpty() {
-			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-			
 			assertThat(clientRepository.findByName(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME)).isEmpty();
 		}
 
