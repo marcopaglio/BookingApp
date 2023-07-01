@@ -2,7 +2,6 @@ package io.github.marcopaglio.booking.model;
 
 import java.util.Objects;
 
-import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.codecs.pojo.annotations.BsonRepresentation;
 
@@ -44,9 +43,7 @@ public class Client extends Entity {
 	 * @param firstName	the name of the client.
 	 * @param lastName	the surname of the client.
 	 */
-	@BsonCreator
-	public Client(@BsonProperty(value = FIRSTNAME_DB) String firstName,
-				@BsonProperty(value = LASTNAME_DB) String lastName) {
+	public Client(String firstName, String lastName) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -55,7 +52,7 @@ public class Client extends Entity {
 	/**
 	 * Empty constructor needed for database purposes.
 	 */
-	//protected Client() {}
+	protected Client() {}
 
 	/**
 	 * Retrieves the name of the client. Note: Java String Objects are immutable.

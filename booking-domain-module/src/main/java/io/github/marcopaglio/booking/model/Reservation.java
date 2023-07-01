@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
-import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
 /**
@@ -41,9 +40,7 @@ public class Reservation extends Entity {
 	 * @param clientId	the identifier of the associated client of the reservation.
 	 * @param date		the date of the reservation.
 	 */
-	@BsonCreator
-	public Reservation(@BsonProperty(value = CLIENTID_DB) UUID clientId,
-			@BsonProperty(value = DATE_DB) LocalDate date) {
+	public Reservation(UUID clientId, LocalDate date) {
 		super();
 		this.clientId = clientId;
 		this.date = date;
@@ -52,7 +49,7 @@ public class Reservation extends Entity {
 	/**
 	 * Empty constructor needed for database purposes.
 	 */
-	//protected Reservation() {}
+	protected Reservation() {}
 
 	/**
 	 * Retrieves the identifier of the associated client of the reservation.
