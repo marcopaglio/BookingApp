@@ -6,6 +6,7 @@ import com.mongodb.client.MongoCollection;
  * Facade of repository layer for using with MongoDB database.
  */
 public abstract class MongoRepository<T> {
+
 	/**
 	 * Collection of entities of type T used by the repository layer.
 	 */
@@ -30,4 +31,12 @@ public abstract class MongoRepository<T> {
 		return collection;
 	}
 
+	/**
+	 * Generates a message for the violation of uniqueness constraints by an operation.
+	 * 
+	 * @param operation	the name of the operation that violates the constraint.
+	 */
+	protected String uniquenessConstraintViolationMsg(String operation) {
+		return "The " + operation + " violates uniqueness constraints.";
+	}
 }

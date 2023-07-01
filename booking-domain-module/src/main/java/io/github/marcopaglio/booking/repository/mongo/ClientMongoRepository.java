@@ -129,14 +129,14 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 				collection.insertOne(client);
 			} catch(MongoWriteException e) {
 				throw new UniquenessConstraintViolationException(
-						"The insertion violates uniqueness constraints.");
+						uniquenessConstraintViolationMsg("insertion"));
 			}
 		} else {
 			try {
 				collection.replaceOne(Filters.eq(ID_DB, client.getId()), client);
 			} catch(MongoWriteException e) {
 				throw new UniquenessConstraintViolationException(
-						"The update violates uniqueness constraints.");
+						uniquenessConstraintViolationMsg("update"));
 			}
 		}
 		return client;
