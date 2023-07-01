@@ -120,6 +120,34 @@ class ReservationMongoRepositoryTest {
 	}
 
 	@Nested
+	@DisplayName("Tests for 'findAll'")
+	class FindAllTest {
+
+		@Test
+		@DisplayName("Database is empty")
+		void testFindAllWhenDatabaseIsEmptyShouldReturnEmptyList() {
+			assertThat(reservationRepository.findAll()).isEmpty();
+		}
+
+		@Test
+		@DisplayName("Database is not empty")
+		void testFindAllWhenDatabaseIsNotEmptyShouldReturnReservationsAsList() {
+			Reservation reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+			Reservation another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
+			addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+			
+			assertThat(reservationRepository.findAll())
+				.containsExactlyInAnyOrder(reservation, another_reservation);
+		}
+
+		private void addTestReservationToDatabase(Reservation reservation, UUID id) {
+			reservation.setId(id);
+			reservationCollection.insertOne(reservation);
+		}
+	}
+
+	@Nested
 	@DisplayName("Tests for 'save'")
 	class SaveTest {
 
@@ -134,7 +162,6 @@ class ReservationMongoRepositoryTest {
 		@Test
 		@DisplayName("Reservation with null clientId")
 		void testSaveWhenReservationHasNullClientIdShouldNotInsertAndThrow() {
-			assertThat(readAllReservationsFromDatabase()).isEmpty();
 			Reservation nullClientIdReservation = new Reservation(null, A_LOCALDATE);
 			
 			assertThatThrownBy(() -> reservationRepository.save(nullClientIdReservation))
@@ -147,7 +174,6 @@ class ReservationMongoRepositoryTest {
 		@Test
 		@DisplayName("Reservation with null date")
 		void testSaveWhenReservationHasNullDateShouldNotInsertAndThrow() {
-			assertThat(readAllReservationsFromDatabase()).isEmpty();
 			Reservation nullDateReservation = new Reservation(A_CLIENT_UUID, null);
 			
 			assertThatThrownBy(() -> reservationRepository.save(nullDateReservation))
@@ -162,7 +188,6 @@ class ReservationMongoRepositoryTest {
 		void testSaveWhenNewReservationIsValidShouldInsertAndReturnTheReservationWithId() {
 			Reservation reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 			assertThat(reservation.getId()).isNull();
-			assertThat(readAllReservationsFromDatabase()).isEmpty();
 			
 			Reservation returnedReservation = reservationRepository.save(reservation);
 			
@@ -241,21 +266,14 @@ class ReservationMongoRepositoryTest {
 			Reservation reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
 			
-			// verify state before
-			List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-			assertThat(reservationsInDB).containsExactly(reservation);
-			assertThat(reservationsInDB.get(0).getClientId()).isEqualTo(A_CLIENT_UUID);
-			assertThat(reservationsInDB.get(0).getDate()).isEqualTo(A_LOCALDATE);
-			assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
-			
 			// update
 			reservation.setClientId(ANOTHER_CLIENT_UUID);
 			reservation.setDate(ANOTHER_LOCALDATE);
 			
 			Reservation returnedReservation = reservationRepository.save(reservation);
 			
-			// verify state after
-			reservationsInDB = readAllReservationsFromDatabase();
+			// verify
+			List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
 			assertThat(reservationsInDB).containsExactly(reservation);
 			assertThat(returnedReservation).isEqualTo(reservation);
 			assertThat(reservationsInDB.get(0).getClientId()).isEqualTo(ANOTHER_CLIENT_UUID);
@@ -325,7 +343,6 @@ class ReservationMongoRepositoryTest {
 		void testDeleteWhenReservationIsInDatabaseShouldRemove() {
 			Reservation reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-			assertThat(readAllReservationsFromDatabase()).contains(reservation);
 			
 			reservationRepository.delete(reservation);
 			
@@ -337,7 +354,6 @@ class ReservationMongoRepositoryTest {
 		void testDeleteWhenReservationIsNotInDatabaseShouldNotRemoveAnythingAndNotThrow() {
 			Reservation reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-			assertThat(readAllReservationsFromDatabase()).containsExactly(reservation);
 			
 			Reservation another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
 			

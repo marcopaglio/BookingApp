@@ -54,7 +54,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	/**
 	 * Retrieves all the clients from the MongoDB database in a list.
 	 * 
-	 * @return	the {@code List} of {@code Clients} found in the repository.
+	 * @return	the {@code List} of {@code Client}s found in the repository.
 	 */
 	@Override
 	public List<Client> findAll() {

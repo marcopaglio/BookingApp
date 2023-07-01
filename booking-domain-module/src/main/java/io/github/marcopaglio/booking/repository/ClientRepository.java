@@ -16,7 +16,7 @@ public interface ClientRepository {
 	/**
 	 * Retrieves all the clients from the database in a list.
 	 * 
-	 * @return	the {@code List} of {@code Clients} found in the repository.
+	 * @return	the {@code List} of {@code Client}s found in the repository.
 	 */
 	public List<Client> findAll();
 

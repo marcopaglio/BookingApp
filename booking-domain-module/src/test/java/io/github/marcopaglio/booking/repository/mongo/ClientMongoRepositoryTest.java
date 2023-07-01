@@ -130,16 +130,8 @@ class ClientMongoRepositoryTest {
 		}
 
 		@Test
-		@DisplayName("Database contains a single client")
-		void testFindAllWhenDatabaseContainsASingleClientShouldReturnTheClientAsList() {
-			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-			
-			assertThat(clientRepository.findAll()).containsExactly(A_CLIENT);
-		}
-
-		@Test
-		@DisplayName("Database contains several clients")
-		void testFindAllWhenDatabaseContainsSeveralClientsShouldReturnClientsAsList() {
+		@DisplayName("Database is not empty")
+		void testFindAllWhenDatabaseIsNotEmptyShouldReturnClientsAsList() {
 			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
 			addTestClientToDatabase(ANOTHER_CLIENT, ANOTHER_CLIENT_UUID);
 			
@@ -263,7 +255,6 @@ class ClientMongoRepositoryTest {
 				nullValues = {"null"}
 		)
 		void testSaveWhenClientHasNullNamesShouldNotInsertAndThrow(String firstName, String lastName) {
-			assertThat(readAllClientsFromDatabase()).isEmpty();
 			Client nullNameClient = new Client(firstName, lastName);
 			
 			assertThatThrownBy(() -> clientRepository.save(nullNameClient))
@@ -277,7 +268,6 @@ class ClientMongoRepositoryTest {
 		@DisplayName("New client is valid")
 		void testSaveWhenNewClientIsValidShouldInsertAndReturnTheClientWithId() {
 			assertThat(client.getId()).isNull();
-			assertThat(readAllClientsFromDatabase()).isEmpty();
 			
 			Client returnedClient = clientRepository.save(client);
 			
@@ -356,21 +346,14 @@ class ClientMongoRepositoryTest {
 			// populate DB
 			addTestClientToDatabase(client, A_CLIENT_UUID);
 			
-			// verify state before
-			List<Client> clientsInDB = readAllClientsFromDatabase();
-			assertThat(clientsInDB).containsExactly(client);
-			assertThat(clientsInDB.get(0).getFirstName()).isEqualTo(A_FIRSTNAME);
-			assertThat(clientsInDB.get(0).getLastName()).isEqualTo(A_LASTNAME);
-			assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
-			
 			// update
 			client.setFirstName(ANOTHER_FIRSTNAME);
 			client.setLastName(ANOTHER_LASTNAME);
 			
 			Client returnedClient = clientRepository.save(client);
 			
-			// verify state after
-			clientsInDB = readAllClientsFromDatabase();
+			// verify
+			List<Client> clientsInDB = readAllClientsFromDatabase();
 			assertThat(clientsInDB).containsExactly(client);
 			assertThat(returnedClient).isEqualTo(client);
 			assertThat(clientsInDB.get(0).getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
@@ -430,7 +413,6 @@ class ClientMongoRepositoryTest {
 		@DisplayName("Client is in database")
 		void testDeleteWhenClientIsInDatabaseShouldRemove() {
 			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-			assertThat(readAllClientsFromDatabase()).contains(A_CLIENT);
 			
 			clientRepository.delete(A_CLIENT);
 			
@@ -441,7 +423,6 @@ class ClientMongoRepositoryTest {
 		@DisplayName("Client is not in database")
 		void testDeleteWhenClientIsNotInDatabaseShouldNotRemoveAnythingAndNotThrow() {
 			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-			assertThat(readAllClientsFromDatabase()).containsExactly(A_CLIENT);
 			
 			assertThatNoException().isThrownBy(() -> clientRepository.delete(ANOTHER_CLIENT));
 			

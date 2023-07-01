@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoClient;
@@ -48,10 +50,16 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 		getCollection().createIndex(Indexes.descending("date"), new IndexOptions().unique(true));
 	}
 
+	/**
+	 * Retrieves all the reservations from the database in a list.
+	 * 
+	 * @return	the {@code List} of {@code Reservation}s found in the repository.
+	 */
 	@Override
 	public List<Reservation> findAll() {
-		// TODO Auto-generated method stub
-		return null;
+		return StreamSupport
+				.stream(collection.find().spliterator(), false)
+				.collect(Collectors.toList());
 	}
 
 	@Override

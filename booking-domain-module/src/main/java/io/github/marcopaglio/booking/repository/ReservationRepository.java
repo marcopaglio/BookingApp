@@ -18,7 +18,7 @@ public interface ReservationRepository {
 	/**
 	 * Retrieves all the reservations from the database in a list.
 	 * 
-	 * @return	the list of reservations found in the repository.
+	 * @return	the {@code List} of {@code Reservation}s found in the repository.
 	 */
 	public List<Reservation> findAll();
 
