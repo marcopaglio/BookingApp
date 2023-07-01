@@ -55,11 +55,10 @@ class ClientMongoRepositoryTest {
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
 	private static final UUID A_CLIENT_UUID = UUID.fromString("5a583373-c1b4-4913-82b6-5ea76fb1b1be");
-	private static final Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME);
+	
 	private static final String ANOTHER_FIRSTNAME = "Maria";
 	private static final String ANOTHER_LASTNAME = "De Lucia";
 	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("03005056-fa48-408e-ba3d-29d2e5d7f683");
-	private static final Client ANOTHER_CLIENT = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 
 	private static MongoServer server;
 	private static MongoClient mongoClient;
@@ -120,58 +119,17 @@ class ClientMongoRepositoryTest {
 	}
 
 	@Nested
-	@DisplayName("Tests for 'findAll'")
-	class FindAllTest {
+	@DisplayName("Null inputs on methods")
+	class NullInputTest {
 
 		@Test
-		@DisplayName("Database is empty")
-		void testFindAllWhenDatabaseIsEmptyShouldReturnEmptyList() {
-			assertThat(clientRepository.findAll()).isEmpty();
-		}
-
-		@Test
-		@DisplayName("Database is not empty")
-		void testFindAllWhenDatabaseIsNotEmptyShouldReturnClientsAsList() {
-			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-			addTestClientToDatabase(ANOTHER_CLIENT, ANOTHER_CLIENT_UUID);
-			
-			assertThat(clientRepository.findAll()).containsExactlyInAnyOrder(A_CLIENT, ANOTHER_CLIENT);
-		}
-	}
-
-	@Nested
-	@DisplayName("Tests for 'findById'")
-	class FindByIdTest {
-
-		@Test
-		@DisplayName("Null id")
+		@DisplayName("Null id on 'findById'")
 		void testFindByIdWhenIdIsNullShouldReturnOptionalOfEmpty() {
 			assertThat(clientRepository.findById(null)).isEmpty();
 		}
 
 		@Test
-		@DisplayName("Client is not in database")
-		void testFindByIdWhenClientIsNotInDatabaseShouldReturnOptionalOfEmpty() {
-			assertThat(clientRepository.findById(A_CLIENT_UUID)).isEmpty();
-		}
-
-		@Test
-		@DisplayName("Client is in database")
-		void testFindByIdWhenClientIsInDatabaseShouldReturnOptionalOfClient() {
-			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-			addTestClientToDatabase(ANOTHER_CLIENT, ANOTHER_CLIENT_UUID);
-			
-			assertThat(clientRepository.findById(ANOTHER_CLIENT_UUID))
-				.isEqualTo(Optional.of(ANOTHER_CLIENT));
-		}
-	}
-
-	@Nested
-	@DisplayName("Tests for 'findByName'")
-	class FindByNameTest {
-
-		@Test
-		@DisplayName("Null names")
+		@DisplayName("Null names on 'findByName'")
 		void testFindByNameWhenNamesAreNullShouldReturnOptionalOfEmpty() {
 			assertThat(clientRepository.findByName(null, A_LASTNAME)).isEmpty();
 			
@@ -181,247 +139,313 @@ class ClientMongoRepositoryTest {
 		}
 
 		@Test
-		@DisplayName("Client is not in database")
-		void testFindByNameWhenClientIsNotInDatabaseShouldReturnOptionalOfEmpty() {
-			assertThat(clientRepository.findByName(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME)).isEmpty();
-		}
-
-		@Test
-		@DisplayName("Another same name client in database")
-		void testFindByNameWhenThereIsAnotherClientWithTheSameNameShouldNotMatchIt() {
-			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-			
-			assertThat(clientRepository.findByName(A_FIRSTNAME, ANOTHER_LASTNAME))
-				.isNotEqualTo(Optional.of(A_CLIENT));
-		}
-
-		@Test
-		@DisplayName("Another same surname client in database")
-		void testFindByNameWhenThereIsAnotherClientWithTheSameSurnameShouldNotMatchIt() {
-			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-			
-			assertThat(clientRepository.findByName(ANOTHER_FIRSTNAME, A_LASTNAME))
-				.isNotEqualTo(Optional.of(A_CLIENT));
-		}
-
-		@Test
-		@DisplayName("Client is in database")
-		void testFindByNameWhenClientIsInDatabaseShouldReturnOptionalOfClient() {
-			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-			addTestClientToDatabase(ANOTHER_CLIENT, ANOTHER_CLIENT_UUID);
-			
-			assertThat(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
-				.isEqualTo(Optional.of(A_CLIENT));
-		}
-	}
-
-	@Nested
-	@DisplayName("Tests for 'save'")
-	class SaveTest {
-		private Client client;
-
-		@BeforeEach
-		void resetClientId() {
-			client = new Client(A_FIRSTNAME, A_LASTNAME);
-		}
-
-		@Test
-		@DisplayName("Null client")
+		@DisplayName("Null client on 'save'")
 		void testSaveWhenClientIsNullShouldThrow() {
 			assertThatThrownBy(() -> clientRepository.save(null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("Client to save cannot be null.");
 		}
 
-		@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
-		@DisplayName("Client with null names")
-		@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
-				nullValues = {"null"}
-		)
-		void testSaveWhenClientHasNullNamesShouldNotInsertAndThrow(String firstName, String lastName) {
-			Client nullNameClient = new Client(firstName, lastName);
-			
-			assertThatThrownBy(() -> clientRepository.save(nullNameClient))
-				.isInstanceOf(NotNullConstraintViolationException.class)
-				.hasMessage("Client to save must have both not-null names.");
-			
-			assertThat(readAllClientsFromDatabase()).isEmpty();
-		}
-
 		@Test
-		@DisplayName("New client is valid")
-		void testSaveWhenNewClientIsValidShouldInsertAndReturnTheClientWithId() {
-			assertThat(client.getId()).isNull();
-			
-			Client returnedClient = clientRepository.save(client);
-			
-			List<Client> clientsInDB = readAllClientsFromDatabase();
-			assertThat(clientsInDB).containsExactly(client);
-			assertThat(returnedClient).isEqualTo(client);
-			assertThat(clientsInDB.get(0).getId()).isNotNull();
-			assertThat(returnedClient.getId()).isNotNull();
-			assertThat(clientsInDB.get(0).getId()).isEqualTo(returnedClient.getId());
-		}
-
-		@Test
-		@DisplayName("New client generates id collision")
-		void testSaveWhenNewClientGeneratesAnIdCollisionShouldNotInsertAndThrow() {
-			addTestClientToDatabase(client, A_CLIENT_UUID);
-			
-			Client spied_client = spy(new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME));
-			// sets same id
-			doAnswer(invocation -> {
-				((Client) invocation.getMock()).setId(A_CLIENT_UUID);
-				return null;
-			}).when(spied_client).setId(not(eq(A_CLIENT_UUID)));
-			
-			assertThatThrownBy(() -> clientRepository.save(spied_client))
-				.isInstanceOf(UniquenessConstraintViolationException.class)
-				.hasMessage("The insertion violates uniqueness constraints.");
-			
-			assertThat(readAllClientsFromDatabase()).doesNotContain(spied_client);
-		}
-
-		@Test
-		@DisplayName("New client generates names collision")
-		void testSaveWhenNewClientGeneratesANamesCollisionShouldNotInsertAndThrow() {
-			addTestClientToDatabase(client, A_CLIENT_UUID);
-			
-			Client spied_client = spy(new Client(A_FIRSTNAME, A_LASTNAME));
-			// sets different id
-			doAnswer(invocation -> {
-				((Client) invocation.getMock()).setId(ANOTHER_CLIENT_UUID);
-				return null;
-			}).when(spied_client).setId(A_CLIENT_UUID);
-			
-			assertThatThrownBy(() -> clientRepository.save(spied_client))
-				.isInstanceOf(UniquenessConstraintViolationException.class)
-				.hasMessage("The insertion violates uniqueness constraints.");
-			
-			List<Client> clientsInDB = readAllClientsFromDatabase();
-			assertThat(clientsInDB).containsExactly(client);
-			assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
-		}
-
-		@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
-		@DisplayName("New client has some equalities")
-		@CsvSource({
-			"'Mario', 'De Lucia'",	// same name
-			"'Maria', 'Rossi'"		// same surname
-		})
-		void testSaveWhenNewClientHasSomeEqualitiesShouldNotThrowAndInsert(String firstName, String lastName) {
-			addTestClientToDatabase(client, A_CLIENT_UUID);
-			
-			Client spied_client = spy(new Client(firstName, lastName));
-			// sets different id
-			doAnswer(invocation -> {
-				((Client) invocation.getMock()).setId(ANOTHER_CLIENT_UUID);
-				return null;
-			}).when(spied_client).setId(A_CLIENT_UUID);
-			
-			assertThatNoException().isThrownBy(() -> clientRepository.save(spied_client));
-			
-			assertThat(readAllClientsFromDatabase()).containsExactlyInAnyOrder(client, spied_client);
-		}
-
-		@Test
-		@DisplayName("Updated client is valid")
-		void testSaveWhenUpdatedClientIsValidShouldUpdateAndReturnWithoutChangingId() {
-			// populate DB
-			addTestClientToDatabase(client, A_CLIENT_UUID);
-			
-			// update
-			client.setFirstName(ANOTHER_FIRSTNAME);
-			client.setLastName(ANOTHER_LASTNAME);
-			
-			Client returnedClient = clientRepository.save(client);
-			
-			// verify
-			List<Client> clientsInDB = readAllClientsFromDatabase();
-			assertThat(clientsInDB).containsExactly(client);
-			assertThat(returnedClient).isEqualTo(client);
-			assertThat(clientsInDB.get(0).getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
-			assertThat(returnedClient.getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
-			assertThat(clientsInDB.get(0).getLastName()).isEqualTo(ANOTHER_LASTNAME);
-			assertThat(returnedClient.getLastName()).isEqualTo(ANOTHER_LASTNAME);
-			assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
-			assertThat(returnedClient.getId()).isEqualTo(A_CLIENT_UUID);
-		}
-
-		@Test
-		@DisplayName("Updated client is no longer present in database")
-		void testSaveWhenUpdatedClientIsNotInDatabaseShouldNotThrow() {
-			client.setId(A_CLIENT_UUID);
-			
-			assertThatNoException().isThrownBy(() -> clientRepository.save(client));
-		}
-
-		@Test
-		@DisplayName("Updated client generates names collision")
-		void testSaveWhenUpdatedClientGeneratesNamesCollisionShouldNotUpdateAndThrow() {
-			// populate DB
-			addTestClientToDatabase(client, A_CLIENT_UUID);
-			Client clientToUpdate = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
-			addTestClientToDatabase(clientToUpdate, ANOTHER_CLIENT_UUID);
-			
-			// update
-			clientToUpdate.setFirstName(A_FIRSTNAME);
-			clientToUpdate.setLastName(A_LASTNAME);
-			
-			assertThatThrownBy(() -> clientRepository.save(clientToUpdate))
-				.isInstanceOf(UniquenessConstraintViolationException.class)
-				.hasMessage("The update violates uniqueness constraints.");
-			
-			Set<String> namesInDB = new HashSet<>();
-			readAllClientsFromDatabase().forEach((c) -> namesInDB.add(c.getFirstName()));
-			assertThat(namesInDB).contains(ANOTHER_FIRSTNAME);
-			Set<String> surnamesInDB = new HashSet<>();
-			readAllClientsFromDatabase().forEach((c) -> surnamesInDB.add(c.getLastName()));
-			assertThat(surnamesInDB).contains(ANOTHER_LASTNAME);
-		}
-	}
-
-	@Nested
-	@DisplayName("Tests for 'delete'")
-	class DeleteTest {
-
-		@Test
-		@DisplayName("Null client")
+		@DisplayName("Null client on 'delete'")
 		void testDeleteWhenClientIsNullShouldThrow() {
 			assertThatThrownBy(() -> clientRepository.delete(null))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("Client to delete cannot be null.");
 		}
-
-		@Test
-		@DisplayName("Client is in database")
-		void testDeleteWhenClientIsInDatabaseShouldRemove() {
-			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-			
-			clientRepository.delete(A_CLIENT);
-			
-			assertThat(readAllClientsFromDatabase()).doesNotContain(A_CLIENT);
-		}
-
-		@Test
-		@DisplayName("Client is not in database")
-		void testDeleteWhenClientIsNotInDatabaseShouldNotRemoveAnythingAndNotThrow() {
-			addTestClientToDatabase(A_CLIENT, A_CLIENT_UUID);
-			
-			assertThatNoException().isThrownBy(() -> clientRepository.delete(ANOTHER_CLIENT));
-			
-			assertThat(readAllClientsFromDatabase()).containsExactly(A_CLIENT);
-		}
 	}
 
-	private List<Client> readAllClientsFromDatabase() {
-		return StreamSupport
-				.stream(clientCollection.find().spliterator(), false)
-				.collect(Collectors.toList());
-	}
+	@Nested
+	@DisplayName("Tests that read the database")
+	class ReadDBTest {
+		private Client client;
+		private Client another_client;
 
-	private void addTestClientToDatabase(Client client, UUID id) {
-		client.setId(id);
-		clientCollection.insertOne(client);
+		@BeforeEach
+		void resetClientId() {
+			client = new Client(A_FIRSTNAME, A_LASTNAME);
+			another_client = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+		}
+
+		@Nested
+		@DisplayName("Tests for 'findAll'")
+		class FindAllTest {
+
+			@Test
+			@DisplayName("Database is empty")
+			void testFindAllWhenDatabaseIsEmptyShouldReturnEmptyList() {
+				assertThat(clientRepository.findAll()).isEmpty();
+			}
+
+			@Test
+			@DisplayName("Database is not empty")
+			void testFindAllWhenDatabaseIsNotEmptyShouldReturnClientsAsList() {
+				addTestClientToDatabase(client, A_CLIENT_UUID);
+				addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
+				
+				assertThat(clientRepository.findAll())
+					.containsExactlyInAnyOrder(client, another_client);
+			}
+		}
+
+		@Nested
+		@DisplayName("Tests for 'findById'")
+		class FindByIdTest {
+
+			@Test
+			@DisplayName("Client is not in database")
+			void testFindByIdWhenClientIsNotInDatabaseShouldReturnOptionalOfEmpty() {
+				assertThat(clientRepository.findById(A_CLIENT_UUID)).isEmpty();
+			}
+
+			@Test
+			@DisplayName("Client is in database")
+			void testFindByIdWhenClientIsInDatabaseShouldReturnOptionalOfClient() {
+				addTestClientToDatabase(client, A_CLIENT_UUID);
+				addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
+				
+				assertThat(clientRepository.findById(ANOTHER_CLIENT_UUID))
+					.isEqualTo(Optional.of(another_client));
+			}
+		}
+
+		@Nested
+		@DisplayName("Tests for 'findByName'")
+		class FindByNameTest {
+
+			@Test
+			@DisplayName("Client is not in database")
+			void testFindByNameWhenClientIsNotInDatabaseShouldReturnOptionalOfEmpty() {
+				assertThat(clientRepository.findByName(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME)).isEmpty();
+			}
+
+			@Test
+			@DisplayName("Another same name client in database")
+			void testFindByNameWhenThereIsAnotherClientWithTheSameNameShouldNotMatchIt() {
+				addTestClientToDatabase(client, A_CLIENT_UUID);
+				
+				assertThat(clientRepository.findByName(A_FIRSTNAME, ANOTHER_LASTNAME))
+					.isNotEqualTo(Optional.of(client));
+			}
+
+			@Test
+			@DisplayName("Another same surname client in database")
+			void testFindByNameWhenThereIsAnotherClientWithTheSameSurnameShouldNotMatchIt() {
+				addTestClientToDatabase(client, A_CLIENT_UUID);
+				
+				assertThat(clientRepository.findByName(ANOTHER_FIRSTNAME, A_LASTNAME))
+					.isNotEqualTo(Optional.of(client));
+			}
+
+			@Test
+			@DisplayName("Client is in database")
+			void testFindByNameWhenClientIsInDatabaseShouldReturnOptionalOfClient() {
+				addTestClientToDatabase(client, A_CLIENT_UUID);
+				addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
+				
+				assertThat(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
+					.isEqualTo(Optional.of(client));
+			}
+		}
+
+		@Nested
+		@DisplayName("Tests that modify the database")
+		class ModifyDBTest {
+
+			@Nested
+			@DisplayName("Tests for 'save'")
+			class SaveTest {
+
+				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
+				@DisplayName("Client with null names")
+				@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
+						nullValues = {"null"}
+				)
+				void testSaveWhenClientHasNullNamesShouldNotInsertAndThrow(
+						String firstName, String lastName) {
+					client.setFirstName(firstName);
+					client.setLastName(lastName);
+					
+					assertThatThrownBy(() -> clientRepository.save(client))
+						.isInstanceOf(NotNullConstraintViolationException.class)
+						.hasMessage("Client to save must have both not-null names.");
+					
+					assertThat(readAllClientsFromDatabase()).isEmpty();
+				}
+
+				@Test
+				@DisplayName("New client is valid")
+				void testSaveWhenNewClientIsValidShouldInsertAndReturnTheClientWithId() {
+					Client returnedClient = clientRepository.save(client);
+					
+					List<Client> clientsInDB = readAllClientsFromDatabase();
+					assertThat(clientsInDB).containsExactly(client);
+					assertThat(returnedClient).isEqualTo(client);
+					assertThat(clientsInDB.get(0).getId()).isNotNull();
+					assertThat(returnedClient.getId()).isNotNull();
+					assertThat(clientsInDB.get(0).getId()).isEqualTo(returnedClient.getId());
+				}
+
+				@Test
+				@DisplayName("New client generates id collision")
+				void testSaveWhenNewClientGeneratesAnIdCollisionShouldNotInsertAndThrow() {
+					addTestClientToDatabase(client, A_CLIENT_UUID);
+					
+					Client spied_client = spy(another_client);
+					// sets same id
+					doAnswer(invocation -> {
+						((Client) invocation.getMock()).setId(A_CLIENT_UUID);
+						return null;
+					}).when(spied_client).setId(not(eq(A_CLIENT_UUID)));
+					
+					assertThatThrownBy(() -> clientRepository.save(spied_client))
+						.isInstanceOf(UniquenessConstraintViolationException.class)
+						.hasMessage("The insertion violates uniqueness constraints.");
+					
+					assertThat(readAllClientsFromDatabase()).doesNotContain(spied_client);
+				}
+
+				@Test
+				@DisplayName("New client generates names collision")
+				void testSaveWhenNewClientGeneratesANamesCollisionShouldNotInsertAndThrow() {
+					addTestClientToDatabase(client, A_CLIENT_UUID);
+					
+					another_client.setFirstName(A_FIRSTNAME);
+					another_client.setLastName(A_LASTNAME);
+					Client spied_client = spy(another_client);
+					// sets different id
+					doAnswer(invocation -> {
+						((Client) invocation.getMock()).setId(ANOTHER_CLIENT_UUID);
+						return null;
+					}).when(spied_client).setId(A_CLIENT_UUID);
+					
+					assertThatThrownBy(() -> clientRepository.save(spied_client))
+						.isInstanceOf(UniquenessConstraintViolationException.class)
+						.hasMessage("The insertion violates uniqueness constraints.");
+					
+					List<Client> clientsInDB = readAllClientsFromDatabase();
+					assertThat(clientsInDB).containsExactly(client);
+					assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
+				}
+
+				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
+				@DisplayName("New client has some equalities")
+				@CsvSource({
+					"'Mario', 'De Lucia'",	// same name
+					"'Maria', 'Rossi'"		// same surname
+				})
+				void testSaveWhenNewClientHasSomeEqualitiesShouldNotThrowAndInsert(
+						String firstName, String lastName) {
+					addTestClientToDatabase(client, A_CLIENT_UUID);
+					
+					another_client.setFirstName(firstName);
+					another_client.setLastName(lastName);
+					Client spied_client = spy(another_client);
+					// sets different id
+					doAnswer(invocation -> {
+						((Client) invocation.getMock()).setId(ANOTHER_CLIENT_UUID);
+						return null;
+					}).when(spied_client).setId(A_CLIENT_UUID);
+					
+					assertThatNoException().isThrownBy(() -> clientRepository.save(spied_client));
+					
+					assertThat(readAllClientsFromDatabase())
+						.containsExactlyInAnyOrder(client, spied_client);
+				}
+
+				@Test
+				@DisplayName("Updated client is valid")
+				void testSaveWhenUpdatedClientIsValidShouldUpdateAndReturnWithoutChangingId() {
+					// populate DB
+					addTestClientToDatabase(client, A_CLIENT_UUID);
+					
+					// update
+					client.setFirstName(ANOTHER_FIRSTNAME);
+					client.setLastName(ANOTHER_LASTNAME);
+					
+					Client returnedClient = clientRepository.save(client);
+					
+					// verify
+					List<Client> clientsInDB = readAllClientsFromDatabase();
+					assertThat(clientsInDB).containsExactly(client);
+					assertThat(returnedClient).isEqualTo(client);
+					assertThat(clientsInDB.get(0).getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
+					assertThat(returnedClient.getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
+					assertThat(clientsInDB.get(0).getLastName()).isEqualTo(ANOTHER_LASTNAME);
+					assertThat(returnedClient.getLastName()).isEqualTo(ANOTHER_LASTNAME);
+					assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
+					assertThat(returnedClient.getId()).isEqualTo(A_CLIENT_UUID);
+				}
+
+				@Test
+				@DisplayName("Updated client is no longer present in database")
+				void testSaveWhenUpdatedClientIsNotInDatabaseShouldNotInsertAndNotThrow() {
+					client.setId(A_CLIENT_UUID);
+					
+					assertThatNoException().isThrownBy(() -> clientRepository.save(client));
+					assertThat(readAllClientsFromDatabase()).doesNotContain(client);
+				}
+
+				@Test
+				@DisplayName("Updated client generates names collision")
+				void testSaveWhenUpdatedClientGeneratesNamesCollisionShouldNotUpdateAndThrow() {
+					// populate DB
+					addTestClientToDatabase(client, A_CLIENT_UUID);
+					addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
+					
+					// update
+					another_client.setFirstName(A_FIRSTNAME);
+					another_client.setLastName(A_LASTNAME);
+					
+					assertThatThrownBy(() -> clientRepository.save(another_client))
+						.isInstanceOf(UniquenessConstraintViolationException.class)
+						.hasMessage("The update violates uniqueness constraints.");
+					
+					Set<String> namesInDB = new HashSet<>();
+					readAllClientsFromDatabase().forEach((c) -> namesInDB.add(c.getFirstName()));
+					assertThat(namesInDB).contains(ANOTHER_FIRSTNAME);
+					Set<String> surnamesInDB = new HashSet<>();
+					readAllClientsFromDatabase().forEach((c) -> surnamesInDB.add(c.getLastName()));
+					assertThat(surnamesInDB).contains(ANOTHER_LASTNAME);
+				}
+			}
+
+			@Nested
+			@DisplayName("Tests for 'delete'")
+			class DeleteTest {
+
+				@Test
+				@DisplayName("Client is in database")
+				void testDeleteWhenClientIsInDatabaseShouldRemove() {
+					addTestClientToDatabase(client, A_CLIENT_UUID);
+					
+					clientRepository.delete(client);
+					
+					assertThat(readAllClientsFromDatabase()).doesNotContain(client);
+				}
+
+				@Test
+				@DisplayName("Client is not in database")
+				void testDeleteWhenClientIsNotInDatabaseShouldNotRemoveAnythingAndNotThrow() {
+					addTestClientToDatabase(client, A_CLIENT_UUID);
+					another_client.setId(ANOTHER_CLIENT_UUID);
+					
+					assertThatNoException().isThrownBy(() -> clientRepository.delete(another_client));
+					
+					assertThat(readAllClientsFromDatabase()).containsExactly(client);
+				}
+			}
+
+			private List<Client> readAllClientsFromDatabase() {
+				return StreamSupport
+						.stream(clientCollection.find().spliterator(), false)
+						.collect(Collectors.toList());
+			}
+		}
+
+		private void addTestClientToDatabase(Client client, UUID id) {
+			client.setId(id);
+			clientCollection.insertOne(client);
+		}
 	}
 }
