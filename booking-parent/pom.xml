@@ -25,6 +25,7 @@
     <junit.version>5.9.2</junit.version>
     <assertj.version>3.24.2</assertj.version>
     <mockito.version>5.1.1</mockito.version>
+    <testcontainers.version>1.18.3</testcontainers.version>
     <mongo.fake.version>1.43.0</mongo.fake.version>
 
     <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
@@ -65,10 +66,16 @@
         <type>pom</type>
       </dependency>
       <dependency>
+        <groupId>org.testcontainers</groupId>
+        <artifactId>testcontainers-bom</artifactId>
+        <version>${testcontainers.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+      <dependency>
         <groupId>de.bwaldvogel</groupId>
         <artifactId>mongo-java-server</artifactId>
         <version>${mongo.fake.version}</version>
-        <scope>test</scope> <!-- ci va lo scope test qui?? -->
       </dependency>
     </dependencies>
   </dependencyManagement>

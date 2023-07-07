@@ -68,15 +68,15 @@ class ReservationMongoRepositoryTest {
 	@BeforeAll
 	static void setupServer() throws Exception {
 		server = new MongoServer(new MemoryBackend());
+		// bind on a random local port
+		String connectionString = server.bindAndGetConnectionString();
 		
-		mongoClient = getClient(server);
+		mongoClient = getClient(connectionString);
 		
 		database = mongoClient.getDatabase(BOOKING_DB_NAME);
 	}
 
-	private static MongoClient getClient(MongoServer server) {
-		// bind on a random local port
-		String connectionString = server.bindAndGetConnectionString();
+	private static MongoClient getClient(String connectionString) {
 		
 		// define the CodecProvider for POJO classes
 		CodecProvider pojoCodecProvider = PojoCodecProvider.builder()
