@@ -18,10 +18,8 @@ public interface TransactionManager {
 	 * @return		something depending on execution code.
 	 * @throws TransactionException	if {@code code} throws a {@code RuntimeException}
 	 * 								due to database inconsistency.
-	 * @throws RuntimeException		if {@code} throws a {@code RuntimeException}
-	 * 								different from the previous ones.
 	 */
-	<R> R doInTransaction(ClientTransactionCode<R> code) throws TransactionException, RuntimeException;
+	<R> R doInTransaction(ClientTransactionCode<R> code) throws TransactionException;
 
 	/**
 	 * Executes code that involves the {@code ReservationRepository}'s method(s) in a single transaction.
@@ -29,8 +27,10 @@ public interface TransactionManager {
 	 * @param <R>	the returned type of executed code.
 	 * @param code	the code to execute.
 	 * @return		something depending on execution code.
+	 * @throws TransactionException	if {@code code} throws a {@code RuntimeException}
+	 * 								due to database inconsistency.
 	 */
-	<R> R doInTransaction(ReservationTransactionCode<R> code);
+	<R> R doInTransaction(ReservationTransactionCode<R> code) throws TransactionException;
 
 	/**
 	 * Executes code that involves both {@code ClientRepository}'s and {@code ReservationRepository}'s
@@ -39,6 +39,8 @@ public interface TransactionManager {
 	 * @param <R>	the returned type of executed code.
 	 * @param code	the code to execute.
 	 * @return		something depending on execution code.
+	 * @throws TransactionException	if {@code code} throws a {@code RuntimeException}
+	 * 								due to database inconsistency.
 	 */
-	<R> R doInTransaction(ClientReservationTransactionCode<R> code);
+	<R> R doInTransaction(ClientReservationTransactionCode<R> code) throws TransactionException ;
 }
