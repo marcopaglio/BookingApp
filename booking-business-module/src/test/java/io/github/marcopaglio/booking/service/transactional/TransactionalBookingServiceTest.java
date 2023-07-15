@@ -32,8 +32,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import io.github.marcopaglio.booking.exception.DatabaseException;
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
+import io.github.marcopaglio.booking.exception.TransactionException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.ClientRepository;
@@ -48,8 +50,9 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 class TransactionalBookingServiceTest {
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
-	private static final UUID A_CLIENT_UUID = UUID.fromString("bc49bffa-0766-4e5d-90af-d8a6ef516df4");
 	private static final Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME);
+
+	private static final UUID A_CLIENT_UUID = UUID.fromString("bc49bffa-0766-4e5d-90af-d8a6ef516df4");
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2023-04-24");
 	private static final Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 
@@ -162,6 +165,113 @@ class TransactionalBookingServiceTest {
 		}
 	}
 
+	@Nested
+	@DisplayName("Transaction failures on methods")
+	class TransactionFailureTest {
+
+		@Nested
+		@DisplayName("Methods using only ClientRepository")
+		class ClientRepositoryTest {
+
+			@BeforeEach
+			void doStubbing() throws Exception {
+				when(transactionManager.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any()))
+					.thenThrow(new TransactionException());
+			}
+
+			@Test
+			@DisplayName("Transaction fails on 'findAllClients'")
+			void testFindAllClientsWhenTransactionFailsShouldThrow() {
+				assertThatThrownBy(() -> transactionalBookingService.findAllClients())
+					.isInstanceOf(DatabaseException.class)
+					.hasMessage("A database error occurs: the requested query cannot be executed.");
+			}
+
+			@Test
+			@DisplayName("Transaction fails on 'findClientNamed'")
+			void testFindClientNamedWhenTransactionFailsShouldThrow() {
+				assertThatThrownBy(
+						() -> transactionalBookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
+					.isInstanceOf(DatabaseException.class)
+					.hasMessage("A database error occurs: the requested query cannot be executed.");
+			}
+
+			@Test
+			@DisplayName("Transaction fails on 'insertNewClient'")
+			void testInsertNewClientWhenTransactionFailsShouldThrow() {
+				assertThatThrownBy(
+						() -> transactionalBookingService.insertNewClient(A_CLIENT))
+					.isInstanceOf(DatabaseException.class)
+					.hasMessage("A database error occurs: the requested query cannot be executed.");
+			}
+		}
+
+		@Nested
+		@DisplayName("Methods using only ReservationRepository")
+		class ReservationRepositoryTest {
+
+			@BeforeEach
+			void doStubbing() throws Exception {
+				when(transactionManager.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any()))
+					.thenThrow(new TransactionException());
+			}
+
+			@Test
+			@DisplayName("Transaction fails on 'findAllReservations'")
+			void testFindAllReservationsWhenTransactionFailsShouldThrow() {
+				assertThatThrownBy(() -> transactionalBookingService.findAllReservations())
+					.isInstanceOf(DatabaseException.class)
+					.hasMessage("A database error occurs: the requested query cannot be executed.");
+			}
+
+			@Test
+			@DisplayName("Transaction fails on 'findReservationOn'")
+			void testFindReservationOnWhenTransactionFailsShouldThrow() {
+				assertThatThrownBy(() -> transactionalBookingService.findReservationOn(A_LOCALDATE))
+					.isInstanceOf(DatabaseException.class)
+					.hasMessage("A database error occurs: the requested query cannot be executed.");
+			}
+
+			@Test
+			@DisplayName("Transaction fails on 'removeReservationOn'")
+			void testRemoveReservationOnWhenTransactionFailsShouldThrow() {
+				assertThatThrownBy(() -> transactionalBookingService.removeReservationOn(A_LOCALDATE))
+					.isInstanceOf(DatabaseException.class)
+					.hasMessage("A database error occurs: the requested query cannot be executed.");
+		}
+		}
+
+		@Nested
+		@DisplayName("Methods using both repositories")
+		class BothRepositoriesTest {
+
+			@BeforeEach
+			void doStubbing() throws Exception {
+				when(transactionManager.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any()))
+					.thenThrow(new TransactionException());
+			}
+
+			@Test
+			@DisplayName("Transaction fails on 'insertNewReservation'")
+			void testInsertNewReservationWhenTransactionFailsShouldThrow() {
+				assertThatThrownBy(
+						() -> transactionalBookingService.insertNewReservation(A_RESERVATION))
+					.isInstanceOf(DatabaseException.class)
+					.hasMessage("A database error occurs: the requested query cannot be executed.");
+			}
+
+			@Test
+			@DisplayName("Transaction fails on 'removeClientNamed'")
+			void testRemoveClientNamedWhenTransactionFailsShouldThrow() {
+				assertThatThrownBy(
+						() -> transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME))
+					.isInstanceOf(DatabaseException.class)
+					.hasMessage("A database error occurs: the requested query cannot be executed.");
+			}
+		}
+	}
+
+	
 	@Nested
 	@DisplayName("Methods using only ClientRepository")
 	class ClientRepositoryTest {

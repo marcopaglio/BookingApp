@@ -3,6 +3,7 @@ package io.github.marcopaglio.booking.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import io.github.marcopaglio.booking.exception.DatabaseException;
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
 import io.github.marcopaglio.booking.model.Client;
@@ -19,14 +20,16 @@ public interface BookingService {
 	/**
 	 * Retrieves all the clients saved in the database.
 	 * 
-	 * @return	the list of clients found in the database.
+	 * @return						the list of clients found in the database.
+	 * @throws DatabaseException	if a database error occurs.
 	 */
 	public List<Client> findAllClients();
 
 	/**
 	 * Retrieves all the reservations saved in the database.
 	 * 
-	 * @return	the list of reservations found in the database.
+	 * @return						the list of reservations found in the database.
+	 * @throws DatabaseException	if a database error occurs.
 	 */
 	public List<Reservation> findAllReservations();
 
@@ -38,8 +41,9 @@ public interface BookingService {
 	 * @return								the {@code Client} named {@code firstName} and {@code lastName}.
 	 * @throws IllegalArgumentException		if {@code firstName} or {@code lastName} are null.
 	 * @throws InstanceNotFoundException	if there is no client with those names in database.
+	 * @throws DatabaseException			if a database error occurs.
 	 */
-	public Client findClientNamed(String firstName, String lastName) throws IllegalArgumentException, InstanceNotFoundException;
+	public Client findClientNamed(String firstName, String lastName) throws IllegalArgumentException, InstanceNotFoundException, DatabaseException;
 
 	/**
 	 * Retrieves the reservation of the specified date from the database.
@@ -48,8 +52,9 @@ public interface BookingService {
 	 * @return								the {@code Reservation} on {@code date}.
 	 * @throws IllegalArgumentException		if {@code date} is null.
 	 * @throws InstanceNotFoundException	if there is no reservation on that date in database.
+	 * @throws DatabaseException			if a database error occurs.
 	 */
-	public Reservation findReservationOn(LocalDate date) throws IllegalArgumentException, InstanceNotFoundException;
+	public Reservation findReservationOn(LocalDate date) throws IllegalArgumentException, InstanceNotFoundException, DatabaseException;
 
 	/**
 	 * Adds a new client in the database.
@@ -58,8 +63,9 @@ public interface BookingService {
 	 * @return									the {@code Client} inserted.
 	 * @throws IllegalArgumentException			if {@code client} is null.
 	 * @throws InstanceAlreadyExistsException	if {@code client} is already in the database.
+	 * @throws DatabaseException				if a database error occurs.
 	 */
-	public Client insertNewClient(Client client) throws IllegalArgumentException, InstanceAlreadyExistsException;
+	public Client insertNewClient(Client client) throws IllegalArgumentException, InstanceAlreadyExistsException, DatabaseException;
 
 	/**
 	 * Adds a new reservation in the database.
@@ -69,8 +75,9 @@ public interface BookingService {
 	 * @throws IllegalArgumentException			if {@code reservation} is null.
 	 * @throws InstanceAlreadyExistsException	if {@code reservation} is already in the database.
 	 * @throws InstanceNotFoundException		if the associated {@code client} doesn't exist in the database.
+	 * @throws DatabaseException				if a database error occurs.
 	 */
-	public Reservation insertNewReservation(Reservation reservation) throws IllegalArgumentException, InstanceAlreadyExistsException, InstanceNotFoundException;
+	public Reservation insertNewReservation(Reservation reservation) throws IllegalArgumentException, InstanceAlreadyExistsException, InstanceNotFoundException, DatabaseException;
 
 	/**
 	 * Deletes the client with specified name and surname
@@ -80,8 +87,9 @@ public interface BookingService {
 	 * @param lastName						the surname of the client to remove.
 	 * @throws IllegalArgumentException		if {@code firstName} or {@code lastName} are null.
 	 * @throws InstanceNotFoundException	if there is no client with those names in database.
+	 * @throws DatabaseException			if a database error occurs.
 	 */
-	public void removeClientNamed(String firstName, String lastName) throws IllegalArgumentException, InstanceNotFoundException;
+	public void removeClientNamed(String firstName, String lastName) throws IllegalArgumentException, InstanceNotFoundException, DatabaseException;
 
 	/**
 	 * Deletes the reservation of the specified date from the database.
@@ -89,6 +97,7 @@ public interface BookingService {
 	 * @param date							the date of the reservation to find.
 	 * @throws IllegalArgumentException		if {@code date} is null.
 	 * @throws InstanceNotFoundException	if there is no reservation on that date in database.
+	 * @throws DatabaseException			if a database error occurs.
 	 */
-	public void removeReservationOn(LocalDate date) throws IllegalArgumentException, InstanceNotFoundException;
+	public void removeReservationOn(LocalDate date) throws IllegalArgumentException, InstanceNotFoundException, DatabaseException;
 }

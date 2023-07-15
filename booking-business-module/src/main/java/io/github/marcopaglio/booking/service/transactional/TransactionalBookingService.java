@@ -4,8 +4,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import io.github.marcopaglio.booking.exception.DatabaseException;
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
+import io.github.marcopaglio.booking.exception.TransactionException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.ClientRepository;
@@ -20,6 +22,10 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
  * @see <a href="../../repository/ReservationRepository.html">ReservationRepository</a>
  */
 public class TransactionalBookingService implements BookingService{
+	/**
+	 * Defines an error message used when a database error occurs.
+	 */
+	private static final String DATABASE_ERROR_MSG = "A database error occurs: the requested query cannot be executed.";
 
 	/**
 	 * Allows the service to execute transactions.
@@ -38,21 +44,31 @@ public class TransactionalBookingService implements BookingService{
 	/**
 	 * Retrieves all the clients saved in the database within a transaction.
 	 * 
-	 * @return	the list of clients found in the database.
+	 * @return						the list of clients found in the database.
+	 * @throws DatabaseException	if a database error occurs.
 	 */
 	@Override
-	public List<Client> findAllClients() {
-		return transactionManager.doInTransaction(ClientRepository::findAll);
+	public List<Client> findAllClients() throws DatabaseException {
+		try {
+			return transactionManager.doInTransaction(ClientRepository::findAll);
+		} catch(TransactionException e) {
+			throw new DatabaseException(DATABASE_ERROR_MSG);
+		}
 	}
 
 	/**
 	 * Retrieves all the reservations saved in the database within a transaction.
 	 * 
-	 * @return	the list of reservations found in the database.
+	 * @return						the list of reservations found in the database.
+	 * @throws DatabaseException	if a transaction failure occurs on database.
 	 */
 	@Override
-	public List<Reservation> findAllReservations() {
-		return transactionManager.doInTransaction(ReservationRepository::findAll);
+	public List<Reservation> findAllReservations() throws DatabaseException {
+		try {
+			return transactionManager.doInTransaction(ReservationRepository::findAll);
+		} catch(TransactionException e) {
+			throw new DatabaseException(DATABASE_ERROR_MSG);
+		}
 	}
 
 	/**
@@ -63,18 +79,23 @@ public class TransactionalBookingService implements BookingService{
 	 * @return								the {@code Client} named {@code firstName} and {@code lastName}.
 	 * @throws IllegalArgumentException		if {@code firstName} or {@code lastName} are null.
 	 * @throws InstanceNotFoundException	if there is no client with those names in database.
+	 * @throws DatabaseException			if a transaction failure occurs on database.
 	 */
 	@Override
 	public Client findClientNamed(String firstName, String lastName)
-			throws IllegalArgumentException, InstanceNotFoundException {
+			throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
 		if (firstName == null || lastName == null)
 			throw new IllegalArgumentException("Names of client to find cannot be null.");
 		
-		Optional<Client> possibleClient = transactionManager.doInTransaction(
+		try {
+			Optional<Client> possibleClient = transactionManager.doInTransaction(
 				(ClientRepository clientRepository) -> clientRepository.findByName(firstName, lastName));
-		if (possibleClient.isPresent())
-			return possibleClient.get();
-		throw new InstanceNotFoundException(clientNotFoundMsg(firstName, lastName));
+			if (possibleClient.isPresent())
+				return possibleClient.get();
+			throw new InstanceNotFoundException(clientNotFoundMsg(firstName, lastName));
+		} catch(TransactionException e) {
+			throw new DatabaseException(DATABASE_ERROR_MSG);
+		}
 	}
 
 	/**
@@ -84,21 +105,26 @@ public class TransactionalBookingService implements BookingService{
 	 * @return								the {@code Reservation} on {@code date}.
 	 * @throws IllegalArgumentException		if {@code date} is null.
 	 * @throws InstanceNotFoundException	if there is no reservation on that date in database.
+	 * @throws DatabaseException			if a transaction failure occurs on database.
 	 */
 	@Override
 	public Reservation findReservationOn(LocalDate date)
-			throws IllegalArgumentException, InstanceNotFoundException {
+			throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
 		if (date == null)
 			throw new IllegalArgumentException("Date of reservation to find cannot be null.");
 		
-		return transactionManager.doInTransaction(
-			(ReservationRepository reservationRepository) -> {
-				Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
-				if (possibleReservation.isPresent())
-					return possibleReservation.get();
-				throw new InstanceNotFoundException(reservationNotFoundMsg(date));
-			}
-		);
+		try {
+			return transactionManager.doInTransaction(
+				(ReservationRepository reservationRepository) -> {
+					Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
+					if (possibleReservation.isPresent())
+						return possibleReservation.get();
+					throw new InstanceNotFoundException(reservationNotFoundMsg(date));
+				}
+			);
+		} catch(TransactionException e) {
+			throw new DatabaseException(DATABASE_ERROR_MSG);
+		}
 	}
 
 	/**
@@ -109,24 +135,29 @@ public class TransactionalBookingService implements BookingService{
 	 * @return									the {@code Client} inserted.
 	 * @throws IllegalArgumentException			if {@code client} is null.
 	 * @throws InstanceAlreadyExistsException	if {@code client} is already in the database.
+	 * @throws DatabaseException				if a transaction failure occurs on database.
 	 */
 	@Override
 	public Client insertNewClient(Client client)
-			throws IllegalArgumentException, InstanceAlreadyExistsException {
+			throws IllegalArgumentException, InstanceAlreadyExistsException, DatabaseException {
 		if (client == null)
 			throw new IllegalArgumentException("Client to insert cannot be null.");
 		
-		return transactionManager.doInTransaction(
-			(ClientRepository clientRepository) -> {
-				Optional<Client> possibleClient = clientRepository
-						.findByName(client.getFirstName(), client.getLastName());
-				if (possibleClient.isEmpty()) {
-					return clientRepository.save(client);
+		try {
+			return transactionManager.doInTransaction(
+				(ClientRepository clientRepository) -> {
+					Optional<Client> possibleClient = clientRepository
+							.findByName(client.getFirstName(), client.getLastName());
+					if (possibleClient.isEmpty()) {
+						return clientRepository.save(client);
+					}
+					throw new InstanceAlreadyExistsException(
+						client.toString() + " is already in the database.");
 				}
-				throw new InstanceAlreadyExistsException(
-					client.toString() + " is already in the database.");
-			}
-		);
+			);
+		} catch(TransactionException e) {
+			throw new DatabaseException(DATABASE_ERROR_MSG);
+		}
 	}
 
 	/**
@@ -139,31 +170,36 @@ public class TransactionalBookingService implements BookingService{
 	 * @throws IllegalArgumentException			if {@code reservation} is null.
 	 * @throws InstanceAlreadyExistsException	if {@code reservation} is already in the database.
 	 * @throws InstanceNotFoundException		if the associated {@code client} doesn't exist in the database.
+	 * @throws DatabaseException				if a transaction failure occurs on database.
 	 */
 	@Override
-	public Reservation insertNewReservation(Reservation reservation)
-			throws IllegalArgumentException, InstanceAlreadyExistsException, InstanceNotFoundException {
+	public Reservation insertNewReservation(Reservation reservation) throws IllegalArgumentException,
+			InstanceAlreadyExistsException, InstanceNotFoundException, DatabaseException {
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to insert cannot be null.");
 		
-		return transactionManager.doInTransaction(
-			(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-				Optional<Reservation> possibleReservation =
-						reservationRepository.findByDate(reservation.getDate());
-				if (possibleReservation.isEmpty()) {
-					Optional<Client> possibleClient = clientRepository.findById(reservation.getClientId());
-					if (possibleClient.isPresent()) {
-						return reservationRepository.save(reservation);
+		try {
+			return transactionManager.doInTransaction(
+				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+					Optional<Reservation> possibleReservation =
+							reservationRepository.findByDate(reservation.getDate());
+					if (possibleReservation.isEmpty()) {
+						Optional<Client> possibleClient = clientRepository.findById(reservation.getClientId());
+						if (possibleClient.isPresent()) {
+							return reservationRepository.save(reservation);
+						}
+						throw new InstanceNotFoundException(
+							"The client with id: " + reservation.getClientId()
+							+ ", associated to the reservation to insert is not in the database. "
+							+ "Please, insert the client before the reservation.");
 					}
-					throw new InstanceNotFoundException(
-						"The client with id: " + reservation.getClientId()
-						+ ", associated to the reservation to insert is not in the database. "
-						+ "Please, insert the client before the reservation.");
+					throw new InstanceAlreadyExistsException(
+						reservation.toString() + " is already in the database.");
 				}
-				throw new InstanceAlreadyExistsException(
-					reservation.toString() + " is already in the database.");
-			}
-		);
+			);
+		} catch(TransactionException e) {
+			throw new DatabaseException(DATABASE_ERROR_MSG);
+		}
 	}
 
 	/**
@@ -175,28 +211,33 @@ public class TransactionalBookingService implements BookingService{
 	 * @param lastName						the surname of the client to remove.
 	 * @throws IllegalArgumentException		if {@code firstName} or {@code lastName} are null.
 	 * @throws InstanceNotFoundException	if there is no client with those names in database.
+	 * @throws DatabaseException			if a transaction failure occurs on database.
 	 */
 	@Override
 	public void removeClientNamed(String firstName, String lastName)
-			throws IllegalArgumentException, InstanceNotFoundException {
+			throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
 		if (firstName == null || lastName == null)
 			throw new IllegalArgumentException("Names of client to remove cannot be null.");
 		
-		transactionManager.doInTransaction(
-			(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-				Optional<Client> possibleClient = clientRepository.findByName(firstName, lastName);
-				if (possibleClient.isPresent()) {
-					Client clientToRemove = possibleClient.get();
-					List<Reservation> reservationList = reservationRepository
-						.findByClient(clientToRemove.getId());
-					for (Reservation reservation : reservationList)
-						reservationRepository.delete(reservation);
-					clientRepository.delete(clientToRemove);
-					return null;
+		try {
+			transactionManager.doInTransaction(
+				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+					Optional<Client> possibleClient = clientRepository.findByName(firstName, lastName);
+					if (possibleClient.isPresent()) {
+						Client clientToRemove = possibleClient.get();
+						List<Reservation> reservationList = reservationRepository
+							.findByClient(clientToRemove.getId());
+						for (Reservation reservation : reservationList)
+							reservationRepository.delete(reservation);
+						clientRepository.delete(clientToRemove);
+						return null;
+					}
+					throw new InstanceNotFoundException(clientNotFoundMsg(firstName, lastName));
 				}
-				throw new InstanceNotFoundException(clientNotFoundMsg(firstName, lastName));
-			}
-		);
+			);
+		} catch(TransactionException e) {
+			throw new DatabaseException(DATABASE_ERROR_MSG);
+		}
 	}
 
 	/**
@@ -206,23 +247,28 @@ public class TransactionalBookingService implements BookingService{
 	 * @param date							the date of the reservation to find.
 	 * @throws IllegalArgumentException		if {@code date} is null.
 	 * @throws InstanceNotFoundException	if there is no reservation on that date in database.
+	 * @throws DatabaseException			if a transaction failure occurs on database.
 	 */
 	@Override
 	public void removeReservationOn(LocalDate date)
-			throws IllegalArgumentException, InstanceNotFoundException {
+			throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
 		if (date == null)
 			throw new IllegalArgumentException("Date of reservation to remove cannot be null.");
 		
-		transactionManager.doInTransaction(
-			(ReservationRepository reservationRepository) -> {
-				Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
-				if (possibleReservation.isPresent()) {
-					reservationRepository.delete(possibleReservation.get());
-					return null;
+		try {
+			transactionManager.doInTransaction(
+				(ReservationRepository reservationRepository) -> {
+					Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
+					if (possibleReservation.isPresent()) {
+						reservationRepository.delete(possibleReservation.get());
+						return null;
+					}
+					throw new InstanceNotFoundException(reservationNotFoundMsg(date));
 				}
-				throw new InstanceNotFoundException(reservationNotFoundMsg(date));
-			}
-		);
+			);
+		} catch(TransactionException e) {
+			throw new DatabaseException(DATABASE_ERROR_MSG);
+		}
 	}
 
 	/**
