@@ -16,14 +16,44 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
  * An implementation for managing code executed on MongoDB within transactions.
  */
 public class TransactionMongoManager implements TransactionManager {
-	private static final String VIOLATION_OF_UNIQUENESS_CONSTRAINT = "violation of uniqueness constraint(s)";
-	private static final String VIOLATION_OF_NOT_NULL_CONSTRAINT = "violation of not-null constraint(s)";
+	/**
+	 * Specifies that the reason the transaction fails is the passing of an invalid argument.
+	 */
 	private static final String INVALID_ARGUMENT = "invalid argument(s) passed";
 
+	/**
+	 * Specifies that the reason the transaction fails is a not-null constraint violation.
+	 */
+	private static final String VIOLATION_OF_NOT_NULL_CONSTRAINT = "violation of not-null constraint(s)";
+
+	/**
+	 * Specifies that the reason the transaction fails is a uniqueness constraint violation.
+	 */
+	private static final String VIOLATION_OF_UNIQUENESS_CONSTRAINT = "violation of uniqueness constraint(s)";
+
+	/**
+	 * Used for communicating with MongoDB and creating transactions.
+	 */
 	private ClientSession session;
+
+	/**
+	 * Used for applying code to {@code ClientRepository}.
+	 */
 	private ClientMongoRepository clientRepository;
+
+	/**
+	 * Used for applying code to {@code ReservationRepository}.
+	 */
 	private ReservationMongoRepository reservationRepository;
 
+	/**
+	 * Constructs a manager for applying code that uses entity repositories 
+	 * using MongoDB transactions.
+	 * 
+	 * @param session				the MongoDB session used for creating transactions.
+	 * @param clientRepository		the repository that manages {@code Client} entities.
+	 * @param reservationRepository	the repository that manages {@code Reservation} entities.
+	 */
 	public TransactionMongoManager(ClientSession session, ClientMongoRepository clientRepository,
 			ReservationMongoRepository reservationRepository) {
 		this.session = session;
