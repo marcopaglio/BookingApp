@@ -4,6 +4,7 @@ package io.github.marcopaglio.booking.presenter.served;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import io.github.marcopaglio.booking.exception.DatabaseException;
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
 import io.github.marcopaglio.booking.model.Client;
@@ -51,8 +52,13 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 */
 	@Override
 	public void allClients() {
-		view.showAllClients(bookingService.findAllClients());
-		LOGGER.info("All clients have been retrieved with success.");
+		try {
+			view.showAllClients(bookingService.findAllClients());
+			LOGGER.info("All clients have been retrieved with success.");
+		} catch(DatabaseException e) {
+			LOGGER.warn(e.getMessage());
+			view.showClientError("An error occurred while updating clients.");
+		}
 	}
 
 	/**
@@ -61,8 +67,13 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 */
 	@Override
 	public void allReservations() {
+		try {
 		view.showAllReservations(bookingService.findAllReservations());
 		LOGGER.info("All reservations have been retrieved with success.");
+		} catch(DatabaseException e) {
+			LOGGER.warn(e.getMessage());
+			view.showReservationError("An error occurred while updating reservations.");
+		}
 	}
 
 	/**
@@ -82,14 +93,15 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @param lastName					the surname of the client to add.
 	 * @return							the {@code Client} added to the repository or the existing one.
 	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
+	 * @throws DatabaseException		if the inserting fails due to a database error.
 	 */
 	@Override
-	public Client addClient(String firstName, String lastName) throws IllegalArgumentException {
+	public Client addClient(String firstName, String lastName)
+			throws IllegalArgumentException, DatabaseException {
 		Client client = createClient(firstName, lastName);
 		
 		Client clientInDB = null;
 		do {
-			
 			try {
 				clientInDB = bookingService.insertNewClient(client);
 				view.clientAdded(clientInDB);
@@ -103,6 +115,10 @@ public class ServedBookingPresenter implements BookingPresenter {
 					LOGGER.warn(e1.getMessage());
 					clientInDB = null;
 				}
+			} catch(DatabaseException e) {
+				view.showClientError("An error occurred while adding " + client.toString() + ".");
+				throw e;
+				// nella view non si lancia eccezioni, ma si logga il messaggio di errore del db
 			}
 		} while (clientInDB == null);
 		return clientInDB;
@@ -122,7 +138,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			return ClientValidator.newValidatedClient(firstName, lastName);
 		} catch(IllegalArgumentException e) {
 			view.showFormError("Client's name or surname is not valid.");
-			throw new IllegalArgumentException(e.getMessage());
+			throw e;
 			// nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
 		}
 	}
@@ -145,12 +161,15 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.info(() -> String.format("%s has been added with success.", reservation.toString()));
 		} catch(InstanceAlreadyExistsException e) {
 			LOGGER.warn(e.getMessage());
-			view.showReservationError(reservation, " has already been booked.");
+			view.showReservationError(reservation.toString() + " has already been booked.");
 			updateAll();
 		} catch(InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
-			view.showReservationError(reservation, "'s client has been deleted.");
+			view.showReservationError(reservation.toString() + "'s client has been deleted.");
 			updateAll();
+		} catch(DatabaseException e) {
+			LOGGER.warn(e.getMessage());
+			view.showReservationError("An error occurred while adding " + reservation.toString() + ".");
 		}
 	}
 
@@ -171,7 +190,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			return ReservationValidator.newValidatedReservation(client, date);
 		} catch(IllegalArgumentException e) {
 			view.showFormError("Date of reservation is not valid.");
-			throw new IllegalArgumentException(e.getMessage());
+			throw e;
 			// nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
 		}
 	}
@@ -195,8 +214,11 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.info(() -> String.format("%s has been deleted with success.", client.toString()));
 		} catch (InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
-			view.showClientError(client, " has already been deleted.");
+			view.showClientError(client.toString() + " has already been deleted.");
 			updateAll();
+		} catch(DatabaseException e) {
+			LOGGER.warn(e.getMessage());
+			view.showClientError("An error occurred while deleting " + client.toString() + ".");
 		}
 	}
 
@@ -218,8 +240,11 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.info(() -> String.format("%s has been deleted with success.", reservation.toString()));
 		} catch (InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
-			view.showReservationError(reservation, " has already been deleted.");
+			view.showReservationError(reservation.toString() + " has already been deleted.");
 			updateAll();
+		} catch(DatabaseException e) {
+			LOGGER.warn(e.getMessage());
+			view.showReservationError("An error occurred while deleting " + reservation.toString() + ".");
 		}
 	}
 }

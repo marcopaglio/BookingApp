@@ -79,7 +79,6 @@ class TransactionMongoManagerTest {
 	private static ClientSession session;
 	private ClientSession spiedSession; //TODO: rimuovere se la sessione si apre e chiude in Each
 	private static MongoDatabase database;
-	//private MongoCollection<Client> clientCollection;
 
 	@Mock
 	private ClientMongoRepository clientRepository;
@@ -126,9 +125,6 @@ class TransactionMongoManagerTest {
 		database.drop();
 		
 		spiedSession = spy(session);
-		
-		// clientRepository = new ClientMongoRepository(mongoClient);
-		//clientCollection = clientRepository.getCollection();
 		
 		transactionManager = new TransactionMongoManager(spiedSession, clientRepository, reservationRepository);
 	}
@@ -223,12 +219,13 @@ class TransactionMongoManagerTest {
 		@Test
 		@DisplayName("Code throws others RuntimeException")
 		void testDoInTransactionWhenCodeThrowsOthersRuntimeExceptionsShouldAbortAndRethrow() {
+			RuntimeException runtimeException = new RuntimeException();
 			ClientTransactionCode<Object> code = (ClientRepository clientRepository) -> {
-				throw new RuntimeException();
+				throw runtimeException;
 			};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
-				.isInstanceOf(RuntimeException.class);
+				.isEqualTo(runtimeException);
 			
 			verify(spiedSession, never()).commitTransaction();
 			verify(spiedSession).abortTransaction();
@@ -316,12 +313,13 @@ class TransactionMongoManagerTest {
 		@Test
 		@DisplayName("Code throws others RuntimeException")
 		void testDoInTransactionWhenCodeThrowsOthersRuntimeExceptionsShouldAbortAndRethrow() {
+			RuntimeException runtimeException = new RuntimeException();
 			ReservationTransactionCode<Object> code = (ReservationRepository reservationRepository) -> {
-				throw new RuntimeException();
+				throw runtimeException;
 			};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
-				.isInstanceOf(RuntimeException.class);
+				.isEqualTo(runtimeException);
 			
 			verify(spiedSession, never()).commitTransaction();
 			verify(spiedSession).abortTransaction();
@@ -484,13 +482,14 @@ class TransactionMongoManagerTest {
 		@Test
 		@DisplayName("Code throws others RuntimeException")
 		void testDoInTransactionWhenCodeThrowsOthersRuntimeExceptionsShouldAbortAndRethrow() {
+			RuntimeException runtimeException = new RuntimeException();
 			ClientReservationTransactionCode<Object> code =
 					(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-						throw new RuntimeException();
+						throw runtimeException;
 					};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
-				.isInstanceOf(RuntimeException.class);
+				.isEqualTo(runtimeException);
 			
 			verify(spiedSession, never()).commitTransaction();
 			verify(spiedSession).abortTransaction();
