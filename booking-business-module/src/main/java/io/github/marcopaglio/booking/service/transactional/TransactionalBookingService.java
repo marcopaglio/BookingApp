@@ -25,7 +25,7 @@ public class TransactionalBookingService implements BookingService{
 	/**
 	 * Defines an error message used when a database error occurs.
 	 */
-	private static final String DATABASE_ERROR_MSG = "A database error occurs: the requested query cannot be executed.";
+	private static final String DATABASE_ERROR_MSG = "A database error occurs: the request cannot be executed.";
 
 	/**
 	 * Allows the service to execute transactions.
@@ -190,7 +190,7 @@ public class TransactionalBookingService implements BookingService{
 						}
 						throw new InstanceNotFoundException(
 							"The client with id: " + reservation.getClientId()
-							+ ", associated to the reservation to insert is not in the database. "
+							+ ", associated to " + reservation.toString() + " is not in the database. "
 							+ "Please, insert the client before the reservation.");
 					}
 					throw new InstanceAlreadyExistsException(

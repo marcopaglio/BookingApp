@@ -234,7 +234,8 @@ class ServedBookingPresenterTest {
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
 			inOrder.verify(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
-			inOrder.verify(view).showClientError(A_CLIENT.toString() + " has already been deleted.");
+			inOrder.verify(view).showClientError(
+					"Client [" + A_FIRSTNAME + " " + A_LASTNAME + "] has already been deleted.");
 			// updateAll
 			inOrder.verify(bookingService).findAllReservations();
 			inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -256,7 +257,7 @@ class ServedBookingPresenterTest {
 			
 			inOrder.verify(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 			inOrder.verify(view).showClientError(
-					"An error occurred while deleting " + A_CLIENT.toString() + ".");
+					"An error occurred while deleting Client [" + A_FIRSTNAME + " " + A_LASTNAME + "].");
 			
 			verifyNoMoreInteractions(bookingService, view);
 		}
@@ -292,7 +293,7 @@ class ServedBookingPresenterTest {
 			
 			inOrder.verify(bookingService).removeReservationOn(A_LOCALDATE);
 			inOrder.verify(view).showReservationError(
-					A_RESERVATION.toString() + " has already been deleted.");
+					"Reservation [date=" + A_LOCALDATE + "] has already been deleted.");
 			// updateAll
 			inOrder.verify(bookingService).findAllReservations();
 			inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -314,7 +315,7 @@ class ServedBookingPresenterTest {
 			
 			inOrder.verify(bookingService).removeReservationOn(A_LOCALDATE);
 			inOrder.verify(view).showReservationError(
-					"An error occurred while deleting " + A_RESERVATION.toString() + ".");
+					"An error occurred while deleting Reservation [date=" + A_LOCALDATE + "].");
 			
 			verifyNoMoreInteractions(bookingService, view);
 		}
@@ -418,7 +419,7 @@ class ServedBookingPresenterTest {
 				
 				inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 				inOrder.verify(view).showClientError(
-						"An error occurred while adding " + A_CLIENT.toString() + ".");
+						"An error occurred while adding Client [" + A_FIRSTNAME + " " + A_LASTNAME + "].");
 				
 				verifyNoMoreInteractions(bookingService, view);
 			}
@@ -531,7 +532,7 @@ class ServedBookingPresenterTest {
 						() -> ReservationValidator.newValidatedReservation(A_CLIENT, A_DATE));
 				inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
 				inOrder.verify(view).showReservationError(
-						A_RESERVATION.toString() + " has already been booked.");
+						"Reservation [date=" + A_LOCALDATE + "] has already been booked.");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -556,7 +557,7 @@ class ServedBookingPresenterTest {
 						() -> ReservationValidator.newValidatedReservation(A_CLIENT, A_DATE));
 				inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
 				inOrder.verify(view).showReservationError(
-						A_RESERVATION.toString() + "'s client has been deleted.");
+						"Reservation [date=" + A_LOCALDATE + "]'s client has been deleted.");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -579,7 +580,7 @@ class ServedBookingPresenterTest {
 				
 				inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
 				inOrder.verify(view).showReservationError(
-						"An error occurred while adding " + A_RESERVATION.toString() + ".");
+						"An error occurred while adding Reservation [date=" + A_LOCALDATE + "].");
 				
 				verifyNoMoreInteractions(bookingService, view);
 			}

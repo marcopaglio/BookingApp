@@ -1,7 +1,6 @@
 package io.github.marcopaglio.booking.service.transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.AdditionalAnswers.answer;
 import static org.mockito.Mockito.never;
@@ -166,12 +165,158 @@ class TransactionalBookingServiceTest {
 	}
 
 	@Nested
-	@DisplayName("Transaction failures on methods")
-	class TransactionFailureTest {
+	@DisplayName("Methods using only ClientRepository")
+	class ClientRepositoryTest {
 
 		@Nested
-		@DisplayName("Methods using only ClientRepository")
-		class ClientRepositoryTest {
+		@DisplayName("Transaction is successful")
+		class TransactionSuccessfulTest {
+
+			@BeforeEach
+			void doStubbing() throws Exception {
+				// make sure the lambda passed to the TransactionManager
+				// is executed, using the mock repository
+				when(transactionManager.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any()))
+					.thenAnswer(
+						answer((ClientTransactionCode<?> code) -> code.apply(clientRepository)));
+			}
+
+			@Nested
+			@DisplayName("Tests for 'findAllClients'")
+			class FindAllClientsTest {
+
+				@Test
+				@DisplayName("No clients to retrieve")
+				void testFindAllClientsWhenThereAreNoClientsToRetrieveShouldReturnEmptyList() {
+					// default stubbing for clientRepository.findAll()
+					
+					// verify state
+					assertThat(transactionalBookingService.findAllClients())
+						.isEqualTo(new ArrayList<>());
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
+					
+					// verify interactions
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+					inOrder.verify(clientRepository).findAll();
+					
+					verifyNoMoreInteractions(transactionManager, clientRepository);
+				}
+
+				@Test
+				@DisplayName("Several clients to retrieve")
+				void testFindAllClientsWhenThereAreSeveralClientsToRetrieveShouldReturnClientsAsList() {
+					List<Client> clients = Arrays.asList(A_CLIENT, new Client("Maria", "De Lucia"));
+					
+					when(clientRepository.findAll()).thenReturn(clients);
+					
+					assertThat(transactionalBookingService.findAllClients()).isEqualTo(clients);
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+					inOrder.verify(clientRepository).findAll();
+					
+					verifyNoMoreInteractions(transactionManager, clientRepository);
+				}
+			}
+
+			@Nested
+			@DisplayName("Tests for 'findClientNamed'")
+			class FindClientNamedTest {
+
+				@Test
+				@DisplayName("Client exists")
+				void testFindClientNamedWhenClientExistsShouldReturnTheClient() {
+					when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
+						.thenReturn(Optional.of(A_CLIENT));
+					
+					assertThat(transactionalBookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
+						.isEqualTo(A_CLIENT);
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+					inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
+					
+					verifyNoMoreInteractions(transactionManager, clientRepository);
+				}
+
+				@Test
+				@DisplayName("Client doesn't exist")
+				void testFindClientNamedWhenClientDoesNotExistShouldThrow() {
+					// default stubbing for clientRepository.findByName(firstName, lastName)
+					
+					assertThatThrownBy(
+							() -> transactionalBookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
+						.isInstanceOf(InstanceNotFoundException.class)
+						.hasMessage(
+							"There is no client named \"" + A_FIRSTNAME
+							+ " " + A_LASTNAME + "\" in the database.");
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+					inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
+					
+					verifyNoMoreInteractions(transactionManager, clientRepository);
+				}
+			}
+
+			@Nested
+			@DisplayName("Tests for 'insertNewClient'")
+			class InsertNewClientTest {
+
+				@Test
+				@DisplayName("Client is new")
+				void testInsertNewClientWhenClientDoesNotAlreadyExistShouldInsertAndReturn() {
+					// default stubbing for clientRepository.findByName(firstName, lastName)
+					when(clientRepository.save(A_CLIENT)).thenReturn(A_CLIENT);
+					
+					assertThat(transactionalBookingService.insertNewClient(A_CLIENT))
+						.isEqualTo(A_CLIENT);
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+					inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
+					inOrder.verify(clientRepository).save(A_CLIENT);
+					
+					verifyNoMoreInteractions(transactionManager, clientRepository);
+				}
+
+				@Test
+				@DisplayName("Client already exists")
+				void testInsertNewClientWhenClientAlreadyExistsShouldThrow() {
+					when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
+						.thenReturn(Optional.of(A_CLIENT));
+					
+					assertThatThrownBy(
+							() -> transactionalBookingService.insertNewClient(A_CLIENT))
+						.isInstanceOf(InstanceAlreadyExistsException.class)
+						.hasMessage(
+							"Client [" + A_FIRSTNAME + " " + A_LASTNAME + "] is already in the database.");
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+					inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
+					
+					verify(clientRepository, never()).save(A_CLIENT);
+					verifyNoMoreInteractions(transactionManager, clientRepository);
+				}
+			}
+		}
+
+		@Nested
+		@DisplayName("Transaction is failure")
+		class TransactionFailureTest {
 
 			@BeforeEach
 			void doStubbing() throws Exception {
@@ -184,7 +329,7 @@ class TransactionalBookingServiceTest {
 			void testFindAllClientsWhenTransactionFailsShouldThrow() {
 				assertThatThrownBy(() -> transactionalBookingService.findAllClients())
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the requested query cannot be executed.");
+					.hasMessage("A database error occurs: the request cannot be executed.");
 			}
 
 			@Test
@@ -193,7 +338,7 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the requested query cannot be executed.");
+					.hasMessage("A database error occurs: the request cannot be executed.");
 			}
 
 			@Test
@@ -202,13 +347,159 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.insertNewClient(A_CLIENT))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the requested query cannot be executed.");
+					.hasMessage("A database error occurs: the request cannot be executed.");
+			}
+		}
+	}
+
+	@Nested
+	@DisplayName("Methods using only ReservationRepository")
+	class ReservationRepositoryTest {
+
+		@Nested
+		@DisplayName("Transaction is successful")
+		class TransactionSuccessfulTest {
+
+			@BeforeEach
+			void doStubbing() throws Exception {
+				// make sure the lambda passed to the TransactionManager
+				// is executed, using the mock repository
+				when(transactionManager
+						.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any()))
+					.thenAnswer(
+						answer((ReservationTransactionCode<?> code) -> code.apply(reservationRepository)));
+			}
+	
+			@Nested
+			@DisplayName("Tests for 'findAllReservations'")
+			class FindAllReservationsTest {
+	
+				@Test
+				@DisplayName("No reservations to retrieve")
+				void testFindAllReservationsWhenThereAreNotReservationsToRetrieveShouldReturnEmptyList() {
+					// default stubbing for reservationRepository.findAll()
+					
+					assertThat(transactionalBookingService.findAllReservations())
+						.isEqualTo(new ArrayList<>());
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
+					inOrder.verify(reservationRepository).findAll();
+					
+					verifyNoMoreInteractions(transactionManager, reservationRepository);
+				}
+	
+				@Test
+				@DisplayName("Several reservations to retrieve")
+				void testFindAllReservationsWhenThereAreSeveralReservationsToRetrieveShouldReturnReservationsAsList() {
+					List<Reservation> reservations = Arrays.asList(
+							A_RESERVATION, new Reservation(A_CLIENT_UUID, LocalDate.parse("2023-09-05")));
+					
+					when(reservationRepository.findAll()).thenReturn(reservations);
+					
+					assertThat(transactionalBookingService.findAllReservations())
+						.isEqualTo(reservations);
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
+					inOrder.verify(reservationRepository).findAll();
+					
+					verifyNoMoreInteractions(transactionManager, reservationRepository);
+				}
+			}
+	
+			@Nested
+			@DisplayName("Tests for 'findReservationOn'")
+			class FindReservationOnTest {
+	
+				@DisplayName("Reservation exists")
+				@Test
+				void testFindReservationOnWhenReservationExistsShouldReturnTheReservation() {
+					when(reservationRepository.findByDate(A_LOCALDATE))
+						.thenReturn(Optional.of(A_RESERVATION));
+					
+					assertThat(transactionalBookingService.findReservationOn(A_LOCALDATE))
+						.isEqualTo(A_RESERVATION);
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
+					inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
+					
+					verifyNoMoreInteractions(transactionManager, reservationRepository);
+				}
+	
+				@Test
+				@DisplayName("Reservation doesn't exist")
+				void testFindReservationOnWhenReservationDoesNotExistShouldThrow() {
+					// default stubbing for reservationRepository.findByDate(date)
+					
+					assertThatThrownBy(
+							() -> transactionalBookingService.findReservationOn(A_LOCALDATE))
+						.isInstanceOf(InstanceNotFoundException.class)
+						.hasMessage("There is no reservation on \"" + A_LOCALDATE + "\" in the database.");
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
+					inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
+					
+					verifyNoMoreInteractions(transactionManager, reservationRepository);
+				}
+			}
+	
+			@Nested
+			@DisplayName("Tests for 'removeReservationOn'")
+			class RemoveReservationOnTest {
+	
+				@Test
+				@DisplayName("Reservation exists")
+				void testRemoveReservationOnWhenReservationExistsShouldRemove() {
+					when(reservationRepository.findByDate(A_LOCALDATE))
+						.thenReturn(Optional.of(A_RESERVATION));
+					
+					transactionalBookingService.removeReservationOn(A_LOCALDATE);
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
+					inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
+					inOrder.verify(reservationRepository).delete(A_RESERVATION);
+					
+					verifyNoMoreInteractions(transactionManager, reservationRepository);
+				}
+	
+				@Test
+				@DisplayName("Reservation doesn't exist")
+				void testRemoveReservationOnWhenReservationDoesNotExistShouldThrow() {
+					// default stubbing for reservationRepository.findByDate(date)
+					
+					assertThatThrownBy(
+							() -> transactionalBookingService.removeReservationOn(A_LOCALDATE))
+						.isInstanceOf(InstanceNotFoundException.class)
+						.hasMessage("There is no reservation on \"" + A_LOCALDATE + "\" in the database.");
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
+					inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
+					
+					verifyNoMoreInteractions(transactionManager, reservationRepository);
+				}
 			}
 		}
 
 		@Nested
-		@DisplayName("Methods using only ReservationRepository")
-		class ReservationRepositoryTest {
+		@DisplayName("Transaction is failure")
+		class TransactionFailureTest {
 
 			@BeforeEach
 			void doStubbing() throws Exception {
@@ -221,7 +512,7 @@ class TransactionalBookingServiceTest {
 			void testFindAllReservationsWhenTransactionFailsShouldThrow() {
 				assertThatThrownBy(() -> transactionalBookingService.findAllReservations())
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the requested query cannot be executed.");
+					.hasMessage("A database error occurs: the request cannot be executed.");
 			}
 
 			@Test
@@ -229,7 +520,7 @@ class TransactionalBookingServiceTest {
 			void testFindReservationOnWhenTransactionFailsShouldThrow() {
 				assertThatThrownBy(() -> transactionalBookingService.findReservationOn(A_LOCALDATE))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the requested query cannot be executed.");
+					.hasMessage("A database error occurs: the request cannot be executed.");
 			}
 
 			@Test
@@ -237,13 +528,213 @@ class TransactionalBookingServiceTest {
 			void testRemoveReservationOnWhenTransactionFailsShouldThrow() {
 				assertThatThrownBy(() -> transactionalBookingService.removeReservationOn(A_LOCALDATE))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the requested query cannot be executed.");
+					.hasMessage("A database error occurs: the request cannot be executed.");
+			}
 		}
+	}
+
+	@Nested
+	@DisplayName("Methods using both repositories")
+	class BothRepositoriesTest {
+
+		@Nested
+		@DisplayName("Transaction is successful")
+		class TransactionSuccessfulTest {
+			private final Client spiedClient = spy(A_CLIENT);
+
+			@BeforeEach
+			void doStubbing() throws Exception {
+				when(transactionManager.doInTransaction(
+						ArgumentMatchers.<ClientReservationTransactionCode<?>>any()))
+				.thenAnswer(
+					answer((ClientReservationTransactionCode<?> code) -> 
+						code.apply(clientRepository, reservationRepository)));
+				
+				when(spiedClient.getId()).thenReturn(A_CLIENT_UUID);
+			}
+
+			@Nested
+			@DisplayName("Tests for 'removeClientNamed'")
+			class RemoveClientNamedTest {
+
+				@Test
+				@DisplayName("Client exists without reservations")
+				void testRemoveClientNamedWhenClientExistsWithoutExistingReservationsShouldRemove() {
+					when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
+						.thenReturn(Optional.of(spiedClient));
+					// default stubbing for reservationRepository.findByClient(clientUUID)
+					
+					transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME);
+					
+					InOrder inOrder = Mockito.inOrder(
+							transactionManager, clientRepository, reservationRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+					inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
+					inOrder.verify(reservationRepository).findByClient(A_CLIENT_UUID);
+					inOrder.verify(clientRepository).delete(spiedClient);
+					
+					verifyNoMoreInteractions(transactionManager, clientRepository, reservationRepository);
+				}
+
+				@Test
+				@DisplayName("Client exists with single existing reservation")
+				void testRemoveClientNamedWhenClientExistsWithSingleExistingReservationShouldRemove() {
+					when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
+						.thenReturn(Optional.of(spiedClient));
+					when(reservationRepository.findByClient(A_CLIENT_UUID))
+						.thenReturn(Arrays.asList(A_RESERVATION));
+					
+					transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME);
+					
+					InOrder inOrder = Mockito.inOrder(
+							transactionManager, clientRepository, reservationRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+					inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
+					inOrder.verify(reservationRepository).findByClient(A_CLIENT_UUID);
+					inOrder.verify(reservationRepository).delete(A_RESERVATION);
+					inOrder.verify(clientRepository).delete(spiedClient);
+					
+					verifyNoMoreInteractions(transactionManager, clientRepository, reservationRepository);
+				}
+
+				@Test
+				@DisplayName("Client exists with several existing reservations")
+				void testRemoveClientNamedWhenClientExistsWithSeveralExistingReservationsShouldRemove() {
+					Reservation anotherReservation = new Reservation(
+							A_CLIENT_UUID, LocalDate.parse("2023-03-16"));
+					List<Reservation> severalReservationList = new ArrayList<>(Arrays.asList(
+							A_RESERVATION, anotherReservation));
+					
+					when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
+						.thenReturn(Optional.of(spiedClient));
+					when(reservationRepository.findByClient(A_CLIENT_UUID))
+						.thenReturn(severalReservationList);
+					
+					transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME);
+					
+					InOrder inOrder = Mockito.inOrder(
+							transactionManager, clientRepository, reservationRepository);
+					
+					ArgumentCaptor<Reservation> dateCaptor = ArgumentCaptor.forClass(Reservation.class);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+					inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
+					inOrder.verify(reservationRepository).findByClient(A_CLIENT_UUID);
+					inOrder.verify(reservationRepository, times(2)).delete(dateCaptor.capture());
+					assertThat(dateCaptor.getAllValues()).containsExactly(A_RESERVATION, anotherReservation);
+					inOrder.verify(clientRepository).delete(spiedClient);
+					
+					verifyNoMoreInteractions(transactionManager, clientRepository, reservationRepository);
+				}
+
+				@Test
+				@DisplayName("Client doesn't exist")
+				void testRemoveClientNamedWhenClientDoesNotExistShouldThrow() {
+					// default stubbing for clientRepository.findByName(firstName, lastName)
+					
+					assertThatThrownBy(
+							() -> transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME))
+						.isInstanceOf(InstanceNotFoundException.class)
+						.hasMessage(
+							"There is no client named \"" + A_FIRSTNAME + " "
+							+ A_LASTNAME + "\" in the database.");
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+					inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
+					
+					verifyNoMoreInteractions(transactionManager, clientRepository);
+					verifyNoInteractions(reservationRepository);
+				}
+			}
+
+			@Nested
+			@DisplayName("Tests for 'insertNewReservation'")
+			class InsertNewReservationTest {
+
+				@DisplayName("Reservation is new and client exists")
+				@Test
+				void testInsertNewReservationWhenReservationIsNewAndAssociatedClientExistsShouldInsertAndReturn() {
+					// default stubbing for reservationRepository.findByDate(date)
+					when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.of(A_CLIENT));
+					when(reservationRepository.save(A_RESERVATION)).thenReturn(A_RESERVATION);
+					
+					assertThat(transactionalBookingService.insertNewReservation(A_RESERVATION))
+						.isEqualTo(A_RESERVATION);
+					
+					InOrder inOrder = Mockito.inOrder(
+							transactionManager, reservationRepository, clientRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+					inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
+					inOrder.verify(clientRepository).findById(A_CLIENT_UUID);
+					inOrder.verify(reservationRepository).save(A_RESERVATION);
+				
+					verifyNoMoreInteractions(transactionManager, reservationRepository, clientRepository);
+				}
+
+				@Test
+				@DisplayName("Reservation is new and client doesn't exist")
+				void testInsertNewReservationWhenReservationIsNewAndAssociatedClientDoesNotExistShouldNotInsertAndThrow() {
+					// default stubbing for reservationRepository.findByDate(date)
+					// default stubbing for clientRepository.findById(id)
+					
+					assertThatThrownBy(
+							() -> transactionalBookingService.insertNewReservation(A_RESERVATION))
+						.isInstanceOf(InstanceNotFoundException.class)
+						.hasMessage(
+							"The client with id: " + A_CLIENT_UUID
+							+ ", associated to Reservation [date=" + A_LOCALDATE
+							+ "] is not in the database. Please, insert the client before the reservation.");
+					
+					InOrder inOrder = Mockito.inOrder(
+							transactionManager, reservationRepository, clientRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+					inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
+					inOrder.verify(clientRepository).findById(A_CLIENT_UUID);
+					
+					verify(reservationRepository, never()).save(A_RESERVATION);
+					verifyNoMoreInteractions(transactionManager, reservationRepository, clientRepository);
+				}
+
+				@Test
+				@DisplayName("Reservation already exists")
+				void testInsertNewReservationWhenReservationAlreadyExistsShouldThrow() {
+					when(reservationRepository.findByDate(A_LOCALDATE))
+						.thenReturn(Optional.of(A_RESERVATION));
+					
+					assertThatThrownBy(
+							() -> transactionalBookingService.insertNewReservation(A_RESERVATION))
+						.isInstanceOf(InstanceAlreadyExistsException.class)
+						.hasMessage(
+							"Reservation [date=" + A_LOCALDATE.toString()
+							+ "] is already in the database.");
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+					inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
+				
+					verifyNoMoreInteractions(transactionManager, reservationRepository);
+					verifyNoInteractions(clientRepository);
+				}
+			}
 		}
 
 		@Nested
-		@DisplayName("Methods using both repositories")
-		class BothRepositoriesTest {
+		@DisplayName("Transaction is failure")
+		class TransactionFailureTest {
 
 			@BeforeEach
 			void doStubbing() throws Exception {
@@ -257,7 +748,7 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.insertNewReservation(A_RESERVATION))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the requested query cannot be executed.");
+					.hasMessage("A database error occurs: the request cannot be executed.");
 			}
 
 			@Test
@@ -266,526 +757,7 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the requested query cannot be executed.");
-			}
-		}
-	}
-
-	
-	@Nested
-	@DisplayName("Methods using only ClientRepository")
-	class ClientRepositoryTest {
-
-		@BeforeEach
-		void doStubbing() throws Exception {
-			// make sure the lambda passed to the TransactionManager
-			// is executed, using the mock repository
-			when(transactionManager.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any()))
-				.thenAnswer(
-					answer((ClientTransactionCode<?> code) -> code.apply(clientRepository)));
-		}
-
-		@Nested
-		@DisplayName("Tests for 'findAllClients'")
-		class FindAllClientsTest {
-
-			@Test
-			@DisplayName("No clients to retrieve")
-			void testFindAllClientsWhenThereAreNotClientsToRetrieveShouldReturnEmptyList() {
-				// default stubbing for clientRepository.findAll()
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
-				
-				// verify state
-				assertThat(transactionalBookingService.findAllClients()).isEqualTo(new ArrayList<>());
-				
-				// verify interactions
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
-				inOrder.verify(clientRepository).findAll();
-				
-				verifyNoMoreInteractions(transactionManager, clientRepository);
-			}
-
-			@Test
-			@DisplayName("Single client to retrieve")
-			void testFindAllClientsWhenThereIsASingleClientToRetrieveShouldReturnTheClientAsList() {
-				List<Client> clients = Arrays.asList(A_CLIENT);
-				when(clientRepository.findAll()).thenReturn(clients);
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
-				
-				assertThat(transactionalBookingService.findAllClients()).isEqualTo(clients);
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
-				inOrder.verify(clientRepository).findAll();
-				
-				verifyNoMoreInteractions(transactionManager, clientRepository);
-			}
-
-			@Test
-			@DisplayName("Several clients to retrieve")
-			void testFindAllClientsWhenThereAreSeveralClientsToRetrieveShouldReturnClientsAsList() {
-				Client anotherClient = new Client("Maria", "De Lucia");
-				List<Client> clients = Arrays.asList(A_CLIENT, anotherClient);
-				when(clientRepository.findAll()).thenReturn(clients);
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
-				
-				assertThat(transactionalBookingService.findAllClients()).isEqualTo(clients);
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
-				inOrder.verify(clientRepository).findAll();
-				
-				verifyNoMoreInteractions(transactionManager, clientRepository);
-			}
-		}
-
-		@Nested
-		@DisplayName("Tests for 'findClientNamed'")
-		class FindClientNamedTest {
-
-			@Test
-			@DisplayName("Client exists")
-			void testFindClientNamedWhenClientExistsShouldReturnTheClient() {
-				when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
-					.thenReturn(Optional.of(A_CLIENT));
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
-				
-				assertThat(transactionalBookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
-					.isEqualTo(A_CLIENT);
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
-				inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
-				
-				verifyNoMoreInteractions(transactionManager, clientRepository);
-			}
-
-			@Test
-			@DisplayName("Client doesn't exist")
-			void testFindClientNamedWhenClientDoesNotExistShouldThrow() {
-				when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME)).thenReturn(Optional.empty());
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
-				
-				assertThatThrownBy(
-						() -> transactionalBookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
-					.isInstanceOf(InstanceNotFoundException.class)
-					.hasMessage(
-						"There is no client named \"" + A_FIRSTNAME
-						+ " " + A_LASTNAME + "\" in the database.");
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
-				inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
-				
-				verifyNoMoreInteractions(transactionManager, clientRepository);
-			}
-		}
-
-		@Nested
-		@DisplayName("Tests for 'insertNewClient'")
-		class InsertNewClientTest {
-
-			@Test
-			@DisplayName("Client is new")
-			void testInsertNewClientWhenClientDoesNotAlreadyExistShouldInsertAndReturn() {
-				when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME)).thenReturn(Optional.empty());
-				when(clientRepository.save(A_CLIENT)).thenReturn(A_CLIENT);
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
-				
-				assertThat(transactionalBookingService.insertNewClient(A_CLIENT)).isEqualTo(A_CLIENT);
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
-				inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
-				inOrder.verify(clientRepository).save(A_CLIENT);
-				
-				verifyNoMoreInteractions(transactionManager, clientRepository);
-			}
-
-			@Test
-			@DisplayName("Client already exists")
-			void testInsertNewClientWhenClientAlreadyExistsShouldThrow() {
-				when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
-					.thenReturn(Optional.of(A_CLIENT));
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
-				
-				assertThatThrownBy(
-						() -> transactionalBookingService.insertNewClient(A_CLIENT))
-					.isInstanceOf(InstanceAlreadyExistsException.class)
-					.hasMessage(
-						"Client [" + A_FIRSTNAME + " " + A_LASTNAME + "] is already in the database.");
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
-				inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
-				
-				verifyNoMoreInteractions(transactionManager, clientRepository);
-			}
-		}
-	}
-
-	@Nested
-	@DisplayName("Methods using only ReservationRepository")
-	class ReservationRepositoryTest {
-
-		@BeforeEach
-		void doStubbing() throws Exception {
-			// make sure the lambda passed to the TransactionManager
-			// is executed, using the mock repository
-			when(transactionManager
-					.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any()))
-				.thenAnswer(
-					answer((ReservationTransactionCode<?> code) -> code.apply(reservationRepository)));
-		}
-
-		@Nested
-		@DisplayName("Tests for 'findAllReservations'")
-		class FindAllReservationsTest {
-
-			@Test
-			@DisplayName("No reservations to retrieve")
-			void testFindAllReservationsWhenThereAreNotReservationsToRetrieveShouldReturnEmptyList() {
-				// default stubbing for reservationRepository.findAll()
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
-				
-				assertThat(transactionalBookingService.findAllReservations())
-					.isEqualTo(new ArrayList<>());
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
-				inOrder.verify(reservationRepository).findAll();
-				
-				verifyNoMoreInteractions(transactionManager, reservationRepository);
-			}
-
-			@Test
-			@DisplayName("Single reservation to retrieve")
-			void testFindAllReservationsWhenThereIsASingleReservationToRetrieveShouldReturnReservationAsList() {
-				List<Reservation> reservations = Arrays.asList(A_RESERVATION);
-				when(reservationRepository.findAll()).thenReturn(reservations);
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
-				
-				assertThat(transactionalBookingService.findAllReservations()).isEqualTo(reservations);
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
-				inOrder.verify(reservationRepository).findAll();
-				
-				verifyNoMoreInteractions(transactionManager, reservationRepository);
-			}
-
-			@Test
-			@DisplayName("Several reservations to retrieve")
-			void testFindAllReservationsWhenThereAreSeveralReservationsToRetrieveShouldReturnReservationsAsList() {
-				Reservation anotherReservation = new Reservation(
-						UUID.fromString("6845b378-8800-4434-8495-ca69cf981983"),
-						LocalDate.parse("2023-09-05"));
-				List<Reservation> reservations = Arrays.asList(A_RESERVATION, anotherReservation);
-				
-				when(reservationRepository.findAll()).thenReturn(reservations);
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
-				
-				assertThat(transactionalBookingService.findAllReservations()).isEqualTo(reservations);
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
-				inOrder.verify(reservationRepository).findAll();
-				
-				verifyNoMoreInteractions(transactionManager, reservationRepository);
-			}
-		}
-
-		@Nested
-		@DisplayName("Tests for 'findReservationOn'")
-		class FindReservationOnTest {
-
-			@DisplayName("Reservation exists")
-			@Test
-			void testFindReservationOnWhenReservationExistsShouldReturnTheReservation() {
-				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.of(A_RESERVATION));
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
-				
-				assertThat(transactionalBookingService.findReservationOn(A_LOCALDATE))
-					.isEqualTo(A_RESERVATION);
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
-				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
-				
-				verifyNoMoreInteractions(transactionManager, reservationRepository);
-			}
-
-			@Test
-			@DisplayName("Reservation doesn't exist")
-			void testFindReservationOnWhenReservationDoesNotExistShouldThrow() {
-				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.empty());
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
-				
-				assertThatThrownBy(
-						() -> transactionalBookingService.findReservationOn(A_LOCALDATE))
-					.isInstanceOf(InstanceNotFoundException.class)
-					.hasMessage("There is no reservation on \"" + A_LOCALDATE + "\" in the database.");
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
-				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
-				
-				verifyNoMoreInteractions(transactionManager, reservationRepository);
-			}
-		}
-
-		@Nested
-		@DisplayName("Tests for 'removeReservationOn'")
-		class RemoveReservationOnTest {
-
-			@Test
-			@DisplayName("Reservation exists")
-			void testRemoveReservationOnWhenReservationExistsShouldRemove() {
-				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.of(A_RESERVATION));
-				// default stubbing for reservationRepository.delete(reservation)
-				
-				InOrder inOrder = Mockito.inOrder(
-						transactionManager, reservationRepository);
-				
-				assertThatNoException().isThrownBy(
-						() -> transactionalBookingService.removeReservationOn(A_LOCALDATE));
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
-				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
-				inOrder.verify(reservationRepository).delete(A_RESERVATION);
-				
-				verifyNoMoreInteractions(transactionManager, reservationRepository);
-			}
-
-			@Test
-			@DisplayName("Reservation doesn't exist")
-			void testRemoveReservationOnWhenReservationDoesNotExistShouldThrow() {
-				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.empty());
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
-				
-				assertThatThrownBy(
-						() -> transactionalBookingService.removeReservationOn(A_LOCALDATE))
-					.isInstanceOf(InstanceNotFoundException.class)
-					.hasMessage("There is no reservation on \"" + A_LOCALDATE + "\" in the database.");
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
-				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
-				
-				verifyNoMoreInteractions(transactionManager, reservationRepository);
-			}
-		}
-	}
-
-	@Nested
-	@DisplayName("Methods using both repositories")
-	class BothRepositoriesTest {
-		private final Client spiedClient = spy(A_CLIENT);
-
-		@BeforeEach
-		void doStubbing() throws Exception {
-			when(transactionManager.doInTransaction(
-					ArgumentMatchers.<ClientReservationTransactionCode<?>>any()))
-			.thenAnswer(
-				answer((ClientReservationTransactionCode<?> code) -> 
-					code.apply(clientRepository, reservationRepository)));
-			
-			when(spiedClient.getId()).thenReturn(A_CLIENT_UUID);
-		}
-
-		@Nested
-		@DisplayName("Tests for 'removeClientNamed'")
-		class RemoveClientNamedTest {
-
-			@Test
-			@DisplayName("Client exists without reservations")
-			void testRemoveClientNamedWhenClientExistsWithoutExistingReservationsShouldRemove() {
-				when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
-					.thenReturn(Optional.of(spiedClient));
-				// default stubbing for reservationRepository.findByClient(clientUUID)
-				// default stubbing for clientRepository.delete(firstName, lastName)
-				
-				InOrder inOrder = Mockito.inOrder(
-						transactionManager, clientRepository, reservationRepository);
-				
-				assertThatNoException().isThrownBy(
-						() -> transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME));
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-				inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
-				inOrder.verify(reservationRepository).findByClient(A_CLIENT_UUID);
-				inOrder.verify(clientRepository).delete(spiedClient);
-				
-				verifyNoMoreInteractions(transactionManager, clientRepository, reservationRepository);
-			}
-
-			@Test
-			@DisplayName("Client exists with single existing reservation")
-			void testRemoveClientNamedWhenClientExistsWithSingleExistingReservationShouldRemove() {
-				when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
-					.thenReturn(Optional.of(spiedClient));
-				when(reservationRepository.findByClient(A_CLIENT_UUID))
-					.thenReturn(Arrays.asList(A_RESERVATION));
-				// default stubbing for reservationRepository.findByClient(clientUUID)
-				// default stubbing for clientRepository.delete(firstName, lastName)
-				
-				InOrder inOrder = Mockito.inOrder(
-						transactionManager, clientRepository, reservationRepository);
-				
-				assertThatNoException().isThrownBy(
-						() -> transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME));
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-				inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
-				inOrder.verify(reservationRepository).findByClient(A_CLIENT_UUID);
-				inOrder.verify(reservationRepository).delete(A_RESERVATION);
-				inOrder.verify(clientRepository).delete(spiedClient);
-				
-				verifyNoMoreInteractions(transactionManager, clientRepository, reservationRepository);
-			}
-
-			@Test
-			@DisplayName("Client exists with several existing reservations")
-			void testRemoveClientNamedWhenClientExistsWithSeveralExistingReservationsShouldRemove() {
-				LocalDate anotherLocaldate = LocalDate.parse("2023-03-16");
-				Reservation anotherReservation = new Reservation(A_CLIENT_UUID, anotherLocaldate);
-				List<Reservation> severalReservationList =
-						new ArrayList<>(Arrays.asList(A_RESERVATION, anotherReservation));
-				
-				when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
-					.thenReturn(Optional.of(spiedClient));
-				when(reservationRepository.findByClient(A_CLIENT_UUID)).thenReturn(severalReservationList);
-				// default stubbing for reservationRepository.delete(date)
-				// default stubbing for clientRepository.delete(firstName, lastName)
-				
-				InOrder inOrder = Mockito.inOrder(
-						transactionManager, clientRepository, reservationRepository);
-				
-				ArgumentCaptor<Reservation> dateCaptor = ArgumentCaptor.forClass(Reservation.class);
-				
-				assertThatNoException().isThrownBy(
-						() -> transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME));
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-				inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
-				inOrder.verify(reservationRepository).findByClient(A_CLIENT_UUID);
-				inOrder.verify(reservationRepository, times(2)).delete(dateCaptor.capture());
-				assertThat(dateCaptor.getAllValues()).containsExactly(A_RESERVATION, anotherReservation);
-				inOrder.verify(clientRepository).delete(spiedClient);
-				
-				verifyNoMoreInteractions(transactionManager, clientRepository, reservationRepository);
-			}
-
-			@Test
-			@DisplayName("Client doesn't exist")
-			void testRemoveClientNamedWhenClientDoesNotExistShouldThrow() {
-				when(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME)).thenReturn(Optional.empty());
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
-				
-				assertThatThrownBy(
-						() -> transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME))
-					.isInstanceOf(InstanceNotFoundException.class)
-					.hasMessage(
-						"There is no client named \"" + A_FIRSTNAME + " "
-						+ A_LASTNAME + "\" in the database.");
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-				inOrder.verify(clientRepository).findByName(A_FIRSTNAME, A_LASTNAME);
-				
-				verifyNoMoreInteractions(transactionManager, clientRepository);
-				verifyNoInteractions(reservationRepository);
-			}
-		}
-
-		@Nested
-		@DisplayName("Tests for 'insertNewReservation'")
-		class InsertNewReservationTest {
-
-			@DisplayName("Reservation is new and client exists")
-			@Test
-			void testInsertNewReservationWhenReservationDoesNotAlreadyExistAndAssociatedClientExistsShouldUpdateInsertAndReturn() {
-				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.empty());
-				when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.of(A_CLIENT));
-				when(reservationRepository.save(A_RESERVATION)).thenReturn(A_RESERVATION);
-				
-				InOrder inOrder = Mockito.inOrder(
-						transactionManager, reservationRepository, clientRepository);
-				
-				assertThat(transactionalBookingService.insertNewReservation(A_RESERVATION))
-					.isEqualTo(A_RESERVATION);
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
-				inOrder.verify(clientRepository).findById(A_CLIENT_UUID);
-				inOrder.verify(reservationRepository).save(A_RESERVATION);
-			
-				verifyNoMoreInteractions(transactionManager, reservationRepository, clientRepository);
-			}
-
-			@Test
-			@DisplayName("Reservation is new and client doesn't exist")
-			void testInsertNewReservationWhenReservationDoesNotAlreadyExistAndAssociatedClientDoesNotExistShouldNotInsertAndThrow() {
-				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.empty());
-				when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.empty());
-				
-				InOrder inOrder = Mockito.inOrder(
-						transactionManager, reservationRepository, clientRepository);
-				
-				assertThatThrownBy(
-						() -> transactionalBookingService.insertNewReservation(A_RESERVATION))
-					.isInstanceOf(InstanceNotFoundException.class)
-					.hasMessage(
-						"The client with id: " + A_CLIENT_UUID + ", associated to the reservation to insert "
-						+ "is not in the database. Please, insert the client before the reservation.");
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
-				inOrder.verify(clientRepository).findById(A_CLIENT_UUID);
-			
-				verifyNoMoreInteractions(transactionManager, reservationRepository, clientRepository);
-			}
-
-			@Test
-			@DisplayName("Reservation already exists")
-			void testInsertNewReservationWhenReservationAlreadyExistsShouldThrow() {
-				when(reservationRepository.findByDate(A_LOCALDATE)).thenReturn(Optional.of(A_RESERVATION));
-				
-				InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
-				
-				assertThatThrownBy(
-						() -> transactionalBookingService.insertNewReservation(A_RESERVATION))
-					.isInstanceOf(InstanceAlreadyExistsException.class)
-					.hasMessage(
-						"Reservation [date=" + A_LOCALDATE.toString() + "] is already in the database.");
-				
-				inOrder.verify(transactionManager)
-					.doInTransaction(ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-				inOrder.verify(reservationRepository).findByDate(A_LOCALDATE);
-			
-				verifyNoMoreInteractions(transactionManager, reservationRepository);
-				verifyNoInteractions(clientRepository);
+					.hasMessage("A database error occurs: the request cannot be executed.");
 			}
 		}
 	}
