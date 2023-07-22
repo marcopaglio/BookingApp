@@ -21,7 +21,7 @@
       <artifactId>booking-domain-module</artifactId>
       <!-- version taken from the bom -->
     </dependency>
-        <dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <!-- version taken from the parent -->
@@ -83,11 +83,13 @@
           <configuration>
             <targetClasses>
               <targetClasse>io.github.marcopaglio.booking.service.transactional.*</targetClasse>
-              <!-- io.github.marcopaglio.booking.transaction.* -->
+              <targetClasse>io.github.marcopaglio.booking.transaction.manager.mongo.*</targetClasse>
+              <targetClasse>io.github.marcopaglio.booking.transaction.handler.factory.*</targetClasse>
             </targetClasses>
             <targetTests>
               <targetTest>io.github.marcopaglio.booking.service.transactional.*</targetTest>
-              <!-- io.github.marcopaglio.booking.transaction.* -->
+              <targetTest>io.github.marcopaglio.booking.transaction.manager.mongo.*</targetTest>
+              <targetTest>io.github.marcopaglio.booking.transaction.handler.factory.*</targetTest>
             </targetTests>
           </configuration>
         </plugin>

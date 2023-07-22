@@ -45,8 +45,20 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>de.bwaldvogel</groupId>
-      <artifactId>mongo-java-server</artifactId>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>mongodb</artifactId>
       <!-- version taken from the parent -->
       <scope>test</scope>
     </dependency>
@@ -73,10 +85,12 @@
             <targetClasses>
               <targetClasse>io.github.marcopaglio.booking.validator.*</targetClasse>
               <targetClasse>io.github.marcopaglio.booking.repository.mongo.*</targetClasse>
+              <targetClasse>io.github.marcopaglio.booking.repository.factory.*</targetClasse>
             </targetClasses>
             <targetTests>
               <targetTest>io.github.marcopaglio.booking.validator.*</targetTest>
               <targetTest>io.github.marcopaglio.booking.repository.mongo.*</targetTest>
+              <targetTest>io.github.marcopaglio.booking.repository.factory.*</targetTest>
             </targetTests>
           </configuration>
         </plugin>
