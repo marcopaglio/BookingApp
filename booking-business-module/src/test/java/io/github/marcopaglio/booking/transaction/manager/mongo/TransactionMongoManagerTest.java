@@ -1,19 +1,12 @@
 package io.github.marcopaglio.booking.transaction.manager.mongo;
 
-import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static io.github.marcopaglio.booking.repository.mongo.ClientMongoRepository.BOOKING_DB_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.bson.UuidRepresentation.STANDARD;
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
-import static org.bson.codecs.pojo.Conventions.ANNOTATION_CONVENTION;
-import static org.bson.codecs.pojo.Conventions.USE_GETTERS_FOR_SETTERS;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -21,9 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import org.bson.codecs.configuration.CodecProvider;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -40,8 +30,10 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
+import com.mongodb.ReadConcern;
+import com.mongodb.ReadPreference;
+import com.mongodb.TransactionOptions;
+import com.mongodb.WriteConcern;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -54,11 +46,15 @@ import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.ClientRepository;
 import io.github.marcopaglio.booking.repository.ReservationRepository;
+import io.github.marcopaglio.booking.repository.factory.ClientRepositoryFactory;
+import io.github.marcopaglio.booking.repository.factory.ReservationRepositoryFactory;
 import io.github.marcopaglio.booking.repository.mongo.ClientMongoRepository;
 import io.github.marcopaglio.booking.repository.mongo.ReservationMongoRepository;
 import io.github.marcopaglio.booking.transaction.code.ClientReservationTransactionCode;
 import io.github.marcopaglio.booking.transaction.code.ClientTransactionCode;
 import io.github.marcopaglio.booking.transaction.code.ReservationTransactionCode;
+import io.github.marcopaglio.booking.transaction.handler.factory.TransactionHandlerFactory;
+import io.github.marcopaglio.booking.transaction.handler.mongo.TransactionMongoHandler;
 
 @DisplayName("Tests for TransactionMongoManager class")
 @ExtendWith(MockitoExtension.class)
@@ -75,48 +71,42 @@ class TransactionMongoManagerTest {
 	@Container
 	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
 
+	private static final TransactionOptions txnOptions = TransactionOptions.builder()
+			.readPreference(ReadPreference.primary())
+			.readConcern(ReadConcern.LOCAL)
+			.writeConcern(WriteConcern.MAJORITY)
+			.build(); //TODO change
+
 	private static MongoClient mongoClient;
-	private static ClientSession session;
-	private ClientSession spiedSession; //TODO: rimuovere se la sessione si apre e chiude in Each
 	private static MongoDatabase database;
+	
+	private static ClientSession session;
 
 	@Mock
-	private ClientMongoRepository clientRepository;
+	private static TransactionMongoHandler transactionMongoHandler;
 
 	@Mock
-	private ReservationMongoRepository reservationRepository;
+	private static ClientMongoRepository clientMongoRepository;
+
+	@Mock
+	private static ReservationMongoRepository reservationMongoRepository;
+
+	@Mock
+	private static TransactionHandlerFactory transactionHandlerFactory;
+
+	@Mock
+	private ClientRepositoryFactory clientRepositoryFactory;
+
+	@Mock
+	private ReservationRepositoryFactory reservationRepositoryFactory;
 
 	private TransactionMongoManager transactionManager;
 
 	@BeforeAll
 	public static void setupServer() throws Exception {
-		mongoClient = getClient(mongo.getConnectionString());
-		//mongoClient = MongoClients.create(mongo.getConnectionString());
-		
-		session = mongoClient.startSession();
+		mongoClient = MongoClients.create(mongo.getConnectionString());
 		
 		database = mongoClient.getDatabase(BOOKING_DB_NAME);
-	}
-
-	private static MongoClient getClient(String connectionString) {
-		// define the CodecProvider for POJO classes
-		CodecProvider pojoCodecProvider = PojoCodecProvider.builder()
-				.conventions(Arrays.asList(ANNOTATION_CONVENTION, USE_GETTERS_FOR_SETTERS))
-				.automatic(true)
-				.build();
-		
-		// define the CodecRegistry as codecs and other related information
-		CodecRegistry pojoCodecRegistry =
-				fromRegistries(getDefaultCodecRegistry(),
-				fromProviders(pojoCodecProvider));
-		
-		// configure the MongoClient for using the CodecRegistry
-		MongoClientSettings settings = MongoClientSettings.builder()
-				.applyConnectionString(new ConnectionString(connectionString))
-				.uuidRepresentation(STANDARD)
-				.codecRegistry(pojoCodecRegistry)
-				.build();
-		return MongoClients.create(settings);
 	}
 
 	@BeforeEach
@@ -124,19 +114,24 @@ class TransactionMongoManagerTest {
 		// make sure we always start with a clean database
 		database.drop();
 		
-		spiedSession = spy(session);
+		session = mongoClient.startSession();
 		
-		transactionManager = new TransactionMongoManager(spiedSession, clientRepository, reservationRepository);
+		transactionManager = new TransactionMongoManager(mongoClient, transactionHandlerFactory,
+				clientRepositoryFactory, reservationRepositoryFactory);
+		
+		// stubbing
+		when(transactionHandlerFactory.createTransactionHandler(mongoClient, txnOptions))
+		.thenReturn(transactionMongoHandler);
+		when(transactionMongoHandler.getSession()).thenReturn(session);
 	}
 
 	@AfterEach
-	void closeSession() {
-		//clientSession.close();
+	void closeSession() throws Exception {
+		session.close();
 	}
 
 	@AfterAll
-	public static void shutdownServer() throws Exception {
-		session.close();
+	public static void closeClient() throws Exception {
 		mongoClient.close();
 	}
 
@@ -144,81 +139,87 @@ class TransactionMongoManagerTest {
 	@DisplayName("Using ClientTransactionCode")
 	class ClientTransactionCodeTest {
 
+		@BeforeEach
+		void doStubbing() throws Exception {
+			when(clientRepositoryFactory.createClientRepository(mongoClient, session))
+				.thenReturn(clientMongoRepository);
+		}
+
 		@Test
 		@DisplayName("Code calls ClientRepository's method")
 		void testDoInTransactionWhenCallsAMethodOfClientRepositoryShouldApplyAndReturn() {
+			ClientTransactionCode<List<Client>> code =
+					(ClientRepository clientRepository) -> clientRepository.findAll();
 			List<Client> listOfClients = Arrays.asList(A_CLIENT);
-			when(clientRepository.findAll()).thenReturn(listOfClients);
 			
-			ClientTransactionCode<List<Client>> code = (ClientRepository clientRepository) ->
-					clientRepository.findAll();
+			when(clientMongoRepository.findAll()).thenReturn(listOfClients);
 			
 			assertThat(transactionManager.doInTransaction(code)).isEqualTo(listOfClients);
 			
-			InOrder inOrder = Mockito.inOrder(spiedSession, clientRepository);
+			InOrder inOrder = Mockito.inOrder(transactionMongoHandler, clientMongoRepository);
 			
-			inOrder.verify(spiedSession).startTransaction();
-			inOrder.verify(clientRepository).findAll();
-			inOrder.verify(spiedSession).commitTransaction();
+			inOrder.verify(transactionMongoHandler).startTransaction();
+			inOrder.verify(clientMongoRepository).findAll();
+			inOrder.verify(transactionMongoHandler).commitTransaction();
 			
-			assertThat(spiedSession.hasActiveTransaction()).isFalse();
+			verifyNoMoreInteractions(transactionMongoHandler, clientMongoRepository);
 		}
 
 		@Test
 		@DisplayName("Code on ClientRepository throws IllegalArgumentException")
-		void testDoInTransactionWhenClientRepositoryThrowsIllegalArgumentExceptionShouldAbortAndThrow() {
-			doThrow(new IllegalArgumentException()).when(clientRepository).delete(null);
-
+		void testDoInTransactionWhenClientRepositoryThrowsIllegalArgumentExceptionShouldRollBackAndThrow() {
 			ClientTransactionCode<Object> code = (ClientRepository clientRepository) -> {
 				clientRepository.delete(null);
 				return null;
 			};
 			
+			doThrow(new IllegalArgumentException()).when(clientMongoRepository).delete(null);
+			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
 				.hasMessage("Transaction fails due to invalid argument(s) passed.");
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 
 		@Test
 		@DisplayName("Code on ClientRepository throws NotNullConstraintViolationException")
-		void testDoInTransactionWhenClientRepositoryThrowsNotNullConstraintViolationExceptionShouldAbortAndThrow() {
-			doThrow(new NotNullConstraintViolationException())
-				.when(clientRepository).save(isA(Client.class));
-			
+		void testDoInTransactionWhenClientRepositoryThrowsNotNullConstraintViolationExceptionShouldRollBackAndThrow() {
 			ClientTransactionCode<Client> code = (ClientRepository clientRepository) -> 
 				clientRepository.save(A_CLIENT);
+				
+			doThrow(new NotNullConstraintViolationException())
+				.when(clientMongoRepository).save(A_CLIENT);
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
 				.hasMessage("Transaction fails due to violation of not-null constraint(s).");
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 
 		@Test
 		@DisplayName("Code on ClientRepository throws UniquenessConstraintViolationException")
-		void testDoInTransactionWhenClientRepositoryThrowsUniquenessConstraintViolationExceptionShouldAbortAndThrow() {
-			doThrow(new UniquenessConstraintViolationException())
-				.when(clientRepository).save(isA(Client.class));
-			
+		void testDoInTransactionWhenClientRepositoryThrowsUniquenessConstraintViolationExceptionShouldRollBackAndThrow() {
 			ClientTransactionCode<Client> code = (ClientRepository clientRepository) -> 
 				clientRepository.save(A_CLIENT);
+			
+			doThrow(new UniquenessConstraintViolationException())
+				.when(clientMongoRepository).save(A_CLIENT);
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
 				.hasMessage("Transaction fails due to violation of uniqueness constraint(s).");
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 
 		@Test
 		@DisplayName("Code throws others RuntimeException")
-		void testDoInTransactionWhenCodeThrowsOthersRuntimeExceptionsShouldAbortAndRethrow() {
+		void testDoInTransactionWhenCodeThrowsOthersRuntimeExceptionsShouldRollBackAndRethrow() {
 			RuntimeException runtimeException = new RuntimeException();
 			ClientTransactionCode<Object> code = (ClientRepository clientRepository) -> {
 				throw runtimeException;
@@ -227,8 +228,8 @@ class TransactionMongoManagerTest {
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isEqualTo(runtimeException);
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 	}
 
@@ -236,78 +237,84 @@ class TransactionMongoManagerTest {
 	@DisplayName("Using ReservationTransactionCode")
 	class ReservationTransactionCodeTest {
 
+		@BeforeEach
+		void doStubbing() throws Exception {
+			when(reservationRepositoryFactory.createReservationRepository(mongoClient, session))
+				.thenReturn(reservationMongoRepository);
+		}
+
 		@Test
 		@DisplayName("Code calls ReservationRepository's method")
 		void testDoInTransactionWhenCallsAMethodOfReservationRepositoryShouldApplyAndReturn() {
-			List<Reservation> listOfReservations = Arrays.asList(A_RESERVATION);
-			when(reservationRepository.findAll()).thenReturn(listOfReservations);
-			
 			ReservationTransactionCode<List<Reservation>> code = 
 					(ReservationRepository reservationRepository) -> reservationRepository.findAll();
+			List<Reservation> listOfReservations = Arrays.asList(A_RESERVATION);
+			
+			when(reservationMongoRepository.findAll()).thenReturn(listOfReservations);
 			
 			assertThat(transactionManager.doInTransaction(code)).isEqualTo(listOfReservations);
 			
-			InOrder inOrder = Mockito.inOrder(spiedSession, reservationRepository);
+			InOrder inOrder = Mockito.inOrder(transactionMongoHandler, reservationMongoRepository);
 			
-			inOrder.verify(spiedSession).startTransaction();
-			inOrder.verify(reservationRepository).findAll();
-			inOrder.verify(spiedSession).commitTransaction();
+			inOrder.verify(transactionMongoHandler).startTransaction();
+			inOrder.verify(reservationMongoRepository).findAll();
+			inOrder.verify(transactionMongoHandler).commitTransaction();
 			
-			assertThat(spiedSession.hasActiveTransaction()).isFalse();
+			verifyNoMoreInteractions(transactionMongoHandler, reservationMongoRepository);
 		}
 
 		@Test
 		@DisplayName("Code on ReservationRepository throws IllegalArgumentException")
-		void testDoInTransactionWhenReservationRepositoryThrowsIllegalArgumentExceptionShouldAbortAndThrow() {
-			doThrow(new IllegalArgumentException()).when(reservationRepository).delete(null);
-
+		void testDoInTransactionWhenReservationRepositoryThrowsIllegalArgumentExceptionShouldRollBackAndThrow() {
 			ReservationTransactionCode<Object> code = (ReservationRepository reservationRepository) -> {
 				reservationRepository.delete(null);
 				return null;
 			};
 			
+			doThrow(new IllegalArgumentException()).when(reservationMongoRepository).delete(null);
+			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
 				.hasMessage("Transaction fails due to invalid argument(s) passed.");
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 
 		@Test
 		@DisplayName("Code on ReservationRepository throws NotNullConstraintViolationException")
-		void testDoInTransactionWhenReservationRepositoryThrowsNotNullConstraintViolationExceptionShouldAbortAndThrow() {
-			doThrow(new NotNullConstraintViolationException())
-				.when(reservationRepository).save(isA(Reservation.class));
-			
+		void testDoInTransactionWhenReservationRepositoryThrowsNotNullConstraintViolationExceptionShouldRollBackAndThrow() {
 			ReservationTransactionCode<Reservation> code = 
 					(ReservationRepository reservationRepository) -> 
 						reservationRepository.save(A_RESERVATION);
+			
+			doThrow(new NotNullConstraintViolationException())
+				.when(reservationMongoRepository).save(A_RESERVATION);
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
 				.hasMessage("Transaction fails due to violation of not-null constraint(s).");
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 
 		@Test
 		@DisplayName("Code on ReservationRepository throws UniquenessConstraintViolationException")
-		void testDoInTransactionWhenReservationRepositoryThrowsUniquenessConstraintViolationExceptionShouldAbortAndThrow() {
-			doThrow(new UniquenessConstraintViolationException())
-				.when(reservationRepository).save(isA(Reservation.class));
-			
+		void testDoInTransactionWhenReservationRepositoryThrowsUniquenessConstraintViolationExceptionShouldRollBackAndThrow() {
 			ReservationTransactionCode<Reservation> code =
 					(ReservationRepository reservationRepository) -> 
 						reservationRepository.save(A_RESERVATION);
+						
+			doThrow(new UniquenessConstraintViolationException())
+				.when(reservationMongoRepository).save(A_RESERVATION);
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
 				.hasMessage("Transaction fails due to violation of uniqueness constraint(s).");
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 
 		@Test
@@ -315,14 +322,14 @@ class TransactionMongoManagerTest {
 		void testDoInTransactionWhenCodeThrowsOthersRuntimeExceptionsShouldAbortAndRethrow() {
 			RuntimeException runtimeException = new RuntimeException();
 			ReservationTransactionCode<Object> code = (ReservationRepository reservationRepository) -> {
-				throw runtimeException;
-			};
+					throw runtimeException;
+				};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isEqualTo(runtimeException);
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 	}
 
@@ -330,153 +337,161 @@ class TransactionMongoManagerTest {
 	@DisplayName("Using ClientReservationTransactionCode")
 	class ClientReservationTransactionCodeTest {
 
+		@BeforeEach
+		void doStubbing() throws Exception {
+			when(clientRepositoryFactory.createClientRepository(mongoClient, session))
+				.thenReturn(clientMongoRepository);
+			when(reservationRepositoryFactory.createReservationRepository(mongoClient, session))
+				.thenReturn(reservationMongoRepository);
+		}
+
 		@Test
 		@DisplayName("Code calls both ClientRepository's and ReservationRepository's methods")
 		void testDoInTransactionWhenCallsMethodsOfClientAndReservationRepositoriesShouldApplyAndReturn() {
-			List<Reservation> listOfReservations = Arrays.asList(A_RESERVATION);
-			when(reservationRepository.findAll()).thenReturn(listOfReservations);
-			
 			ClientReservationTransactionCode<List<Reservation>> code = 
-					(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-						clientRepository.findAll();
-						return reservationRepository.findAll();
-					};
+				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+					clientRepository.findAll();
+					return reservationRepository.findAll();
+				};
+			List<Reservation> listOfReservations = Arrays.asList(A_RESERVATION);
+			
+			when(reservationMongoRepository.findAll()).thenReturn(listOfReservations);
 			
 			assertThat(transactionManager.doInTransaction(code)).isEqualTo(listOfReservations);
 			
-			InOrder inOrder = Mockito.inOrder(spiedSession, clientRepository, reservationRepository);
+			InOrder inOrder = Mockito.inOrder(
+					transactionMongoHandler, clientMongoRepository, reservationMongoRepository);
 			
-			inOrder.verify(spiedSession).startTransaction();
-			inOrder.verify(clientRepository).findAll();
-			inOrder.verify(reservationRepository).findAll();
-			inOrder.verify(spiedSession).commitTransaction();
+			inOrder.verify(transactionMongoHandler).startTransaction();
+			inOrder.verify(clientMongoRepository).findAll();
+			inOrder.verify(reservationMongoRepository).findAll();
+			inOrder.verify(transactionMongoHandler).commitTransaction();
 			
-			assertThat(spiedSession.hasActiveTransaction()).isFalse();
+			verifyNoMoreInteractions(transactionMongoHandler, clientMongoRepository, reservationMongoRepository);
 		}
 
 		@Test
 		@DisplayName("Code on ClientRepository throws IllegalArgumentException")
-		void testDoInTransactionWhenClientRepositoryThrowsIllegalArgumentExceptionShouldAbortAndThrow() {
-			// default stubbing for reservationRepository.delete(reservation)
-			doThrow(new IllegalArgumentException()).when(clientRepository).delete(null);
-
+		void testDoInTransactionWhenClientRepositoryThrowsIllegalArgumentExceptionShouldRollBackAndThrow() {
 			ClientReservationTransactionCode<Object> code =
-					(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-						reservationRepository.delete(A_RESERVATION);
-						clientRepository.delete(null);
-						return null;
-					};
+				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+					reservationRepository.delete(A_RESERVATION);
+					clientRepository.delete(null);
+					return null;
+				};
+			
+			doThrow(new IllegalArgumentException()).when(clientMongoRepository).delete(null);
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
 				.hasMessage("Transaction fails due to invalid argument(s) passed.");
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 
 		@Test
 		@DisplayName("Code on ReservationRepository throws IllegalArgumentException")
-		void testDoInTransactionWhenReservationRepositoryThrowsIllegalArgumentExceptionShouldAbortAndThrow() {
-			doThrow(new IllegalArgumentException()).when(reservationRepository).save(null);
-
+		void testDoInTransactionWhenReservationRepositoryThrowsIllegalArgumentExceptionShouldRollBackAndThrow() {
 			ClientReservationTransactionCode<Object> code =
-					(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-						clientRepository.save(A_CLIENT);
-						reservationRepository.save(null);
-						return null;
-					};
+				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+					clientRepository.save(A_CLIENT);
+					reservationRepository.save(null);
+					return null;
+				};
+					
+			doThrow(new IllegalArgumentException()).when(reservationMongoRepository).save(null);
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
 				.hasMessage("Transaction fails due to invalid argument(s) passed.");
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 
 		@Test
 		@DisplayName("Code on ClientRepository throws NotNullConstraintViolationException")
-		void testDoInTransactionWhenClientRepositoryThrowsNotNullConstraintViolationExceptionShouldAbortAndThrow() {
-			doThrow(new NotNullConstraintViolationException())
-				.when(clientRepository).save(isA(Client.class));
-			
+		void testDoInTransactionWhenClientRepositoryThrowsNotNullConstraintViolationExceptionShouldRollBackAndThrow() {
 			ClientReservationTransactionCode<Object> code =
-					(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-						clientRepository.save(A_CLIENT);
-						reservationRepository.save(A_RESERVATION);
-						return null;
-					};
+				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+					clientRepository.save(A_CLIENT);
+					reservationRepository.save(A_RESERVATION);
+					return null;
+				};
+			
+			doThrow(new NotNullConstraintViolationException())
+				.when(clientMongoRepository).save(A_CLIENT);
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
 				.hasMessage("Transaction fails due to violation of not-null constraint(s).");
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 
 		@Test
 		@DisplayName("Code on ReservationRepository throws NotNullConstraintViolationException")
-		void testDoInTransactionWhenReservationRepositoryThrowsNotNullConstraintViolationExceptionShouldAbortAndThrow() {
-			doThrow(new NotNullConstraintViolationException())
-				.when(reservationRepository).save(isA(Reservation.class));
-			
+		void testDoInTransactionWhenReservationRepositoryThrowsNotNullConstraintViolationExceptionShouldRollBackAndThrow() {
 			ClientReservationTransactionCode<Object> code =
-					(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-						clientRepository.save(A_CLIENT);
-						reservationRepository.save(A_RESERVATION);
-						return null;
-					};
+				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+					clientRepository.save(A_CLIENT);
+					reservationRepository.save(A_RESERVATION);
+					return null;
+				};
+					
+			doThrow(new NotNullConstraintViolationException())
+				.when(reservationMongoRepository).save(A_RESERVATION);
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
 				.hasMessage("Transaction fails due to violation of not-null constraint(s).");
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 
 		@Test
 		@DisplayName("Code on ClientRepository throws UniquenessConstraintViolationException")
 		void testDoInTransactionWhenClientRepositoryThrowsUniquenessConstraintViolationExceptionShouldAbortAndThrow() {
-			doThrow(new UniquenessConstraintViolationException())
-				.when(clientRepository).save(isA(Client.class));
-			
 			ClientReservationTransactionCode<Object> code =
-					(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-						clientRepository.save(A_CLIENT);
-						reservationRepository.save(A_RESERVATION);
-						return null;
-					};
+				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+					clientRepository.save(A_CLIENT);
+					reservationRepository.save(A_RESERVATION);
+					return null;
+				};
+			
+			doThrow(new UniquenessConstraintViolationException())
+				.when(clientMongoRepository).save(A_CLIENT);
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
 				.hasMessage("Transaction fails due to violation of uniqueness constraint(s).");
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 
 		@Test
 		@DisplayName("Code on ReservationRepository throws UniquenessConstraintViolationException")
 		void testDoInTransactionWhenReservationRepositoryThrowsUniquenessConstraintViolationExceptionShouldAbortAndThrow() {
-			doThrow(new UniquenessConstraintViolationException())
-				.when(reservationRepository).save(isA(Reservation.class));
-			
 			ClientReservationTransactionCode<Object> code =
 					(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
 						clientRepository.save(A_CLIENT);
 						reservationRepository.save(A_RESERVATION);
 						return null;
 					};
+					
+			doThrow(new UniquenessConstraintViolationException())
+				.when(reservationMongoRepository).save(A_RESERVATION);
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
 				.hasMessage("Transaction fails due to violation of uniqueness constraint(s).");
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 
 		@Test
@@ -484,15 +499,15 @@ class TransactionMongoManagerTest {
 		void testDoInTransactionWhenCodeThrowsOthersRuntimeExceptionsShouldAbortAndRethrow() {
 			RuntimeException runtimeException = new RuntimeException();
 			ClientReservationTransactionCode<Object> code =
-					(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-						throw runtimeException;
-					};
+				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+					throw runtimeException;
+				};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isEqualTo(runtimeException);
 			
-			verify(spiedSession, never()).commitTransaction();
-			verify(spiedSession).abortTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler, never()).commitTransaction();
 		}
 	}
 }

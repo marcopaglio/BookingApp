@@ -1,15 +1,21 @@
 package io.github.marcopaglio.booking.transaction.manager.mongo;
 
-import com.mongodb.client.ClientSession;
+import com.mongodb.ReadConcern;
+import com.mongodb.ReadPreference;
+import com.mongodb.TransactionOptions;
+import com.mongodb.WriteConcern;
+import com.mongodb.client.MongoClient;
 
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.TransactionException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
-import io.github.marcopaglio.booking.repository.mongo.ClientMongoRepository;
-import io.github.marcopaglio.booking.repository.mongo.ReservationMongoRepository;
+import io.github.marcopaglio.booking.repository.factory.ClientRepositoryFactory;
+import io.github.marcopaglio.booking.repository.factory.ReservationRepositoryFactory;
 import io.github.marcopaglio.booking.transaction.code.ClientReservationTransactionCode;
 import io.github.marcopaglio.booking.transaction.code.ClientTransactionCode;
 import io.github.marcopaglio.booking.transaction.code.ReservationTransactionCode;
+import io.github.marcopaglio.booking.transaction.handler.factory.TransactionHandlerFactory;
+import io.github.marcopaglio.booking.transaction.handler.mongo.TransactionMongoHandler;
 import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 
 /**
@@ -32,33 +38,55 @@ public class TransactionMongoManager implements TransactionManager {
 	private static final String VIOLATION_OF_UNIQUENESS_CONSTRAINT = "violation of uniqueness constraint(s)";
 
 	/**
-	 * Used for communicating with MongoDB and creating transactions.
+	 * 
 	 */
-	private ClientSession session;
+	TransactionOptions txnOptions = TransactionOptions.builder()
+			.readPreference(ReadPreference.primary())
+			.readConcern(ReadConcern.LOCAL)
+			.writeConcern(WriteConcern.MAJORITY)
+			.build(); //TODO change
 
 	/**
-	 * Used for applying code to {@code ClientRepository}.
+	 * Used for executing code on {@code ClientRepository} and/or {@code ReservationRepository}
+	 * into transactions. Particularly, it allows to create sessions, transactions and repositories.
 	 */
-	private ClientMongoRepository clientRepository;
+	private MongoClient mongoClient;
 
 	/**
-	 * Used for applying code to {@code ReservationRepository}.
+	 * Used for creation of {@code ClientSession} instances.
 	 */
-	private ReservationMongoRepository reservationRepository;
+	private TransactionHandlerFactory transactionHandlerFactory;
+
+	/**
+	 * Used for creation of {@code ClientMongoRepository} instances.
+	 */
+	private ClientRepositoryFactory clientRepositoryFactory;
+
+	/**
+	 * Used for creation of {@code ReservationMongoRepository} instances.
+	 */
+	private ReservationRepositoryFactory reservationRepositoryFactory;
 
 	/**
 	 * Constructs a manager for applying code that uses entity repositories 
 	 * using MongoDB transactions.
 	 * 
-	 * @param session				the MongoDB session used for creating transactions.
-	 * @param clientRepository		the repository that manages {@code Client} entities.
-	 * @param reservationRepository	the repository that manages {@code Reservation} entities.
+	 * @param mongoClient					the client connected to the MongoDB database.
+	 * @param transactionHandlerFactory		the factory for create instances
+	 * 										of {@code ClientSession}.
+	 * @param clientRepositoryFactory		the factory to create instances
+	 * 										of {@code ClientMongoRepository}.
+	 * @param reservationRepositoryFactory	the factory to create instances
+	 * 										of {@code ReservationMongoRepository}.
 	 */
-	public TransactionMongoManager(ClientSession session, ClientMongoRepository clientRepository,
-			ReservationMongoRepository reservationRepository) {
-		this.session = session;
-		this.clientRepository = clientRepository;
-		this.reservationRepository = reservationRepository;
+	public TransactionMongoManager(MongoClient mongoClient,
+			TransactionHandlerFactory transactionHandlerFactory,
+			ClientRepositoryFactory clientRepositoryFactory,
+			ReservationRepositoryFactory reservationRepositoryFactory) {
+		this.mongoClient = mongoClient;
+		this.transactionHandlerFactory = transactionHandlerFactory;
+		this.clientRepositoryFactory = clientRepositoryFactory;
+		this.reservationRepositoryFactory = reservationRepositoryFactory;
 	}
 
 	/**
@@ -74,23 +102,29 @@ public class TransactionMongoManager implements TransactionManager {
 	 */
 	@Override
 	public <R> R doInTransaction(ClientTransactionCode<R> code) throws TransactionException {
+		TransactionMongoHandler sessionHandler =
+				transactionHandlerFactory.createTransactionHandler(mongoClient, txnOptions);
 		try {
-			session.startTransaction();
-			R toBeReturned = code.apply(clientRepository);
-			session.commitTransaction();
+			sessionHandler.startTransaction();
+			R toBeReturned = code.apply(
+					clientRepositoryFactory.createClientRepository(
+							mongoClient, sessionHandler.getSession()));
+			sessionHandler.commitTransaction();
 			return toBeReturned;
 		} catch(IllegalArgumentException e) {
-			session.abortTransaction();
+			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
 		} catch(NotNullConstraintViolationException e) {
-			session.abortTransaction();
+			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
 		} catch(UniquenessConstraintViolationException e) {
-			session.abortTransaction();
+			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
 		} catch(RuntimeException e) {
-			session.abortTransaction();
+			sessionHandler.rollbackTransaction();
 			throw e;
+		} finally {
+			sessionHandler.getSession().close();
 		}
 	}
 
@@ -107,23 +141,29 @@ public class TransactionMongoManager implements TransactionManager {
 	 */
 	@Override
 	public <R> R doInTransaction(ReservationTransactionCode<R> code) throws TransactionException {
+		TransactionMongoHandler sessionHandler =
+				transactionHandlerFactory.createTransactionHandler(mongoClient, txnOptions);
 		try {
-			session.startTransaction();
-			R toBeReturned = code.apply(reservationRepository);
-			session.commitTransaction();
+			sessionHandler.startTransaction();
+			R toBeReturned = code.apply(
+					reservationRepositoryFactory.createReservationRepository(
+							mongoClient, sessionHandler.getSession()));
+			sessionHandler.commitTransaction();
 			return toBeReturned;
 		} catch(IllegalArgumentException e) {
-			session.abortTransaction();
+			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
 		} catch(NotNullConstraintViolationException e) {
-			session.abortTransaction();
+			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
 		} catch(UniquenessConstraintViolationException e) {
-			session.abortTransaction();
+			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
 		} catch(RuntimeException e) {
-			session.abortTransaction();
+			sessionHandler.rollbackTransaction();
 			throw e;
+		} finally {
+			sessionHandler.getSession().close();
 		}
 	}
 
@@ -140,23 +180,31 @@ public class TransactionMongoManager implements TransactionManager {
 	 */
 	@Override
 	public <R> R doInTransaction(ClientReservationTransactionCode<R> code) throws TransactionException {
+		TransactionMongoHandler sessionHandler =
+				transactionHandlerFactory.createTransactionHandler(mongoClient, txnOptions);
 		try {
-			session.startTransaction();
-			R toBeReturned = code.apply(clientRepository, reservationRepository);
-			session.commitTransaction();
+			sessionHandler.startTransaction();
+			R toBeReturned = code.apply(
+					clientRepositoryFactory.createClientRepository(
+							mongoClient, sessionHandler.getSession()),
+					reservationRepositoryFactory.createReservationRepository(
+							mongoClient, sessionHandler.getSession()));
+			sessionHandler.commitTransaction();
 			return toBeReturned;
 		} catch(IllegalArgumentException e) {
-			session.abortTransaction();
+			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
-		} catch(NotNullConstraintViolationException e) {
-			session.abortTransaction();
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
 		} catch(UniquenessConstraintViolationException e) {
-			session.abortTransaction();
+			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
+		} catch(NotNullConstraintViolationException e) {
+			sessionHandler.rollbackTransaction();
+			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
 		} catch(RuntimeException e) {
-			session.abortTransaction();
+			sessionHandler.rollbackTransaction();
 			throw e;
+		} finally {
+			sessionHandler.getSession().close();
 		}
 	}
 
