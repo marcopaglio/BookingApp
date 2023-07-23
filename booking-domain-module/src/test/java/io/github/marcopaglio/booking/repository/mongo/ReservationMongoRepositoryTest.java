@@ -66,9 +66,9 @@ class ReservationMongoRepositoryTest {
 
 	private static MongoClient mongoClient;
 	private static MongoDatabase database;
-	private static ClientSession session;
-	
+	private ClientSession session;
 	private MongoCollection<Reservation> reservationCollection;
+
 	private ReservationMongoRepository reservationRepository;
 
 	@BeforeAll

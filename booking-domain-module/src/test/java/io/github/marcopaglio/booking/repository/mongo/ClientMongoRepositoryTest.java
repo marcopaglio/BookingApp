@@ -69,9 +69,9 @@ class ClientMongoRepositoryTest {
 
 	private static MongoClient mongoClient;
 	private static MongoDatabase database;
-	private static ClientSession session;
-
+	private ClientSession session;
 	private MongoCollection<Client> clientCollection;
+
 	private ClientMongoRepository clientRepository;
 
 	@BeforeAll
