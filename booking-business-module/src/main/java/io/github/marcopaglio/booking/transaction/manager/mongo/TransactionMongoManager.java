@@ -123,8 +123,6 @@ public class TransactionMongoManager implements TransactionManager {
 		} catch(RuntimeException e) {
 			sessionHandler.rollbackTransaction();
 			throw e;
-		} finally {
-			sessionHandler.getSession().close();
 		}
 	}
 
@@ -162,8 +160,6 @@ public class TransactionMongoManager implements TransactionManager {
 		} catch(RuntimeException e) {
 			sessionHandler.rollbackTransaction();
 			throw e;
-		} finally {
-			sessionHandler.getSession().close();
 		}
 	}
 
@@ -203,8 +199,6 @@ public class TransactionMongoManager implements TransactionManager {
 		} catch(RuntimeException e) {
 			sessionHandler.rollbackTransaction();
 			throw e;
-		} finally {
-			sessionHandler.getSession().close();
 		}
 	}
 
