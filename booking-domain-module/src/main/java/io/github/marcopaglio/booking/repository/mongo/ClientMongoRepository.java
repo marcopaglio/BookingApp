@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import com.mongodb.MongoWriteException;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
@@ -41,13 +42,14 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	 * 
 	 * @param mongoClient	the {@code MongoClient} used to retrieve the collection.
 	 */
-	public ClientMongoRepository(MongoClient mongoClient) {
+	public ClientMongoRepository(MongoClient mongoClient, ClientSession session) {
 		super(mongoClient
 				.getDatabase(BOOKING_DB_NAME)
-				.getCollection(CLIENT_COLLECTION_NAME, Client.class));
+				.getCollection(CLIENT_COLLECTION_NAME, Client.class),
+				session);
 		
 		// configuration
-		collection.createIndex(Indexes.descending("name", "surname"), 
+		collection.createIndex(session, Indexes.descending("name", "surname"), 
 				new IndexOptions().unique(true));
 	}
 
@@ -59,7 +61,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	@Override
 	public List<Client> findAll() {
 		return StreamSupport
-				.stream(collection.find().spliterator(), false)
+				.stream(collection.find(session).spliterator(), false)
 				.collect(Collectors.toList());
 	}
 
@@ -72,7 +74,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	 */
 	@Override
 	public Optional<Client> findById(UUID id) {
-		Client client = collection.find(Filters.eq(ID_DB, id)).first();
+		Client client = collection.find(session, Filters.eq(ID_DB, id)).first();
 		
 		if (client != null)
 			return Optional.of(client);
@@ -91,7 +93,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	 */
 	@Override
 	public Optional<Client> findByName(String firstName, String lastName) {
-		Client client = collection.find(Filters.and(
+		Client client = collection.find(session, Filters.and(
 					Filters.eq(FIRSTNAME_DB, firstName),
 					Filters.eq(LASTNAME_DB, lastName)
 				)).first();
@@ -126,14 +128,14 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 		if(client.getId() == null) {
 			client.setId(UUID.randomUUID());
 			try {
-				collection.insertOne(client);
+				collection.insertOne(session, client);
 			} catch(MongoWriteException e) {
 				throw new UniquenessConstraintViolationException(
 						uniquenessConstraintViolationMsg("insertion"));
 			}
 		} else {
 			try {
-				collection.replaceOne(Filters.eq(ID_DB, client.getId()), client);
+				collection.replaceOne(session, Filters.eq(ID_DB, client.getId()), client);
 			} catch(MongoWriteException e) {
 				throw new UniquenessConstraintViolationException(
 						uniquenessConstraintViolationMsg("update"));
@@ -153,6 +155,6 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 		if(client == null)
 			throw new IllegalArgumentException("Client to delete cannot be null.");
 		
-		collection.deleteOne(Filters.eq(ID_DB, client.getId()));
+		collection.deleteOne(session, Filters.eq(ID_DB, client.getId()));
 	}
 }

@@ -1,6 +1,7 @@
 package io.github.marcopaglio.booking.repository.mongo;
 
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -8,6 +9,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
@@ -28,13 +32,12 @@ import org.bson.codecs.pojo.PojoCodecProvider;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-import de.bwaldvogel.mongo.MongoServer;
-import de.bwaldvogel.mongo.backend.memory.MemoryBackend;
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
 import io.github.marcopaglio.booking.model.Client;
@@ -51,6 +54,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
 import static io.github.marcopaglio.booking.repository.mongo.ClientMongoRepository.BOOKING_DB_NAME;
 
+@Testcontainers
 class ClientMongoRepositoryTest {
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
@@ -60,26 +64,24 @@ class ClientMongoRepositoryTest {
 	private static final String ANOTHER_LASTNAME = "De Lucia";
 	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("03005056-fa48-408e-ba3d-29d2e5d7f683");
 
-	private static MongoServer server;
+	@Container
+	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
+
 	private static MongoClient mongoClient;
 	private static MongoDatabase database;
+	private static ClientSession session;
 
 	private MongoCollection<Client> clientCollection;
 	private ClientMongoRepository clientRepository;
 
 	@BeforeAll
 	public static void setupServer() throws Exception {
-		server = new MongoServer(new MemoryBackend());
-		// bind on a random local port
-		String connectionString = server.bindAndGetConnectionString();
-		
-		mongoClient = getClient(connectionString);
+		mongoClient = getClient(mongo.getConnectionString());
 		
 		database = mongoClient.getDatabase(BOOKING_DB_NAME);
 	}
 
 	private static MongoClient getClient(String connectionString) {
-		
 		// define the CodecProvider for POJO classes
 		CodecProvider pojoCodecProvider = PojoCodecProvider.builder()
 				.conventions(Arrays.asList(ANNOTATION_CONVENTION, USE_GETTERS_FOR_SETTERS))
@@ -105,17 +107,24 @@ class ClientMongoRepositoryTest {
 		// make sure we always start with a clean database
 		database.drop();
 		
+		// start a new session for communicating with the DB
+		session = mongoClient.startSession();
+		
 		// repository creation after drop because it removes configurations on collections
-		clientRepository = new ClientMongoRepository(mongoClient);
+		clientRepository = new ClientMongoRepository(mongoClient, session);
 		
 		// get a MongoCollection suited for your POJO class
 		clientCollection = clientRepository.getCollection();
 	}
 
+	@AfterEach
+	void closeSession() {
+		session.close();
+	}
+
 	@AfterAll
-	public static void shutdownServer() throws Exception {
+	public static void closeClient() throws Exception {
 		mongoClient.close();
-		server.shutdown();
 	}
 
 	@Nested

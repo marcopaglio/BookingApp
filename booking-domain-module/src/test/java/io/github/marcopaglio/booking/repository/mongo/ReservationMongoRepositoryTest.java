@@ -29,25 +29,29 @@ import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
-import de.bwaldvogel.mongo.MongoServer;
-import de.bwaldvogel.mongo.backend.memory.MemoryBackend;
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
 import io.github.marcopaglio.booking.model.Reservation;
 
+@Testcontainers
 class ReservationMongoRepositoryTest {
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2022-12-22");
 	private static final UUID A_CLIENT_UUID = UUID.fromString("5a583373-c1b4-4913-82b6-5ea76fb1b1be");
@@ -57,27 +61,24 @@ class ReservationMongoRepositoryTest {
 	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("86738f20-f90d-4f9a-8d02-4b9537b4bab5");
 	private static final UUID ANOTHER_RESERVATION_UUID = UUID.fromString("5cca7a16-d2d6-4be2-ba6b-bcdd0871dc24");
 
+	@Container
+	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
 
-	private static MongoServer server;
 	private static MongoClient mongoClient;
 	private static MongoDatabase database;
+	private static ClientSession session;
 	
 	private MongoCollection<Reservation> reservationCollection;
 	private ReservationMongoRepository reservationRepository;
 
 	@BeforeAll
 	static void setupServer() throws Exception {
-		server = new MongoServer(new MemoryBackend());
-		// bind on a random local port
-		String connectionString = server.bindAndGetConnectionString();
-		
-		mongoClient = getClient(connectionString);
+		mongoClient = getClient(mongo.getConnectionString());
 		
 		database = mongoClient.getDatabase(BOOKING_DB_NAME);
 	}
 
 	private static MongoClient getClient(String connectionString) {
-		
 		// define the CodecProvider for POJO classes
 		CodecProvider pojoCodecProvider = PojoCodecProvider.builder()
 				.conventions(Arrays.asList(ANNOTATION_CONVENTION, USE_GETTERS_FOR_SETTERS))
@@ -103,17 +104,24 @@ class ReservationMongoRepositoryTest {
 		// make sure we always start with a clean database
 		database.drop();
 		
+		// start a new session for communicating with the DB
+		session = mongoClient.startSession();
+		
 		// repository creation after drop because it removes configurations on collections
-		reservationRepository = new ReservationMongoRepository(mongoClient);
+		reservationRepository = new ReservationMongoRepository(mongoClient, session);
 		
 		// get a MongoCollection suited for your POJO class
 		reservationCollection = reservationRepository.getCollection();
 	}
 
+	@AfterEach
+	void closeSession() {
+		session.close();
+	}
+
 	@AfterAll
-	static void shutdownServer() throws Exception {
+	static void closeClient() throws Exception {
 		mongoClient.close();
-		server.shutdown();
 	}
 
 	@Nested

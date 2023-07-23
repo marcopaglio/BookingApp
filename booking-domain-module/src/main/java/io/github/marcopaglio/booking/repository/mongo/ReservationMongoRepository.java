@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import com.mongodb.MongoWriteException;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
@@ -42,13 +43,14 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	 * 
 	 * @param mongoClient	the {@code MongoClient} used to retrieve the collection.
 	 */
-	public ReservationMongoRepository(MongoClient client) {
+	public ReservationMongoRepository(MongoClient client, ClientSession session) {
 		super(client
 				.getDatabase(BOOKING_DB_NAME)
-				.getCollection(RESERVATION_COLLECTION_NAME, Reservation.class));
+				.getCollection(RESERVATION_COLLECTION_NAME, Reservation.class),
+				session);
 		
 		// collection configuration
-		getCollection().createIndex(Indexes.descending("date"), new IndexOptions().unique(true));
+		collection.createIndex(session, Indexes.descending("date"), new IndexOptions().unique(true));
 	}
 
 	/**
@@ -59,7 +61,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	@Override
 	public List<Reservation> findAll() {
 		return StreamSupport
-				.stream(collection.find().spliterator(), false)
+				.stream(collection.find(session).spliterator(), false)
 				.collect(Collectors.toList());
 	}
 
@@ -74,7 +76,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	@Override
 	public List<Reservation> findByClient(UUID clientId) {
 		return StreamSupport
-				.stream(collection.find(Filters.eq(CLIENTID_DB, clientId)).spliterator(), false)
+				.stream(collection.find(session, Filters.eq(CLIENTID_DB, clientId)).spliterator(), false)
 				.collect(Collectors.toList());
 	}
 
@@ -87,7 +89,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	 */
 	@Override
 	public Optional<Reservation> findById(UUID id) {
-		Reservation reservation = collection.find(Filters.eq(ID_DB, id)).first();
+		Reservation reservation = collection.find(session, Filters.eq(ID_DB, id)).first();
 		
 		if (reservation != null)
 			return Optional.of(reservation);
@@ -103,7 +105,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	 */
 	@Override
 	public Optional<Reservation> findByDate(LocalDate date) {
-		Reservation reservation = collection.find(Filters.eq(DATE_DB, date)).first();
+		Reservation reservation = collection.find(session, Filters.eq(DATE_DB, date)).first();
 		
 		if (reservation != null)
 			return Optional.of(reservation);
@@ -139,14 +141,14 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 		if (reservation.getId() == null) {
 			reservation.setId(UUID.randomUUID());
 			try {
-				collection.insertOne(reservation);
+				collection.insertOne(session, reservation);
 			} catch(MongoWriteException e) {
 				throw new UniquenessConstraintViolationException(
 						uniquenessConstraintViolationMsg("insertion"));
 			}
 		} else {
 			try {
-				collection.replaceOne(Filters.eq(ID_DB, reservation.getId()), reservation);
+				collection.replaceOne(session, Filters.eq(ID_DB, reservation.getId()), reservation);
 			} catch(MongoWriteException e) {
 				throw new UniquenessConstraintViolationException(
 						uniquenessConstraintViolationMsg("update"));
@@ -166,7 +168,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to delete cannot be null.");
 		
-		collection.deleteOne(Filters.eq(ID_DB, reservation.getId()));
+		collection.deleteOne(session, Filters.eq(ID_DB, reservation.getId()));
 	}
 
 }
