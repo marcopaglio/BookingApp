@@ -34,9 +34,9 @@ public class TransactionMongoHandler implements TransactionHandler {
 	}
 
 	/**
-	 * Retrieves the MongoDB session.
+	 * Retrieves the MongoDB session used.
 	 * 
-	 * @return the session
+	 * @return the {@code ClientSession} used.
 	 */
 	@Generated
 	public final ClientSession getSession() {
