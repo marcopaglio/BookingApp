@@ -5,6 +5,8 @@ import com.mongodb.client.MongoCollection;
 
 /**
  * Facade of repository layer for using with MongoDB database.
+ *
+ * @param <T>	the entity type managed by the repository.
  */
 public abstract class MongoRepository<T> {
 
