@@ -42,15 +42,6 @@ public abstract class MongoRepository<T> {
 	}
 
 	/**
-	 * Retrieves the session used by the repository layer.
-	 * 
-	 * @return	the {@code ClientSession} used by the repository.
-	 */
-	public final ClientSession getSession() {
-		return session;
-	}
-
-	/**
 	 * Generates a message for the violation of uniqueness constraints by an operation.
 	 * 
 	 * @param operation	the name of the operation that violates the constraint.
