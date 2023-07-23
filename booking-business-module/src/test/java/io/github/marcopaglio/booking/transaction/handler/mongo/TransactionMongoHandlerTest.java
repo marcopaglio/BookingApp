@@ -1,5 +1,6 @@
 package io.github.marcopaglio.booking.transaction.handler.mongo;
 
+import static io.github.marcopaglio.booking.transaction.manager.mongo.TransactionMongoManager.TXN_OPTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -14,10 +15,6 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.mongodb.ReadConcern;
-import com.mongodb.ReadPreference;
-import com.mongodb.TransactionOptions;
-import com.mongodb.WriteConcern;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -25,18 +22,12 @@ import com.mongodb.client.MongoClients;
 @DisplayName("Tests for TransactionMongoHandler class")
 @Testcontainers
 class TransactionMongoHandlerTest {
-	static final private TransactionOptions txnOptions = TransactionOptions.builder()
-			.readPreference(ReadPreference.primary())
-			.readConcern(ReadConcern.LOCAL)
-			.writeConcern(WriteConcern.MAJORITY)
-			.build(); // TODO: change
 
 	@Container
 	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
 
 	private static MongoClient mongoClient;
-	
-	private static ClientSession session;
+	private ClientSession session;
 
 	private TransactionMongoHandler transactionMongoHandler;
 
@@ -49,7 +40,7 @@ class TransactionMongoHandlerTest {
 	void setUp() throws Exception {
 		session = mongoClient.startSession();
 		
-		transactionMongoHandler = new TransactionMongoHandler(session, txnOptions);
+		transactionMongoHandler = new TransactionMongoHandler(session, TXN_OPTIONS);
 	}
 
 	@AfterEach

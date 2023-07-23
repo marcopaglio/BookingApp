@@ -1,5 +1,6 @@
 package io.github.marcopaglio.booking.transaction.handler.factory;
 
+import static io.github.marcopaglio.booking.transaction.manager.mongo.TransactionMongoManager.TXN_OPTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -13,10 +14,6 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.mongodb.ReadConcern;
-import com.mongodb.ReadPreference;
-import com.mongodb.TransactionOptions;
-import com.mongodb.WriteConcern;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
@@ -25,11 +22,6 @@ import io.github.marcopaglio.booking.transaction.handler.mongo.TransactionMongoH
 @DisplayName("Tests for TransactionHandlerFactory class")
 @Testcontainers
 class TransactionHandlerFactoryTest {
-	static final private TransactionOptions txnOptions = TransactionOptions.builder()
-			.readPreference(ReadPreference.primary())
-			.readConcern(ReadConcern.LOCAL)
-			.writeConcern(WriteConcern.MAJORITY)
-			.build(); // TODO: change
 
 	@Container
 	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
@@ -64,7 +56,7 @@ class TransactionHandlerFactoryTest {
 			@Test
 			@DisplayName("Valid mongoClient")
 			void testCreateTransactionHandlerWhenMongoClientIsValidShouldReturnSession() {
-				assertThat(transactionHandlerFactory.createTransactionHandler(mongoClient, txnOptions))
+				assertThat(transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS))
 					.isInstanceOf(TransactionMongoHandler.class);
 			}
 
@@ -72,7 +64,7 @@ class TransactionHandlerFactoryTest {
 			@DisplayName("Null mongoClient")
 			void testCreateTransactionHandlerWhenMongoClientIsNullShouldThrow() {
 				assertThatThrownBy(
-						() -> transactionHandlerFactory.createTransactionHandler(null, txnOptions))
+						() -> transactionHandlerFactory.createTransactionHandler(null, TXN_OPTIONS))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Cannot create a ClientSession from a null Mongo client.");
 			}

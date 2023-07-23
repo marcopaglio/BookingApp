@@ -23,6 +23,15 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
  */
 public class TransactionMongoManager implements TransactionManager {
 	/**
+	 * Options used to configure transactions.
+	 */
+	public static final TransactionOptions TXN_OPTIONS = TransactionOptions.builder()
+			.readPreference(ReadPreference.primary())
+			.readConcern(ReadConcern.LOCAL)
+			.writeConcern(WriteConcern.MAJORITY)
+			.build(); //TODO change
+
+	/**
 	 * Specifies that the reason the transaction fails is the passing of an invalid argument.
 	 */
 	private static final String INVALID_ARGUMENT = "invalid argument(s) passed";
@@ -36,15 +45,6 @@ public class TransactionMongoManager implements TransactionManager {
 	 * Specifies that the reason the transaction fails is a uniqueness constraint violation.
 	 */
 	private static final String VIOLATION_OF_UNIQUENESS_CONSTRAINT = "violation of uniqueness constraint(s)";
-
-	/**
-	 * 
-	 */
-	TransactionOptions txnOptions = TransactionOptions.builder()
-			.readPreference(ReadPreference.primary())
-			.readConcern(ReadConcern.LOCAL)
-			.writeConcern(WriteConcern.MAJORITY)
-			.build(); //TODO change
 
 	/**
 	 * Used for executing code on {@code ClientRepository} and/or {@code ReservationRepository}
@@ -103,7 +103,7 @@ public class TransactionMongoManager implements TransactionManager {
 	@Override
 	public <R> R doInTransaction(ClientTransactionCode<R> code) throws TransactionException {
 		TransactionMongoHandler sessionHandler =
-				transactionHandlerFactory.createTransactionHandler(mongoClient, txnOptions);
+				transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS);
 		try {
 			sessionHandler.startTransaction();
 			R toBeReturned = code.apply(
@@ -140,7 +140,7 @@ public class TransactionMongoManager implements TransactionManager {
 	@Override
 	public <R> R doInTransaction(ReservationTransactionCode<R> code) throws TransactionException {
 		TransactionMongoHandler sessionHandler =
-				transactionHandlerFactory.createTransactionHandler(mongoClient, txnOptions);
+				transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS);
 		try {
 			sessionHandler.startTransaction();
 			R toBeReturned = code.apply(
@@ -177,7 +177,7 @@ public class TransactionMongoManager implements TransactionManager {
 	@Override
 	public <R> R doInTransaction(ClientReservationTransactionCode<R> code) throws TransactionException {
 		TransactionMongoHandler sessionHandler =
-				transactionHandlerFactory.createTransactionHandler(mongoClient, txnOptions);
+				transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS);
 		try {
 			sessionHandler.startTransaction();
 			R toBeReturned = code.apply(

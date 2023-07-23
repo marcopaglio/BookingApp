@@ -1,6 +1,7 @@
 package io.github.marcopaglio.booking.transaction.manager.mongo;
 
 import static io.github.marcopaglio.booking.repository.mongo.ClientMongoRepository.BOOKING_DB_NAME;
+import static io.github.marcopaglio.booking.transaction.manager.mongo.TransactionMongoManager.TXN_OPTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
@@ -30,10 +31,6 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.mongodb.ReadConcern;
-import com.mongodb.ReadPreference;
-import com.mongodb.TransactionOptions;
-import com.mongodb.WriteConcern;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -71,28 +68,21 @@ class TransactionMongoManagerTest {
 	@Container
 	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
 
-	private static final TransactionOptions txnOptions = TransactionOptions.builder()
-			.readPreference(ReadPreference.primary())
-			.readConcern(ReadConcern.LOCAL)
-			.writeConcern(WriteConcern.MAJORITY)
-			.build(); //TODO change
-
 	private static MongoClient mongoClient;
 	private static MongoDatabase database;
-	
-	private static ClientSession session;
+	private ClientSession session;
 
 	@Mock
-	private static TransactionMongoHandler transactionMongoHandler;
+	private TransactionMongoHandler transactionMongoHandler;
 
 	@Mock
-	private static ClientMongoRepository clientMongoRepository;
+	private ClientMongoRepository clientMongoRepository;
 
 	@Mock
-	private static ReservationMongoRepository reservationMongoRepository;
+	private ReservationMongoRepository reservationMongoRepository;
 
 	@Mock
-	private static TransactionHandlerFactory transactionHandlerFactory;
+	private TransactionHandlerFactory transactionHandlerFactory;
 
 	@Mock
 	private ClientRepositoryFactory clientRepositoryFactory;
@@ -120,8 +110,8 @@ class TransactionMongoManagerTest {
 				clientRepositoryFactory, reservationRepositoryFactory);
 		
 		// stubbing
-		when(transactionHandlerFactory.createTransactionHandler(mongoClient, txnOptions))
-		.thenReturn(transactionMongoHandler);
+		when(transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS))
+			.thenReturn(transactionMongoHandler);
 		when(transactionMongoHandler.getSession()).thenReturn(session);
 	}
 
