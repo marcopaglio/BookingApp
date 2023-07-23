@@ -115,7 +115,7 @@ class ReservationMongoRepositoryTest {
 	}
 
 	@AfterEach
-	void closeSession() {
+	void closeSession() throws Exception {
 		session.close();
 	}
 
@@ -170,7 +170,7 @@ class ReservationMongoRepositoryTest {
 		private Reservation another_reservation;
 
 		@BeforeEach
-		void resetReservationId() {
+		void resetReservationId() throws Exception {
 			reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 			another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
 		}

@@ -118,7 +118,7 @@ class ClientMongoRepositoryTest {
 	}
 
 	@AfterEach
-	void closeSession() {
+	void closeSession() throws Exception {
 		session.close();
 	}
 
@@ -171,7 +171,7 @@ class ClientMongoRepositoryTest {
 		private Client another_client;
 
 		@BeforeEach
-		void resetClientId() {
+		void resetClientId() throws Exception {
 			client = new Client(A_FIRSTNAME, A_LASTNAME);
 			another_client = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 		}

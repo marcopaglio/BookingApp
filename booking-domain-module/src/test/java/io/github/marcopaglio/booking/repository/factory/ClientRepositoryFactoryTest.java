@@ -39,14 +39,14 @@ class ClientRepositoryFactoryTest {
 	}
 
 	@BeforeEach
-	void setUp() {
+	void setUp() throws Exception {
 		session = mongoClient.startSession();
 		
 		clientRepositoryFactory = new ClientRepositoryFactory();
 	}
 
 	@AfterEach
-	void closeSession() {
+	void closeSession() throws Exception {
 		session.close();
 	}
 

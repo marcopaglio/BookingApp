@@ -328,7 +328,7 @@ class ServedBookingPresenterTest {
 				Mockito.mockStatic(ClientValidator.class);
 
 		@AfterEach
-		void close() {
+		void closeValidator() throws Exception {
 			mockedClientValidator.close();
 		}
 
@@ -337,7 +337,7 @@ class ServedBookingPresenterTest {
 		class ValidationSuccessfulTest {
 
 			@BeforeEach
-			void stubbingValidator() {
+			void stubbingValidator() throws Exception {
 				mockedClientValidator.when(
 						() -> ClientValidator.newValidatedClient(A_FIRSTNAME, A_LASTNAME))
 					.thenReturn(A_CLIENT);
@@ -432,7 +432,7 @@ class ServedBookingPresenterTest {
 					new IllegalArgumentException();
 
 			@BeforeEach
-			void stubbingValidator() {
+			void stubbingValidator() throws Exception {
 				mockedClientValidator.when(
 						() -> ClientValidator.newValidatedClient(
 								Mockito.<String>any(),
@@ -487,7 +487,7 @@ class ServedBookingPresenterTest {
 				Mockito.mockStatic(ReservationValidator.class);
 
 		@AfterEach
-		void close() {
+		void closeValidator() throws Exception {
 			mockedReservationValidator.close();
 		}
 
@@ -496,7 +496,7 @@ class ServedBookingPresenterTest {
 		class ValidationSuccessfulTest {
 
 			@BeforeEach
-			void stubbingValidator() {
+			void stubbingValidator() throws Exception {
 				mockedReservationValidator.when(
 						() -> ReservationValidator.newValidatedReservation(A_CLIENT, A_DATE))
 					.thenReturn(A_RESERVATION);
