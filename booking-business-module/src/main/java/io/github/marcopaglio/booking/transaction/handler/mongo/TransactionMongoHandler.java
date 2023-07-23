@@ -3,6 +3,7 @@ package io.github.marcopaglio.booking.transaction.handler.mongo;
 import com.mongodb.TransactionOptions;
 import com.mongodb.client.ClientSession;
 
+import io.github.marcopaglio.booking.annotation.Generated;
 import io.github.marcopaglio.booking.transaction.handler.TransactionHandler;
 
 /**
@@ -37,6 +38,7 @@ public class TransactionMongoHandler implements TransactionHandler {
 	 * 
 	 * @return the session
 	 */
+	@Generated
 	public final ClientSession getSession() {
 		return session;
 	}
