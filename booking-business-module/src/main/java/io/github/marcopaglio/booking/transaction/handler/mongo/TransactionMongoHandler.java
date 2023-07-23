@@ -33,6 +33,15 @@ public class TransactionMongoHandler implements TransactionHandler {
 	}
 
 	/**
+	 * Retrieves the MongoDB session.
+	 * 
+	 * @return the session
+	 */
+	public final ClientSession getSession() {
+		return session;
+	}
+
+	/**
 	 * Starts a new MongoDB transaction via the session and using options if provided.
 	 * 
 	 * @throws IllegalStateException	if {@code session} has already an active transaction.
