@@ -1,6 +1,5 @@
 package io.github.marcopaglio.booking.transaction.manager.mongo;
 
-import static io.github.marcopaglio.booking.repository.mongo.ClientMongoRepository.BOOKING_DB_NAME;
 import static io.github.marcopaglio.booking.transaction.manager.mongo.TransactionMongoManager.TXN_OPTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -34,7 +33,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoDatabase;
 
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.TransactionException;
@@ -69,7 +67,6 @@ class TransactionMongoManagerTest {
 	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
 
 	private static MongoClient mongoClient;
-	private static MongoDatabase database;
 	private ClientSession session;
 
 	@Mock
@@ -95,15 +92,10 @@ class TransactionMongoManagerTest {
 	@BeforeAll
 	public static void setupServer() throws Exception {
 		mongoClient = MongoClients.create(mongo.getConnectionString());
-		
-		database = mongoClient.getDatabase(BOOKING_DB_NAME);
 	}
 
 	@BeforeEach
 	void setUp() throws Exception {
-		// make sure we always start with a clean database
-		database.drop();
-		
 		session = mongoClient.startSession();
 		
 		transactionManager = new TransactionMongoManager(mongoClient, transactionHandlerFactory,
