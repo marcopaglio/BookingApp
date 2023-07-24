@@ -24,12 +24,13 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 public class TransactionMongoManager implements TransactionManager {
 	/**
 	 * Options used to configure transactions.
+	 * Note: casually consistency is applied when both read and write concerns has value 'majority'.
 	 */
 	public static final TransactionOptions TXN_OPTIONS = TransactionOptions.builder()
 			.readPreference(ReadPreference.primary())
-			.readConcern(ReadConcern.LOCAL)
+			.readConcern(ReadConcern.MAJORITY)
 			.writeConcern(WriteConcern.MAJORITY)
-			.build(); //TODO change
+			.build();
 
 	/**
 	 * Specifies that the reason the transaction fails is the passing of an invalid argument.
