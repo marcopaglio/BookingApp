@@ -45,6 +45,7 @@ public abstract class MongoRepository<T> {
 	 * Generates a message for the violation of uniqueness constraints by an operation.
 	 * 
 	 * @param operation	the name of the operation that violates the constraint.
+	 * @return			a {@code String} message about the violation.
 	 */
 	protected String uniquenessConstraintViolationMsg(String operation) {
 		return "The " + operation + " violates uniqueness constraints.";

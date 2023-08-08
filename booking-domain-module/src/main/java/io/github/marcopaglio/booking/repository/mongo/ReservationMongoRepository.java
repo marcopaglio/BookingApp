@@ -41,7 +41,8 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	 * Constructs a repository layer for Reservation entities using MongoDB database. 
 	 * The construction generates and configures a collection for using by the repository.
 	 * 
-	 * @param mongoClient	the {@code MongoClient} used to retrieve the collection.
+	 * @param client	the {@code MongoClient} used to retrieve the collection.
+	 * @param session	the {@code ClientSession} used to communicate with MongoDB database.
 	 */
 	public ReservationMongoRepository(MongoClient client, ClientSession session) {
 		super(client

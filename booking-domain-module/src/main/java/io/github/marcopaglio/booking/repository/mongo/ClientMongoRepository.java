@@ -40,10 +40,11 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	 * Constructs a repository layer for Client entities using MongoDB database. 
 	 * The construction generates and configures a collection for using by the repository.
 	 * 
-	 * @param mongoClient	the {@code MongoClient} used to retrieve the collection.
+	 * @param client	the {@code MongoClient} used to retrieve the collection.
+	 * @param session	the {@code ClientSession} used to communicate with MongoDB database.
 	 */
-	public ClientMongoRepository(MongoClient mongoClient, ClientSession session) {
-		super(mongoClient
+	public ClientMongoRepository(MongoClient client, ClientSession session) {
+		super(client
 				.getDatabase(BOOKING_DB_NAME)
 				.getCollection(CLIENT_COLLECTION_NAME, Client.class),
 				session);

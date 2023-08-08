@@ -94,6 +94,9 @@ public final class ClientValidator {
 
 	/**
 	 * Removes side spaces and reduces multiple spaces into a single whitespace.
+	 *
+	 * @param name	the name to modify.
+	 * @return		the {@code String} name modified.
 	 */
 	private static String removeExcessedSpaces(String name) {
 		return name.trim().replaceAll("\\s+", " ");

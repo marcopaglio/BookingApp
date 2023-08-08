@@ -207,6 +207,7 @@ public class TransactionMongoManager implements TransactionManager {
 	 * Generates a message for the failure of the transaction.
 	 * 
 	 * @param reason	the cause of the failure.
+	 * @return			a {@code String} message about the failure.
 	 */
 	private String transactionFailureMsg(String reason) {
 		return "Transaction fails due to " + reason + ".";

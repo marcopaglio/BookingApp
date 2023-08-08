@@ -21,6 +21,7 @@ public class TransactionHandlerFactory {
 	 * Creates a new session for handling transactions using a MongoDB client.
 	 * 
 	 * @param mongoClient				the client using the MongoDB database.
+	 * @param txnOptions				the options used in the transaction.
 	 * @return							a new {@code ClientSession} for creating transactions.
 	 * @throws IllegalArgumentException	if {@code mongoClient} is null.
 	 */
