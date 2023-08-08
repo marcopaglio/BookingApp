@@ -84,13 +84,9 @@
           <configuration>
             <targetClasses>
               <targetClasse>io.github.marcopaglio.booking.validator.*</targetClasse>
-              <targetClasse>io.github.marcopaglio.booking.repository.mongo.*</targetClasse>
-              <targetClasse>io.github.marcopaglio.booking.repository.factory.*</targetClasse>
             </targetClasses>
             <targetTests>
               <targetTest>io.github.marcopaglio.booking.validator.*</targetTest>
-              <targetTest>io.github.marcopaglio.booking.repository.mongo.*</targetTest>
-              <targetTest>io.github.marcopaglio.booking.repository.factory.*</targetTest>
             </targetTests>
           </configuration>
         </plugin>
@@ -118,6 +114,47 @@
           ${project.build.directory}/dependency
         </sonar.java.libraries>
       </properties>
+    </profile>
+
+    <!-- skip-testcontainers profile has to be located after others overridden plugins/profiles -->
+    <!-- e.g. after sonar profile, jacoco plugin conf, etc -->
+    <profile>
+      <id>skip-testcontainers</id>
+      <properties>
+        <sonar.coverage.exclusions>
+          **/model/*.*,
+          **/annotation/*.*,
+          **/exception/*.*,
+          **/repository/mongo/*,
+          **/repository/factory/*
+        </sonar.coverage.exclusions>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/repository/mongo/*Test.java</exclude>
+                <exclude>**/repository/factory/*Test.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/model/*</exclude>
+                <exclude>**/annotation/*</exclude>
+                <exclude>**/exception/*</exclude>
+                <exclude>**/repository/mongo/*</exclude>
+                <exclude>**/repository/factory/*</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>

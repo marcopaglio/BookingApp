@@ -260,26 +260,6 @@
     </profile>
 
     <profile>
-      <id>skip-testcontainers</id>
-      <build>
-        <plugins>
-          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <excludes>
-                <exclude>io.github.marcopaglio.booking.repository.mongo.*Test.java</exclude>
-                <exclude>io.github.marcopaglio.booking.repository.factory.*Test.java</exclude>
-                <exclude>io.github.marcopaglio.booking.transaction.manager.mongo.*Test.java</exclude>
-                <exclude>io.github.marcopaglio.booking.transaction.handler.mongo.*Test.java</exclude>
-                <exclude>io.github.marcopaglio.booking.transaction.handler.factory.*Test.java</exclude>
-              </excludes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
       <id>sonar</id>
       <build>
         <plugins>
