@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -25,8 +25,8 @@ class ReservationValidatorTest {
 	private static final UUID VALID_UUID = UUID.fromString("95a995a6-6461-4bae-a88c-2ac40e26accd");
 	private static final String VALID_DATE = "2022-12-22";
 
-	@BeforeAll
-	static void setupClient() {
+	@BeforeEach
+	void setupClient() {
 		when(VALID_SPIED_CLIENT.getId()).thenReturn(VALID_UUID);
 	}
 	
