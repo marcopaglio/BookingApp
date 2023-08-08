@@ -54,6 +54,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
 import static io.github.marcopaglio.booking.repository.mongo.ClientMongoRepository.BOOKING_DB_NAME;
 
+@DisplayName("Tests for ClientMongoRepository class")
 @Testcontainers
 class ClientMongoRepositoryTest {
 	private static final String A_FIRSTNAME = "Mario";

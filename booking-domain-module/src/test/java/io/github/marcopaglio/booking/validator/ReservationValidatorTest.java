@@ -19,7 +19,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 
-@DisplayName("Tests for ReservationValidator")
+@DisplayName("Tests for ReservationValidator class")
 class ReservationValidatorTest {
 	private static final Client VALID_SPIED_CLIENT = spy(new Client("Mario", "Rossi"));
 	private static final UUID VALID_UUID = UUID.fromString("95a995a6-6461-4bae-a88c-2ac40e26accd");

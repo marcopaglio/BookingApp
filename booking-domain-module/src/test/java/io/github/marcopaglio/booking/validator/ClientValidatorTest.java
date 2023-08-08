@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import io.github.marcopaglio.booking.model.Client;
 
 
-@DisplayName("Tests for ClientValidator")
+@DisplayName("Tests for ClientValidator class")
 class ClientValidatorTest {
 	private static final String VALID_FIRSTNAME = "Mario";
 	private static final String VALID_LASTNAME = "Rossi";

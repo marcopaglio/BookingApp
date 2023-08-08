@@ -51,6 +51,7 @@ import io.github.marcopaglio.booking.exception.NotNullConstraintViolationExcepti
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
 import io.github.marcopaglio.booking.model.Reservation;
 
+@DisplayName("Tests for ReservationMongoRepository class")
 @Testcontainers
 class ReservationMongoRepositoryTest {
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2022-12-22");
