@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
+import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
 import io.github.marcopaglio.booking.model.Reservation;
 
 /**
@@ -15,43 +17,54 @@ public interface ReservationRepository {
 	/**
 	 * Retrieves all the reservations from the database in a list.
 	 * 
-	 * @return	the list of reservations found in the repository.
+	 * @return	the {@code List} of {@code Reservation}s found in the repository.
 	 */
 	public List<Reservation> findAll();
+
+	/**
+	 * Retrieves all the reservations associated with the specified client's identifier
+	 * from the database in a list.
+	 * 
+	 * @param clientId	the identifier of the associated client.
+	 * @return			the {@code List} of {@code Reservation}s associated
+	 * 					with {@code clientId} found in the repository.
+	 */
+	public List<Reservation> findByClient(UUID clientId);
+
+	/**
+	 * Retrieves the unique reservation with the specified identifier from the database if exists.
+	 * 
+	 * @param id	the identifier of the reservation to find.
+	 * @return		an {@code Optional} contained the {@code Reservation} identified by {@code id} if exists;
+	 * 				an {@code Optional} empty if it doesn't exist.
+	 */
+	public Optional<Reservation> findById(UUID id);
 
 	/**
 	 * Retrieves the unique reservation of the specified date from the database if exists.
 	 * 
 	 * @param date	the date of the reservation to find.
-	 * @return		an {@code Optional} contained the {@code Reservation}
-	 * 				on {@code date} if exists;
+	 * @return		an {@code Optional} contained the {@code Reservation} on {@code date} if exists;
 	 * 				an {@code Optional} empty if it doesn't exist.
 	 */
 	public Optional<Reservation> findByDate(LocalDate date);
 
 	/**
-	 * Retrieves all the reservations associated at the specified client's identifier
-	 * from the database in a list.
-	 * 
-	 * @param clientId	the identifier of the associated client.
-	 * @return			the list of reservations found in the repository.
+	 * Insert a new reservation in the database or saves changes of an existing one.
+	 *
+	 * @param reservation								the reservation to save.
+	 * @return											the {@code Reservation} saved.
+	 * @throws IllegalArgumentException					if {@code reservation} is null.
+	 * @throws NotNullConstraintViolationException		if a not-null constraint is violated.
+	 * @throws UniquenessConstraintViolationException	if a uniqueness constraint is violated.
 	 */
-	public List<Reservation> findByClient(UUID clientId);
+	public Reservation save(Reservation reservation) throws IllegalArgumentException, NotNullConstraintViolationException, UniquenessConstraintViolationException;
 
 	/**
-	 * Insert a new reservation in the database.
-	 * Note: reservation entities are immutable,
-	 * so this method cannot be used for saving changes of existing reservations.
+	 * Removes the unique specified reservation from the database.
 	 *
-	 * @param reservation	the reservation to save.
-	 * @return				the {@code Reservation} saved.
+	 * @param reservation				the reservation to delete.
+	 * @throws IllegalArgumentException	if {@code reservation} is null.
 	 */
-	public Reservation save(Reservation reservation);
-
-	/**
-	 * Removes the unique reservation of the specified date from the database.
-	 *
-	 * @param date	the date of the reservation to delete.
-	 */
-	public void delete(LocalDate date);
+	public void delete(Reservation reservation) throws IllegalArgumentException;
 }

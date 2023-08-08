@@ -21,7 +21,7 @@
       <artifactId>booking-domain-module</artifactId>
       <!-- version taken from the bom -->
     </dependency>
-        <dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <!-- version taken from the parent -->
@@ -37,6 +37,30 @@
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
       <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>mongodb</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <!-- version taken from the bom -->
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -59,11 +83,9 @@
           <configuration>
             <targetClasses>
               <targetClasse>io.github.marcopaglio.booking.service.transactional.*</targetClasse>
-              <!-- io.github.marcopaglio.booking.transaction.* -->
             </targetClasses>
             <targetTests>
               <targetTest>io.github.marcopaglio.booking.service.transactional.*</targetTest>
-              <!-- io.github.marcopaglio.booking.transaction.* -->
             </targetTests>
           </configuration>
         </plugin>
@@ -88,7 +110,51 @@
         <sonar.java.libraries>
           ${project.build.directory}/dependency
         </sonar.java.libraries>
+        <!-- duplicated code exclusion -->
+        <sonar.cpd.exclusions>
+          **/transaction/manager/mongo/TransactionMongoManager.java
+        </sonar.cpd.exclusions>
       </properties>
+    </profile>
+
+    <!-- skip-testcontainers profile has to be located after others overridden plugins/profiles -->
+    <!-- e.g. after sonar profile, jacoco plugin conf, etc -->
+    <profile>
+      <id>skip-testcontainers</id>
+      <properties>
+        <sonar.coverage.exclusions>
+          **/transaction/code/*.*,
+          **/manager/mongo/*,
+          **/handler/mongo/*,
+          **/handler/factory/*
+        </sonar.coverage.exclusions>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/manager/mongo/*Test.java</exclude>
+                <exclude>**/handler/mongo/*Test.java</exclude>
+                <exclude>**/handler/factory/*Test.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/transaction/code/*</exclude>
+                <exclude>**/manager/mongo/*</exclude>
+                <exclude>**/handler/mongo/*</exclude>
+                <exclude>**/handler/factory/*</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>

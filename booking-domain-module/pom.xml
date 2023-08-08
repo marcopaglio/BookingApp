@@ -17,6 +17,16 @@
   
   <dependencies>
     <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongodb-driver-sync</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <!-- version taken from the parent -->
@@ -31,6 +41,24 @@
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>mongodb</artifactId>
       <!-- version taken from the parent -->
       <scope>test</scope>
     </dependency>
@@ -56,11 +84,9 @@
           <configuration>
             <targetClasses>
               <targetClasse>io.github.marcopaglio.booking.validator.*</targetClasse>
-              <!-- io.github.marcopaglio.booking.repository.* -->
             </targetClasses>
             <targetTests>
               <targetTest>io.github.marcopaglio.booking.validator.*</targetTest>
-              <!-- io.github.marcopaglio.booking.repository.* -->
             </targetTests>
           </configuration>
         </plugin>
@@ -88,6 +114,47 @@
           ${project.build.directory}/dependency
         </sonar.java.libraries>
       </properties>
+    </profile>
+
+    <!-- skip-testcontainers profile has to be located after others overridden plugins/profiles -->
+    <!-- e.g. after sonar profile, jacoco plugin conf, etc -->
+    <profile>
+      <id>skip-testcontainers</id>
+      <properties>
+        <sonar.coverage.exclusions>
+          **/model/*.*,
+          **/annotation/*.*,
+          **/exception/*.*,
+          **/repository/mongo/*,
+          **/repository/factory/*
+        </sonar.coverage.exclusions>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/repository/mongo/*Test.java</exclude>
+                <exclude>**/repository/factory/*Test.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/model/*</exclude>
+                <exclude>**/annotation/*</exclude>
+                <exclude>**/exception/*</exclude>
+                <exclude>**/repository/mongo/*</exclude>
+                <exclude>**/repository/factory/*</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
   </profiles>
 </project>

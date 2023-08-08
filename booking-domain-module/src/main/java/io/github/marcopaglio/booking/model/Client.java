@@ -1,41 +1,58 @@
 package io.github.marcopaglio.booking.model;
 
 import java.util.Objects;
-import java.util.UUID;
+
+import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.bson.codecs.pojo.annotations.BsonRepresentation;
+
+import static org.bson.BsonType.STRING;
 
 /**
  * This entity represents the customer's model of the booking application.
  */
-public class Client {
+public class Client extends Entity {
 	/**
-	 * The identifier of the client entity.
+	 * Field name used in a database to access the {@code firstName} attribute.
 	 */
-	private final UUID id;
+	public static final String FIRSTNAME_DB = "name";
+
+	/**
+	 * Field name used in a database to access the {@code lastName} attribute.
+	 */
+	public static final String LASTNAME_DB = "surname";
 
 	/**
 	 * The name of the client entity.
 	 * Note: the couple [{@code firstName}, {@code lastName}] is unique among client entities.
 	 */
-	private final String firstName;
+	@BsonProperty(value = FIRSTNAME_DB)
+	@BsonRepresentation(value = STRING)
+	private String firstName;
 
 	/**
 	 * The surname of the client entity.
-	 * Note: the couple [{@code firstName}, {@code lastName}] is unique in the client entity.
+	 * Note: the couple [{@code firstName}, {@code lastName}] is unique among client entities.
 	 */
-	private final String lastName;
+	@BsonProperty(value = LASTNAME_DB)
+	@BsonRepresentation(value = STRING)
+	private String lastName;
 
 	/**
 	 * Constructs a client for the booking application with a name, a surname and an identifier.
 	 * 
 	 * @param firstName	the name of the client.
 	 * @param lastName	the surname of the client.
-	 * @param id		the identifier of the client.
 	 */
-	public Client(String firstName, String lastName, UUID id) {
+	public Client(String firstName, String lastName) {
+		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
-		this.id = id;
 	}
+	
+	/**
+	 * Empty constructor needed for database purposes.
+	 */
+	protected Client() {}
 
 	/**
 	 * Retrieves the name of the client. Note: Java String Objects are immutable.
@@ -44,6 +61,15 @@ public class Client {
 	 */
 	public final String getFirstName() {
 		return this.firstName;
+	}
+
+	/**
+	 * Sets the name of the client.
+	 * 
+	 * @param firstName	the name to set.
+	 */
+	public final void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
 
 	/**
@@ -56,12 +82,12 @@ public class Client {
 	}
 
 	/**
-	 * Retrieves the identifier of the client. Note: UUID Objects are immutable.
-	 *
-	 * @return	the {@code UUID} of the client.
+	 * Sets the surname of the client.
+	 * 
+	 * @param lastName	the surname to set.
 	 */
-	public final UUID getId() {
-		return this.id;
+	public final void setLastName(String lastName) {
+		this.lastName = lastName;
 	}
 
 	/**

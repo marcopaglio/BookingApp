@@ -49,21 +49,19 @@ public interface View {
 	// I SEGUENTI METODI NON SONO UNIFICABILI IN showError PERCHé MOSTRERANNO IL MESSAGGIO
 	// DI ERRORE IN POSIZIONI DIFFERENTI DELLA VISTA
 	/**
-	 * Displays an error message that involves a reservation object.
-	 * @param reservation	the reservation involved in the error.
+	 * Displays an error message that involves reservation objects.
 	 * @param message		the message to show.
 	 */
-	public void showReservationError(Reservation reservation, String message);
+	public void showReservationError(String message);
 
 	/**
-	 * Displays an error message that involves a client object.
-	 * @param client	the client involved in the error.
+	 * Displays an error message that involves client objects.
 	 * @param message	the message to show.
 	 */
-	public void showClientError(Client client, String message);
+	public void showClientError(String message);
 
 	/**
-	 * Displays an error message that involves a form input.
+	 * Displays an error message that involves form inputs.
 	 * @param message	the message to show.
 	 */
 	public void showFormError(String message);
