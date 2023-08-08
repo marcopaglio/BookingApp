@@ -2,6 +2,7 @@
 name: Build with Maven in Windows
 
 on:
+  push:
   pull_request:
     branches: [ "main" ]
 
@@ -20,6 +21,9 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '11'
+
+    - name: Install Docker
+      uses: docker-practice/actions-setup-docker@master
 
     - name: Cache Maven packages
       uses: actions/cache@v3
