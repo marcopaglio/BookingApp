@@ -55,7 +55,7 @@ class TransactionMongoManagerTest {
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2022-12-22");
 	private static final Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 
-	private static MongoClient mongoClient;
+	private MongoClient mongoClient;
 	private ClientSession session;
 
 	@Mock
