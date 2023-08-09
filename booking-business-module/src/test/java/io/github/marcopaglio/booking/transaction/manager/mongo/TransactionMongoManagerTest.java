@@ -14,9 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,13 +23,9 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.TransactionException;
@@ -53,7 +46,6 @@ import io.github.marcopaglio.booking.transaction.handler.mongo.TransactionMongoH
 
 @DisplayName("Tests for TransactionMongoManager class")
 @ExtendWith(MockitoExtension.class)
-@Testcontainers
 class TransactionMongoManagerTest {
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
@@ -63,10 +55,7 @@ class TransactionMongoManagerTest {
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2022-12-22");
 	private static final Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 
-	@Container
-	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
-
-	private static MongoClient mongoClient;
+	private MongoClient mongoClient;
 	private ClientSession session;
 
 	@Mock
@@ -89,15 +78,8 @@ class TransactionMongoManagerTest {
 
 	private TransactionMongoManager transactionManager;
 
-	@BeforeAll
-	public static void setupServer() throws Exception {
-		mongoClient = MongoClients.create(mongo.getConnectionString());
-	}
-
 	@BeforeEach
 	void setUp() throws Exception {
-		session = mongoClient.startSession();
-		
 		transactionManager = new TransactionMongoManager(mongoClient, transactionHandlerFactory,
 				clientRepositoryFactory, reservationRepositoryFactory);
 		
@@ -105,16 +87,6 @@ class TransactionMongoManagerTest {
 		when(transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS))
 			.thenReturn(transactionMongoHandler);
 		when(transactionMongoHandler.getSession()).thenReturn(session);
-	}
-
-	@AfterEach
-	void closeSession() throws Exception {
-		session.close();
-	}
-
-	@AfterAll
-	public static void closeClient() throws Exception {
-		mongoClient.close();
 	}
 
 	@Nested

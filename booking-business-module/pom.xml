@@ -83,9 +83,11 @@
           <configuration>
             <targetClasses>
               <targetClasse>io.github.marcopaglio.booking.service.transactional.*</targetClasse>
+              <targetClasse>io.github.marcopaglio.booking.transaction.manager.mongo.*</targetClasse>
             </targetClasses>
             <targetTests>
               <targetTest>io.github.marcopaglio.booking.service.transactional.*</targetTest>
+              <targetTest>io.github.marcopaglio.booking.transaction.manager.mongo.*</targetTest>
             </targetTests>
           </configuration>
         </plugin>
@@ -124,7 +126,6 @@
       <properties>
         <sonar.coverage.exclusions>
           **/transaction/code/*.*,
-          **/manager/mongo/*,
           **/handler/mongo/*,
           **/handler/factory/*
         </sonar.coverage.exclusions>
@@ -135,7 +136,6 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <excludes>
-                <exclude>**/manager/mongo/*Test.java</exclude>
                 <exclude>**/handler/mongo/*Test.java</exclude>
                 <exclude>**/handler/factory/*Test.java</exclude>
               </excludes>
@@ -147,7 +147,6 @@
             <configuration>
               <excludes>
                 <exclude>**/transaction/code/*</exclude>
-                <exclude>**/manager/mongo/*</exclude>
                 <exclude>**/handler/mongo/*</exclude>
                 <exclude>**/handler/factory/*</exclude>
               </excludes>
