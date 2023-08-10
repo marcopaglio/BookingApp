@@ -5,12 +5,25 @@ import java.util.Objects;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.codecs.pojo.annotations.BsonRepresentation;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+
 import static org.bson.BsonType.STRING;
 
 /**
  * This entity represents the customer's model of the booking application.
  */
-public class Client extends Entity {
+@Entity
+@Table(name = Client.CLIENT_TABLE_DB,
+	uniqueConstraints = {@UniqueConstraint(columnNames = {Client.FIRSTNAME_DB, Client.LASTNAME_DB})})
+public class Client extends BaseEntity {
+	/**
+	 * Table name used in a database to access {@code Client} entities.
+	 */
+	public static final String CLIENT_TABLE_DB = "clients";
+
 	/**
 	 * Field name used in a database to access the {@code firstName} attribute.
 	 */
@@ -25,6 +38,7 @@ public class Client extends Entity {
 	 * The name of the client entity.
 	 * Note: the couple [{@code firstName}, {@code lastName}] is unique among client entities.
 	 */
+	@Column(name = FIRSTNAME_DB, nullable = false)
 	@BsonProperty(value = FIRSTNAME_DB)
 	@BsonRepresentation(value = STRING)
 	private String firstName;
@@ -33,6 +47,7 @@ public class Client extends Entity {
 	 * The surname of the client entity.
 	 * Note: the couple [{@code firstName}, {@code lastName}] is unique among client entities.
 	 */
+	@Column(name = LASTNAME_DB, nullable = false)
 	@BsonProperty(value = LASTNAME_DB)
 	@BsonRepresentation(value = STRING)
 	private String lastName;
@@ -52,7 +67,9 @@ public class Client extends Entity {
 	/**
 	 * Empty constructor needed for database purposes.
 	 */
-	protected Client() {}
+	protected Client() {
+		super();
+	}
 
 	/**
 	 * Retrieves the name of the client. Note: Java String Objects are immutable.

@@ -19,7 +19,7 @@ import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationExce
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.ReservationRepository;
 
-import static io.github.marcopaglio.booking.model.Entity.ID_DB;
+import static io.github.marcopaglio.booking.model.BaseEntity.ID_DB;
 import static io.github.marcopaglio.booking.model.Reservation.DATE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.CLIENTID_DB;
 
@@ -51,7 +51,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 				session);
 		
 		// collection configuration
-		collection.createIndex(session, Indexes.descending("date"), new IndexOptions().unique(true));
+		collection.createIndex(session, Indexes.descending(DATE_DB), new IndexOptions().unique(true));
 	}
 
 	/**

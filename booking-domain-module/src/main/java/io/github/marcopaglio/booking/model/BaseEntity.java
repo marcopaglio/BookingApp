@@ -4,11 +4,17 @@ import java.util.UUID;
 
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonProperty;
+import org.hibernate.annotations.UuidGenerator;
+
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
 
 /**
  * Contains the necessary structure of a generic entity.
  */
-public abstract class Entity {
+@MappedSuperclass
+public abstract class BaseEntity {
 	/**
 	 * Field name used in a database to access the {@code id} attribute.
 	 */
@@ -17,14 +23,17 @@ public abstract class Entity {
 	/**
 	 * The identifier of the entity.
 	 */
+	@Id
+	@GeneratedValue
+	@UuidGenerator
 	@BsonId
 	@BsonProperty(value = ID_DB)
 	private UUID id;
 
 	/**
-	 * Default constructor.
+	 * Empty constructor.
 	 */
-	protected Entity() {
+	protected BaseEntity() {
 		super();
 	}
 

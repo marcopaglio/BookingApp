@@ -18,7 +18,7 @@ import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationExce
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.repository.ClientRepository;
 
-import static io.github.marcopaglio.booking.model.Entity.ID_DB;
+import static io.github.marcopaglio.booking.model.BaseEntity.ID_DB;
 import static io.github.marcopaglio.booking.model.Client.FIRSTNAME_DB;
 import static io.github.marcopaglio.booking.model.Client.LASTNAME_DB;
 
@@ -50,7 +50,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 				session);
 		
 		// configuration
-		collection.createIndex(session, Indexes.descending("name", "surname"), 
+		collection.createIndex(session, Indexes.descending(FIRSTNAME_DB, LASTNAME_DB), 
 				new IndexOptions().unique(true));
 	}
 
