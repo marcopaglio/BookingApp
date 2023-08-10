@@ -33,9 +33,8 @@ class ClientPostgresRepositoryTest {
 	
 	private static final String ANOTHER_FIRSTNAME = "Maria";
 	private static final String ANOTHER_LASTNAME = "De Lucia";
-	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("2a942c02-642d-4cc1-b199-c11f6405bba2");
 
-	//@Container
+	@Container
 	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.2")
 		.withDatabaseName("ClientPostgresRepositoryTest_db")
 		.withUsername("postgres-test")
@@ -48,7 +47,6 @@ class ClientPostgresRepositoryTest {
 
 	@BeforeAll
 	static void setUpBeforeClass() throws Exception {
-		postgreSQLContainer.start();
 		System.setProperty("db.port", postgreSQLContainer.getFirstMappedPort().toString());
 		System.setProperty("db.name", postgreSQLContainer.getDatabaseName());
 		
@@ -77,7 +75,6 @@ class ClientPostgresRepositoryTest {
 	@AfterAll
 	static void tearDownAfterClass() throws Exception {
 		emf.close();
-		postgreSQLContainer.stop();
 	}
 
 	@Nested
@@ -169,8 +166,6 @@ class ClientPostgresRepositoryTest {
 				assertThat(clientRepository.findById(another_client.getId()))
 					.isEqualTo(Optional.of(another_client));
 			}
-			
-			//TODO: What if l'oggetto memorizzato viene cambiato? anche per mongo
 		}
 
 		@Nested

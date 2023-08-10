@@ -12,9 +12,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 
-import static io.github.marcopaglio.booking.model.Client.FIRSTNAME_DB;
-import static io.github.marcopaglio.booking.model.Client.LASTNAME_DB;
-
 /**
  * Implementation of repository layer through PostgreSQL for Client entities of the booking application.
  */
