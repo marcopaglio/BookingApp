@@ -188,8 +188,18 @@ class ClientMongoRepositoryTest {
 			}
 
 			@Test
-			@DisplayName("Database is not empty")
-			void testFindAllWhenDatabaseIsNotEmptyShouldReturnClientsAsList() {
+			@DisplayName("Database has been filled in the same context")
+			void testFindAllWhenDatabaseHasBeenFilledInTheSameContextShouldReturnClientsAsList() {
+				addTestClientToDatabaseInTheSameContext(client, A_CLIENT_UUID);
+				addTestClientToDatabaseInTheSameContext(another_client, ANOTHER_CLIENT_UUID);
+				
+				assertThat(clientRepository.findAll())
+					.containsExactlyInAnyOrder(client, another_client);
+			}
+
+			@Test
+			@DisplayName("Database has been filled in another context")
+			void testFindAllWhenDatabaseHasBeenFilledInAnotherContextShouldReturnClientsAsList() {
 				addTestClientToDatabase(client, A_CLIENT_UUID);
 				addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
 				
@@ -209,8 +219,18 @@ class ClientMongoRepositoryTest {
 			}
 
 			@Test
-			@DisplayName("Client is in database")
-			void testFindByIdWhenClientIsInDatabaseShouldReturnOptionalOfClient() {
+			@DisplayName("Client was added in the same context")
+			void testFindByIdWhenClientWasAddedToTheDatabaseInTheSameContextShouldReturnOptionalOfClient() {
+				addTestClientToDatabaseInTheSameContext(client, A_CLIENT_UUID);
+				addTestClientToDatabaseInTheSameContext(another_client, ANOTHER_CLIENT_UUID);
+				
+				assertThat(clientRepository.findById(ANOTHER_CLIENT_UUID))
+					.isEqualTo(Optional.of(another_client));
+			}
+
+			@Test
+			@DisplayName("Client was added in another context")
+			void testFindByIdWhenClientWasAddedToTheDatabaseInAnotherContextShouldReturnOptionalOfClient() {
 				addTestClientToDatabase(client, A_CLIENT_UUID);
 				addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
 				
@@ -230,6 +250,26 @@ class ClientMongoRepositoryTest {
 			}
 
 			@Test
+			@DisplayName("Client was added in the same context")
+			void testFindByNameWhenClientWasAddedToTheDatabaseInTheSameContextShouldReturnOptionalOfClient() {
+				addTestClientToDatabaseInTheSameContext(client, A_CLIENT_UUID);
+				addTestClientToDatabaseInTheSameContext(another_client, ANOTHER_CLIENT_UUID);
+				
+				assertThat(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
+					.isEqualTo(Optional.of(client));
+			}
+
+			@Test
+			@DisplayName("Client was added in another context")
+			void testFindByNameWhenClientWasAddedToTheDatabaseInAnotherContextShouldReturnOptionalOfClient() {
+				addTestClientToDatabase(client, A_CLIENT_UUID);
+				addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
+				
+				assertThat(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
+					.isEqualTo(Optional.of(client));
+			}
+
+			@Test
 			@DisplayName("Another same name client in database")
 			void testFindByNameWhenThereIsAnotherClientWithTheSameNameShouldNotMatchIt() {
 				addTestClientToDatabase(client, A_CLIENT_UUID);
@@ -245,16 +285,6 @@ class ClientMongoRepositoryTest {
 				
 				assertThat(clientRepository.findByName(ANOTHER_FIRSTNAME, A_LASTNAME))
 					.isNotEqualTo(Optional.of(client));
-			}
-
-			@Test
-			@DisplayName("Client is in database")
-			void testFindByNameWhenClientIsInDatabaseShouldReturnOptionalOfClient() {
-				addTestClientToDatabase(client, A_CLIENT_UUID);
-				addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
-				
-				assertThat(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
-					.isEqualTo(Optional.of(client));
 			}
 		}
 
@@ -320,8 +350,8 @@ class ClientMongoRepositoryTest {
 				void testSaveWhenNewClientGeneratesANamesCollisionShouldNotInsertAndThrow() {
 					addTestClientToDatabase(client, A_CLIENT_UUID);
 					
-					another_client.setFirstName(A_FIRSTNAME);
-					another_client.setLastName(A_LASTNAME);
+					another_client.setFirstName(client.getFirstName());
+					another_client.setLastName(client.getLastName());
 					Client spied_client = spy(another_client);
 					// sets different id
 					doAnswer(invocation -> {
@@ -364,8 +394,32 @@ class ClientMongoRepositoryTest {
 				}
 
 				@Test
-				@DisplayName("Updated client is valid")
-				void testSaveWhenUpdatedClientIsValidShouldUpdateAndReturnWithoutChangingId() {
+				@DisplayName("Updating in the same context is valid")
+				void testSaveWhenUpdatingInTheSameContextIsValidShouldUpdateAndReturnWithoutChangingId() {
+					// populate DB
+					addTestClientToDatabaseInTheSameContext(client, A_CLIENT_UUID);
+					
+					// update
+					client.setFirstName(ANOTHER_FIRSTNAME);
+					client.setLastName(ANOTHER_LASTNAME);
+					
+					Client returnedClient = clientRepository.save(client);
+					
+					// verify
+					List<Client> clientsInDB = readAllClientsFromDatabase();
+					assertThat(clientsInDB).containsExactly(client);
+					assertThat(returnedClient).isEqualTo(client);
+					assertThat(clientsInDB.get(0).getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
+					assertThat(returnedClient.getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
+					assertThat(clientsInDB.get(0).getLastName()).isEqualTo(ANOTHER_LASTNAME);
+					assertThat(returnedClient.getLastName()).isEqualTo(ANOTHER_LASTNAME);
+					assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
+					assertThat(returnedClient.getId()).isEqualTo(A_CLIENT_UUID);
+				}
+
+				@Test
+				@DisplayName("Updating in another context is valid")
+				void testSaveWhenUpdatingInAnotherContextIsValidShouldUpdateAndReturnWithoutChangingId() {
 					// populate DB
 					addTestClientToDatabase(client, A_CLIENT_UUID);
 					
@@ -404,8 +458,8 @@ class ClientMongoRepositoryTest {
 					addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
 					
 					// update
-					another_client.setFirstName(A_FIRSTNAME);
-					another_client.setLastName(A_LASTNAME);
+					another_client.setFirstName(client.getFirstName());
+					another_client.setLastName(client.getLastName());
 					
 					assertThatThrownBy(() -> clientRepository.save(another_client))
 						.isInstanceOf(UniquenessConstraintViolationException.class)
@@ -425,8 +479,18 @@ class ClientMongoRepositoryTest {
 			class DeleteTest {
 
 				@Test
-				@DisplayName("Client is in database")
-				void testDeleteWhenClientIsInDatabaseShouldRemove() {
+				@DisplayName("Client was added in the same context")
+				void testDeleteWhenClientWasAddedToTheDatabaseInTheSameContextShouldRemove() {
+					addTestClientToDatabaseInTheSameContext(client, A_CLIENT_UUID);
+					
+					clientRepository.delete(client);
+					
+					assertThat(readAllClientsFromDatabase()).doesNotContain(client);
+				}
+
+				@Test
+				@DisplayName("Client was added to database in another context")
+				void testDeleteWhenClientWasAddedToTheDatabaseInAnotherContextShouldRemove() {
 					addTestClientToDatabase(client, A_CLIENT_UUID);
 					
 					clientRepository.delete(client);
@@ -435,8 +499,18 @@ class ClientMongoRepositoryTest {
 				}
 
 				@Test
-				@DisplayName("Client is not in database")
-				void testDeleteWhenClientIsNotInDatabaseShouldNotRemoveAnythingAndNotThrow() {
+				@DisplayName("Client has never been inserted")
+				void testDeleteWhenClientHasNeverBeenInsertedInDatabaseShouldNotRemoveAnythingAndNotThrow() {
+					addTestClientToDatabase(client, A_CLIENT_UUID);
+					
+					assertThatNoException().isThrownBy(() -> clientRepository.delete(another_client));
+					
+					assertThat(readAllClientsFromDatabase()).containsExactly(client);
+				}
+
+				@Test
+				@DisplayName("Client has already been removed")
+				void testDeleteWhenClientHasAlreadyBeenRemovedFromDatabaseShouldNotRemoveAnythingAndNotThrow() {
 					addTestClientToDatabase(client, A_CLIENT_UUID);
 					another_client.setId(ANOTHER_CLIENT_UUID);
 					
@@ -451,6 +525,11 @@ class ClientMongoRepositoryTest {
 						.stream(clientCollection.find().spliterator(), false)
 						.collect(Collectors.toList());
 			}
+		}
+
+		private void addTestClientToDatabaseInTheSameContext(Client client, UUID id) {
+			client.setId(id);
+			clientCollection.insertOne(session, client);
 		}
 
 		private void addTestClientToDatabase(Client client, UUID id) {

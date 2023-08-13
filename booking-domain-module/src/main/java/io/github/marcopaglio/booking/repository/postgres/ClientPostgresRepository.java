@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.PropertyValueException;
+
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
 import io.github.marcopaglio.booking.model.Client;
@@ -58,18 +60,39 @@ public class ClientPostgresRepository implements ClientRepository {
 		}
 	}
 
+	/*
+	 *  NOn lancia mai UniquenessConstraintViolationException
+	 */
 	@Override
 	public Client save(Client client) throws IllegalArgumentException, NotNullConstraintViolationException,
 			UniquenessConstraintViolationException {
 		if (client == null)
 			throw new IllegalArgumentException("Client to save cannot be null.");
-		return null;
+		
+		try {
+			if (client.getId() == null)
+				em.persist(client);
+			else
+				em.merge(client);
+		} catch(PropertyValueException e) {
+			throw new NotNullConstraintViolationException("Client to save must have both not-null names.");
+		}
+		return client;
 	}
 
+	/*
+	 * INSERIRE ALL?INTERNO di una transaction altrimenti non funziona
+	 */
 	@Override
 	public void delete(Client client) throws IllegalArgumentException {
 		if (client == null)
 			throw new IllegalArgumentException("Client to delete cannot be null.");
+		
+		try {
+			em.remove(em.contains(client) ? client : em.merge(client));
+		} catch(IllegalArgumentException e) {
+			// do nothing
+		}
 	}
 
 }

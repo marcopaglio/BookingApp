@@ -445,11 +445,22 @@ class ReservationMongoRepositoryTest {
 				}
 
 				@Test
-				@DisplayName("Reservation is not in database")
-				void testDeleteWhenReservationIsNotInDatabaseShouldNotRemoveAnythingAndNotThrow() {
+				@DisplayName("Reservation has never been inserted")
+				void testDeleteWhenReservationHasNeverBeenInsertedInDatabaseShouldNotRemoveAnythingAndNotThrow() {
 					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
 					
 					another_reservation.setId(ANOTHER_RESERVATION_UUID);
+					
+					assertThatNoException().isThrownBy(
+							() -> reservationRepository.delete(another_reservation));
+					
+					assertThat(readAllReservationsFromDatabase()).containsExactly(reservation);
+				}
+				
+				@Test
+				@DisplayName("Reservation has already been removed")
+				void testDeleteWhenReservationHasAlreadyBeenRemovedFromDatabaseShouldNotRemoveAnythingAndNotThrow() {
+					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
 					
 					assertThatNoException().isThrownBy(
 							() -> reservationRepository.delete(another_reservation));
