@@ -22,12 +22,12 @@
       <!-- version taken from the bom -->
     </dependency>
     <dependency>
-      <groupId>org.hibernate.orm</groupId>
+      <groupId>org.hibernate</groupId>
       <artifactId>hibernate-core</artifactId>
       <!-- version taken from the bom -->
     </dependency>
     <dependency>
-      <groupId>org.hibernate.orm</groupId>
+      <groupId>org.hibernate</groupId>
       <artifactId>hibernate-hikaricp</artifactId>
       <!-- version taken from the bom -->
     </dependency>
