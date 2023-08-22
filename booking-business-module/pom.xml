@@ -21,6 +21,7 @@
       <artifactId>booking-domain-module</artifactId>
       <!-- version taken from the bom -->
     </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
@@ -60,7 +61,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <!-- version taken from the bom -->
+      <!-- version taken from the parent -->
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -26,6 +26,9 @@
     <assertj.version>3.24.2</assertj.version>
     <mockito.version>5.1.1</mockito.version>
     <testcontainers.version>1.18.3</testcontainers.version>
+    <logback.version>1.2.12</logback.version>
+    <postgresql.version>42.6.0</postgresql.version>
+
 
     <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
     <maven.compiler.version>3.11.0</maven.compiler.version>
@@ -43,6 +46,26 @@
   
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-hikaricp</artifactId>
+        <version>${hibernate.version}</version>
+        <!-- version defined in the bom -->
+      </dependency>
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgresql.version}</version>
+      </dependency>
+      <dependency>
+        <!-- required to see Mongo Java Driver logs -->
+        <!-- required to see PostgreSQL JDBC Driver logs -->
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
+      </dependency>
+
+      <!-- IMPORTED BOM -->
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
