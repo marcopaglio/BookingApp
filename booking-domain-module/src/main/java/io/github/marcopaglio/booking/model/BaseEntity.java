@@ -42,7 +42,7 @@ public abstract class BaseEntity {
 	 *
 	 * @return	the {@code UUID} of the entity.
 	 */
-	public final UUID getId() {
+	public UUID getId() {
 		return this.id;
 	}
 
@@ -51,7 +51,7 @@ public abstract class BaseEntity {
 	 * 
 	 * @param id	the identifier to set.
 	 */
-	public final void setId(UUID id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 

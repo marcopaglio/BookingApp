@@ -72,7 +72,7 @@ public class Reservation extends BaseEntity {
 	 *
 	 * @return	the {@code UUID} of the associated client of the reservation.
 	 */
-	public final UUID getClientId() {
+	public UUID getClientId() {
 		return clientId;
 	}
 
@@ -81,7 +81,7 @@ public class Reservation extends BaseEntity {
 	 * 
 	 * @param clientId	the client's identifier to set.
 	 */
-	public final void setClientId(UUID clientId) {
+	public void setClientId(UUID clientId) {
 		this.clientId = clientId;
 	}
 
@@ -90,7 +90,7 @@ public class Reservation extends BaseEntity {
 	 *
 	 * @return	the {@code date} of the reservation.
 	 */
-	public final LocalDate getDate() {
+	public LocalDate getDate() {
 		return date;
 	}
 
@@ -99,7 +99,7 @@ public class Reservation extends BaseEntity {
 	 * 
 	 * @param date	the date to set.
 	 */
-	public final void setDate(LocalDate date) {
+	public void setDate(LocalDate date) {
 		this.date = date;
 	}
 

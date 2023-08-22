@@ -76,7 +76,7 @@ public class Client extends BaseEntity {
 	 *
 	 * @return	the {@code firstName} of the client.
 	 */
-	public final String getFirstName() {
+	public String getFirstName() {
 		return this.firstName;
 	}
 
@@ -85,7 +85,7 @@ public class Client extends BaseEntity {
 	 * 
 	 * @param firstName	the name to set.
 	 */
-	public final void setFirstName(String firstName) {
+	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
 
@@ -94,7 +94,7 @@ public class Client extends BaseEntity {
 	 *
 	 * @return	the {@code lastName} of the client.
 	 */
-	public final String getLastName() {
+	public String getLastName() {
 		return this.lastName;
 	}
 
@@ -103,7 +103,7 @@ public class Client extends BaseEntity {
 	 * 
 	 * @param lastName	the surname to set.
 	 */
-	public final void setLastName(String lastName) {
+	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
 
