@@ -139,21 +139,15 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 			throw new NotNullConstraintViolationException(
 					"Reservation to save must have a not-null date.");
 		
-		if (reservation.getId() == null) {
-			reservation.setId(UUID.randomUUID());
-			try {
+		try {
+			if (reservation.getId() == null) {
+				reservation.setId(UUID.randomUUID());
 				collection.insertOne(session, reservation);
-			} catch(MongoWriteException e) {
-				throw new UniquenessConstraintViolationException(
-						uniquenessConstraintViolationMsg("insertion"));
-			}
-		} else {
-			try {
+			} else
 				collection.replaceOne(session, Filters.eq(ID_DB, reservation.getId()), reservation);
-			} catch(MongoWriteException e) {
-				throw new UniquenessConstraintViolationException(
-						uniquenessConstraintViolationMsg("update"));
-			}
+		} catch(MongoWriteException e) {
+			throw new UniquenessConstraintViolationException(
+					"Reservation to save violates uniqueness constraints.");
 		}
 		return reservation;
 	}

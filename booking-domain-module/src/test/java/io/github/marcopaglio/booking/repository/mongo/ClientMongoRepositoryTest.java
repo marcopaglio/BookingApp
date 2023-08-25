@@ -296,23 +296,6 @@ class ClientMongoRepositoryTest {
 			@DisplayName("Tests for 'save'")
 			class SaveTest {
 
-				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
-				@DisplayName("Client with null names")
-				@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
-						nullValues = {"null"}
-				)
-				void testSaveWhenClientHasNullNamesShouldNotInsertAndThrow(
-						String firstName, String lastName) {
-					client.setFirstName(firstName);
-					client.setLastName(lastName);
-					
-					assertThatThrownBy(() -> clientRepository.save(client))
-						.isInstanceOf(NotNullConstraintViolationException.class)
-						.hasMessage("Client to save must have both not-null names.");
-					
-					assertThat(readAllClientsFromDatabase()).isEmpty();
-				}
-
 				@Test
 				@DisplayName("New client is valid")
 				void testSaveWhenNewClientIsValidShouldInsertAndReturnTheClientWithId() {
@@ -324,6 +307,23 @@ class ClientMongoRepositoryTest {
 					assertThat(clientsInDB.get(0).getId()).isNotNull();
 					assertThat(returnedClient.getId()).isNotNull();
 					assertThat(clientsInDB.get(0).getId()).isEqualTo(returnedClient.getId());
+				}
+
+				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
+				@DisplayName("New client has null names")
+				@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
+						nullValues = {"null"}
+				)
+				void testSaveWhenNewClientHasNullNamesShouldNotInsertAndThrow(
+						String firstName, String lastName) {
+					client.setFirstName(firstName);
+					client.setLastName(lastName);
+					
+					assertThatThrownBy(() -> clientRepository.save(client))
+						.isInstanceOf(NotNullConstraintViolationException.class)
+						.hasMessage("Client to save must have both not-null names.");
+					
+					assertThat(readAllClientsFromDatabase()).isEmpty();
 				}
 
 				@Test
@@ -340,7 +340,7 @@ class ClientMongoRepositoryTest {
 					
 					assertThatThrownBy(() -> clientRepository.save(spied_client))
 						.isInstanceOf(UniquenessConstraintViolationException.class)
-						.hasMessage("The insertion violates uniqueness constraints.");
+						.hasMessage("Client to save violates uniqueness constraints.");
 					
 					assertThat(readAllClientsFromDatabase()).doesNotContain(spied_client);
 				}
@@ -361,7 +361,7 @@ class ClientMongoRepositoryTest {
 					
 					assertThatThrownBy(() -> clientRepository.save(spied_client))
 						.isInstanceOf(UniquenessConstraintViolationException.class)
-						.hasMessage("The insertion violates uniqueness constraints.");
+						.hasMessage("Client to save violates uniqueness constraints.");
 					
 					List<Client> clientsInDB = readAllClientsFromDatabase();
 					assertThat(clientsInDB).containsExactly(client);
@@ -450,6 +450,27 @@ class ClientMongoRepositoryTest {
 					assertThat(readAllClientsFromDatabase()).doesNotContain(client);
 				}
 
+
+				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
+				@DisplayName("Updated client has null names")
+				@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
+						nullValues = {"null"}
+				)
+				void testSaveWhenUpdatedClientHasNullNamesShouldNotInsertAndThrow(
+						String firstName, String lastName) {
+					// TODO
+					
+					// update
+					client.setFirstName(firstName);
+					client.setLastName(lastName);
+					
+					assertThatThrownBy(() -> clientRepository.save(client))
+						.isInstanceOf(NotNullConstraintViolationException.class)
+						.hasMessage("Client to save must have both not-null names.");
+					
+					assertThat(readAllClientsFromDatabase()).isEmpty();
+				}
+
 				@Test
 				@DisplayName("Updated client generates names collision")
 				void testSaveWhenUpdatedClientGeneratesNamesCollisionShouldNotUpdateAndThrow() {
@@ -463,7 +484,7 @@ class ClientMongoRepositoryTest {
 					
 					assertThatThrownBy(() -> clientRepository.save(another_client))
 						.isInstanceOf(UniquenessConstraintViolationException.class)
-						.hasMessage("The update violates uniqueness constraints.");
+						.hasMessage("Client to save violates uniqueness constraints.");
 					
 					Set<String> namesInDB = new HashSet<>();
 					readAllClientsFromDatabase().forEach((c) -> namesInDB.add(c.getFirstName()));

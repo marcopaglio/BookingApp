@@ -126,21 +126,15 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 		if (client.getFirstName() == null || client.getLastName() == null)
 			throw new NotNullConstraintViolationException("Client to save must have both not-null names.");
 		
-		if(client.getId() == null) {
-			client.setId(UUID.randomUUID());
-			try {
+		try {
+			if(client.getId() == null) {
+				client.setId(UUID.randomUUID());
 				collection.insertOne(session, client);
-			} catch(MongoWriteException e) {
-				throw new UniquenessConstraintViolationException(
-						uniquenessConstraintViolationMsg("insertion"));
-			}
-		} else {
-			try {
+			} else
 				collection.replaceOne(session, Filters.eq(ID_DB, client.getId()), client);
-			} catch(MongoWriteException e) {
-				throw new UniquenessConstraintViolationException(
-						uniquenessConstraintViolationMsg("update"));
-			}
+		} catch(MongoWriteException e) {
+			throw new UniquenessConstraintViolationException(
+					"Client to save violates uniqueness constraints.");
 		}
 		return client;
 	}

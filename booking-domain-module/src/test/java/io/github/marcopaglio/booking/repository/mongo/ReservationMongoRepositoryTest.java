@@ -330,7 +330,7 @@ class ReservationMongoRepositoryTest {
 					
 					assertThatThrownBy(() -> reservationRepository.save(spied_reservation))
 						.isInstanceOf(UniquenessConstraintViolationException.class)
-						.hasMessage("The insertion violates uniqueness constraints.");
+						.hasMessage("Reservation to save violates uniqueness constraints.");
 					
 					assertThat(readAllReservationsFromDatabase()).doesNotContain(spied_reservation);
 				}
@@ -350,7 +350,7 @@ class ReservationMongoRepositoryTest {
 					
 					assertThatThrownBy(() -> reservationRepository.save(spied_reservation))
 						.isInstanceOf(UniquenessConstraintViolationException.class)
-						.hasMessage("The insertion violates uniqueness constraints.");
+						.hasMessage("Reservation to save violates uniqueness constraints.");
 					
 					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
 					assertThat(reservationsInDB).containsExactly(reservation);
@@ -422,7 +422,7 @@ class ReservationMongoRepositoryTest {
 					
 					assertThatThrownBy(() -> reservationRepository.save(another_reservation))
 						.isInstanceOf(UniquenessConstraintViolationException.class)
-						.hasMessage("The update violates uniqueness constraints.");
+						.hasMessage("Reservation to save violates uniqueness constraints.");
 					
 					Set<LocalDate> datesInDB = new HashSet<>();
 					readAllReservationsFromDatabase().forEach((r) -> datesInDB.add(r.getDate()));
