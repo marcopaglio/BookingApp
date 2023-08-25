@@ -17,7 +17,10 @@ import static org.bson.BsonType.STRING;
  */
 @Entity
 @Table(name = Client.CLIENT_TABLE_DB,
-	uniqueConstraints = {@UniqueConstraint(columnNames = {Client.FIRSTNAME_DB, Client.LASTNAME_DB})})
+	uniqueConstraints = {
+		@UniqueConstraint(
+			name = "FullNameUniqueConstraint",
+			columnNames = {Client.FIRSTNAME_DB, Client.LASTNAME_DB})})
 public class Client extends BaseEntity {
 	/**
 	 * Table name used in a database to access {@code Client} entities.
