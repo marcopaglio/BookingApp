@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
+import io.github.marcopaglio.booking.exception.UpdateFailureException;
 import io.github.marcopaglio.booking.model.Client;
 
 /**
@@ -46,10 +47,11 @@ public interface ClientRepository {
 	 * @param client									the client to save.
 	 * @return											the {@code Client} saved.
 	 * @throws IllegalArgumentException					if {@code client} is null.
+	 * @throws UpdateFailureException					if the update fails.
 	 * @throws NotNullConstraintViolationException		if a not-null constraint is violated.
 	 * @throws UniquenessConstraintViolationException	if a uniqueness constraint is violated.
 	 */
-	public Client save(Client client) throws IllegalArgumentException, NotNullConstraintViolationException, UniquenessConstraintViolationException;
+	public Client save(Client client) throws IllegalArgumentException, UpdateFailureException, NotNullConstraintViolationException, UniquenessConstraintViolationException;
 
 	/**
 	 * Removes the unique specified client from the database.

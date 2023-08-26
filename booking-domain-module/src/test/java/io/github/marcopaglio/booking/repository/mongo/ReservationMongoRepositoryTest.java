@@ -47,6 +47,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+import io.github.marcopaglio.booking.exception.UpdateFailureException;
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
 import io.github.marcopaglio.booking.model.Reservation;
@@ -403,10 +404,13 @@ class ReservationMongoRepositoryTest {
 
 				@Test
 				@DisplayName("Updated reservation is no longer present in database")
-				void testSaveWhenUpdatedReservationIsNotInDatabaseShouldNotInsertAndNotThrow() {
+				void testSaveWhenUpdatedReservationIsNotInDatabaseShouldThrowAndNotInsert() {
 					reservation.setId(A_RESERVATION_UUID);
 					
-					assertThatNoException().isThrownBy(() -> reservationRepository.save(reservation));
+					assertThatThrownBy(() -> reservationRepository.save(reservation))
+						.isInstanceOf(UpdateFailureException.class)
+						.hasMessage("Reservation to update is not longer present in the repository.");
+					
 					assertThat(readAllReservationsFromDatabase()).doesNotContain(reservation);
 				}
 

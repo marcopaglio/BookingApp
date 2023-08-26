@@ -12,7 +12,9 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
+import com.mongodb.client.model.ReplaceOptions;
 
+import io.github.marcopaglio.booking.exception.UpdateFailureException;
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
 import io.github.marcopaglio.booking.model.Client;
@@ -112,13 +114,15 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	 * @param client									the Client to save.
 	 * @return											the {@code Client} saved.
 	 * @throws IllegalArgumentException					if {@code client} is null.
+	 * @throws UpdateFailureException					if you try to save changes of a no longer
+	 * 													existing client.
 	 * @throws NotNullConstraintViolationException		if {@code firstName} or {@code lastName}
 	 * 													of {@code client} to save are null.
 	 * @throws UniquenessConstraintViolationException	if {@code id} or {@code [firstName, lastName]}
 	 * 													of {@code client} to save are already present.
 	 */
 	@Override
-	public Client save(Client client) throws IllegalArgumentException,
+	public Client save(Client client) throws IllegalArgumentException, UpdateFailureException,
 			NotNullConstraintViolationException, UniquenessConstraintViolationException {
 		if (client == null)
 			throw new IllegalArgumentException("Client to save cannot be null.");
@@ -130,13 +134,31 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 			if(client.getId() == null) {
 				client.setId(UUID.randomUUID());
 				collection.insertOne(session, client);
-			} else
-				collection.replaceOne(session, Filters.eq(ID_DB, client.getId()), client);
+			} else {
+				replaceIfFound(client);
+			}
 		} catch(MongoWriteException e) {
 			throw new UniquenessConstraintViolationException(
 					"Client to save violates uniqueness constraints.");
 		}
 		return client;
+	}
+
+	/**
+	 * Replace the Client with the same id in the MongoDB database.
+	 * 
+	 * @param client					the replacement client.
+	 * @throws UpdateFailureException	if there is no client with the same ID to replace.
+	 */
+	private void replaceIfFound(Client client) throws UpdateFailureException {
+		if (collection.replaceOne(
+					session,
+					Filters.eq(ID_DB, client.getId()),
+					client,
+					new ReplaceOptions().upsert(false))
+				.getModifiedCount() == 0)
+			throw new UpdateFailureException(
+				"Client to update is not longer present in the repository.");
 	}
 
 	/**

@@ -38,6 +38,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+import io.github.marcopaglio.booking.exception.UpdateFailureException;
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
 import io.github.marcopaglio.booking.model.Client;
@@ -443,22 +444,24 @@ class ClientMongoRepositoryTest {
 
 				@Test
 				@DisplayName("Updated client is no longer present in database")
-				void testSaveWhenUpdatedClientIsNotInDatabaseShouldNotInsertAndNotThrow() {
+				void testSaveWhenUpdatedClientIsNotInDatabaseShouldThrowAndNotInsert() {
 					client.setId(A_CLIENT_UUID);
 					
-					assertThatNoException().isThrownBy(() -> clientRepository.save(client));
+					assertThatThrownBy(() -> clientRepository.save(client))
+						.isInstanceOf(UpdateFailureException.class)
+						.hasMessage("Client to update is not longer present in the repository.");
+					
 					assertThat(readAllClientsFromDatabase()).doesNotContain(client);
 				}
-
 
 				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
 				@DisplayName("Updated client has null names")
 				@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
 						nullValues = {"null"}
 				)
-				void testSaveWhenUpdatedClientHasNullNamesShouldNotInsertAndThrow(
+				void testSaveWhenUpdatedClientHasNullNamesShouldNotUpdateAndThrow(
 						String firstName, String lastName) {
-					// TODO
+					addTestClientToDatabase(client, A_CLIENT_UUID);
 					
 					// update
 					client.setFirstName(firstName);
@@ -468,7 +471,12 @@ class ClientMongoRepositoryTest {
 						.isInstanceOf(NotNullConstraintViolationException.class)
 						.hasMessage("Client to save must have both not-null names.");
 					
-					assertThat(readAllClientsFromDatabase()).isEmpty();
+					// verify
+					List<Client> clientsInDB = readAllClientsFromDatabase();
+					assertThat(clientsInDB).hasSize(1);
+					assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
+					assertThat(clientsInDB.get(0).getFirstName()).isEqualTo(A_FIRSTNAME);
+					assertThat(clientsInDB.get(0).getLastName()).isEqualTo(A_LASTNAME);
 				}
 
 				@Test

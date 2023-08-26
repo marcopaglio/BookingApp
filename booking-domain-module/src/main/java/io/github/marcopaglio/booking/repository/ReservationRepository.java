@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
+import io.github.marcopaglio.booking.exception.UpdateFailureException;
 import io.github.marcopaglio.booking.model.Reservation;
 
 /**
@@ -55,10 +56,11 @@ public interface ReservationRepository {
 	 * @param reservation								the reservation to save.
 	 * @return											the {@code Reservation} saved.
 	 * @throws IllegalArgumentException					if {@code reservation} is null.
+	 * @throws UpdateFailureException					if the update fails.
 	 * @throws NotNullConstraintViolationException		if a not-null constraint is violated.
 	 * @throws UniquenessConstraintViolationException	if a uniqueness constraint is violated.
 	 */
-	public Reservation save(Reservation reservation) throws IllegalArgumentException, NotNullConstraintViolationException, UniquenessConstraintViolationException;
+	public Reservation save(Reservation reservation) throws IllegalArgumentException, UpdateFailureException, NotNullConstraintViolationException, UniquenessConstraintViolationException;
 
 	/**
 	 * Removes the unique specified reservation from the database.

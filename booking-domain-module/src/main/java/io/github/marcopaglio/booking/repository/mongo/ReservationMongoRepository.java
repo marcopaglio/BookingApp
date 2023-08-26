@@ -13,7 +13,9 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
+import com.mongodb.client.model.ReplaceOptions;
 
+import io.github.marcopaglio.booking.exception.UpdateFailureException;
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
 import io.github.marcopaglio.booking.model.Reservation;
@@ -121,13 +123,15 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	 * @param reservation								the reservation to save.
 	 * @return											the {@code Reservation} saved.
 	 * @throws IllegalArgumentException					if {@code reservation} is null.
+	 * @throws UpdateFailureException					if you try to save changes of a no longer
+	 * 													existing reservation.
 	 * @throws NotNullConstraintViolationException		if {@code date} or {@code clientId}
 	 * 													of {@code reservation} to save are null.
 	 * @throws UniquenessConstraintViolationException	if {@code id} or {@code date}
 	 * 													of {@code reservation} to save are already present.
 	 */
 	@Override
-	public Reservation save(Reservation reservation) throws IllegalArgumentException,
+	public Reservation save(Reservation reservation) throws IllegalArgumentException, UpdateFailureException,
 			NotNullConstraintViolationException, UniquenessConstraintViolationException {
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to save cannot be null.");
@@ -143,13 +147,31 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 			if (reservation.getId() == null) {
 				reservation.setId(UUID.randomUUID());
 				collection.insertOne(session, reservation);
-			} else
-				collection.replaceOne(session, Filters.eq(ID_DB, reservation.getId()), reservation);
+			} else {
+				replaceIfFound(reservation);
+			}
 		} catch(MongoWriteException e) {
 			throw new UniquenessConstraintViolationException(
 					"Reservation to save violates uniqueness constraints.");
 		}
 		return reservation;
+	}
+
+	/**
+	 * Replace the Reservation with the same id in the MongoDB database.
+	 * 
+	 * @param reservation				the replacement reservation.
+	 * @throws UpdateFailureException	if there is no reservation with the same ID to replace.
+	 */
+	private void replaceIfFound(Reservation reservation) throws UpdateFailureException {
+		if (collection.replaceOne(
+					session,
+					Filters.eq(ID_DB, reservation.getId()),
+					reservation,
+					new ReplaceOptions().upsert(false))
+				.getModifiedCount() == 0)
+			throw new UpdateFailureException(
+					"Reservation to update is not longer present in the repository.");
 	}
 
 	/**
