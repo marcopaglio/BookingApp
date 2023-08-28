@@ -33,20 +33,20 @@ public interface ReservationRepository {
 	public List<Reservation> findByClient(UUID clientId);
 
 	/**
-	 * Retrieves the unique reservation with the specified identifier from the database if exists.
+	 * Retrieves the unique reservation with the specified identifier from the database, if it exists.
 	 * 
 	 * @param id	the identifier of the reservation to find.
-	 * @return		an {@code Optional} contained the {@code Reservation} identified by {@code id} if exists;
-	 * 				an {@code Optional} empty if it doesn't exist.
+	 * @return		an {@code Optional} contained the {@code Reservation} identified by {@code id},
+	 * 				if it exists; an {@code Optional} empty, otherwise.
 	 */
 	public Optional<Reservation> findById(UUID id);
 
 	/**
-	 * Retrieves the unique reservation of the specified date from the database if exists.
+	 * Retrieves the unique reservation of the specified date from the database, if it exists.
 	 * 
 	 * @param date	the date of the reservation to find.
-	 * @return		an {@code Optional} contained the {@code Reservation} on {@code date} if exists;
-	 * 				an {@code Optional} empty if it doesn't exist.
+	 * @return		an {@code Optional} contained the {@code Reservation} on {@code date},
+	 * 				if it exists; an {@code Optional} empty, otherwise.
 	 */
 	public Optional<Reservation> findByDate(LocalDate date);
 
@@ -63,7 +63,8 @@ public interface ReservationRepository {
 	public Reservation save(Reservation reservation) throws IllegalArgumentException, UpdateFailureException, NotNullConstraintViolationException, UniquenessConstraintViolationException;
 
 	/**
-	 * Removes the unique specified reservation from the database.
+	 * Removes the unique specified reservation from the database, if it exists,
+	 * otherwise it does nothing.
 	 *
 	 * @param reservation				the reservation to delete.
 	 * @throws IllegalArgumentException	if {@code reservation} is null.

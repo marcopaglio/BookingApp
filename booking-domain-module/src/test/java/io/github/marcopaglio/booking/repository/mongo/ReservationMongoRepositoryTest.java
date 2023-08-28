@@ -103,11 +103,11 @@ class ReservationMongoRepositoryTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		// make sure we always start with a clean database
-		database.drop();
-		
 		// start a new session for communicating with the DB
 		session = mongoClient.startSession();
+		
+		// make sure we always start with a clean database
+		database.drop();
 		
 		// repository creation after drop because it removes configurations on collections
 		reservationRepository = new ReservationMongoRepository(mongoClient, session);
@@ -117,7 +117,7 @@ class ReservationMongoRepositoryTest {
 	}
 
 	@AfterEach
-	void closeSession() throws Exception {
+	void closeHandler() throws Exception {
 		session.close();
 	}
 
@@ -166,8 +166,8 @@ class ReservationMongoRepositoryTest {
 	}
 
 	@Nested
-	@DisplayName("Tests that read the database")
-	class ReadDBTest {
+	@DisplayName("Using entities")
+	class UsingEntitiesTest {
 		private Reservation reservation;
 		private Reservation another_reservation;
 
@@ -178,97 +178,102 @@ class ReservationMongoRepositoryTest {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'findAll'")
-		class FindAllTest {
+		@DisplayName("Tests that read the database")
+		class ReadDBTest {
 
-			@Test
-			@DisplayName("Database is empty")
-			void testFindAllWhenDatabaseIsEmptyShouldReturnEmptyList() {
-				assertThat(reservationRepository.findAll()).isEmpty();
+			@Nested
+			@DisplayName("Tests for 'findAll'")
+			class FindAllTest {
+
+				@Test
+				@DisplayName("Database is empty")
+				void testFindAllWhenDatabaseIsEmptyShouldReturnEmptyList() {
+					assertThat(reservationRepository.findAll()).isEmpty();
+				}
+
+				@Test
+				@DisplayName("Database is not empty")
+				void testFindAllWhenDatabaseIsNotEmptyShouldReturnReservationsAsList() {
+					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+					
+					assertThat(reservationRepository.findAll())
+						.containsExactlyInAnyOrder(reservation, another_reservation);
+				}
 			}
 
-			@Test
-			@DisplayName("Database is not empty")
-			void testFindAllWhenDatabaseIsNotEmptyShouldReturnReservationsAsList() {
-				addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-				addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
-				
-				assertThat(reservationRepository.findAll())
-					.containsExactlyInAnyOrder(reservation, another_reservation);
-			}
-		}
+			@Nested
+			@DisplayName("Tests for 'findByClient'")
+			class FindByClientTest {
 
-		@Nested
-		@DisplayName("Tests for 'findByClient'")
-		class FindByClientTest {
+				@Test
+				@DisplayName("No associated reservations")
+				void testFindByClientWhenThereAreNoAssociatedReservationsShouldReturnEmptyList() {
+					assertThat(reservationRepository.findByClient(ANOTHER_CLIENT_UUID)).isEmpty();
+				}
 
-			@Test
-			@DisplayName("No associated reservations")
-			void testFindByClientWhenThereAreNoAssociatedReservationsShouldReturnEmptyList() {
-				assertThat(reservationRepository.findByClient(ANOTHER_CLIENT_UUID)).isEmpty();
-			}
+				@Test
+				@DisplayName("Single associated reservation")
+				void testFindByClientWhenThereIsASingleAssociatedReservationShouldReturnTheReservationAsList() {
+					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+					
+					assertThat(reservationRepository.findByClient(A_CLIENT_UUID))
+						.containsExactly(reservation);
+				}
 
-			@Test
-			@DisplayName("Single associated reservation")
-			void testFindByClientWhenThereIsASingleAssociatedReservationShouldReturnTheReservationAsList() {
-				addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-				addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
-				
-				assertThat(reservationRepository.findByClient(A_CLIENT_UUID))
-					.containsExactly(reservation);
-			}
-
-			@Test
-			@DisplayName("Several associated reservation")
-			void testFindByClientWhenThereAreSeveralAssociatedReservationsShouldReturnReservationsAsList() {
-				addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-				another_reservation.setClientId(A_CLIENT_UUID);
-				addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
-				
-				assertThat(reservationRepository.findByClient(A_CLIENT_UUID))
-					.containsExactly(reservation, another_reservation);
-			}
-		}
-
-		@Nested
-		@DisplayName("Tests for 'findById'")
-		class FindByIdTest {
-
-			@Test
-			@DisplayName("Reservation is not in database")
-			void testFindByIdWhenReservationIsNotInDatabaseShouldReturnOptionalOfEmpty() {
-				assertThat(reservationRepository.findById(A_RESERVATION_UUID)).isEmpty();
+				@Test
+				@DisplayName("Several associated reservation")
+				void testFindByClientWhenThereAreSeveralAssociatedReservationsShouldReturnReservationsAsList() {
+					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+					another_reservation.setClientId(A_CLIENT_UUID);
+					addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+					
+					assertThat(reservationRepository.findByClient(A_CLIENT_UUID))
+						.containsExactly(reservation, another_reservation);
+				}
 			}
 
-			@Test
-			@DisplayName("Reservation is in database")
-			void testFindByIdWhenReservationIsInDatabaseShouldReturnOptionalOfReservation() {
-				addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-				addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
-				
-				assertThat(reservationRepository.findById(A_RESERVATION_UUID))
-					.isEqualTo(Optional.of(reservation));
+			@Nested
+			@DisplayName("Tests for 'findById'")
+			class FindByIdTest {
+
+				@Test
+				@DisplayName("Reservation is not in database")
+				void testFindByIdWhenReservationIsNotInDatabaseShouldReturnOptionalOfEmpty() {
+					assertThat(reservationRepository.findById(A_RESERVATION_UUID)).isEmpty();
+				}
+
+				@Test
+				@DisplayName("Reservation is in database")
+				void testFindByIdWhenReservationIsInDatabaseShouldReturnOptionalOfReservation() {
+					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+					
+					assertThat(reservationRepository.findById(A_RESERVATION_UUID))
+						.isEqualTo(Optional.of(reservation));
+				}
 			}
-		}
 
-		@Nested
-		@DisplayName("Tests for 'findByDate'")
-		class FindByDate {
+			@Nested
+			@DisplayName("Tests for 'findByDate'")
+			class FindByDate {
 
-			@Test
-			@DisplayName("Reservation is not in database")
-			void testFindByDateWhenReservationIsNotInDatabaseShouldReturnOptionalOfEmpty() {
-				assertThat(reservationRepository.findByDate(ANOTHER_LOCALDATE)).isEmpty();
-			}
+				@Test
+				@DisplayName("Reservation is not in database")
+				void testFindByDateWhenReservationIsNotInDatabaseShouldReturnOptionalOfEmpty() {
+					assertThat(reservationRepository.findByDate(ANOTHER_LOCALDATE)).isEmpty();
+				}
 
-			@Test
-			@DisplayName("Reservation is in database")
-			void testFindByDateWhenReservationIsInDatabaseShouldReturnOptionalOfReservation() {
-				addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-				addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
-				
-				assertThat(reservationRepository.findByDate(A_LOCALDATE))
-					.isEqualTo(Optional.of(reservation));
+				@Test
+				@DisplayName("Reservation is in database")
+				void testFindByDateWhenReservationIsInDatabaseShouldReturnOptionalOfReservation() {
+					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+					
+					assertThat(reservationRepository.findByDate(A_LOCALDATE))
+						.isEqualTo(Optional.of(reservation));
+				}
 			}
 		}
 
@@ -485,5 +490,4 @@ class ReservationMongoRepositoryTest {
 			reservationCollection.insertOne(reservation);
 		}
 	}
-
 }

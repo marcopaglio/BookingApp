@@ -69,11 +69,12 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	}
 
 	/**
-	 * Retrieves the unique client with the specified identifier from the MongoDB database if exists.
+	 * Retrieves the unique client with the specified identifier from the MongoDB database,
+	 * if it exists.
 	 * 
 	 * @param id	the identifier of the client to find.
-	 * @return		an {@code Optional} contained the {@code Client} identified by {@code id} if exists;
-	 * 				an {@code Optional} empty if it doesn't exist.
+	 * @return		an {@code Optional} contained the {@code Client} identified by {@code id},
+	 * 				if it exists; an {@code Optional} empty, otherwise.
 	 */
 	@Override
 	public Optional<Client> findById(UUID id) {
@@ -85,14 +86,14 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	}
 
 	/**
-	 * Retrieves the unique client with the specified name and surname
-	 * from the MongoDB database if exists.
+	 * Retrieves the unique client with the specified name and surname from the MongoDB database,
+	 * if it exists.
 	 * 
-	 * @param firstName					the name of the client to find.
-	 * @param lastName					the surname of the client to find.
-	 * @return							an {@code Optional} contained the {@code Client}
-	 * 									named {@code firstName} and {@code lastName} if exists;
-	 * 									an {@code Optional} empty if it doesn't exist.
+	 * @param firstName	the name of the client to find.
+	 * @param lastName	the surname of the client to find.
+	 * @return			an {@code Optional} contained the {@code Client}
+	 * 					named {@code firstName} and {@code lastName},
+	 * 					if it exists; an {@code Optional} empty, otherwise.
 	 */
 	@Override
 	public Optional<Client> findByName(String firstName, String lastName) {
@@ -128,7 +129,8 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 			throw new IllegalArgumentException("Client to save cannot be null.");
 		
 		if (client.getFirstName() == null || client.getLastName() == null)
-			throw new NotNullConstraintViolationException("Client to save must have both not-null names.");
+			throw new NotNullConstraintViolationException(
+					"Client to save must have both not-null names.");
 		
 		try {
 			if(client.getId() == null) {
@@ -145,7 +147,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	}
 
 	/**
-	 * Replace the Client with the same id in the MongoDB database.
+	 * Replace the existing Client with the same id in the MongoDB database.
 	 * 
 	 * @param client					the replacement client.
 	 * @throws UpdateFailureException	if there is no client with the same ID to replace.
@@ -158,11 +160,12 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 					new ReplaceOptions().upsert(false))
 				.getModifiedCount() == 0)
 			throw new UpdateFailureException(
-				"Client to update is not longer present in the repository.");
+					"Client to update is not longer present in the repository.");
 	}
 
 	/**
-	 * Removes the unique specified client from the MongoDB database.
+	 * Removes the unique specified client from the MongoDB database, if it exists,
+	 * otherwise it does nothing.
 	 *
 	 * @param client					the client to delete.
 	 * @throws IllegalArgumentException	if {@code client} is null.

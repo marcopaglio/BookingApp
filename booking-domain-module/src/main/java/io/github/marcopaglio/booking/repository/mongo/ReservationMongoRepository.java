@@ -84,11 +84,12 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	}
 
 	/**
-	 * Retrieves the unique reservation with the specified identifier from the MongoDB database if exists.
+	 * Retrieves the unique reservation with the specified identifier from the MongoDB database,
+	 * if it exists.
 	 * 
 	 * @param id	the identifier of the reservation to find.
-	 * @return		an {@code Optional} contained the {@code Reservation} identified by {@code id} if exists;
-	 * 				an {@code Optional} empty if it doesn't exist.
+	 * @return		an {@code Optional} contained the {@code Reservation} identified by {@code id},
+	 * 				if it exists; an {@code Optional} empty, otherwise.
 	 */
 	@Override
 	public Optional<Reservation> findById(UUID id) {
@@ -103,8 +104,8 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	 * Retrieves the unique reservation of the specified date from the MongoDB database if exists.
 	 * 
 	 * @param date	the date of the reservation to find.
-	 * @return		an {@code Optional} contained the {@code Reservation} on {@code date} if exists;
-	 * 				an {@code Optional} empty if it doesn't exist.
+	 * @return		an {@code Optional} contained the {@code Reservation} on {@code date},
+	 * 				if it exists; an {@code Optional} empty, otherwise.
 	 */
 	@Override
 	public Optional<Reservation> findByDate(LocalDate date) {
@@ -158,7 +159,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	}
 
 	/**
-	 * Replace the Reservation with the same id in the MongoDB database.
+	 * Replace the existing Reservation with the same id in the MongoDB database.
 	 * 
 	 * @param reservation				the replacement reservation.
 	 * @throws UpdateFailureException	if there is no reservation with the same ID to replace.
@@ -175,7 +176,8 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	}
 
 	/**
-	 * Removes the unique specified reservation from the MongoDB database.
+	 * Removes the unique specified reservation from the MongoDB database, if it exists,
+	 * otherwise it does nothing.
 	 *
 	 * @param reservation				the reservation to delete.
 	 * @throws IllegalArgumentException	if {@code reservation} is null.
