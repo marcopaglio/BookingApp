@@ -9,6 +9,7 @@ import com.mongodb.client.MongoClient;
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.TransactionException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
+import io.github.marcopaglio.booking.exception.UpdateFailureException;
 import io.github.marcopaglio.booking.repository.factory.ClientRepositoryFactory;
 import io.github.marcopaglio.booking.repository.factory.ReservationRepositoryFactory;
 import io.github.marcopaglio.booking.transaction.code.ClientReservationTransactionCode;
@@ -22,6 +23,7 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
  * An implementation for managing code executed on MongoDB within transactions.
  */
 public class TransactionMongoManager implements TransactionManager {
+
 	/**
 	 * Options used to configure transactions.
 	 * Note: casually consistency is applied when both read and write concerns has value 'majority'.
@@ -36,6 +38,11 @@ public class TransactionMongoManager implements TransactionManager {
 	 * Specifies that the reason the transaction fails is the passing of an invalid argument.
 	 */
 	private static final String INVALID_ARGUMENT = "invalid argument(s) passed";
+
+	/**
+	 * Specifies that the reason the transaction fails is an update failure.
+	 */
+	private static final String UPDATE_FAILURE = "an update failure";
 
 	/**
 	 * Specifies that the reason the transaction fails is a not-null constraint violation.
@@ -98,6 +105,7 @@ public class TransactionMongoManager implements TransactionManager {
 	 * @param code					the code to execute.
 	 * @return						something depending on execution code.
 	 * @throws TransactionException	if {@code code} throws {@code IllegalArgumentException},
+	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
 	 * 								{@code UniquenessConstraintViolationException}.
 	 */
@@ -115,6 +123,9 @@ public class TransactionMongoManager implements TransactionManager {
 		} catch(IllegalArgumentException e) {
 			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
+		} catch(UpdateFailureException e) {
+			sessionHandler.rollbackTransaction();
+			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE));
 		} catch(NotNullConstraintViolationException e) {
 			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
@@ -135,6 +146,7 @@ public class TransactionMongoManager implements TransactionManager {
 	 * @param code	the code to execute.
 	 * @return		something depending on execution code.
 	 * @throws TransactionException	if {@code code} throws {@code IllegalArgumentException},
+	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
 	 * 								{@code UniquenessConstraintViolationException}.
 	 */
@@ -152,6 +164,9 @@ public class TransactionMongoManager implements TransactionManager {
 		} catch(IllegalArgumentException e) {
 			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
+		} catch(UpdateFailureException e) {
+			sessionHandler.rollbackTransaction();
+			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE));
 		} catch(NotNullConstraintViolationException e) {
 			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
@@ -172,6 +187,7 @@ public class TransactionMongoManager implements TransactionManager {
 	 * @param code	the code to execute.
 	 * @return		something depending on execution code.
 	 * @throws TransactionException	if {@code code} throws {@code IllegalArgumentException},
+	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
 	 * 								{@code UniquenessConstraintViolationException}.
 	 */
@@ -191,6 +207,9 @@ public class TransactionMongoManager implements TransactionManager {
 		} catch(IllegalArgumentException e) {
 			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
+		} catch(UpdateFailureException e) {
+			sessionHandler.rollbackTransaction();
+			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE));
 		} catch(UniquenessConstraintViolationException e) {
 			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
