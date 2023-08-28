@@ -58,14 +58,13 @@
         <version>${postgresql.version}</version>
       </dependency>
       <dependency>
+        <!-- required to see Testcontainers logs -->
         <!-- required to see Mongo Java Driver logs -->
-        <!-- required to see PostgreSQL JDBC Driver logs -->
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
         <version>${logback.version}</version>
       </dependency>
 
-      <!-- IMPORTED BOM -->
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
