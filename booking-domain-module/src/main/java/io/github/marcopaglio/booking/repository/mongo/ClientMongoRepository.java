@@ -130,7 +130,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 		
 		if (client.getFirstName() == null || client.getLastName() == null)
 			throw new NotNullConstraintViolationException(
-					"Client to save must have both not-null names.");
+					"Client to save violates not-null constraints.");
 		
 		try {
 			if(client.getId() == null) {
@@ -150,7 +150,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	 * Replace the existing Client with the same id in the MongoDB database.
 	 * 
 	 * @param client					the replacement client.
-	 * @throws UpdateFailureException	if there is no client with the same ID to replace.
+	 * @throws UpdateFailureException	if there is no client with the same id to replace.
 	 */
 	private void replaceIfFound(Client client) throws UpdateFailureException {
 		if (collection.replaceOne(

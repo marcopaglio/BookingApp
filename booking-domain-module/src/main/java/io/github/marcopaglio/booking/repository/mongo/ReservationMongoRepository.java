@@ -26,7 +26,7 @@ import static io.github.marcopaglio.booking.model.Reservation.DATE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.CLIENTID_DB;
 
 /**
- * Implementation of repository layer through MongoDB for reservation entities of the booking application.
+ * Implementation of repository layer through MongoDB for Reservation entities of the booking application.
  */
 public class ReservationMongoRepository extends MongoRepository<Reservation> implements ReservationRepository {
 	/**
@@ -101,7 +101,8 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	}
 
 	/**
-	 * Retrieves the unique reservation of the specified date from the MongoDB database if exists.
+	 * Retrieves the unique reservation of the specified date from the MongoDB database,
+	 * if it exists.
 	 * 
 	 * @param date	the date of the reservation to find.
 	 * @return		an {@code Optional} contained the {@code Reservation} on {@code date},
@@ -137,12 +138,9 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to save cannot be null.");
 		
-		if (reservation.getClientId() == null)
+		if (reservation.getClientId() == null || reservation.getDate() == null)
 			throw new NotNullConstraintViolationException(
-					"Reservation to save must have a not-null client.");
-		if (reservation.getDate() == null)
-			throw new NotNullConstraintViolationException(
-					"Reservation to save must have a not-null date.");
+					"Reservation to save violates not-null constraints.");
 		
 		try {
 			if (reservation.getId() == null) {
@@ -162,7 +160,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	 * Replace the existing Reservation with the same id in the MongoDB database.
 	 * 
 	 * @param reservation				the replacement reservation.
-	 * @throws UpdateFailureException	if there is no reservation with the same ID to replace.
+	 * @throws UpdateFailureException	if there is no reservation with the same id to replace.
 	 */
 	private void replaceIfFound(Reservation reservation) throws UpdateFailureException {
 		if (collection.replaceOne(

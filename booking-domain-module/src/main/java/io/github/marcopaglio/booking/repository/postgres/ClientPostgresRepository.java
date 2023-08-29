@@ -7,15 +7,14 @@ import java.util.UUID;
 import org.hibernate.PropertyValueException;
 import org.hibernate.exception.ConstraintViolationException;
 
-import io.github.marcopaglio.booking.exception.UpdateFailureException;
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
+import io.github.marcopaglio.booking.exception.UpdateFailureException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.repository.ClientRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
 
 /**
  * Implementation of repository layer through PostgreSQL for Client entities of the booking application.
@@ -27,6 +26,11 @@ public class ClientPostgresRepository implements ClientRepository {
 	 */
 	private EntityManager em;
 
+	/**
+	 * Constructs a repository layer for Client entities using PostgreSQL database. 
+	 * 
+	 * @param em	the {@code EntityManager} used to communicate with PostgreSQL database.
+	 */
 	public ClientPostgresRepository(EntityManager em) {
 		this.em = em;
 	}
@@ -72,14 +76,13 @@ public class ClientPostgresRepository implements ClientRepository {
 	 */
 	@Override
 	public Optional<Client> findByName(String firstName, String lastName) {
-		TypedQuery<Client> query = em.createQuery(
-				"SELECT c FROM Client c WHERE c.firstName = :firstName AND c.lastName = :lastName",
-				Client.class);
-		query.setParameter("firstName", firstName);
-		query.setParameter("lastName", lastName);
-		
 		try {
-			Client client = query.getSingleResult();
+			Client client = em.createQuery(
+					"SELECT c FROM Client c WHERE c.firstName = :firstName AND c.lastName = :lastName",
+					Client.class)
+				.setParameter("firstName", firstName)
+				.setParameter("lastName", lastName)
+				.getSingleResult();
 			return Optional.of(client);
 		} catch (NoResultException e) {
 			return Optional.empty();
@@ -109,14 +112,14 @@ public class ClientPostgresRepository implements ClientRepository {
 			throw new IllegalArgumentException("Client to save cannot be null.");
 		
 		try {
-			if (client.getId() == null) {
+			if (client.getId() == null)
 				em.persist(client);
-			} else
+			else
 				mergeIfNotTransient(client);
 			em.flush();
 		} catch(PropertyValueException e) {
 			throw new NotNullConstraintViolationException(
-					"Client to save must have both not-null names.");
+					"Client to save violates not-null constraints.");
 		} catch(ConstraintViolationException e) {
 			throw new UniquenessConstraintViolationException(
 					"Client to save violates uniqueness constraints.");
@@ -129,7 +132,7 @@ public class ClientPostgresRepository implements ClientRepository {
 	 * Note: this method must be executed as part of a transaction.
 	 * 
 	 * @param client					the replacement client.
-	 * @throws UpdateFailureException	if there is no client with the same ID to merge.
+	 * @throws UpdateFailureException	if there is no client with the same id to merge.
 	 */
 	private void mergeIfNotTransient(Client client) throws UpdateFailureException {
 		try {

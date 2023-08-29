@@ -38,10 +38,9 @@ import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 class ClientPostgresRepositoryTest {
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
-	private static final UUID A_CLIENT_UUID = UUID.fromString("95021d62-9787-44e7-87ff-3edc17761b71");
-	
 	private static final String ANOTHER_FIRSTNAME = "Maria";
 	private static final String ANOTHER_LASTNAME = "De Lucia";
+	private static final UUID A_CLIENT_UUID = UUID.fromString("95021d62-9787-44e7-87ff-3edc17761b71");
 
 	@Container
 	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.2")
@@ -56,7 +55,6 @@ class ClientPostgresRepositoryTest {
 
 	@BeforeAll
 	static void setupServer() throws Exception {
-		//postgreSQLContainer.start();
 		System.setProperty("db.port", postgreSQLContainer.getFirstMappedPort().toString());
 		System.setProperty("db.name", postgreSQLContainer.getDatabaseName());
 		
@@ -79,14 +77,12 @@ class ClientPostgresRepositoryTest {
 
 	@AfterEach
 	void closeHandler() throws Exception {
-		//em.clear();
 		em.close();
 	}
 
 	@AfterAll
 	static void closeClient() throws Exception {
 		emf.close();
-		//postgreSQLContainer.stop();
 	}
 
 	@Nested
@@ -141,17 +137,17 @@ class ClientPostgresRepositoryTest {
 		@Nested
 		@DisplayName("Tests that read the database")
 		class ReadDBTest {
-	
+
 			@Nested
 			@DisplayName("Tests for 'findAll'")
 			class FindAllTest {
-	
+
 				@Test
 				@DisplayName("Database is empty")
 				void testFindAllWhenDatabaseIsEmptyShouldReturnEmptyList() {
 					assertThat(clientRepository.findAll()).isEmpty();
 				}
-	
+
 				@Test
 				@DisplayName("Database has been filled in the same context")
 				void testFindAllWhenDatabaseHasBeenFilledInTheSameContextShouldReturnClientsAsList() {
@@ -161,7 +157,7 @@ class ClientPostgresRepositoryTest {
 					assertThat(clientRepository.findAll())
 						.containsExactlyInAnyOrder(client, another_client);
 				}
-	
+
 				@Test
 				@DisplayName("Database has been filled in another context")
 				void testFindAllWhenDatabaseHasBeenFilledInAnotherContextShouldReturnClientsAsList() {
@@ -172,48 +168,48 @@ class ClientPostgresRepositoryTest {
 						.containsExactlyInAnyOrder(client, another_client);
 				}
 			}
-	
+
 			@Nested
 			@DisplayName("Tests for 'findById'")
 			class FindByIdTest {
-	
+
 				@Test
 				@DisplayName("Client is not in database")
 				void testFindByIdWhenClientIsNotInDatabaseShouldReturnOptionalOfEmpty() {
 					assertThat(clientRepository.findById(A_CLIENT_UUID)).isEmpty();
 				}
-	
+
 				@Test
 				@DisplayName("Client was added in the same context")
 				void testFindByIdWhenClientWasAddedToTheDatabaseInTheSameContextShouldReturnOptionalOfClient() {
 					addTestClientToDatabaseInTheSameContext(client);
 					addTestClientToDatabaseInTheSameContext(another_client);
 					
-					assertThat(clientRepository.findById(another_client.getId()))
-						.isEqualTo(Optional.of(another_client));
+					assertThat(clientRepository.findById(client.getId()))
+						.isEqualTo(Optional.of(client));
 				}
-	
+
 				@Test
 				@DisplayName("Client was added in another context")
 				void testFindByIdWhenClientWasAddedToTheDatabaseInAnotherContextShouldReturnOptionalOfClient() {
 					addTestClientToDatabaseInAnotherContext(client);
 					addTestClientToDatabaseInAnotherContext(another_client);
 					
-					assertThat(clientRepository.findById(another_client.getId()))
-						.isEqualTo(Optional.of(another_client));
+					assertThat(clientRepository.findById(client.getId()))
+						.isEqualTo(Optional.of(client));
 				}
 			}
-	
+
 			@Nested
 			@DisplayName("Tests for 'findByName'")
 			class FindByNameTest {
-	
+
 				@Test
 				@DisplayName("Client is not in database")
 				void testFindByNameWhenClientIsNotInDatabaseShouldReturnOptionalOfEmpty() {
-					assertThat(clientRepository.findByName(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME)).isEmpty();
+					assertThat(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME)).isEmpty();
 				}
-	
+
 				@Test
 				@DisplayName("Client was added in the same context")
 				void testFindByNameWhenClientWasAddedToTheDatabaseInTheSameContextShouldReturnOptionalOfClient() {
@@ -223,7 +219,7 @@ class ClientPostgresRepositoryTest {
 					assertThat(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
 						.isEqualTo(Optional.of(client));
 				}
-	
+
 				@Test
 				@DisplayName("Client was added in another context")
 				void testFindByNameWhenClientWasAddedToTheDatabaseInAnotherContextShouldReturnOptionalOfClient() {
@@ -233,7 +229,7 @@ class ClientPostgresRepositoryTest {
 					assertThat(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME))
 						.isEqualTo(Optional.of(client));
 				}
-	
+
 				@Test
 				@DisplayName("Another same name client in database")
 				void testFindByNameWhenThereIsAnotherClientWithTheSameNameShouldNotMatchIt() {
@@ -242,7 +238,7 @@ class ClientPostgresRepositoryTest {
 					assertThat(clientRepository.findByName(A_FIRSTNAME, ANOTHER_LASTNAME))
 						.isNotEqualTo(Optional.of(client));
 				}
-	
+
 				@Test
 				@DisplayName("Another same surname client in database")
 				void testFindByNameWhenThereIsAnotherClientWithTheSameSurnameShouldNotMatchIt() {
@@ -257,11 +253,11 @@ class ClientPostgresRepositoryTest {
 		@Nested
 		@DisplayName("Tests that modify the database")
 		class ModifyDBTest {
-	
+
 			@Nested
 			@DisplayName("Tests for 'save'")
 			class SaveTest {
-	
+
 				@Test
 				@DisplayName("New client is valid")
 				void testSaveWhenNewClientIsValidShouldInsertAndReturnTheClientWithId() {
@@ -276,9 +272,9 @@ class ClientPostgresRepositoryTest {
 					assertThat(returnedClient.getId()).isNotNull();
 					assertThat(clientsInDB.get(0).getId()).isEqualTo(returnedClient.getId());
 				}
-	
+
 				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
-				@DisplayName("New client with null names")
+				@DisplayName("New client has null names")
 				@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
 						nullValues = {"null"}
 				)
@@ -290,12 +286,12 @@ class ClientPostgresRepositoryTest {
 					em.getTransaction().begin();
 					assertThatThrownBy(() -> clientRepository.save(client))
 						.isInstanceOf(NotNullConstraintViolationException.class)
-						.hasMessage("Client to save must have both not-null names.");
+						.hasMessage("Client to save violates not-null constraints.");
 					em.getTransaction().commit();
 					
 					assertThat(readAllClientsFromDatabase()).isEmpty();
 				}
-	
+
 				@Test
 				@DisplayName("New client generates names collision in the same context")
 				void testSaveWhenNewClientGeneratesANamesCollisionInTheSameContextShouldNotInsertAndThrow() {
@@ -314,7 +310,7 @@ class ClientPostgresRepositoryTest {
 					assertThat(clientsInDB).containsExactly(client);
 					assertThat(clientsInDB.get(0).getId()).isEqualTo(client.getId());
 				}
-	
+
 				@Test
 				@DisplayName("New client generates names collision in another context")
 				void testSaveWhenNewClientGeneratesANamesCollisionInAnotherContextShouldNotInsertAndThrow() {
@@ -333,7 +329,7 @@ class ClientPostgresRepositoryTest {
 					assertThat(clientsInDB).containsExactly(client);
 					assertThat(clientsInDB.get(0).getId()).isEqualTo(client.getId());
 				}
-	
+
 				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
 				@DisplayName("New client has some equalities")
 				@CsvSource({
@@ -354,7 +350,7 @@ class ClientPostgresRepositoryTest {
 					assertThat(readAllClientsFromDatabase())
 						.containsExactlyInAnyOrder(client, another_client);
 				}
-	
+
 				@Test
 				@DisplayName("Updating in the same context is valid")
 				void testSaveWhenUpdatingInTheSameContextIsValidShouldUpdateAndReturnWithoutChangingId() {
@@ -381,7 +377,7 @@ class ClientPostgresRepositoryTest {
 					assertThat(clientsInDB.get(0).getId()).isEqualTo(initialId);
 					assertThat(returnedClient.getId()).isEqualTo(initialId);
 				}
-	
+
 				@Test
 				@DisplayName("Updating in another context is valid")
 				void testSaveWhenUpdatingInAnotherContextIsValidShouldUpdateAndReturnWithoutChangingId() {
@@ -408,10 +404,10 @@ class ClientPostgresRepositoryTest {
 					assertThat(clientsInDB.get(0).getId()).isEqualTo(initialId);
 					assertThat(returnedClient.getId()).isEqualTo(initialId);
 				}
-	
+
 				@Test
-				@DisplayName("Updated client is no longer present in database")
-				void testSaveWhenUpdatedClientIsNotInDatabaseShouldThrowAndNotInsert() {
+				@DisplayName("Client to update is no longer present in database")
+				void testSaveWhenClientToUpdateIsNotInDatabaseShouldThrowAndNotInsert() {
 					client.setId(A_CLIENT_UUID);
 					
 					em.getTransaction().begin();
@@ -422,13 +418,13 @@ class ClientPostgresRepositoryTest {
 					
 					assertThat(readAllClientsFromDatabase()).doesNotContain(client);
 				}
-	
+
 				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
-				@DisplayName("Updated client has null names")
+				@DisplayName("The updating client has null names")
 				@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
 						nullValues = {"null"}
 				)
-				void testSaveWhenUpdatedClientHasNullNamesShouldNotUpdateAndThrow(
+				void testSaveWhenTheUpdatingClientHasNullNamesShouldNotUpdateAndThrow(
 						String firstName, String lastName) {
 					addTestClientToDatabaseInTheSameContext(client);
 					UUID initialId = client.getId();
@@ -440,7 +436,7 @@ class ClientPostgresRepositoryTest {
 					em.getTransaction().begin();
 					assertThatThrownBy(() -> clientRepository.save(client))
 						.isInstanceOf(NotNullConstraintViolationException.class)
-						.hasMessage("Client to save must have both not-null names.");
+						.hasMessage("Client to save violates not-null constraints.");
 					em.getTransaction().commit();
 					
 					// verify
@@ -450,10 +446,10 @@ class ClientPostgresRepositoryTest {
 					assertThat(clientsInDB.get(0).getFirstName()).isEqualTo(A_FIRSTNAME);
 					assertThat(clientsInDB.get(0).getLastName()).isEqualTo(A_LASTNAME);
 				}
-	
+
 				@Test
-				@DisplayName("Updated client generates names collision")
-				void testSaveWhenUpdatedClientGeneratesNamesCollisionShouldNotUpdateAndThrow() {
+				@DisplayName("Client update generates names collision")
+				void testSaveWhenClientUpdateGeneratesNamesCollisionShouldNotUpdateAndThrow() {
 					// populate DB
 					addTestClientToDatabaseInTheSameContext(client);
 					addTestClientToDatabaseInTheSameContext(another_client);
@@ -476,11 +472,11 @@ class ClientPostgresRepositoryTest {
 					assertThat(surnamesInDB).contains(ANOTHER_LASTNAME);
 				}
 			}
-	
+
 			@Nested
 			@DisplayName("Tests for 'delete'")
 			class DeleteTest {
-	
+
 				@Test
 				@DisplayName("Client was added in the same context")
 				void testDeleteWhenClientWasAddedToTheDatabaseInTheSameContextShouldRemove() {
@@ -492,7 +488,7 @@ class ClientPostgresRepositoryTest {
 					
 					assertThat(readAllClientsFromDatabase()).doesNotContain(client);
 				}
-	
+
 				@Test
 				@DisplayName("Client was added in another context")
 				void testDeleteWhenClientWasAddedToTheDatabaseInAnotherContextShouldRemove() {
@@ -504,7 +500,7 @@ class ClientPostgresRepositoryTest {
 					
 					assertThat(readAllClientsFromDatabase()).doesNotContain(client);
 				}
-	
+
 				@Test
 				@DisplayName("Client has never been inserted")
 				void testDeleteWhenClientHasNeverBeenInsertedInDatabaseShouldNotRemoveAnythingAndNotThrow() {
@@ -516,11 +512,12 @@ class ClientPostgresRepositoryTest {
 					
 					assertThat(readAllClientsFromDatabase()).containsExactly(client);
 				}
-	
+
 				@Test
 				@DisplayName("Client has already been removed")
 				void testDeleteWhenClientHasAlreadyBeenRemovedFromDatabaseShouldNotRemoveAnythingAndNotThrow() {
 					addTestClientToDatabaseInTheSameContext(client);
+					// manually sets a different id
 					UUID another_uuid;
 					do {
 						another_uuid = UUID.randomUUID();
@@ -543,7 +540,6 @@ class ClientPostgresRepositoryTest {
 		private void addTestClientToDatabaseInTheSameContext(Client client) {
 			em.getTransaction().begin();
 			em.persist(client);
-			em.flush();
 			em.getTransaction().commit();
 		}
 
@@ -552,7 +548,6 @@ class ClientPostgresRepositoryTest {
 			another_em.getTransaction().begin();
 			another_em.persist(client);
 			another_em.getTransaction().commit();
-			another_em.clear();
 			another_em.close();
 		}
 	}

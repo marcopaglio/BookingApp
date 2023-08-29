@@ -229,8 +229,8 @@ class ClientMongoRepositoryTest {
 					addTestClientToDatabaseInTheSameContext(client, A_CLIENT_UUID);
 					addTestClientToDatabaseInTheSameContext(another_client, ANOTHER_CLIENT_UUID);
 					
-					assertThat(clientRepository.findById(ANOTHER_CLIENT_UUID))
-						.isEqualTo(Optional.of(another_client));
+					assertThat(clientRepository.findById(A_CLIENT_UUID))
+						.isEqualTo(Optional.of(client));
 				}
 
 				@Test
@@ -239,8 +239,8 @@ class ClientMongoRepositoryTest {
 					addTestClientToDatabaseInAnotherContext(client, A_CLIENT_UUID);
 					addTestClientToDatabaseInAnotherContext(another_client, ANOTHER_CLIENT_UUID);
 					
-					assertThat(clientRepository.findById(ANOTHER_CLIENT_UUID))
-						.isEqualTo(Optional.of(another_client));
+					assertThat(clientRepository.findById(A_CLIENT_UUID))
+						.isEqualTo(Optional.of(client));
 				}
 			}
 
@@ -251,7 +251,7 @@ class ClientMongoRepositoryTest {
 				@Test
 				@DisplayName("Client is not in database")
 				void testFindByNameWhenClientIsNotInDatabaseShouldReturnOptionalOfEmpty() {
-					assertThat(clientRepository.findByName(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME)).isEmpty();
+					assertThat(clientRepository.findByName(A_FIRSTNAME, A_LASTNAME)).isEmpty();
 				}
 
 				@Test
@@ -327,7 +327,7 @@ class ClientMongoRepositoryTest {
 					
 					assertThatThrownBy(() -> clientRepository.save(client))
 						.isInstanceOf(NotNullConstraintViolationException.class)
-						.hasMessage("Client to save must have both not-null names.");
+						.hasMessage("Client to save violates not-null constraints.");
 					
 					assertThat(readAllClientsFromDatabase()).isEmpty();
 				}
@@ -490,8 +490,8 @@ class ClientMongoRepositoryTest {
 				}
 
 				@Test
-				@DisplayName("Updated client is no longer present in database")
-				void testSaveWhenUpdatedClientIsNotInDatabaseShouldThrowAndNotInsert() {
+				@DisplayName("Client to update is no longer present in database")
+				void testSaveWhenClientToUpdateIsNotInDatabaseShouldThrowAndNotInsert() {
 					client.setId(A_CLIENT_UUID);
 					
 					assertThatThrownBy(() -> clientRepository.save(client))
@@ -502,11 +502,11 @@ class ClientMongoRepositoryTest {
 				}
 
 				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
-				@DisplayName("Updated client has null names")
+				@DisplayName("The updating client has null names")
 				@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
 						nullValues = {"null"}
 				)
-				void testSaveWhenUpdatedClientHasNullNamesShouldNotUpdateAndThrow(
+				void testSaveWhenTheUpdatingClientHasNullNamesShouldNotUpdateAndThrow(
 						String firstName, String lastName) {
 					addTestClientToDatabaseInTheSameContext(client, A_CLIENT_UUID);
 					
@@ -516,7 +516,7 @@ class ClientMongoRepositoryTest {
 					
 					assertThatThrownBy(() -> clientRepository.save(client))
 						.isInstanceOf(NotNullConstraintViolationException.class)
-						.hasMessage("Client to save must have both not-null names.");
+						.hasMessage("Client to save violates not-null constraints.");
 					
 					// verify
 					List<Client> clientsInDB = readAllClientsFromDatabase();
@@ -527,8 +527,8 @@ class ClientMongoRepositoryTest {
 				}
 
 				@Test
-				@DisplayName("Updated client generates names collision")
-				void testSaveWhenUpdatedClientGeneratesNamesCollisionShouldNotUpdateAndThrow() {
+				@DisplayName("Client update generates names collision")
+				void testSaveWhenClientUpdateGeneratesNamesCollisionShouldNotUpdateAndThrow() {
 					// populate DB
 					addTestClientToDatabaseInTheSameContext(client, A_CLIENT_UUID);
 					addTestClientToDatabaseInTheSameContext(another_client, ANOTHER_CLIENT_UUID);

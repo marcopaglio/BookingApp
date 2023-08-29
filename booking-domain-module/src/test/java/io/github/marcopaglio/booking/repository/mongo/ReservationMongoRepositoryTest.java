@@ -192,10 +192,20 @@ class ReservationMongoRepositoryTest {
 				}
 
 				@Test
-				@DisplayName("Database is not empty")
-				void testFindAllWhenDatabaseIsNotEmptyShouldReturnReservationsAsList() {
-					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-					addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+				@DisplayName("Database has been filled in the same context")
+				void testFindAllWhenDatabaseHasBeenFilledInTheSameContextShouldReturnReservationsAsList() {
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabaseInTheSameContext(another_reservation, ANOTHER_RESERVATION_UUID);
+					
+					assertThat(reservationRepository.findAll())
+						.containsExactlyInAnyOrder(reservation, another_reservation);
+				}
+	
+				@Test
+				@DisplayName("Database has been filled in another context")
+				void testFindAllWhenDatabaseHasBeenFilledInAnotherContextShouldReturnReservationsAsList() {
+					addTestReservationToDatabaseInAnotherContext(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabaseInAnotherContext(another_reservation, ANOTHER_RESERVATION_UUID);
 					
 					assertThat(reservationRepository.findAll())
 						.containsExactlyInAnyOrder(reservation, another_reservation);
@@ -209,25 +219,46 @@ class ReservationMongoRepositoryTest {
 				@Test
 				@DisplayName("No associated reservations")
 				void testFindByClientWhenThereAreNoAssociatedReservationsShouldReturnEmptyList() {
-					assertThat(reservationRepository.findByClient(ANOTHER_CLIENT_UUID)).isEmpty();
+					assertThat(reservationRepository.findByClient(A_CLIENT_UUID)).isEmpty();
 				}
 
 				@Test
-				@DisplayName("Single associated reservation")
-				void testFindByClientWhenThereIsASingleAssociatedReservationShouldReturnTheReservationAsList() {
-					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-					addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+				@DisplayName("Single associated reservation added in the same context")
+				void testFindByClientWhenThereIsASingleAssociatedReservationAddedInTheSameContextShouldReturnTheReservationAsList() {
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabaseInTheSameContext(another_reservation, ANOTHER_RESERVATION_UUID);
 					
 					assertThat(reservationRepository.findByClient(A_CLIENT_UUID))
 						.containsExactly(reservation);
 				}
 
 				@Test
-				@DisplayName("Several associated reservation")
-				void testFindByClientWhenThereAreSeveralAssociatedReservationsShouldReturnReservationsAsList() {
-					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+				@DisplayName("Single associated reservation added in another context")
+				void testFindByClientWhenThereIsASingleAssociatedReservationAddedInAnotherContextShouldReturnTheReservationAsList() {
+					addTestReservationToDatabaseInAnotherContext(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabaseInAnotherContext(another_reservation, ANOTHER_RESERVATION_UUID);
+					
+					assertThat(reservationRepository.findByClient(A_CLIENT_UUID))
+						.containsExactly(reservation);
+				}
+
+				@Test
+				@DisplayName("Several associated reservation added in the same context")
+				void testFindByClientWhenThereAreSeveralAssociatedReservationsAddedInTheSameContextShouldReturnReservationsAsList() {
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
 					another_reservation.setClientId(A_CLIENT_UUID);
-					addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+					addTestReservationToDatabaseInTheSameContext(another_reservation, ANOTHER_RESERVATION_UUID);
+					
+					assertThat(reservationRepository.findByClient(A_CLIENT_UUID))
+						.containsExactly(reservation, another_reservation);
+				}
+	
+				@Test
+				@DisplayName("Several associated reservation added in another context")
+				void testFindByClientWhenThereAreSeveralAssociatedReservationsAddedInAnotherContextShouldReturnReservationsAsList() {
+					addTestReservationToDatabaseInAnotherContext(reservation, A_RESERVATION_UUID);
+					another_reservation.setClientId(A_CLIENT_UUID);
+					addTestReservationToDatabaseInAnotherContext(another_reservation, ANOTHER_RESERVATION_UUID);
 					
 					assertThat(reservationRepository.findByClient(A_CLIENT_UUID))
 						.containsExactly(reservation, another_reservation);
@@ -245,10 +276,20 @@ class ReservationMongoRepositoryTest {
 				}
 
 				@Test
-				@DisplayName("Reservation is in database")
-				void testFindByIdWhenReservationIsInDatabaseShouldReturnOptionalOfReservation() {
-					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-					addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+				@DisplayName("Reservation was added in the same context")
+				void testFindByIdWhenReservationWasAddedInTheSameContextShouldReturnOptionalOfReservation() {
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabaseInTheSameContext(another_reservation, ANOTHER_RESERVATION_UUID);
+					
+					assertThat(reservationRepository.findById(A_RESERVATION_UUID))
+						.isEqualTo(Optional.of(reservation));
+				}
+
+				@Test
+				@DisplayName("Reservation was added in another context")
+				void testFindByIdWhenReservationWasAddedInAnotherContextShouldReturnOptionalOfReservation() {
+					addTestReservationToDatabaseInAnotherContext(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabaseInAnotherContext(another_reservation, ANOTHER_RESERVATION_UUID);
 					
 					assertThat(reservationRepository.findById(A_RESERVATION_UUID))
 						.isEqualTo(Optional.of(reservation));
@@ -262,14 +303,24 @@ class ReservationMongoRepositoryTest {
 				@Test
 				@DisplayName("Reservation is not in database")
 				void testFindByDateWhenReservationIsNotInDatabaseShouldReturnOptionalOfEmpty() {
-					assertThat(reservationRepository.findByDate(ANOTHER_LOCALDATE)).isEmpty();
+					assertThat(reservationRepository.findByDate(A_LOCALDATE)).isEmpty();
 				}
 
 				@Test
-				@DisplayName("Reservation is in database")
-				void testFindByDateWhenReservationIsInDatabaseShouldReturnOptionalOfReservation() {
-					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-					addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+				@DisplayName("Reservation was added in the same context")
+				void testFindByDateWhenReservationWasAddedInTheSameContextShouldReturnOptionalOfReservation() {
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabaseInTheSameContext(another_reservation, ANOTHER_RESERVATION_UUID);
+					
+					assertThat(reservationRepository.findByDate(A_LOCALDATE))
+						.isEqualTo(Optional.of(reservation));
+				}
+
+				@Test
+				@DisplayName("Reservation was added in another context")
+				void testFindByDateWhenReservationWasAddedInAnotherContextShouldReturnOptionalOfReservation() {
+					addTestReservationToDatabaseInAnotherContext(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabaseInAnotherContext(another_reservation, ANOTHER_RESERVATION_UUID);
 					
 					assertThat(reservationRepository.findByDate(A_LOCALDATE))
 						.isEqualTo(Optional.of(reservation));
@@ -286,30 +337,6 @@ class ReservationMongoRepositoryTest {
 			class SaveTest {
 
 				@Test
-				@DisplayName("Reservation with null clientId")
-				void testSaveWhenReservationHasNullClientIdShouldNotInsertAndThrow() {
-					reservation.setClientId(null);
-					
-					assertThatThrownBy(() -> reservationRepository.save(reservation))
-						.isInstanceOf(NotNullConstraintViolationException.class)
-						.hasMessage("Reservation to save must have a not-null client.");
-					
-					assertThat(readAllReservationsFromDatabase()).isEmpty();
-				}
-
-				@Test
-				@DisplayName("Reservation with null date")
-				void testSaveWhenReservationHasNullDateShouldNotInsertAndThrow() {
-					reservation.setDate(null);
-					
-					assertThatThrownBy(() -> reservationRepository.save(reservation))
-						.isInstanceOf(NotNullConstraintViolationException.class)
-						.hasMessage("Reservation to save must have a not-null date.");
-					
-					assertThat(readAllReservationsFromDatabase()).isEmpty();
-				}
-
-				@Test
 				@DisplayName("New reservation is valid")
 				void testSaveWhenNewReservationIsValidShouldInsertAndReturnTheReservationWithId() {
 					Reservation returnedReservation = reservationRepository.save(reservation);
@@ -323,9 +350,33 @@ class ReservationMongoRepositoryTest {
 				}
 
 				@Test
-				@DisplayName("New reservation generates id collision")
-				void testSaveWhenNewReservationGeneratesAnIdCollisionShouldNotInsertAndThrow() {
-					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+				@DisplayName("New reservation with null clientId")
+				void testSaveWhenReservationHasNullClientIdShouldNotInsertAndThrow() {
+					reservation.setClientId(null);
+					
+					assertThatThrownBy(() -> reservationRepository.save(reservation))
+						.isInstanceOf(NotNullConstraintViolationException.class)
+						.hasMessage("Reservation to save violates not-null constraints.");
+					
+					assertThat(readAllReservationsFromDatabase()).isEmpty();
+				}
+
+				@Test
+				@DisplayName("New reservation with null date")
+				void testSaveWhenReservationHasNullDateShouldNotInsertAndThrow() {
+					reservation.setDate(null);
+					
+					assertThatThrownBy(() -> reservationRepository.save(reservation))
+						.isInstanceOf(NotNullConstraintViolationException.class)
+						.hasMessage("Reservation to save violates not-null constraints.");
+					
+					assertThat(readAllReservationsFromDatabase()).isEmpty();
+				}
+
+				@Test
+				@DisplayName("New reservation generates id collision in the same context")
+				void testSaveWhenNewReservationGeneratesAnIdCollisionInTheSameContextShouldNotInsertAndThrow() {
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
 					
 					Reservation spied_reservation = spy(another_reservation);
 					// sets same id
@@ -342,9 +393,50 @@ class ReservationMongoRepositoryTest {
 				}
 
 				@Test
-				@DisplayName("New reservation generates date collision")
-				void testSaveWhenNewReservationGeneratesADateCollisionShouldNotInsertAndThrow() {
-					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+				@DisplayName("New reservation generates id collision in another context")
+				void testSaveWhenNewReservationGeneratesAnIdCollisionInAnotherContextShouldNotInsertAndThrow() {
+					addTestReservationToDatabaseInAnotherContext(reservation, A_RESERVATION_UUID);
+					
+					Reservation spied_reservation = spy(another_reservation);
+					// sets same id
+					doAnswer( invocation -> {
+						((Reservation) invocation.getMock()).setId(A_RESERVATION_UUID);
+						return null;
+					}).when(spied_reservation).setId(not(eq(A_RESERVATION_UUID)));
+					
+					assertThatThrownBy(() -> reservationRepository.save(spied_reservation))
+						.isInstanceOf(UniquenessConstraintViolationException.class)
+						.hasMessage("Reservation to save violates uniqueness constraints.");
+					
+					assertThat(readAllReservationsFromDatabase()).doesNotContain(spied_reservation);
+				}
+
+				@Test
+				@DisplayName("New reservation generates date collision in the same context")
+				void testSaveWhenNewReservationGeneratesADateCollisionInTheSameContextShouldNotInsertAndThrow() {
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
+					
+					another_reservation.setDate(A_LOCALDATE);
+					Reservation spied_reservation = spy(another_reservation);
+					// sets different id
+					doAnswer(invocation -> {
+						((Reservation) invocation.getMock()).setId(ANOTHER_RESERVATION_UUID);
+						return null;
+					}).when(spied_reservation).setId(A_RESERVATION_UUID);
+					
+					assertThatThrownBy(() -> reservationRepository.save(spied_reservation))
+						.isInstanceOf(UniquenessConstraintViolationException.class)
+						.hasMessage("Reservation to save violates uniqueness constraints.");
+					
+					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
+					assertThat(reservationsInDB).containsExactly(reservation);
+					assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
+				}
+
+				@Test
+				@DisplayName("New reservation generates date collision in another context")
+				void testSaveWhenNewReservationGeneratesADateCollisionInAnotherContextShouldNotInsertAndThrow() {
+					addTestReservationToDatabaseInAnotherContext(reservation, A_RESERVATION_UUID);
 					
 					another_reservation.setDate(A_LOCALDATE);
 					Reservation spied_reservation = spy(another_reservation);
@@ -366,7 +458,7 @@ class ReservationMongoRepositoryTest {
 				@Test
 				@DisplayName("New reservation has same client")
 				void testSaveWhenNewReservationHasSameClientShouldNotThrowAndInsert() {
-					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
 					
 					another_reservation.setClientId(A_CLIENT_UUID);
 					Reservation spied_reservation = spy(another_reservation);
@@ -384,10 +476,10 @@ class ReservationMongoRepositoryTest {
 				}
 
 				@Test
-				@DisplayName("Updated reservation is valid")
-				void testSaveWhenUpdatedReservationIsValidShouldUpdateAndReturnWithoutChangingId() {
+				@DisplayName("Updating in the same context is valid")
+				void testSaveWhenUpdatingInTheSameContextIsValidShouldUpdateAndReturnWithoutChangingId() {
 					// populate DB
-					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
 					
 					// update
 					reservation.setClientId(ANOTHER_CLIENT_UUID);
@@ -408,8 +500,32 @@ class ReservationMongoRepositoryTest {
 				}
 
 				@Test
-				@DisplayName("Updated reservation is no longer present in database")
-				void testSaveWhenUpdatedReservationIsNotInDatabaseShouldThrowAndNotInsert() {
+				@DisplayName("Updating in another context is valid")
+				void testSaveWhenUpdatingInAnotherContextIsValidShouldUpdateAndReturnWithoutChangingId() {
+					// populate DB
+					addTestReservationToDatabaseInAnotherContext(reservation, A_RESERVATION_UUID);
+					
+					// update
+					reservation.setClientId(ANOTHER_CLIENT_UUID);
+					reservation.setDate(ANOTHER_LOCALDATE);
+					
+					Reservation returnedReservation = reservationRepository.save(reservation);
+					
+					// verify
+					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
+					assertThat(reservationsInDB).containsExactly(reservation);
+					assertThat(returnedReservation).isEqualTo(reservation);
+					assertThat(reservationsInDB.get(0).getClientId()).isEqualTo(ANOTHER_CLIENT_UUID);
+					assertThat(returnedReservation.getClientId()).isEqualTo(ANOTHER_CLIENT_UUID);
+					assertThat(reservationsInDB.get(0).getDate()).isEqualTo(ANOTHER_LOCALDATE);
+					assertThat(returnedReservation.getDate()).isEqualTo(ANOTHER_LOCALDATE);
+					assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
+					assertThat(returnedReservation.getId()).isEqualTo(A_RESERVATION_UUID);
+				}
+
+				@Test
+				@DisplayName("Reservation to update is no longer present in database")
+				void testSaveWhenReservationToUpdateIsNotInDatabaseShouldThrowAndNotInsert() {
 					reservation.setId(A_RESERVATION_UUID);
 					
 					assertThatThrownBy(() -> reservationRepository.save(reservation))
@@ -420,11 +536,53 @@ class ReservationMongoRepositoryTest {
 				}
 
 				@Test
-				@DisplayName("Updated reservation generates date collision")
-				void testSaveWhenUpdatedReservationGeneratesDateCollisionShouldNotUpdateAndThrow() {
+				@DisplayName("The updating reservation has null clientId")
+				void testSaveWhenTheUpdatingReservationHasNullClientIdShouldNotUpdateAndThrow() {
 					// populate DB
-					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-					addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
+					
+					// update
+					reservation.setClientId(null);
+					
+					assertThatThrownBy(() -> reservationRepository.save(reservation))
+						.isInstanceOf(NotNullConstraintViolationException.class)
+						.hasMessage("Reservation to save violates not-null constraints.");
+					
+					// verify
+					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
+					assertThat(reservationsInDB).hasSize(1);
+					assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
+					assertThat(reservationsInDB.get(0).getDate()).isEqualTo(A_LOCALDATE);
+					assertThat(reservationsInDB.get(0).getClientId()).isEqualTo(A_CLIENT_UUID);
+				}
+
+				@Test
+				@DisplayName("The updating reservation has null date")
+				void testSaveWhenTheUpdatingReservationHasNullDateShouldNotUpdateAndThrow() {
+					// populate DB
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
+					
+					// update
+					reservation.setDate(null);
+					
+					assertThatThrownBy(() -> reservationRepository.save(reservation))
+						.isInstanceOf(NotNullConstraintViolationException.class)
+						.hasMessage("Reservation to save violates not-null constraints.");
+					
+					// verify
+					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
+					assertThat(reservationsInDB).hasSize(1);
+					assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
+					assertThat(reservationsInDB.get(0).getDate()).isEqualTo(A_LOCALDATE);
+					assertThat(reservationsInDB.get(0).getClientId()).isEqualTo(A_CLIENT_UUID);
+				}
+
+				@Test
+				@DisplayName("Reservation update generates date collision")
+				void testSaveWhenReservationUpdateGeneratesDateCollisionShouldNotUpdateAndThrow() {
+					// populate DB
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabaseInTheSameContext(another_reservation, ANOTHER_RESERVATION_UUID);
 					
 					// update
 					another_reservation.setDate(A_LOCALDATE);
@@ -444,10 +602,20 @@ class ReservationMongoRepositoryTest {
 			class DeleteTest {
 
 				@Test
-				@DisplayName("Reservation is in database")
-				void testDeleteWhenReservationIsInDatabaseShouldRemove() {
-					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+				@DisplayName("Reservation was added in the same context")
+				void testDeleteWhenReservationWasAddedToTheDatabaseInTheSameContextShouldRemove() {
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
 					
+					reservationRepository.delete(reservation);
+					
+					assertThat(readAllReservationsFromDatabase()).doesNotContain(reservation);
+				}
+
+				@Test
+				@DisplayName("Reservation was added in another context")
+				void testDeleteWhenReservationWasAddedToTheDatabaseInAnotherContextShouldRemove() {
+					addTestReservationToDatabaseInAnotherContext(reservation, A_RESERVATION_UUID);
+
 					reservationRepository.delete(reservation);
 					
 					assertThat(readAllReservationsFromDatabase()).doesNotContain(reservation);
@@ -456,20 +624,18 @@ class ReservationMongoRepositoryTest {
 				@Test
 				@DisplayName("Reservation has never been inserted")
 				void testDeleteWhenReservationHasNeverBeenInsertedInDatabaseShouldNotRemoveAnythingAndNotThrow() {
-					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-					
-					another_reservation.setId(ANOTHER_RESERVATION_UUID);
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
 					
 					assertThatNoException().isThrownBy(
 							() -> reservationRepository.delete(another_reservation));
 					
 					assertThat(readAllReservationsFromDatabase()).containsExactly(reservation);
 				}
-				
+
 				@Test
 				@DisplayName("Reservation has already been removed")
 				void testDeleteWhenReservationHasAlreadyBeenRemovedFromDatabaseShouldNotRemoveAnythingAndNotThrow() {
-					addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
 					
 					assertThatNoException().isThrownBy(
 							() -> reservationRepository.delete(another_reservation));
@@ -485,9 +651,16 @@ class ReservationMongoRepositoryTest {
 			}
 		}
 
-		private void addTestReservationToDatabase(Reservation reservation, UUID id) {
+		private void addTestReservationToDatabaseInTheSameContext(Reservation reservation, UUID id) {
 			reservation.setId(id);
-			reservationCollection.insertOne(reservation);
+			reservationCollection.insertOne(session, reservation);
+		}
+
+		private void addTestReservationToDatabaseInAnotherContext(Reservation reservation, UUID id) {
+			reservation.setId(id);
+			ClientSession another_session = mongoClient.startSession();
+			reservationCollection.insertOne(another_session, reservation);
+			another_session.close();
 		}
 	}
 }
