@@ -129,7 +129,7 @@ public class ReservationPostgresRepository implements ReservationRepository {
 			if (reservation.getId() == null)
 				em.persist(reservation);
 			else
-				mergeIfNotTransient(reservation);
+				reservation = mergeIfNotTransient(reservation);
 			em.flush();
 		} catch(PropertyValueException e) {
 			throw new NotNullConstraintViolationException(
@@ -148,10 +148,10 @@ public class ReservationPostgresRepository implements ReservationRepository {
 	 * @param reservation				the replacement reservation.
 	 * @throws UpdateFailureException	if there is no reservation with the same id to merge.
 	 */
-	private void mergeIfNotTransient(Reservation reservation) throws UpdateFailureException {
+	private Reservation mergeIfNotTransient(Reservation reservation) throws UpdateFailureException {
 		try {
 			em.getReference(Reservation.class, reservation.getId());
-			em.merge(reservation);
+			return em.merge(reservation);
 		} catch(EntityNotFoundException e) {
 			throw new UpdateFailureException(
 					"Reservation to update is not longer present in the repository.");

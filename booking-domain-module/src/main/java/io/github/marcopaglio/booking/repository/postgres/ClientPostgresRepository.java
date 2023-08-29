@@ -115,7 +115,7 @@ public class ClientPostgresRepository implements ClientRepository {
 			if (client.getId() == null)
 				em.persist(client);
 			else
-				mergeIfNotTransient(client);
+				client = mergeIfNotTransient(client);
 			em.flush();
 		} catch(PropertyValueException e) {
 			throw new NotNullConstraintViolationException(
@@ -134,10 +134,10 @@ public class ClientPostgresRepository implements ClientRepository {
 	 * @param client					the replacement client.
 	 * @throws UpdateFailureException	if there is no client with the same id to merge.
 	 */
-	private void mergeIfNotTransient(Client client) throws UpdateFailureException {
+	private Client mergeIfNotTransient(Client client) throws UpdateFailureException {
 		try {
 			em.getReference(Client.class, client.getId());
-			em.merge(client);
+			return em.merge(client);
 		} catch(EntityNotFoundException e) {
 			throw new UpdateFailureException(
 					"Client to update is not longer present in the repository.");
