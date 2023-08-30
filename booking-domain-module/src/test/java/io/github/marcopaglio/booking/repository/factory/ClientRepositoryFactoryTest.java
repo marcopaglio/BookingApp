@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -19,6 +20,10 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
 import io.github.marcopaglio.booking.repository.mongo.ClientMongoRepository;
+import io.github.marcopaglio.booking.repository.postgres.ClientPostgresRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 
 @DisplayName("Tests for ClientRepositoryFactory class")
 @Testcontainers
@@ -26,33 +31,38 @@ class ClientRepositoryFactoryTest {
 
 	@Container
 	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
-
 	private static MongoClient mongoClient;
-
 	private ClientSession session;
+
+	@Container
+	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.2")
+		.withDatabaseName("ClientRepositoryFactoryTest_db")
+		.withUsername("postgres-test")
+		.withPassword("postgres-test");
+	private static EntityManagerFactory emf;
+	private EntityManager em;
 
 	private ClientRepositoryFactory clientRepositoryFactory;
 
 	@BeforeAll
 	public static void setupServer() {
 		mongoClient = MongoClients.create(mongo.getConnectionString());
+		
+		System.setProperty("db.port", postgreSQLContainer.getFirstMappedPort().toString());
+		System.setProperty("db.name", postgreSQLContainer.getDatabaseName());
+		emf = Persistence.createEntityManagerFactory("postgres-test");
 	}
 
 	@BeforeEach
 	void setUp() throws Exception {
-		session = mongoClient.startSession();
-		
 		clientRepositoryFactory = new ClientRepositoryFactory();
-	}
-
-	@AfterEach
-	void closeSession() throws Exception {
-		session.close();
 	}
 
 	@AfterAll
 	static void closeClient() {
 		mongoClient.close();
+		
+		emf.close();
 	}
 
 	@Nested
@@ -63,6 +73,23 @@ class ClientRepositoryFactoryTest {
 		@DisplayName("ClientRepository for MongoDB")
 		class ClientMongoRepositoryTest {
 
+			@BeforeEach
+			void startSession() throws Exception {
+				session = mongoClient.startSession();
+			}
+
+			@AfterEach
+			void closeSession() throws Exception {
+				session.close();
+			}
+
+			@Test
+			@DisplayName("Valid parameters")
+			void testCreateClientRepositoryWhenParametersAreValidShouldReturnClientMongoRepository() {
+				assertThat(clientRepositoryFactory.createClientRepository(mongoClient, session))
+					.isInstanceOf(ClientMongoRepository.class);
+			}
+
 			@Test
 			@DisplayName("Null mongoClient")
 			void testCreateClientRepositoryWhenMongoClientIsNullShouldThrow() {
@@ -70,7 +97,7 @@ class ClientRepositoryFactoryTest {
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Cannot create a ClientMongoRepository from a null Mongo client.");
 			}
-	
+
 			@Test
 			@DisplayName("Null session")
 			void testCreateClientRepositoryWhenSessionIsNullShouldThrow() {
@@ -79,12 +106,35 @@ class ClientRepositoryFactoryTest {
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Cannot create a ClientMongoRepository from a null Mongo client session.");
 			}
+		}
+
+		@Nested
+		@DisplayName("ClientRepository for PostgreSQL")
+		class ClientPostgresRepositoryTest {
+
+			@BeforeEach
+			void startEntityManager() throws Exception {
+				em = emf.createEntityManager();
+			}
+
+			@AfterEach
+			void closeEntityManager() throws Exception {
+				em.close();
+			}
 
 			@Test
 			@DisplayName("Valid parameters")
-			void testCreateClientRepositoryWhenParametersAreValidShouldReturnClientMongoRepository() {
-				assertThat(clientRepositoryFactory.createClientRepository(mongoClient, session))
-					.isInstanceOf(ClientMongoRepository.class);
+			void testCreateClientRepositoryWhenParametersAreValidShouldReturnClientPostgresRepository() {
+				assertThat(clientRepositoryFactory.createClientRepository(em))
+					.isInstanceOf(ClientPostgresRepository.class);
+			}
+
+			@Test
+			@DisplayName("Null entityManager")
+			void testCreateClientRepositoryWhenEntityManagerIsNullShouldThrow() {
+				assertThatThrownBy(() -> clientRepositoryFactory.createClientRepository(null))
+					.isInstanceOf(IllegalArgumentException.class)
+					.hasMessage("Cannot create a ClientPostgresRepository from a null Entity Manager.");
 			}
 		}
 	}

@@ -5,6 +5,8 @@ import com.mongodb.client.MongoClient;
 
 import io.github.marcopaglio.booking.repository.ReservationRepository;
 import io.github.marcopaglio.booking.repository.mongo.ReservationMongoRepository;
+import io.github.marcopaglio.booking.repository.postgres.ReservationPostgresRepository;
+import jakarta.persistence.EntityManager;
 
 /**
  * A factory of repositories for Reservation entities.
@@ -37,6 +39,14 @@ public class ReservationRepositoryFactory {
 					"Cannot create a ReservationMongoRepository from a null Mongo client session.");
 		
 		return new ReservationMongoRepository(mongoClient, session);
+	}
+
+	public ReservationPostgresRepository createReservationRepository(EntityManager em) {
+		if (em == null)
+			throw new IllegalArgumentException(
+					"Cannot create a ReservationPostgresRepository from a null Entity Manager.");
+		
+		return new ReservationPostgresRepository(em);
 	}
 
 }

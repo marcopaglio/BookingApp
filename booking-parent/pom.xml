@@ -47,7 +47,7 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.hibernate</groupId>
+        <groupId>org.hibernate.orm</groupId>
         <artifactId>hibernate-hikaricp</artifactId>
         <version>${hibernate.version}</version>
         <!-- version defined in the bom -->
