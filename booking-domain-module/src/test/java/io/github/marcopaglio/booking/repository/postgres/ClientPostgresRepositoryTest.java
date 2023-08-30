@@ -40,7 +40,7 @@ class ClientPostgresRepositoryTest {
 	private static final String A_LASTNAME = "Rossi";
 	private static final String ANOTHER_FIRSTNAME = "Maria";
 	private static final String ANOTHER_LASTNAME = "De Lucia";
-	private static final UUID A_CLIENT_UUID = UUID.fromString("95021d62-9787-44e7-87ff-3edc17761b71");
+	private static final UUID A_CLIENT_UUID = UUID.fromString("b37cbe2c-77c9-4f68-ad2d-140d7fc43a38");
 
 	@Container
 	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.2")

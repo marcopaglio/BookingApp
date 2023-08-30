@@ -35,10 +35,10 @@ import jakarta.persistence.Persistence;
 @Testcontainers
 class ReservationPostgresRepositoryTest {
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2022-12-22");
-	private static final UUID A_CLIENT_UUID = UUID.fromString("5a583373-c1b4-4913-82b6-5ea76fb1b1be");
+	private static final UUID A_CLIENT_UUID = UUID.fromString("5c4d31a2-be04-4156-aa15-f86e7a916999");
 	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse("2023-12-22");
-	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("86738f20-f90d-4f9a-8d02-4b9537b4bab5");
-	private static final UUID A_RESERVATION_UUID = UUID.fromString("e77ce09c-bf58-4691-b69b-11851f359b99");
+	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("6f4261e2-2d5e-4ada-93f6-67dc7e7b6358");
+	private static final UUID A_RESERVATION_UUID = UUID.fromString("d96af73a-efbc-45d7-a013-15e4f0c3a8fd");
 
 	@Container
 	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.2")
