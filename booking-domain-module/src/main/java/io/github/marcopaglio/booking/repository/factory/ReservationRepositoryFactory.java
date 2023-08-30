@@ -41,6 +41,14 @@ public class ReservationRepositoryFactory {
 		return new ReservationMongoRepository(mongoClient, session);
 	}
 
+	/**
+	 * Creates a new repository for Reservation entities using PostgresSQL and a JPA provider.
+	 * 
+	 * @param em						the entity manager using PostgreSQL database.
+	 * @return							a new {@code ReservationPostgresRepository}
+	 * 									for facing the PostgreSQL database.
+	 * @throws IllegalArgumentException	if {@code em} is null.
+	 */
 	public ReservationPostgresRepository createReservationRepository(EntityManager em) {
 		if (em == null)
 			throw new IllegalArgumentException(
