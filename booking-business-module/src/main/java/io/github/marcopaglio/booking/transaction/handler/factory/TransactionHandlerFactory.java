@@ -4,6 +4,8 @@ import com.mongodb.TransactionOptions;
 import com.mongodb.client.MongoClient;
 
 import io.github.marcopaglio.booking.transaction.handler.mongo.TransactionMongoHandler;
+import io.github.marcopaglio.booking.transaction.handler.postgres.TransactionPostgresHandler;
+import jakarta.persistence.EntityManagerFactory;
 
 /**
  * A factory of transaction handlers.
@@ -31,5 +33,21 @@ public class TransactionHandlerFactory {
 			throw new IllegalArgumentException("Cannot create a ClientSession from a null Mongo client.");
 		
 		return new TransactionMongoHandler(mongoClient.startSession(), txnOptions);
+	}
+
+	/**
+	 * Creates a new entity manager for handling transactions using an EntityManagerFactory.
+	 * 
+	 * @param emf						the entity manager factory for interacting
+	 * 									the PostgreSQL database.
+	 * @return							a new {@code TransactionPostgresHandler} for
+	 * 									creating transactions.
+	 * @throws IllegalArgumentException	if {@code emf} is null.
+	 */
+	public TransactionPostgresHandler createTransactionHandler(EntityManagerFactory emf) {
+		if (emf == null)
+			throw new IllegalArgumentException("Cannot create an EntityManager from a null EntityManagerFactory.");
+		
+		return new TransactionPostgresHandler(emf.createEntityManager());
 	}
 }

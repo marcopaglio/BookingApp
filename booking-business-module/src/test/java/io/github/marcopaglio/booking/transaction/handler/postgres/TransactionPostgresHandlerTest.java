@@ -1,6 +1,5 @@
-package io.github.marcopaglio.booking.transaction.handler.mongo;
+package io.github.marcopaglio.booking.transaction.handler.postgres;
 
-import static io.github.marcopaglio.booking.transaction.manager.mongo.TransactionMongoManager.TXN_OPTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -11,46 +10,52 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import com.mongodb.client.ClientSession;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 
-@DisplayName("Tests for TransactionMongoHandler class")
+@DisplayName("Tests for TransactionPostgresHandler class")
 @Testcontainers
-class TransactionMongoHandlerTest {
+class TransactionPostgresHandlerTest {
 
 	@Container
-	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
+	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.2")
+		.withDatabaseName("TransactionPostgresHandlerTest_db")
+		.withUsername("postgres-test")
+		.withPassword("postgres-test");
 
-	private static MongoClient mongoClient;
-	private ClientSession session;
+	private static EntityManagerFactory emf;
+	private EntityManager em;
 
-	private TransactionMongoHandler transactionMongoHandler;
+	private TransactionPostgresHandler transactionPostgresHandler;
 
 	@BeforeAll
-	public static void setupServer() {
-		mongoClient = MongoClients.create(mongo.getConnectionString());
+	static void setupServer() throws Exception {
+		System.setProperty("db.port", postgreSQLContainer.getFirstMappedPort().toString());
+		System.setProperty("db.name", postgreSQLContainer.getDatabaseName());
+		
+		emf = Persistence.createEntityManagerFactory("postgres-test");
 	}
 
 	@BeforeEach
 	void setUp() throws Exception {
-		session = mongoClient.startSession();
+		em = emf.createEntityManager();
 		
-		transactionMongoHandler = new TransactionMongoHandler(session, TXN_OPTIONS);
+		transactionPostgresHandler = new TransactionPostgresHandler(em);
 	}
 
 	@AfterEach
-	void closeSession() throws Exception {
-		session.close();
+	void closeEntityManager() throws Exception {
+		em.close();
 	}
 
 	@AfterAll
-	static void closeClient() {
-		mongoClient.close();
+	static void closeClient() throws Exception {
+		emf.close();
 	}
 
 	@Nested
@@ -60,11 +65,11 @@ class TransactionMongoHandlerTest {
 		@Test
 		@DisplayName("No active transaction")
 		void testStartTransactionWhenThereAreNoActiveTransactionShouldStart() {
-			assertThat(session.hasActiveTransaction()).isFalse();
+			assertThat(em.getTransaction().isActive()).isFalse();
 			
-			transactionMongoHandler.startTransaction();
+			transactionPostgresHandler.startTransaction();
 			
-			assertThat(session.hasActiveTransaction()).isTrue();
+			assertThat(em.getTransaction().isActive()).isTrue();
 		}
 
 		@Test
@@ -72,19 +77,9 @@ class TransactionMongoHandlerTest {
 		void testStartTransactionWhenThereIsAlreadyAnActiveTransactionShouldThrow() {
 			startATransaction();
 			
-			assertThatThrownBy(() -> transactionMongoHandler.startTransaction())
+			assertThatThrownBy(() -> transactionPostgresHandler.startTransaction())
 				.isInstanceOf(IllegalStateException.class)
 				.hasMessage("Transaction is already in progress.");
-		}
-
-		@Test
-		@DisplayName("Null transaction options")
-		void testStartTransactionWhenTransactionOptionsAreNullShouldStart() {
-			transactionMongoHandler = new TransactionMongoHandler(session, null);
-			
-			transactionMongoHandler.startTransaction();
-			
-			assertThat(session.hasActiveTransaction()).isTrue();
 		}
 	}
 
@@ -97,17 +92,17 @@ class TransactionMongoHandlerTest {
 		void testCommitTransactionWhenThereIAnActiveTransactionShouldClose() {
 			startATransaction();
 			
-			transactionMongoHandler.commitTransaction();
+			transactionPostgresHandler.commitTransaction();
 			
-			assertThat(session.hasActiveTransaction()).isFalse();
+			assertThat(em.getTransaction().isActive()).isFalse();
 		}
 
 		@Test
 		@DisplayName("No active transaction")
 		void testCommitTransactionWhenThereIsNoActiveTransactionShouldThrow() {
-			assertThat(session.hasActiveTransaction()).isFalse();
+			assertThat(em.getTransaction().isActive()).isFalse();
 			
-			assertThatThrownBy(() -> transactionMongoHandler.commitTransaction())
+			assertThatThrownBy(() -> transactionPostgresHandler.commitTransaction())
 				.isInstanceOf(IllegalStateException.class)
 				.hasMessage("There is no transaction started.");
 		}
@@ -122,17 +117,17 @@ class TransactionMongoHandlerTest {
 		void testRollbackTransactionWhenThereIAnActiveTransactionShouldClose() {
 			startATransaction();
 			
-			transactionMongoHandler.rollbackTransaction();
+			transactionPostgresHandler.rollbackTransaction();
 			
-			assertThat(session.hasActiveTransaction()).isFalse();
+			assertThat(em.getTransaction().isActive()).isFalse();
 		}
 
 		@Test
 		@DisplayName("No active transaction")
 		void testRollbackTransactionWhenThereIsNoActiveTransactionShouldThrow() {
-			assertThat(session.hasActiveTransaction()).isFalse();
+			assertThat(em.getTransaction().isActive()).isFalse();
 			
-			assertThatThrownBy(() -> transactionMongoHandler.rollbackTransaction())
+			assertThatThrownBy(() -> transactionPostgresHandler.rollbackTransaction())
 				.isInstanceOf(IllegalStateException.class)
 				.hasMessage("There is no transaction started.");
 		}
@@ -147,17 +142,17 @@ class TransactionMongoHandlerTest {
 		void testHasActiveTransactionWhenThereIAnActiveTransactionShouldReturnTrue() {
 			startATransaction();
 			
-			assertThat(transactionMongoHandler.hasActiveTransaction()).isTrue();
+			assertThat(transactionPostgresHandler.hasActiveTransaction()).isTrue();
 		}
 
 		@Test
 		@DisplayName("No active transaction")
 		void testHasActiveTransactionWhenThereIsNoActiveTransactionShouldReturnFalse() {
-			assertThat(transactionMongoHandler.hasActiveTransaction()).isFalse();
+			assertThat(transactionPostgresHandler.hasActiveTransaction()).isFalse();
 		}
 	}
 
 	private void startATransaction() {
-		session.startTransaction();
+		em.getTransaction().begin();
 	}
 }

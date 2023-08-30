@@ -25,4 +25,12 @@ public interface TransactionHandler {
 	 * @throws IllegalStateException	if there is no active transaction.
 	 */
 	public void rollbackTransaction() throws IllegalStateException;
+
+	/**
+	 * Indicates whether a transaction is active on this handler.
+	 * 
+	 * @return	{@code true} if there is an active transaction on this handler;
+	 * 			{@code false} otherwise.
+	 */
+	public boolean hasActiveTransaction();
 }

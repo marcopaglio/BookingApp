@@ -84,4 +84,15 @@ public class TransactionMongoHandler implements TransactionHandler {
 		
 		session.abortTransaction();
 	}
+
+	/**
+	 * Indicates whether a transaction is active on this session.
+	 * 
+	 * @return	{@code true} if there is an active transaction on this handler;
+	 * 			{@code false} otherwise.
+	 */
+	@Override
+	public boolean hasActiveTransaction() {
+		return session.hasActiveTransaction();
+	}
 }
