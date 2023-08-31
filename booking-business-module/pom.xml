@@ -108,10 +108,12 @@
             <targetClasses>
               <targetClasse>io.github.marcopaglio.booking.service.transactional.*</targetClasse>
               <targetClasse>io.github.marcopaglio.booking.transaction.manager.mongo.*</targetClasse>
+              <targetClasse>io.github.marcopaglio.booking.transaction.manager.postgres.*</targetClasse>
             </targetClasses>
             <targetTests>
               <targetTest>io.github.marcopaglio.booking.service.transactional.*</targetTest>
               <targetTest>io.github.marcopaglio.booking.transaction.manager.mongo.*</targetTest>
+              <targetTest>io.github.marcopaglio.booking.transaction.manager.postgres.*</targetTest>
             </targetTests>
           </configuration>
         </plugin>
@@ -136,9 +138,10 @@
         <sonar.java.libraries>
           ${project.build.directory}/dependency
         </sonar.java.libraries>
-        <!-- duplicated code exclusion -->
         <sonar.cpd.exclusions>
+        <!-- Duplicated Code Exclusions -->
           **/transaction/manager/mongo/TransactionMongoManager.java
+          **/transaction/manager/postgres/TransactionPostgresManager.java
         </sonar.cpd.exclusions>
       </properties>
     </profile>
@@ -150,8 +153,9 @@
       <properties>
         <sonar.coverage.exclusions>
           **/transaction/code/*.*,
+          **/handler/factory/*,
           **/handler/mongo/*,
-          **/handler/factory/*
+          **/handler/postgres/*
         </sonar.coverage.exclusions>
       </properties>
       <build>
@@ -160,8 +164,9 @@
             <artifactId>maven-surefire-plugin</artifactId>
             <configuration>
               <excludes>
-                <exclude>**/handler/mongo/*Test.java</exclude>
                 <exclude>**/handler/factory/*Test.java</exclude>
+                <exclude>**/handler/mongo/*Test.java</exclude>
+                <exclude>**/handler/postgres/*Test.java</exclude>
               </excludes>
             </configuration>
           </plugin>
@@ -171,8 +176,9 @@
             <configuration>
               <excludes>
                 <exclude>**/transaction/code/*</exclude>
-                <exclude>**/handler/mongo/*</exclude>
                 <exclude>**/handler/factory/*</exclude>
+                <exclude>**/handler/mongo/*</exclude>
+                <exclude>**/handler/postgres/*</exclude>
               </excludes>
             </configuration>
           </plugin>
