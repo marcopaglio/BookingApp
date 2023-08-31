@@ -1,5 +1,6 @@
 package io.github.marcopaglio.booking.transaction.handler.postgres;
 
+import io.github.marcopaglio.booking.annotation.Generated;
 import io.github.marcopaglio.booking.transaction.handler.TransactionHandler;
 import jakarta.persistence.EntityManager;
 
@@ -20,6 +21,16 @@ public class TransactionPostgresHandler implements TransactionHandler {
 	 */
 	public TransactionPostgresHandler(EntityManager em) {
 		this.em = em;
+	}
+
+	/**
+	 * Retrieves the PostgreSQL entity manager used.
+	 * 
+	 * @return the {@code EntityManager} used.
+	 */
+	@Generated
+	public final EntityManager getEntityManager() {
+		return em;
 	}
 
 	/**

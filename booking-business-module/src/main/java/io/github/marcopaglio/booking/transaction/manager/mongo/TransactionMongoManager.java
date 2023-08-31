@@ -142,9 +142,9 @@ public class TransactionMongoManager implements TransactionManager {
 	 * Executes code that involves the {@code ReservationRepository}'s method(s) on MongoDB
 	 * in a single transaction.
 	 * 
-	 * @param <R>	the returned type of executed code.
-	 * @param code	the code to execute.
-	 * @return		something depending on execution code.
+	 * @param <R>					the returned type of executed code.
+	 * @param code					the code to execute.
+	 * @return						something depending on execution code.
 	 * @throws TransactionException	if {@code code} throws {@code IllegalArgumentException},
 	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
@@ -183,9 +183,9 @@ public class TransactionMongoManager implements TransactionManager {
 	 * Executes code that involves both {@code ClientRepository}'s and {@code ReservationRepository}'s
 	 * methods on MongoDB in a single transaction.
 	 * 
-	 * @param <R>	the returned type of executed code.
-	 * @param code	the code to execute.
-	 * @return		something depending on execution code.
+	 * @param <R>					the returned type of executed code.
+	 * @param code					the code to execute.
+	 * @return						something depending on execution code.
 	 * @throws TransactionException	if {@code code} throws {@code IllegalArgumentException},
 	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
@@ -210,12 +210,12 @@ public class TransactionMongoManager implements TransactionManager {
 		} catch(UpdateFailureException e) {
 			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE));
-		} catch(UniquenessConstraintViolationException e) {
-			sessionHandler.rollbackTransaction();
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
 		} catch(NotNullConstraintViolationException e) {
 			sessionHandler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
+		} catch(UniquenessConstraintViolationException e) {
+			sessionHandler.rollbackTransaction();
+			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
 		} catch(RuntimeException e) {
 			sessionHandler.rollbackTransaction();
 			throw e;
