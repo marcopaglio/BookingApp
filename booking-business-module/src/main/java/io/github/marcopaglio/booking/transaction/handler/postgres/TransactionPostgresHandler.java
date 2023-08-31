@@ -1,36 +1,22 @@
 package io.github.marcopaglio.booking.transaction.handler.postgres;
 
-import io.github.marcopaglio.booking.annotation.Generated;
 import io.github.marcopaglio.booking.transaction.handler.TransactionHandler;
 import jakarta.persistence.EntityManager;
 
 /**
- * An implementation for using PostgreSQL transactions.
+ * An implementation of {@code TransactionHandler} for using PostgreSQL transactions
+ * via {@code EntityManager}.
  */
-public class TransactionPostgresHandler implements TransactionHandler {
+public class TransactionPostgresHandler extends TransactionHandler<EntityManager> {
 
 	/**
-	 * PostgreSQL handler for starting, committing and aborting transactions.
-	 */
-	private EntityManager em;
-
-	/**
-	 * Creates a handler for PostgreSQL transactions using an entity manager
+	 * Constructs a handler for PostgreSQL transactions using an entity manager
 	 * to interact with the PostgreSQL database. 
-	 * @param em
+	 * 
+	 * @param em	the entity manager used to interact with the persistence provider.
 	 */
 	public TransactionPostgresHandler(EntityManager em) {
-		this.em = em;
-	}
-
-	/**
-	 * Retrieves the PostgreSQL entity manager used.
-	 * 
-	 * @return the {@code EntityManager} used.
-	 */
-	@Generated
-	public final EntityManager getEntityManager() {
-		return em;
+		super(em);
 	}
 
 	/**
@@ -40,10 +26,10 @@ public class TransactionPostgresHandler implements TransactionHandler {
 	 */
 	@Override
 	public void startTransaction() throws IllegalStateException {
-		if (em.getTransaction().isActive())
+		if (handler.getTransaction().isActive())
 			throw new IllegalStateException("Transaction is already in progress.");
 		
-		em.getTransaction().begin();
+		handler.getTransaction().begin();
 	}
 
 	/**
@@ -53,10 +39,10 @@ public class TransactionPostgresHandler implements TransactionHandler {
 	 */
 	@Override
 	public void commitTransaction() throws IllegalStateException {
-		if (!em.getTransaction().isActive())
+		if (!handler.getTransaction().isActive())
 			throw new IllegalStateException("There is no transaction started.");
 		
-		em.getTransaction().commit();
+		handler.getTransaction().commit();
 	}
 
 	/**
@@ -66,20 +52,20 @@ public class TransactionPostgresHandler implements TransactionHandler {
 	 */
 	@Override
 	public void rollbackTransaction() throws IllegalStateException {
-		if (!em.getTransaction().isActive())
+		if (!handler.getTransaction().isActive())
 			throw new IllegalStateException("There is no transaction started.");
 		
-		em.getTransaction().rollback();
+		handler.getTransaction().rollback();
 	}
 
 	/**
 	 * Indicates whether a transaction is active on this entity manager.
 	 * 
-	 * @return	{@code true} if there is an active transaction on this handler;
+	 * @return	{@code true} if there is an active transaction on the entity manager;
 	 * 			{@code false} otherwise.
 	 */
 	@Override
 	public boolean hasActiveTransaction() {
-		return em.getTransaction().isActive();
+		return handler.getTransaction().isActive();
 	}
 }

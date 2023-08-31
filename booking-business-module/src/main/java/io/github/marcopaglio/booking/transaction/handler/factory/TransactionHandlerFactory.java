@@ -20,7 +20,7 @@ public class TransactionHandlerFactory {
 	}
 
 	/**
-	 * Creates a new session for handling transactions using a MongoDB client.
+	 * Creates a new session for handling MongoDB transactions using a client.
 	 * 
 	 * @param mongoClient				the client using the MongoDB database.
 	 * @param txnOptions				the options used in the transaction.
@@ -36,9 +36,10 @@ public class TransactionHandlerFactory {
 	}
 
 	/**
-	 * Creates a new entity manager for handling transactions using an EntityManagerFactory.
+	 * Creates a new entity manager for handling PostgreSQL transactions using
+	 * an EntityManagerFactory.
 	 * 
-	 * @param emf						the entity manager factory for interacting
+	 * @param emf						the entity manager factory for interacting with
 	 * 									the PostgreSQL database.
 	 * @return							a new {@code TransactionPostgresHandler} for
 	 * 									creating transactions.
