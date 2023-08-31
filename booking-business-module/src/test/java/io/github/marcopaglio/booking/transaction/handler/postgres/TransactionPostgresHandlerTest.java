@@ -1,7 +1,7 @@
 package io.github.marcopaglio.booking.transaction.handler.postgres;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -74,12 +74,12 @@ class TransactionPostgresHandlerTest {
 
 		@Test
 		@DisplayName("Active transaction")
-		void testStartTransactionWhenThereIsAlreadyAnActiveTransactionShouldThrow() {
+		void testStartTransactionWhenThereIsAlreadyAnActiveTransactionShouldNotThrowAndMaintainItActive() {
 			startATransaction();
 			
-			assertThatThrownBy(() -> transactionPostgresHandler.startTransaction())
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("Transaction is already in progress.");
+			assertThatNoException().isThrownBy(() -> transactionPostgresHandler.startTransaction());
+			
+			assertThat(em.getTransaction().isActive()).isTrue();
 		}
 	}
 
@@ -99,12 +99,13 @@ class TransactionPostgresHandlerTest {
 
 		@Test
 		@DisplayName("No active transaction")
-		void testCommitTransactionWhenThereIsNoActiveTransactionShouldThrow() {
+		void testCommitTransactionWhenThereIsNoActiveTransactionShouldNotThrowAndMaintainItClose() {
 			assertThat(em.getTransaction().isActive()).isFalse();
 			
-			assertThatThrownBy(() -> transactionPostgresHandler.commitTransaction())
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("There is no transaction started.");
+			assertThatNoException().isThrownBy(
+					() -> transactionPostgresHandler.commitTransaction());
+			
+			assertThat(em.getTransaction().isActive()).isFalse();
 		}
 	}
 
@@ -124,12 +125,13 @@ class TransactionPostgresHandlerTest {
 
 		@Test
 		@DisplayName("No active transaction")
-		void testRollbackTransactionWhenThereIsNoActiveTransactionShouldThrow() {
+		void testRollbackTransactionWhenThereIsNoActiveTransactionShouldNotThrowAndMaintainItClose() {
 			assertThat(em.getTransaction().isActive()).isFalse();
 			
-			assertThatThrownBy(() -> transactionPostgresHandler.rollbackTransaction())
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("There is no transaction started.");
+			assertThatNoException().isThrownBy(
+					() -> transactionPostgresHandler.rollbackTransaction());
+			
+			assertThat(em.getTransaction().isActive()).isFalse();
 		}
 	}
 

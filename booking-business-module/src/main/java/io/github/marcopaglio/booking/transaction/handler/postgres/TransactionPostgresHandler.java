@@ -20,42 +20,30 @@ public class TransactionPostgresHandler extends TransactionHandler<EntityManager
 	}
 
 	/**
-	 * Starts a new PostgreSQL transaction via the entity manager.
-	 * 
-	 * @throws IllegalStateException	if {@code em} has already an active transaction.
+	 * Starts a new PostgreSQL transaction via the entity manager, if one isn't already active.
 	 */
 	@Override
-	public void startTransaction() throws IllegalStateException {
-		if (handler.getTransaction().isActive())
-			throw new IllegalStateException("Transaction is already in progress.");
-		
-		handler.getTransaction().begin();
+	public void startTransaction() {
+		if (!handler.getTransaction().isActive())
+			handler.getTransaction().begin();
 	}
 
 	/**
 	 * Commits changes of the active PostgreSQL transaction via the entity manager.
-	 * 
-	 * @throws IllegalStateException	if {@code em} has no active transaction.
 	 */
 	@Override
-	public void commitTransaction() throws IllegalStateException {
-		if (!handler.getTransaction().isActive())
-			throw new IllegalStateException("There is no transaction started.");
-		
-		handler.getTransaction().commit();
+	public void commitTransaction() {
+		if (handler.getTransaction().isActive())
+			handler.getTransaction().commit();
 	}
 
 	/**
 	 * Rolls back changes of the active PostgreSQL transaction via the entity manager.
-	 * 
-	 * @throws IllegalStateException	if {@code em} has no active transaction.
 	 */
 	@Override
-	public void rollbackTransaction() throws IllegalStateException {
-		if (!handler.getTransaction().isActive())
-			throw new IllegalStateException("There is no transaction started.");
-		
-		handler.getTransaction().rollback();
+	public void rollbackTransaction() {
+		if (handler.getTransaction().isActive())
+			handler.getTransaction().rollback();
 	}
 
 	/**

@@ -2,7 +2,7 @@ package io.github.marcopaglio.booking.transaction.handler.mongo;
 
 import static io.github.marcopaglio.booking.transaction.manager.mongo.TransactionMongoManager.TXN_OPTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -69,12 +69,12 @@ class TransactionMongoHandlerTest {
 
 		@Test
 		@DisplayName("Active transaction")
-		void testStartTransactionWhenThereIsAlreadyAnActiveTransactionShouldThrow() {
+		void testStartTransactionWhenThereIsAlreadyAnActiveTransactionNotThrowAndShouldMaintainItActive() {
 			startATransaction();
 			
-			assertThatThrownBy(() -> transactionMongoHandler.startTransaction())
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("Transaction is already in progress.");
+			assertThatNoException().isThrownBy(() -> transactionMongoHandler.startTransaction());
+			
+			assertThat(session.hasActiveTransaction()).isTrue();
 		}
 
 		@Test
@@ -104,12 +104,12 @@ class TransactionMongoHandlerTest {
 
 		@Test
 		@DisplayName("No active transaction")
-		void testCommitTransactionWhenThereIsNoActiveTransactionShouldThrow() {
+		void testCommitTransactionWhenThereIsNoActiveTransactionShouldNotThrowAndMaintainItClose() {
 			assertThat(session.hasActiveTransaction()).isFalse();
 			
-			assertThatThrownBy(() -> transactionMongoHandler.commitTransaction())
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("There is no transaction started.");
+			assertThatNoException().isThrownBy(() -> transactionMongoHandler.commitTransaction());
+			
+			assertThat(session.hasActiveTransaction()).isFalse();
 		}
 	}
 
@@ -129,12 +129,13 @@ class TransactionMongoHandlerTest {
 
 		@Test
 		@DisplayName("No active transaction")
-		void testRollbackTransactionWhenThereIsNoActiveTransactionShouldThrow() {
+		void testRollbackTransactionWhenThereIsNoActiveTransactionShouldNotThrowAndMaintainItClose() {
 			assertThat(session.hasActiveTransaction()).isFalse();
 			
-			assertThatThrownBy(() -> transactionMongoHandler.rollbackTransaction())
-				.isInstanceOf(IllegalStateException.class)
-				.hasMessage("There is no transaction started.");
+			assertThatNoException().isThrownBy(
+					() -> transactionMongoHandler.rollbackTransaction());
+			
+			assertThat(session.hasActiveTransaction()).isFalse();
 		}
 	}
 

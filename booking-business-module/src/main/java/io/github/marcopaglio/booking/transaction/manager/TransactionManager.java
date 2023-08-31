@@ -15,7 +15,6 @@ import io.github.marcopaglio.booking.transaction.handler.TransactionHandler;
  * Provides methods for managing transactions in the booking application.
  */
 public abstract class TransactionManager {
-	//TODO stato della transazione incosistente
 	/**
 	 * Specifies that the reason the transaction fails is the passing of an invalid argument.
 	 */
@@ -85,7 +84,6 @@ public abstract class TransactionManager {
 	 * @param clientRepository			a repository of {@code Client} entities
 	 * 									used by the code.
 	 * @return							something depending on execution code.
-	 * @throws IllegalStateException	if something goes wrong using transactions.
 	 * @throws TransactionException		if {@code code} throws {@code IllegalArgumentException},
 	 * 									{@code UpdateFailureException},
 	 * 									{@code NotNullConstraintViolationException} or
@@ -94,7 +92,7 @@ public abstract class TransactionManager {
 	 */
 	protected <R> R executeInTransaction(ClientTransactionCode<R> code,
 			TransactionHandler<?> handler, ClientRepository clientRepository)
-			throws IllegalStateException, TransactionException, RuntimeException {
+			throws TransactionException, RuntimeException {
 		try {
 			handler.startTransaction();
 			R toBeReturned = code.apply(clientRepository);
@@ -128,7 +126,6 @@ public abstract class TransactionManager {
 	 * @param reservationRepository		a repository of {@code Reservation} entities
 	 * 									used by the code.
 	 * @return							something depending on execution code.
-	 * @throws IllegalStateException	if something goes wrong using transactions.
 	 * @throws TransactionException		if {@code code} throws {@code IllegalArgumentException},
 	 * 									{@code UpdateFailureException},
 	 * 									{@code NotNullConstraintViolationException} or
@@ -137,7 +134,7 @@ public abstract class TransactionManager {
 	 */
 	protected <R> R executeInTransaction(ReservationTransactionCode<R> code, TransactionHandler<?> handler,
 			ReservationRepository reservationRepository)
-			throws IllegalStateException, TransactionException, RuntimeException {
+			throws TransactionException, RuntimeException {
 		try {
 			handler.startTransaction();
 			R toBeReturned = code.apply(reservationRepository);
@@ -173,7 +170,6 @@ public abstract class TransactionManager {
 	 * @param reservationRepository		a repository of {@code Reservation} entities
 	 * 									used by the code.
 	 * @return							something depending on execution code.
-	 * @throws IllegalStateException	if something goes wrong using transactions.
 	 * @throws TransactionException		if {@code code} throws {@code IllegalArgumentException},
 	 * 									{@code UpdateFailureException},
 	 * 									{@code NotNullConstraintViolationException} or
@@ -183,7 +179,7 @@ public abstract class TransactionManager {
 	protected <R> R executeInTransaction(ClientReservationTransactionCode<R> code,
 			TransactionHandler<?> handler, ClientRepository clientRepository,
 			ReservationRepository reservationRepository)
-			throws IllegalStateException, TransactionException, RuntimeException {
+			throws TransactionException, RuntimeException {
 		try {
 			handler.startTransaction();
 			R toBeReturned = code.apply(clientRepository, reservationRepository);

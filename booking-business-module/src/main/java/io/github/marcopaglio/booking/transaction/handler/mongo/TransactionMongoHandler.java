@@ -29,45 +29,35 @@ public class TransactionMongoHandler extends TransactionHandler<ClientSession> {
 	}
 
 	/**
-	 * Starts a new MongoDB transaction via the session and using options if provided.
-	 * 
-	 * @throws IllegalStateException	if {@code session} has already an active transaction.
+	 * Starts a new MongoDB transaction via the session and using options if provided,
+	 * if one isn't already active.
 	 */
 	@Override
-	public void startTransaction() throws IllegalStateException {
-		if (handler.hasActiveTransaction())
-			throw new IllegalStateException("Transaction is already in progress.");
-		
-		if (txnOptions == null)
-			handler.startTransaction();
-		else
-			handler.startTransaction(txnOptions);
+	public void startTransaction() {
+		if (!handler.hasActiveTransaction()) {
+			if (txnOptions == null)
+				handler.startTransaction();
+			else
+				handler.startTransaction(txnOptions);
+		}
 	}
 
 	/**
 	 * Commits changes of the active MongoDB transaction via the session.
-	 * 
-	 * @throws IllegalStateException	if {@code session} has no active transaction.
 	 */
 	@Override
-	public void commitTransaction() throws IllegalStateException {
-		if (!handler.hasActiveTransaction())
-			throw new IllegalStateException("There is no transaction started.");
-		
-		handler.commitTransaction();
+	public void commitTransaction() {
+		if (handler.hasActiveTransaction())
+			handler.commitTransaction();
 	}
 
 	/**
 	 * Rolls back changes of the active MongoDB transaction via the session.
-	 * 
-	 * @throws IllegalStateException	if {@code session} has no active transaction.
 	 */
 	@Override
-	public void rollbackTransaction() throws IllegalStateException {
-		if (!handler.hasActiveTransaction())
-			throw new IllegalStateException("There is no transaction started.");
-		
-		handler.abortTransaction();
+	public void rollbackTransaction() {
+		if (handler.hasActiveTransaction())
+			handler.abortTransaction();
 	}
 
 	/**

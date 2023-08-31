@@ -35,25 +35,19 @@ public abstract class TransactionHandler<T> {
 	}
 
 	/**
-	 * Starts a new transaction.
-	 * 
-	 * @throws IllegalStateException	if the handler has already an active transaction.
+	 * Starts a new transaction, if one isn't already active.
 	 */
-	public abstract void startTransaction() throws IllegalStateException;
+	public abstract void startTransaction();
 
 	/**
 	 * Commits changes of the active transaction.
-	 * 
-	 * @throws IllegalStateException	if there is no active transaction.
 	 */
-	public abstract void commitTransaction() throws IllegalStateException;
+	public abstract void commitTransaction();
 
 	/**
 	 * Rolls back changes of the active transaction.
-	 * 
-	 * @throws IllegalStateException	if there is no active transaction.
 	 */
-	public abstract void rollbackTransaction() throws IllegalStateException;
+	public abstract void rollbackTransaction();
 
 	/**
 	 * Indicates whether a transaction is active on this handler.
