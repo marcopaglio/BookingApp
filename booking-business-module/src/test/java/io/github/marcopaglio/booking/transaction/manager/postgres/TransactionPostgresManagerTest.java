@@ -85,7 +85,7 @@ class TransactionPostgresManagerTest {
 		// stubbing
 		when(transactionHandlerFactory.createTransactionHandler(emf))
 			.thenReturn(transactionPostgresHandler);
-		when(transactionPostgresHandler.getEntityManager()).thenReturn(em);
+		when(transactionPostgresHandler.getHandler()).thenReturn(em);
 	}
 
 	@Nested

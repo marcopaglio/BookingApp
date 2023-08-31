@@ -1,11 +1,10 @@
 package io.github.marcopaglio.booking.transaction.manager.postgres;
 
-import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.TransactionException;
-import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
-import io.github.marcopaglio.booking.exception.UpdateFailureException;
 import io.github.marcopaglio.booking.repository.factory.ClientRepositoryFactory;
 import io.github.marcopaglio.booking.repository.factory.ReservationRepositoryFactory;
+import io.github.marcopaglio.booking.repository.postgres.ClientPostgresRepository;
+import io.github.marcopaglio.booking.repository.postgres.ReservationPostgresRepository;
 import io.github.marcopaglio.booking.transaction.code.ClientReservationTransactionCode;
 import io.github.marcopaglio.booking.transaction.code.ClientTransactionCode;
 import io.github.marcopaglio.booking.transaction.code.ReservationTransactionCode;
@@ -15,28 +14,10 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 import jakarta.persistence.EntityManagerFactory;
 
 /**
- * An implementation for managing code executed on PostgreSQL within transactions.
+ * An implementation of {@code TransactionManager} for managing code executed
+ * on PostgreSQL within transactions.
  */
-public class TransactionPostgresManager implements TransactionManager {
-	/**
-	 * Specifies that the reason the transaction fails is the passing of an invalid argument.
-	 */
-	private static final String INVALID_ARGUMENT = "invalid argument(s) passed";
-
-	/**
-	 * Specifies that the reason the transaction fails is an update failure.
-	 */
-	private static final String UPDATE_FAILURE = "an update failure";
-
-	/**
-	 * Specifies that the reason the transaction fails is a not-null constraint violation.
-	 */
-	private static final String VIOLATION_OF_NOT_NULL_CONSTRAINT = "violation of not-null constraint(s)";
-
-	/**
-	 * Specifies that the reason the transaction fails is a uniqueness constraint violation.
-	 */
-	private static final String VIOLATION_OF_UNIQUENESS_CONSTRAINT = "violation of uniqueness constraint(s)";
+public class TransactionPostgresManager extends TransactionManager {
 
 	/**
 	 * Used for executing code on {@code ClientRepository} and/or {@code ReservationRepository}
@@ -64,7 +45,8 @@ public class TransactionPostgresManager implements TransactionManager {
 	 * Constructs a manager for applying code that uses entity repositories 
 	 * using PostgreSQL transactions.
 	 * 
-	 * @param emf							the entity manager factory for the PostgreSQL database.
+	 * @param emf							the entity manager factory used to interact
+	 * 										with the persistence provider.
 	 * @param transactionHandlerFactory		the factory for create instances
 	 * 										of {@code EntityManager}.
 	 * @param clientRepositoryFactory		the factory to create instances
@@ -72,9 +54,11 @@ public class TransactionPostgresManager implements TransactionManager {
 	 * @param reservationRepositoryFactory	the factory to create instances
 	 * 										of {@code ReservationPostgresRepository}.
 	 */
-	public TransactionPostgresManager(EntityManagerFactory emf, TransactionHandlerFactory transactionHandlerFactory,
+	public TransactionPostgresManager(EntityManagerFactory emf,
+			TransactionHandlerFactory transactionHandlerFactory,
 			ClientRepositoryFactory clientRepositoryFactory,
 			ReservationRepositoryFactory reservationRepositoryFactory) {
+		super();
 		this.emf = emf;
 		this.transactionHandlerFactory = transactionHandlerFactory;
 		this.clientRepositoryFactory = clientRepositoryFactory;
@@ -82,8 +66,8 @@ public class TransactionPostgresManager implements TransactionManager {
 	}
 
 	/**
-	 * Executes code that involves the {@code ClientRepository}'s method(s) on PostgreSQL
-	 * in a single transaction.
+	 * Prepares to execution of code that involves the {@code ClientRepository}'s method(s)
+	 * on PostgreSQL in a single transaction.
 	 * 
 	 * @param <R>					the returned type of executed code.
 	 * @param code					the code to execute.
@@ -92,38 +76,20 @@ public class TransactionPostgresManager implements TransactionManager {
 	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
 	 * 								{@code UniquenessConstraintViolationException}.
+	 * @throws RuntimeException		if an unexpected {@code RuntimeException} occurs.
 	 */
 	@Override
 	public <R> R doInTransaction(ClientTransactionCode<R> code) throws TransactionException {
 		TransactionPostgresHandler sessionHandler =
 				transactionHandlerFactory.createTransactionHandler(emf);
-		try {
-			sessionHandler.startTransaction();
-			R toBeReturned = code.apply(
-					clientRepositoryFactory.createClientRepository(sessionHandler.getEntityManager()));
-			sessionHandler.commitTransaction();
-			return toBeReturned;
-		} catch(IllegalArgumentException e) {
-			sessionHandler.rollbackTransaction();
-			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
-		} catch(UpdateFailureException e) {
-			sessionHandler.rollbackTransaction();
-			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE));
-		} catch(NotNullConstraintViolationException e) {
-			sessionHandler.rollbackTransaction();
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
-		} catch(UniquenessConstraintViolationException e) {
-			sessionHandler.rollbackTransaction();
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
-		} catch(RuntimeException e) {
-			sessionHandler.rollbackTransaction();
-			throw e;
-		}
+		ClientPostgresRepository clientRepository = clientRepositoryFactory
+				.createClientRepository(sessionHandler.getHandler());
+		return executeInTransaction(code, sessionHandler, clientRepository);
 	}
 
 	/**
-	 * Executes code that involves the {@code ReservationRepository}'s method(s) on PostgreSQL
-	 * in a single transaction.
+	 * Prepares to execution of code that involves the {@code ReservationRepository}'s method(s)
+	 * on PostgreSQL in a single transaction.
 	 * 
 	 * @param <R>					the returned type of executed code.
 	 * @param code					the code to execute.
@@ -132,39 +98,20 @@ public class TransactionPostgresManager implements TransactionManager {
 	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
 	 * 								{@code UniquenessConstraintViolationException}.
+	 * @throws RuntimeException		if an unexpected {@code RuntimeException} occurs.
 	 */
 	@Override
 	public <R> R doInTransaction(ReservationTransactionCode<R> code) throws TransactionException {
 		TransactionPostgresHandler sessionHandler =
 				transactionHandlerFactory.createTransactionHandler(emf);
-		try {
-			sessionHandler.startTransaction();
-			R toBeReturned = code.apply(
-					reservationRepositoryFactory.createReservationRepository(
-							sessionHandler.getEntityManager()));
-			sessionHandler.commitTransaction();
-			return toBeReturned;
-		} catch(IllegalArgumentException e) {
-			sessionHandler.rollbackTransaction();
-			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
-		} catch(UpdateFailureException e) {
-			sessionHandler.rollbackTransaction();
-			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE));
-		} catch(NotNullConstraintViolationException e) {
-			sessionHandler.rollbackTransaction();
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
-		} catch(UniquenessConstraintViolationException e) {
-			sessionHandler.rollbackTransaction();
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
-		} catch(RuntimeException e) {
-			sessionHandler.rollbackTransaction();
-			throw e;
-		}
+		ReservationPostgresRepository reservationRepository = reservationRepositoryFactory
+				.createReservationRepository(sessionHandler.getHandler());
+		return executeInTransaction(code, sessionHandler, reservationRepository);
 	}
 
 	/**
-	 * Executes code that involves both {@code ClientRepository}'s and {@code ReservationRepository}'s
-	 * methods on PostgreSQL in a single transaction.
+	 * Prepares to execution of code that involves both {@code ClientRepository}'s and
+	 * {@code ReservationRepository}'s methods on PostgreSQL in a single transaction.
 	 * 
 	 * @param <R>					the returned type of executed code.
 	 * @param code					the code to execute.
@@ -173,45 +120,16 @@ public class TransactionPostgresManager implements TransactionManager {
 	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
 	 * 								{@code UniquenessConstraintViolationException}.
+	 * @throws RuntimeException		if an unexpected {@code RuntimeException} occurs.
 	 */
 	@Override
 	public <R> R doInTransaction(ClientReservationTransactionCode<R> code) throws TransactionException {
 		TransactionPostgresHandler sessionHandler =
 				transactionHandlerFactory.createTransactionHandler(emf);
-		try {
-			sessionHandler.startTransaction();
-			R toBeReturned = code.apply(
-					clientRepositoryFactory.createClientRepository(
-							sessionHandler.getEntityManager()),
-					reservationRepositoryFactory.createReservationRepository(
-							sessionHandler.getEntityManager()));
-			sessionHandler.commitTransaction();
-			return toBeReturned;
-		} catch(IllegalArgumentException e) {
-			sessionHandler.rollbackTransaction();
-			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
-		} catch(UpdateFailureException e) {
-			sessionHandler.rollbackTransaction();
-			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE));
-		} catch(NotNullConstraintViolationException e) {
-			sessionHandler.rollbackTransaction();
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
-		} catch(UniquenessConstraintViolationException e) {
-			sessionHandler.rollbackTransaction();
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
-		} catch(RuntimeException e) {
-			sessionHandler.rollbackTransaction();
-			throw e;
-		}
-	}
-
-	/**
-	 * Generates a message for the failure of the transaction.
-	 * 
-	 * @param reason	the cause of the failure.
-	 * @return			a {@code String} message about the failure.
-	 */
-	private String transactionFailureMsg(String reason) {
-		return "Transaction fails due to " + reason + ".";
+		ClientPostgresRepository clientRepository = clientRepositoryFactory
+				.createClientRepository(sessionHandler.getHandler());
+		ReservationPostgresRepository reservationRepository = reservationRepositoryFactory
+				.createReservationRepository(sessionHandler.getHandler());
+		return executeInTransaction(code, sessionHandler, clientRepository, reservationRepository);
 	}
 }

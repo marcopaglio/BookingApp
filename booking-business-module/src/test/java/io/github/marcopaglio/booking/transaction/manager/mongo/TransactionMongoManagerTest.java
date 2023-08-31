@@ -87,7 +87,7 @@ class TransactionMongoManagerTest {
 		// stubbing
 		when(transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS))
 			.thenReturn(transactionMongoHandler);
-		when(transactionMongoHandler.getSession()).thenReturn(session);
+		when(transactionMongoHandler.getHandler()).thenReturn(session);
 	}
 
 	@Nested
