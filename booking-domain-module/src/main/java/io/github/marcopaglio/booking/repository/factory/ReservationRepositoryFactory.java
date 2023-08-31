@@ -3,7 +3,6 @@ package io.github.marcopaglio.booking.repository.factory;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 
-import io.github.marcopaglio.booking.repository.ReservationRepository;
 import io.github.marcopaglio.booking.repository.mongo.ReservationMongoRepository;
 import io.github.marcopaglio.booking.repository.postgres.ReservationPostgresRepository;
 import jakarta.persistence.EntityManager;
@@ -29,7 +28,7 @@ public class ReservationRepositoryFactory {
 	 * 									for facing the MongoDB database.
 	 * @throws IllegalArgumentException	if at least {@code mongoClient} or {@code session} is null.
 	 */
-	public ReservationRepository createReservationRepository(MongoClient mongoClient, ClientSession session)
+	public ReservationMongoRepository createReservationRepository(MongoClient mongoClient, ClientSession session)
 			throws IllegalArgumentException {
 		if (mongoClient == null)
 			throw new IllegalArgumentException(
