@@ -157,7 +157,18 @@ public class ClientPostgresRepository implements ClientRepository {
 		if (client == null)
 			throw new IllegalArgumentException("Client to delete cannot be null.");
 		
-		em.remove(em.contains(client) ? client : em.merge(client));
+		UUID id = client.getId();
+		if (id != null) {
+			try {
+				em.remove(em.getReference(Client.class, id));
+			} catch(EntityNotFoundException e) {
+				// log
+			}
+		} else {
+			// log
+		}
+			
+			
 	}
 
 }

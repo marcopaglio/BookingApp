@@ -171,7 +171,16 @@ public class ReservationPostgresRepository implements ReservationRepository {
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to delete cannot be null.");
 		
-		em.remove(em.contains(reservation) ? reservation : em.merge(reservation));
+		UUID id = reservation.getId();
+		if (id != null) {
+			try {
+				em.remove(em.getReference(Reservation.class, id));
+			} catch(EntityNotFoundException e) {
+				//log
+			}
+		} else {
+			// log
+		}
 	}
 
 }
