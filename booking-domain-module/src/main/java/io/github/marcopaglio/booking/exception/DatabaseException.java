@@ -27,4 +27,14 @@ public class DatabaseException extends RuntimeException {
 	public DatabaseException(String errorMessage) {
 		super(errorMessage);
 	}
+
+	/**
+	 * Constructs a {@code DatabaseException} with the specified detail message and the cause.
+	 *
+	 * @param message	specifies the error message.
+	 * @param cause		the cause of the exception.
+	 */
+	public DatabaseException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

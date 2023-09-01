@@ -27,4 +27,14 @@ public class TransactionException extends RuntimeException {
 	public TransactionException(String errorMessage) {
 		super(errorMessage);
 	}
+
+	/**
+	 * Constructs a {@code TransactionException} with the specified detail message and the cause.
+	 *
+	 * @param message	specifies the error message.
+	 * @param cause		the cause of the exception.
+	 */
+	public TransactionException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

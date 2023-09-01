@@ -28,4 +28,15 @@ public class UpdateFailureException extends RuntimeException {
 	public UpdateFailureException(String errorMessage) {
 		super(errorMessage);
 	}
+
+	/**
+	 * Constructs a {@code UpdateFailureException} with the specified detail message
+	 * and the cause.
+	 *
+	 * @param message	specifies the error message.
+	 * @param cause		the cause of the exception.
+	 */
+	public UpdateFailureException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

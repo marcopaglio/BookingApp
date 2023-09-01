@@ -34,4 +34,14 @@ public class InstanceNotFoundException extends RuntimeException {
 	public InstanceNotFoundException(String errorMessage) {
 		super(errorMessage);
 	}
+
+	/**
+	 * Constructs a {@code InstanceNotFoundException} with the specified detail message and the cause.
+	 *
+	 * @param message	specifies the error message.
+	 * @param cause		the cause of the exception.
+	 */
+	public InstanceNotFoundException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

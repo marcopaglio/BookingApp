@@ -34,4 +34,14 @@ public class InstanceAlreadyExistsException extends RuntimeException {
 	public InstanceAlreadyExistsException(String errorMessage) {
 		super(errorMessage);
 	}
+
+	/**
+	 * Constructs a {@code InstanceAlreadyExistsException} with the specified detail message and the cause.
+	 *
+	 * @param message	specifies the error message.
+	 * @param cause		the cause of the exception.
+	 */
+	public InstanceAlreadyExistsException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }
