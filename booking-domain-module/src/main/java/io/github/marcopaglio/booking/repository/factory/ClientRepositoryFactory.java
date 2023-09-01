@@ -4,6 +4,8 @@ import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 
 import io.github.marcopaglio.booking.repository.mongo.ClientMongoRepository;
+import io.github.marcopaglio.booking.repository.postgres.ClientPostgresRepository;
+import jakarta.persistence.EntityManager;
 
 /**
  * A factory of repositories for Client entities.
@@ -36,5 +38,22 @@ public class ClientRepositoryFactory {
 					"Cannot create a ClientMongoRepository from a null Mongo client session.");
 		
 		return new ClientMongoRepository(mongoClient, session);
+	}
+
+	/**
+	 * Creates a new repository for Client entities using PostgresSQL and a JPA provider.
+	 * 
+	 * @param em						the entity manager using PostgreSQL database.
+	 * @return							a new {@code ClientPostgresRepository}
+	 * 									for facing the PostgreSQL database.
+	 * @throws IllegalArgumentException	if {@code em} is null.
+	 */
+	public ClientPostgresRepository createClientRepository(EntityManager em)
+			throws IllegalArgumentException {
+		if (em == null)
+			throw new IllegalArgumentException(
+					"Cannot create a ClientPostgresRepository from a null Entity Manager.");
+		
+		return new ClientPostgresRepository(em);
 	}
 }

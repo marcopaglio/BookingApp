@@ -3,18 +3,13 @@ package io.github.marcopaglio.booking.transaction.handler.mongo;
 import com.mongodb.TransactionOptions;
 import com.mongodb.client.ClientSession;
 
-import io.github.marcopaglio.booking.annotation.Generated;
 import io.github.marcopaglio.booking.transaction.handler.TransactionHandler;
 
 /**
- * An implementation for using MongoDB transactions.
+ * An implementation of {@code TransactionHandler} for using MongoDB transactions
+ * via {@code ClientSession}.
  */
-public class TransactionMongoHandler implements TransactionHandler {
-
-	/**
-	 * MongoDB handler for starting, committing and aborting transactions.
-	 */
-	private ClientSession session;
+public class TransactionMongoHandler extends TransactionHandler<ClientSession> {
 
 	/**
 	 * Provides custom options to transactions.
@@ -22,66 +17,58 @@ public class TransactionMongoHandler implements TransactionHandler {
 	private TransactionOptions txnOptions;
 
 	/**
-	 * Creates a handler for MongoDB transactions using the session opened with MongoDB
+	 * Constructs a handler for MongoDB transactions using the session opened with MongoDB
 	 * and some custom optional transaction options.
 	 * 
 	 * @param session		the session opened with MongoDB.
 	 * @param txnOptions	the optional transaction options.
 	 */
 	public TransactionMongoHandler(ClientSession session, TransactionOptions txnOptions) {
-		this.session = session;
+		super(session);
 		this.txnOptions = txnOptions;
 	}
 
 	/**
-	 * Retrieves the MongoDB session used.
-	 * 
-	 * @return the {@code ClientSession} used.
+	 * Starts a new MongoDB transaction via the session and using options if provided,
+	 * if one isn't already active.
 	 */
-	@Generated
-	public final ClientSession getSession() {
-		return session;
+	@Override
+	public void startTransaction() {
+		if (!handler.hasActiveTransaction()) {
+			if (txnOptions == null)
+				handler.startTransaction();
+			else
+				handler.startTransaction(txnOptions);
+		}
 	}
 
 	/**
-	 * Starts a new MongoDB transaction via the session and using options if provided.
-	 * 
-	 * @throws IllegalStateException	if {@code session} has already an active transaction.
+	 * Commits changes of the active MongoDB transaction via the session.
 	 */
 	@Override
-	public void startTransaction() throws IllegalStateException {
-		if (session.hasActiveTransaction())
-			throw new IllegalStateException("Transaction is already in progress.");
-		
-		if (txnOptions == null)
-			session.startTransaction();
-		else
-			session.startTransaction(txnOptions);
+	public void commitTransaction() {
+		if (handler.hasActiveTransaction())
+			handler.commitTransaction();
 	}
 
 	/**
-	 * Commits changes of the active MongoDB transaction.
-	 * 
-	 * @throws IllegalStateException	if {@code session} has no active transaction.
+	 * Rolls back changes of the active MongoDB transaction via the session.
+	 * Note: an already committed transaction cannot be rolled back.
 	 */
 	@Override
-	public void commitTransaction() throws IllegalStateException {
-		if (!session.hasActiveTransaction())
-			throw new IllegalStateException("There is no transaction started.");
-		
-		session.commitTransaction();
+	public void rollbackTransaction() {
+		if (handler.hasActiveTransaction())
+			handler.abortTransaction();
 	}
 
 	/**
-	 * Rolls back changes of the active MongoDB transaction.
+	 * Indicates whether a transaction is active on this session.
 	 * 
-	 * @throws IllegalStateException	if {@code session} has no active transaction.
+	 * @return	{@code true} if there is an active transaction on the session;
+	 * 			{@code false} otherwise.
 	 */
 	@Override
-	public void rollbackTransaction() throws IllegalStateException {
-		if (!session.hasActiveTransaction())
-			throw new IllegalStateException("There is no transaction started.");
-		
-		session.abortTransaction();
+	public boolean hasActiveTransaction() {
+		return handler.hasActiveTransaction();
 	}
 }

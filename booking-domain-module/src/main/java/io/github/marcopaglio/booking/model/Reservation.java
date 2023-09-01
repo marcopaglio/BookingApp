@@ -6,10 +6,21 @@ import java.util.UUID;
 
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
 /**
  * This entity represents the reservation's model of the booking application.
  */
-public class Reservation extends Entity {
+@Entity
+@Table(name = Reservation.RESERVATION_TABLE_DB)
+public class Reservation extends BaseEntity {
+	/**
+	 * Table name used in a database to access {@code Reservation} entities.
+	 */
+	public static final String RESERVATION_TABLE_DB = "reservations";
+
 	/**
 	 * Field name used in a database to access the {@code clientId} attribute.
 	 */
@@ -23,12 +34,14 @@ public class Reservation extends Entity {
 	/**
 	 * The identifier of the associated client entity.
 	 */
+	@Column(name = CLIENTID_DB, nullable = false)
 	@BsonProperty(value = CLIENTID_DB)
 	private UUID clientId;
 
 	/**
 	 * The date of the reservation. Note: {@code date} is unique among reservation entities.
 	 */
+	@Column(name = DATE_DB, unique = true, nullable = false)
 	@BsonProperty(value = DATE_DB)
 	private LocalDate date;
 
@@ -49,7 +62,9 @@ public class Reservation extends Entity {
 	/**
 	 * Empty constructor needed for database purposes.
 	 */
-	protected Reservation() {}
+	protected Reservation() {
+		super();
+	}
 
 	/**
 	 * Retrieves the identifier of the associated client of the reservation.
@@ -57,7 +72,7 @@ public class Reservation extends Entity {
 	 *
 	 * @return	the {@code UUID} of the associated client of the reservation.
 	 */
-	public final UUID getClientId() {
+	public UUID getClientId() {
 		return clientId;
 	}
 
@@ -66,7 +81,7 @@ public class Reservation extends Entity {
 	 * 
 	 * @param clientId	the client's identifier to set.
 	 */
-	public final void setClientId(UUID clientId) {
+	public void setClientId(UUID clientId) {
 		this.clientId = clientId;
 	}
 
@@ -75,7 +90,7 @@ public class Reservation extends Entity {
 	 *
 	 * @return	the {@code date} of the reservation.
 	 */
-	public final LocalDate getDate() {
+	public LocalDate getDate() {
 		return date;
 	}
 
@@ -84,7 +99,7 @@ public class Reservation extends Entity {
 	 * 
 	 * @param date	the date to set.
 	 */
-	public final void setDate(LocalDate date) {
+	public void setDate(LocalDate date) {
 		this.date = date;
 	}
 

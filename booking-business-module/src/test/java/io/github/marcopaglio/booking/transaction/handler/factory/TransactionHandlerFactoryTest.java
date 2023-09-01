@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -18,6 +19,9 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
 import io.github.marcopaglio.booking.transaction.handler.mongo.TransactionMongoHandler;
+import io.github.marcopaglio.booking.transaction.handler.postgres.TransactionPostgresHandler;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 
 @DisplayName("Tests for TransactionHandlerFactory class")
 @Testcontainers
@@ -25,14 +29,24 @@ class TransactionHandlerFactoryTest {
 
 	@Container
 	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
-
 	private static MongoClient mongoClient;
+
+	@Container
+	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.2")
+		.withDatabaseName("TransactionHandlerFactoryTest_db")
+		.withUsername("postgres-test")
+		.withPassword("postgres-test");
+	private static EntityManagerFactory emf;
 
 	private TransactionHandlerFactory transactionHandlerFactory;
 
 	@BeforeAll
 	public static void setupServer() {
 		mongoClient = MongoClients.create(mongo.getConnectionString());
+		
+		System.setProperty("db.port", postgreSQLContainer.getFirstMappedPort().toString());
+		System.setProperty("db.name", postgreSQLContainer.getDatabaseName());
+		emf = Persistence.createEntityManagerFactory("postgres-test");
 	}
 
 	@BeforeEach
@@ -43,6 +57,8 @@ class TransactionHandlerFactoryTest {
 	@AfterAll
 	static void closeClient() {
 		mongoClient.close();
+		
+		emf.close();
 	}
 
 	@Nested
@@ -55,7 +71,7 @@ class TransactionHandlerFactoryTest {
 
 			@Test
 			@DisplayName("Valid mongoClient")
-			void testCreateTransactionHandlerWhenMongoClientIsValidShouldReturnSession() {
+			void testCreateTransactionHandlerWhenMongoClientIsValidShouldReturnTransactionMongoHandler() {
 				assertThat(transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS))
 					.isInstanceOf(TransactionMongoHandler.class);
 			}
@@ -74,6 +90,27 @@ class TransactionHandlerFactoryTest {
 			void testCreateTransactionHandlerWhenTransactionOptionsAreNullShouldReturnSession() {
 				assertThat(transactionHandlerFactory.createTransactionHandler(mongoClient, null))
 					.isInstanceOf(TransactionMongoHandler.class);
+			}
+		}
+
+		@Nested
+		@DisplayName("Handler for PostgreSQL")
+		class PostgreSQLHandlerTest {
+
+			@Test
+			@DisplayName("Valid entityManagerFactory")
+			void testCreateTransactionHandlerWhenEntityManagerFactoryIsValidShouldReturnTransactionPostgresHandler() {
+				assertThat(transactionHandlerFactory.createTransactionHandler(emf))
+					.isInstanceOf(TransactionPostgresHandler.class);
+			}
+
+			@Test
+			@DisplayName("Null entityManagerFactory")
+			void testCreateTransactionHandlerWhenEntityManagerFactoryIsNullShouldThrow() {
+				assertThatThrownBy(
+						() -> transactionHandlerFactory.createTransactionHandler(null))
+					.isInstanceOf(IllegalArgumentException.class)
+					.hasMessage("Cannot create an EntityManager from a null EntityManagerFactory.");
 			}
 		}
 	}

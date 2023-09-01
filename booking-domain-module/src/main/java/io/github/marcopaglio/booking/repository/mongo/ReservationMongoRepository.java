@@ -7,26 +7,36 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
+import com.mongodb.client.model.ReplaceOptions;
 
+import io.github.marcopaglio.booking.exception.UpdateFailureException;
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.ReservationRepository;
 
-import static io.github.marcopaglio.booking.model.Entity.ID_DB;
+import static io.github.marcopaglio.booking.model.BaseEntity.ID_DB;
 import static io.github.marcopaglio.booking.model.Reservation.DATE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.CLIENTID_DB;
 
 /**
- * Implementation of repository layer through MongoDB for reservation entities of the booking application.
+ * Implementation of repository layer through MongoDB for Reservation entities of the booking application.
  */
 public class ReservationMongoRepository extends MongoRepository<Reservation> implements ReservationRepository {
+	/**
+	 * Creates meaningful logs on behalf of the class.
+	 */
+	private static final Logger LOGGER = LogManager.getLogger(ReservationMongoRepository.class);
+
 	/**
 	 * Name of the database in which the repository works.
 	 */
@@ -51,7 +61,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 				session);
 		
 		// collection configuration
-		collection.createIndex(session, Indexes.descending("date"), new IndexOptions().unique(true));
+		collection.createIndex(session, Indexes.descending(DATE_DB), new IndexOptions().unique(true));
 	}
 
 	/**
@@ -82,11 +92,12 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	}
 
 	/**
-	 * Retrieves the unique reservation with the specified identifier from the MongoDB database if exists.
+	 * Retrieves the unique reservation with the specified identifier from the MongoDB database,
+	 * if it exists.
 	 * 
 	 * @param id	the identifier of the reservation to find.
-	 * @return		an {@code Optional} contained the {@code Reservation} identified by {@code id} if exists;
-	 * 				an {@code Optional} empty if it doesn't exist.
+	 * @return		an {@code Optional} contained the {@code Reservation} identified by {@code id},
+	 * 				if it exists; an {@code Optional} empty, otherwise.
 	 */
 	@Override
 	public Optional<Reservation> findById(UUID id) {
@@ -98,11 +109,12 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	}
 
 	/**
-	 * Retrieves the unique reservation of the specified date from the MongoDB database if exists.
+	 * Retrieves the unique reservation of the specified date from the MongoDB database,
+	 * if it exists.
 	 * 
 	 * @param date	the date of the reservation to find.
-	 * @return		an {@code Optional} contained the {@code Reservation} on {@code date} if exists;
-	 * 				an {@code Optional} empty if it doesn't exist.
+	 * @return		an {@code Optional} contained the {@code Reservation} on {@code date},
+	 * 				if it exists; an {@code Optional} empty, otherwise.
 	 */
 	@Override
 	public Optional<Reservation> findByDate(LocalDate date) {
@@ -121,45 +133,58 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	 * @param reservation								the reservation to save.
 	 * @return											the {@code Reservation} saved.
 	 * @throws IllegalArgumentException					if {@code reservation} is null.
+	 * @throws UpdateFailureException					if you try to save changes of a no longer
+	 * 													existing reservation.
 	 * @throws NotNullConstraintViolationException		if {@code date} or {@code clientId}
 	 * 													of {@code reservation} to save are null.
 	 * @throws UniquenessConstraintViolationException	if {@code id} or {@code date}
 	 * 													of {@code reservation} to save are already present.
 	 */
 	@Override
-	public Reservation save(Reservation reservation) throws IllegalArgumentException,
+	public Reservation save(Reservation reservation) throws IllegalArgumentException, UpdateFailureException,
 			NotNullConstraintViolationException, UniquenessConstraintViolationException {
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to save cannot be null.");
 		
-		if (reservation.getClientId() == null)
+		if (reservation.getClientId() == null || reservation.getDate() == null)
 			throw new NotNullConstraintViolationException(
-					"Reservation to save must have a not-null client.");
-		if (reservation.getDate() == null)
-			throw new NotNullConstraintViolationException(
-					"Reservation to save must have a not-null date.");
+					"Reservation to save violates not-null constraints.");
 		
-		if (reservation.getId() == null) {
-			reservation.setId(UUID.randomUUID());
-			try {
+		try {
+			if (reservation.getId() == null) {
+				reservation.setId(UUID.randomUUID());
 				collection.insertOne(session, reservation);
-			} catch(MongoWriteException e) {
-				throw new UniquenessConstraintViolationException(
-						uniquenessConstraintViolationMsg("insertion"));
+			} else {
+				replaceIfFound(reservation);
 			}
-		} else {
-			try {
-				collection.replaceOne(session, Filters.eq(ID_DB, reservation.getId()), reservation);
-			} catch(MongoWriteException e) {
-				throw new UniquenessConstraintViolationException(
-						uniquenessConstraintViolationMsg("update"));
-			}
+		} catch(MongoWriteException e) {
+			LOGGER.warn(e.getMessage());
+			throw new UniquenessConstraintViolationException(
+					"Reservation to save violates uniqueness constraints.", e.getCause());
 		}
 		return reservation;
 	}
 
 	/**
-	 * Removes the unique specified reservation from the MongoDB database.
+	 * Replace the existing Reservation with the same id in the MongoDB database.
+	 * 
+	 * @param reservation				the replacement reservation.
+	 * @throws UpdateFailureException	if there is no reservation with the same id to replace.
+	 */
+	private void replaceIfFound(Reservation reservation) throws UpdateFailureException {
+		if (collection.replaceOne(
+					session,
+					Filters.eq(ID_DB, reservation.getId()),
+					reservation,
+					new ReplaceOptions().upsert(false))
+				.getModifiedCount() == 0)
+			throw new UpdateFailureException(
+					"Reservation to update is not longer present in the repository.");
+	}
+
+	/**
+	 * Removes the unique specified reservation from the MongoDB database, if it exists,
+	 * otherwise it does nothing.
 	 *
 	 * @param reservation				the reservation to delete.
 	 * @throws IllegalArgumentException	if {@code reservation} is null.
@@ -169,7 +194,15 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to delete cannot be null.");
 		
-		collection.deleteOne(session, Filters.eq(ID_DB, reservation.getId()));
+		if (reservation.getId() != null) {
+			if(collection.deleteOne(session, Filters.eq(ID_DB, reservation.getId()))
+					.getDeletedCount() == 0)
+				LOGGER.warn(() -> reservation.toString() +
+						" has already been deleted from the database.");
+		}
+		else
+			 LOGGER.warn(() -> reservation.toString() + " to delete was never been "
+					+ "inserted into the database.");
 	}
 
 }

@@ -3,8 +3,9 @@ package io.github.marcopaglio.booking.repository.factory;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 
-import io.github.marcopaglio.booking.repository.ReservationRepository;
 import io.github.marcopaglio.booking.repository.mongo.ReservationMongoRepository;
+import io.github.marcopaglio.booking.repository.postgres.ReservationPostgresRepository;
+import jakarta.persistence.EntityManager;
 
 /**
  * A factory of repositories for Reservation entities.
@@ -27,7 +28,7 @@ public class ReservationRepositoryFactory {
 	 * 									for facing the MongoDB database.
 	 * @throws IllegalArgumentException	if at least {@code mongoClient} or {@code session} is null.
 	 */
-	public ReservationRepository createReservationRepository(MongoClient mongoClient, ClientSession session)
+	public ReservationMongoRepository createReservationRepository(MongoClient mongoClient, ClientSession session)
 			throws IllegalArgumentException {
 		if (mongoClient == null)
 			throw new IllegalArgumentException(
@@ -37,6 +38,22 @@ public class ReservationRepositoryFactory {
 					"Cannot create a ReservationMongoRepository from a null Mongo client session.");
 		
 		return new ReservationMongoRepository(mongoClient, session);
+	}
+
+	/**
+	 * Creates a new repository for Reservation entities using PostgresSQL and a JPA provider.
+	 * 
+	 * @param em						the entity manager using PostgreSQL database.
+	 * @return							a new {@code ReservationPostgresRepository}
+	 * 									for facing the PostgreSQL database.
+	 * @throws IllegalArgumentException	if {@code em} is null.
+	 */
+	public ReservationPostgresRepository createReservationRepository(EntityManager em) {
+		if (em == null)
+			throw new IllegalArgumentException(
+					"Cannot create a ReservationPostgresRepository from a null Entity Manager.");
+		
+		return new ReservationPostgresRepository(em);
 	}
 
 }

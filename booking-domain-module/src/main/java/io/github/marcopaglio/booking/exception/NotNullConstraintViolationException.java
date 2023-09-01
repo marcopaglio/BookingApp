@@ -28,4 +28,15 @@ public class NotNullConstraintViolationException extends RuntimeException {
 	public NotNullConstraintViolationException(String errorMessage) {
 		super(errorMessage);
 	}
+
+	/**
+	 * Constructs a {@code NotNullConstraintViolationException} with the specified detail
+	 * message and the cause.
+	 *
+	 * @param message	specifies the error message.
+	 * @param cause		the cause of the exception.
+	 */
+	public NotNullConstraintViolationException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

@@ -28,4 +28,15 @@ public class UniquenessConstraintViolationException extends RuntimeException {
 	public UniquenessConstraintViolationException(String errorMessage) {
 		super(errorMessage);
 	}
+
+	/**
+	 * Constructs a {@code UniquenessConstraintViolationException} with the specified detail
+	 * message and the cause.
+	 *
+	 * @param message	specifies the error message.
+	 * @param cause		the cause of the exception.
+	 */
+	public UniquenessConstraintViolationException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }
