@@ -39,6 +39,7 @@ public class TransactionPostgresHandler extends TransactionHandler<EntityManager
 
 	/**
 	 * Rolls back changes of the active PostgreSQL transaction via the entity manager.
+	 * Note: an already committed transaction cannot be rolled back.
 	 */
 	@Override
 	public void rollbackTransaction() {

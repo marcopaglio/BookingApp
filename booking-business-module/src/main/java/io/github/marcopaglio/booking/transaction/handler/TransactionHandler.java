@@ -46,6 +46,7 @@ public abstract class TransactionHandler<T> {
 
 	/**
 	 * Rolls back changes of the active transaction.
+	 * Note: an already committed transaction cannot be rolled back.
 	 */
 	public abstract void rollbackTransaction();
 

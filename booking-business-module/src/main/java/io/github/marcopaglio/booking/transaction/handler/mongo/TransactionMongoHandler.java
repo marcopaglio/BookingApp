@@ -53,6 +53,7 @@ public class TransactionMongoHandler extends TransactionHandler<ClientSession> {
 
 	/**
 	 * Rolls back changes of the active MongoDB transaction via the session.
+	 * Note: an already committed transaction cannot be rolled back.
 	 */
 	@Override
 	public void rollbackTransaction() {
