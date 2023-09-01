@@ -6,6 +6,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
@@ -28,6 +31,11 @@ import static io.github.marcopaglio.booking.model.Client.LASTNAME_DB;
  * Implementation of repository layer through MongoDB for Client entities of the booking application.
  */
 public class ClientMongoRepository extends MongoRepository<Client> implements ClientRepository {
+	/**
+	 * Creates meaningful logs on behalf of the class.
+	 */
+	private static final Logger LOGGER = LogManager.getLogger(ClientMongoRepository.class);
+
 	/**
 	 * Name of the database in which the repository works.
 	 */
@@ -140,8 +148,9 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 				replaceIfFound(client);
 			}
 		} catch(MongoWriteException e) {
+			LOGGER.warn(e.getMessage());
 			throw new UniquenessConstraintViolationException(
-					"Client to save violates uniqueness constraints.");
+					"Client to save violates uniqueness constraints.", e.getCause());
 		}
 		return client;
 	}
@@ -175,6 +184,13 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 		if(client == null)
 			throw new IllegalArgumentException("Client to delete cannot be null.");
 		
-		collection.deleteOne(session, Filters.eq(ID_DB, client.getId()));
+		if(client.getId() != null) {
+			if (collection.deleteOne(session, Filters.eq(ID_DB, client.getId()))
+					.getDeletedCount() == 0)
+				LOGGER.warn(() -> client.toString() + " has already been deleted from the database.");
+		}
+		else
+			 LOGGER.warn(() -> client.toString() + " to delete was never been "
+					+ "inserted into the database.");
 	}
 }

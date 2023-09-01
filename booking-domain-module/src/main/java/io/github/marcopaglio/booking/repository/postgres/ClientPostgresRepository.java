@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.PropertyValueException;
 import org.hibernate.exception.ConstraintViolationException;
 
@@ -20,6 +22,10 @@ import jakarta.persistence.NoResultException;
  * Implementation of repository layer through PostgreSQL for Client entities of the booking application.
  */
 public class ClientPostgresRepository implements ClientRepository {
+	/**
+	 * Creates meaningful logs on behalf of the class.
+	 */
+	private static final Logger LOGGER = LogManager.getLogger(ClientPostgresRepository.class);
 
 	/**
 	 * Entity Manager used to communicate with JPA provider.
@@ -118,11 +124,13 @@ public class ClientPostgresRepository implements ClientRepository {
 				client = mergeIfNotTransient(client);
 			em.flush();
 		} catch(PropertyValueException e) {
+			LOGGER.warn(e.getMessage());
 			throw new NotNullConstraintViolationException(
-					"Client to save violates not-null constraints.");
+					"Client to save violates not-null constraints.", e.getCause());
 		} catch(ConstraintViolationException e) {
+			LOGGER.warn(e.getMessage());
 			throw new UniquenessConstraintViolationException(
-					"Client to save violates uniqueness constraints.");
+					"Client to save violates uniqueness constraints.", e.getCause());
 		}
 		return client;
 	}
@@ -139,8 +147,10 @@ public class ClientPostgresRepository implements ClientRepository {
 			em.getReference(Client.class, client.getId());
 			return em.merge(client);
 		} catch(EntityNotFoundException e) {
+			LOGGER.warn(e.getMessage());
 			throw new UpdateFailureException(
-					"Client to update is not longer present in the repository.");
+					"Client to update is not longer present in the repository.",
+					e.getCause());
 		}
 	}
 
@@ -162,13 +172,10 @@ public class ClientPostgresRepository implements ClientRepository {
 			try {
 				em.remove(em.getReference(Client.class, id));
 			} catch(EntityNotFoundException e) {
-				// log
+				LOGGER.warn(e.getMessage());
 			}
-		} else {
-			// log
-		}
-			
-			
+		} else
+			LOGGER.warn(() -> client.toString() + " to delete was never been "
+					+ "inserted into the database.");
 	}
-
 }

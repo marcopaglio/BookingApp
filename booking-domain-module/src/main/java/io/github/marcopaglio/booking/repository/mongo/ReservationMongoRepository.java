@@ -7,6 +7,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
@@ -29,6 +32,11 @@ import static io.github.marcopaglio.booking.model.Reservation.CLIENTID_DB;
  * Implementation of repository layer through MongoDB for Reservation entities of the booking application.
  */
 public class ReservationMongoRepository extends MongoRepository<Reservation> implements ReservationRepository {
+	/**
+	 * Creates meaningful logs on behalf of the class.
+	 */
+	private static final Logger LOGGER = LogManager.getLogger(ReservationMongoRepository.class);
+
 	/**
 	 * Name of the database in which the repository works.
 	 */
@@ -150,8 +158,9 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 				replaceIfFound(reservation);
 			}
 		} catch(MongoWriteException e) {
+			LOGGER.warn(e.getMessage());
 			throw new UniquenessConstraintViolationException(
-					"Reservation to save violates uniqueness constraints.");
+					"Reservation to save violates uniqueness constraints.", e.getCause());
 		}
 		return reservation;
 	}
@@ -185,7 +194,15 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 		if (reservation == null)
 			throw new IllegalArgumentException("Reservation to delete cannot be null.");
 		
-		collection.deleteOne(session, Filters.eq(ID_DB, reservation.getId()));
+		if (reservation.getId() != null) {
+			if(collection.deleteOne(session, Filters.eq(ID_DB, reservation.getId()))
+					.getDeletedCount() == 0)
+				LOGGER.warn(() -> reservation.toString() +
+						" has already been deleted from the database.");
+		}
+		else
+			 LOGGER.warn(() -> reservation.toString() + " to delete was never been "
+					+ "inserted into the database.");
 	}
 
 }

@@ -17,6 +17,16 @@
   
   <dependencies>
     <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
       <groupId>org.mongodb</groupId>
       <artifactId>mongodb-driver-sync</artifactId>
       <!-- version taken from the bom -->

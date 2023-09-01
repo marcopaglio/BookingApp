@@ -636,6 +636,7 @@ class ReservationMongoRepositoryTest {
 				@DisplayName("Reservation has already been removed")
 				void testDeleteWhenReservationHasAlreadyBeenRemovedFromDatabaseShouldNotRemoveAnythingAndNotThrow() {
 					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
+					another_reservation.setId(ANOTHER_RESERVATION_UUID);
 					
 					assertThatNoException().isThrownBy(
 							() -> reservationRepository.delete(another_reservation));
