@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import io.github.marcopaglio.booking.exception.DatabaseException;
 import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
@@ -22,6 +25,11 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
  * @see <a href="../../repository/ReservationRepository.html">ReservationRepository</a>
  */
 public class TransactionalBookingService implements BookingService{
+	/**
+	 * Creates meaningful logs on behalf of the class.
+	 */
+	private static final Logger LOGGER = LogManager.getLogger(TransactionalBookingService.class);
+
 	/**
 	 * Defines an error message used when a database error occurs.
 	 */
@@ -52,7 +60,8 @@ public class TransactionalBookingService implements BookingService{
 		try {
 			return transactionManager.doInTransaction(ClientRepository::findAll);
 		} catch(TransactionException e) {
-			throw new DatabaseException(DATABASE_ERROR_MSG);
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
 		}
 	}
 
@@ -67,7 +76,8 @@ public class TransactionalBookingService implements BookingService{
 		try {
 			return transactionManager.doInTransaction(ReservationRepository::findAll);
 		} catch(TransactionException e) {
-			throw new DatabaseException(DATABASE_ERROR_MSG);
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
 		}
 	}
 
@@ -94,7 +104,8 @@ public class TransactionalBookingService implements BookingService{
 				return possibleClient.get();
 			throw new InstanceNotFoundException(clientNotFoundMsg(firstName, lastName));
 		} catch(TransactionException e) {
-			throw new DatabaseException(DATABASE_ERROR_MSG);
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
 		}
 	}
 
@@ -123,7 +134,8 @@ public class TransactionalBookingService implements BookingService{
 				}
 			);
 		} catch(TransactionException e) {
-			throw new DatabaseException(DATABASE_ERROR_MSG);
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
 		}
 	}
 
@@ -156,7 +168,8 @@ public class TransactionalBookingService implements BookingService{
 				}
 			);
 		} catch(TransactionException e) {
-			throw new DatabaseException(DATABASE_ERROR_MSG);
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
 		}
 	}
 
@@ -198,7 +211,8 @@ public class TransactionalBookingService implements BookingService{
 				}
 			);
 		} catch(TransactionException e) {
-			throw new DatabaseException(DATABASE_ERROR_MSG);
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
 		}
 	}
 
@@ -236,7 +250,8 @@ public class TransactionalBookingService implements BookingService{
 				}
 			);
 		} catch(TransactionException e) {
-			throw new DatabaseException(DATABASE_ERROR_MSG);
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
 		}
 	}
 
@@ -267,7 +282,8 @@ public class TransactionalBookingService implements BookingService{
 				}
 			);
 		} catch(TransactionException e) {
-			throw new DatabaseException(DATABASE_ERROR_MSG);
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
 		}
 	}
 
