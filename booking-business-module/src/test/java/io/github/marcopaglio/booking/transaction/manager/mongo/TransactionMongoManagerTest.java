@@ -117,7 +117,7 @@ class TransactionMongoManagerTest {
 			inOrder.verify(clientMongoRepository).findAll();
 			inOrder.verify(transactionMongoHandler).commitTransaction();
 			
-			verifyNoMoreInteractions(transactionMongoHandler, clientMongoRepository);
+			verifyNoMoreInteractions(clientMongoRepository);
 		}
 
 		@Test
@@ -232,7 +232,7 @@ class TransactionMongoManagerTest {
 			inOrder.verify(reservationMongoRepository).findAll();
 			inOrder.verify(transactionMongoHandler).commitTransaction();
 			
-			verifyNoMoreInteractions(transactionMongoHandler, reservationMongoRepository);
+			verifyNoMoreInteractions(reservationMongoRepository);
 		}
 
 		@Test
@@ -357,7 +357,7 @@ class TransactionMongoManagerTest {
 			inOrder.verify(reservationMongoRepository).findAll();
 			inOrder.verify(transactionMongoHandler).commitTransaction();
 			
-			verifyNoMoreInteractions(transactionMongoHandler, clientMongoRepository, reservationMongoRepository);
+			verifyNoMoreInteractions(clientMongoRepository, reservationMongoRepository);
 		}
 
 		@Test

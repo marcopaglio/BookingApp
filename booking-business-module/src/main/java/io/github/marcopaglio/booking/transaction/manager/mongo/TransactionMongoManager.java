@@ -90,10 +90,9 @@ public class TransactionMongoManager extends TransactionManager {
 	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
 	 * 								{@code UniquenessConstraintViolationException}.
-	 * @throws RuntimeException		if an unexpected {@code RuntimeException} occurs.
 	 */
 	@Override
-	public <R> R doInTransaction(ClientTransactionCode<R> code) throws TransactionException, RuntimeException {
+	public <R> R doInTransaction(ClientTransactionCode<R> code) throws TransactionException {
 		TransactionMongoHandler sessionHandler =
 				transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS);
 		ClientMongoRepository clientRepository = clientRepositoryFactory
@@ -112,10 +111,9 @@ public class TransactionMongoManager extends TransactionManager {
 	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
 	 * 								{@code UniquenessConstraintViolationException}.
-	 * @throws RuntimeException		if an unexpected {@code RuntimeException} occurs.
 	 */
 	@Override
-	public <R> R doInTransaction(ReservationTransactionCode<R> code) throws TransactionException, RuntimeException {
+	public <R> R doInTransaction(ReservationTransactionCode<R> code) throws TransactionException {
 		TransactionMongoHandler sessionHandler =
 				transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS);
 		ReservationMongoRepository reservationRepository = reservationRepositoryFactory
@@ -134,10 +132,9 @@ public class TransactionMongoManager extends TransactionManager {
 	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
 	 * 								{@code UniquenessConstraintViolationException}.
-	 * @throws RuntimeException		if an unexpected {@code RuntimeException} occurs.
 	 */
 	@Override
-	public <R> R doInTransaction(ClientReservationTransactionCode<R> code) throws TransactionException, RuntimeException {
+	public <R> R doInTransaction(ClientReservationTransactionCode<R> code) throws TransactionException {
 		TransactionMongoHandler sessionHandler =
 				transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS);
 		ClientMongoRepository clientRepository = clientRepositoryFactory

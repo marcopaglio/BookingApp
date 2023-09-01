@@ -76,10 +76,9 @@ public class TransactionPostgresManager extends TransactionManager {
 	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
 	 * 								{@code UniquenessConstraintViolationException}.
-	 * @throws RuntimeException		if an unexpected {@code RuntimeException} occurs.
 	 */
 	@Override
-	public <R> R doInTransaction(ClientTransactionCode<R> code) throws TransactionException, RuntimeException {
+	public <R> R doInTransaction(ClientTransactionCode<R> code) throws TransactionException {
 		TransactionPostgresHandler sessionHandler =
 				transactionHandlerFactory.createTransactionHandler(emf);
 		ClientPostgresRepository clientRepository = clientRepositoryFactory
@@ -98,10 +97,9 @@ public class TransactionPostgresManager extends TransactionManager {
 	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
 	 * 								{@code UniquenessConstraintViolationException}.
-	 * @throws RuntimeException		if an unexpected {@code RuntimeException} occurs.
 	 */
 	@Override
-	public <R> R doInTransaction(ReservationTransactionCode<R> code) throws TransactionException, RuntimeException {
+	public <R> R doInTransaction(ReservationTransactionCode<R> code) throws TransactionException {
 		TransactionPostgresHandler sessionHandler =
 				transactionHandlerFactory.createTransactionHandler(emf);
 		ReservationPostgresRepository reservationRepository = reservationRepositoryFactory
@@ -120,10 +118,9 @@ public class TransactionPostgresManager extends TransactionManager {
 	 * 								{@code UpdateFailureException},
 	 * 								{@code NotNullConstraintViolationException} or
 	 * 								{@code UniquenessConstraintViolationException}.
-	 * @throws RuntimeException		if an unexpected {@code RuntimeException} occurs.
 	 */
 	@Override
-	public <R> R doInTransaction(ClientReservationTransactionCode<R> code) throws TransactionException, RuntimeException {
+	public <R> R doInTransaction(ClientReservationTransactionCode<R> code) throws TransactionException {
 		TransactionPostgresHandler sessionHandler =
 				transactionHandlerFactory.createTransactionHandler(emf);
 		ClientPostgresRepository clientRepository = clientRepositoryFactory

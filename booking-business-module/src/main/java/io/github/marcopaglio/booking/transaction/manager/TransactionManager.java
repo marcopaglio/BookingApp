@@ -44,9 +44,8 @@ public abstract class TransactionManager {
 	 * @return						something depending on execution code.
 	 * @throws TransactionException	if {@code code} throws a {@code RuntimeException}
 	 * 								due to database inconsistency.
-	 * @throws RuntimeException		if an unexpected {@code RuntimeException} occurs.
 	 */
-	public abstract <R> R doInTransaction(ClientTransactionCode<R> code) throws TransactionException, RuntimeException;
+	public abstract <R> R doInTransaction(ClientTransactionCode<R> code) throws TransactionException;
 
 	/**
 	 * Prepares to execution of code that involves the {@code ReservationRepository}'s method(s)
@@ -57,9 +56,8 @@ public abstract class TransactionManager {
 	 * @return						something depending on execution code.
 	 * @throws TransactionException	if {@code code} throws a {@code RuntimeException}
 	 * 								due to database inconsistency.
-	 * @throws RuntimeException		if an unexpected {@code RuntimeException} occurs.
 	 */
-	public abstract <R> R doInTransaction(ReservationTransactionCode<R> code) throws TransactionException, RuntimeException;
+	public abstract <R> R doInTransaction(ReservationTransactionCode<R> code) throws TransactionException;
 
 	/**
 	 * Prepares to execution of code that involves both {@code ClientRepository}'s and
@@ -70,9 +68,8 @@ public abstract class TransactionManager {
 	 * @return						something depending on execution code.
 	 * @throws TransactionException	if {@code code} throws a {@code RuntimeException}
 	 * 								due to database inconsistency.
-	 * @throws RuntimeException		if an unexpected {@code RuntimeException} occurs.
 	 */
-	public abstract <R> R doInTransaction(ClientReservationTransactionCode<R> code) throws TransactionException, RuntimeException;
+	public abstract <R> R doInTransaction(ClientReservationTransactionCode<R> code) throws TransactionException;
 
 	/**
 	 * Executes code that involves the {@code ClientRepository}'s method(s)
@@ -88,31 +85,24 @@ public abstract class TransactionManager {
 	 * 									{@code UpdateFailureException},
 	 * 									{@code NotNullConstraintViolationException} or
 	 * 									{@code UniquenessConstraintViolationException}.
-	 * @throws RuntimeException			if an unexpected {@code RuntimeException} occurs.
 	 */
-	protected <R> R executeInTransaction(ClientTransactionCode<R> code,
-			TransactionHandler<?> handler, ClientRepository clientRepository)
-			throws TransactionException, RuntimeException {
+	protected <R> R executeInTransaction(ClientTransactionCode<R> code, TransactionHandler<?> handler,
+			ClientRepository clientRepository) throws TransactionException {
 		try {
 			handler.startTransaction();
 			R toBeReturned = code.apply(clientRepository);
 			handler.commitTransaction();
 			return toBeReturned;
 		} catch(IllegalArgumentException e) {
-			handler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
 		} catch(UpdateFailureException e) {
-			handler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE));
 		} catch(NotNullConstraintViolationException e) {
-			handler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
 		} catch(UniquenessConstraintViolationException e) {
-			handler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
-		} catch(RuntimeException e) {
+		} finally {
 			handler.rollbackTransaction();
-			throw e;
 		}
 	}
 
@@ -130,31 +120,24 @@ public abstract class TransactionManager {
 	 * 									{@code UpdateFailureException},
 	 * 									{@code NotNullConstraintViolationException} or
 	 * 									{@code UniquenessConstraintViolationException}.
-	 * @throws RuntimeException			if an unexpected {@code RuntimeException} occurs.
 	 */
 	protected <R> R executeInTransaction(ReservationTransactionCode<R> code, TransactionHandler<?> handler,
-			ReservationRepository reservationRepository)
-			throws TransactionException, RuntimeException {
+			ReservationRepository reservationRepository) throws TransactionException {
 		try {
 			handler.startTransaction();
 			R toBeReturned = code.apply(reservationRepository);
 			handler.commitTransaction();
 			return toBeReturned;
 		} catch(IllegalArgumentException e) {
-			handler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
 		} catch(UpdateFailureException e) {
-			handler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE));
 		} catch(NotNullConstraintViolationException e) {
-			handler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
 		} catch(UniquenessConstraintViolationException e) {
-			handler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
-		} catch(RuntimeException e) {
+		} finally {
 			handler.rollbackTransaction();
-			throw e;
 		}
 	}
 
@@ -174,32 +157,25 @@ public abstract class TransactionManager {
 	 * 									{@code UpdateFailureException},
 	 * 									{@code NotNullConstraintViolationException} or
 	 * 									{@code UniquenessConstraintViolationException}.
-	 * @throws RuntimeException			if an unexpected {@code RuntimeException} occurs.
 	 */
 	protected <R> R executeInTransaction(ClientReservationTransactionCode<R> code,
 			TransactionHandler<?> handler, ClientRepository clientRepository,
-			ReservationRepository reservationRepository)
-			throws TransactionException, RuntimeException {
+			ReservationRepository reservationRepository) throws TransactionException {
 		try {
 			handler.startTransaction();
 			R toBeReturned = code.apply(clientRepository, reservationRepository);
 			handler.commitTransaction();
 			return toBeReturned;
 		} catch(IllegalArgumentException e) {
-			handler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
 		} catch(UpdateFailureException e) {
-			handler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE));
 		} catch(NotNullConstraintViolationException e) {
-			handler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
 		} catch(UniquenessConstraintViolationException e) {
-			handler.rollbackTransaction();
 			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
-		} catch(RuntimeException e) {
+		} finally {
 			handler.rollbackTransaction();
-			throw e;
 		}
 	}
 

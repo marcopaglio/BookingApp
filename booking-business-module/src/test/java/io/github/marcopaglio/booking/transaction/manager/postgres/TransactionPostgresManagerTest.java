@@ -115,7 +115,7 @@ class TransactionPostgresManagerTest {
 			inOrder.verify(clientPostgresRepository).findAll();
 			inOrder.verify(transactionPostgresHandler).commitTransaction();
 			
-			verifyNoMoreInteractions(transactionPostgresHandler, clientPostgresRepository);
+			verifyNoMoreInteractions(clientPostgresRepository);
 		}
 
 		@Test
@@ -230,7 +230,7 @@ class TransactionPostgresManagerTest {
 			inOrder.verify(reservationPostgresRepository).findAll();
 			inOrder.verify(transactionPostgresHandler).commitTransaction();
 			
-			verifyNoMoreInteractions(transactionPostgresHandler, reservationPostgresRepository);
+			verifyNoMoreInteractions(reservationPostgresRepository);
 		}
 
 		@Test
@@ -355,8 +355,7 @@ class TransactionPostgresManagerTest {
 			inOrder.verify(reservationPostgresRepository).findAll();
 			inOrder.verify(transactionPostgresHandler).commitTransaction();
 			
-			verifyNoMoreInteractions(transactionPostgresHandler,
-					clientPostgresRepository, reservationPostgresRepository);
+			verifyNoMoreInteractions(clientPostgresRepository, reservationPostgresRepository);
 		}
 
 		@Test

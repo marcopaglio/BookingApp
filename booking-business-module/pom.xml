@@ -142,11 +142,6 @@
         <!-- Duplicated Code Exclusions -->
           **/transaction/manager/TransactionManager.java
         </sonar.cpd.exclusions>
-        
-        <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
-        <!-- Define and throw a dedicated exception instead of using a generic one. -->
-        <sonar.issue.ignore.multicriteria.e1.ruleKey>java:S112</sonar.issue.ignore.multicriteria.e1.ruleKey>
-        <sonar.issue.ignore.multicriteria.e1.resourceKey>**/transaction/manager/**/Transaction*Manager.java</sonar.issue.ignore.multicriteria.e1.resourceKey>
       </properties>
     </profile>
 
