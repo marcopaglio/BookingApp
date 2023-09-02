@@ -1,5 +1,8 @@
 package io.github.marcopaglio.booking.transaction.manager;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import io.github.marcopaglio.booking.exception.NotNullConstraintViolationException;
 import io.github.marcopaglio.booking.exception.TransactionException;
 import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationException;
@@ -15,6 +18,10 @@ import io.github.marcopaglio.booking.transaction.handler.TransactionHandler;
  * Provides methods for managing transactions in the booking application.
  */
 public abstract class TransactionManager {
+	/**
+	 * Creates meaningful logs on behalf of the class.
+	 */
+	private static final Logger LOGGER = LogManager.getLogger(TransactionManager.class);
 	/**
 	 * Specifies that the reason the transaction fails is the passing of an invalid argument.
 	 */
@@ -94,13 +101,19 @@ public abstract class TransactionManager {
 			handler.commitTransaction();
 			return toBeReturned;
 		} catch(IllegalArgumentException e) {
-			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT), e.getCause());
 		} catch(UpdateFailureException e) {
-			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE));
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE), e.getCause());
 		} catch(NotNullConstraintViolationException e) {
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(
+					transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT), e.getCause());
 		} catch(UniquenessConstraintViolationException e) {
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(
+					transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT), e.getCause());
 		} finally {
 			handler.rollbackTransaction();
 		}
@@ -129,13 +142,19 @@ public abstract class TransactionManager {
 			handler.commitTransaction();
 			return toBeReturned;
 		} catch(IllegalArgumentException e) {
-			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT), e.getCause());
 		} catch(UpdateFailureException e) {
-			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE));
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE), e.getCause());
 		} catch(NotNullConstraintViolationException e) {
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(
+					transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT), e.getCause());
 		} catch(UniquenessConstraintViolationException e) {
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(
+					transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT), e.getCause());
 		} finally {
 			handler.rollbackTransaction();
 		}
@@ -167,13 +186,19 @@ public abstract class TransactionManager {
 			handler.commitTransaction();
 			return toBeReturned;
 		} catch(IllegalArgumentException e) {
-			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT));
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(transactionFailureMsg(INVALID_ARGUMENT), e.getCause());
 		} catch(UpdateFailureException e) {
-			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE));
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(transactionFailureMsg(UPDATE_FAILURE), e.getCause());
 		} catch(NotNullConstraintViolationException e) {
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT));
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(
+					transactionFailureMsg(VIOLATION_OF_NOT_NULL_CONSTRAINT), e.getCause());
 		} catch(UniquenessConstraintViolationException e) {
-			throw new TransactionException(transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT));
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(
+					transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT), e.getCause());
 		} finally {
 			handler.rollbackTransaction();
 		}
