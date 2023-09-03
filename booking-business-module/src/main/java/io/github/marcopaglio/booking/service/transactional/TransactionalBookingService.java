@@ -3,6 +3,7 @@ package io.github.marcopaglio.booking.service.transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -82,13 +83,68 @@ public class TransactionalBookingService implements BookingService{
 	}
 
 	/**
-	 * Retrieves the client with specified name and surname from the database within a transaction.
+	 * Retrieves the client with the specified id from the database within a transaction.
+	 * 
+	 * @param id							the identifier of the client to find.
+	 * @return								the {@code Client} identified by {@code id}.
+	 * @throws IllegalArgumentException		if {@code id} is null.
+	 * @throws InstanceNotFoundException	if there is no client with that id in the database.
+	 * @throws DatabaseException			if a database error occurs.
+	 */
+	@Override
+	public Client findClient(UUID id) throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
+		if (id == null)
+			throw new IllegalArgumentException("Identifier of client to find cannot be null.");
+		
+		try {
+			Optional<Client> possibleClient = transactionManager.doInTransaction(
+					(ClientRepository clientRepository) -> clientRepository.findById(id));
+			if (possibleClient.isPresent())
+				return possibleClient.get();
+			throw new InstanceNotFoundException(clientNotFoundMsg(id));
+		} catch(TransactionException e) {
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
+		}
+	}
+
+	/**
+	 * Retrieves the reservation with the specified id from the database within a transaction.
+	 * 
+	 * @param id							the identifier of the reservation to find.
+	 * @return								the {@code Reservation} identified by {@code id}.
+	 * @throws IllegalArgumentException		if {@code id} is null.
+	 * @throws InstanceNotFoundException	if there is no reservation with that id in the database.
+	 * @throws DatabaseException			if a database error occurs.
+	 */
+	@Override
+	public Reservation findReservation(UUID id)
+			throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
+		if (id == null)
+			throw new IllegalArgumentException("Identifier of reservation to find cannot be null.");
+		
+		try {
+			Optional<Reservation> possibleReservation = transactionManager.doInTransaction(
+					(ReservationRepository reservationRepository) -> reservationRepository.findById(id));
+			if (possibleReservation.isPresent())
+				return possibleReservation.get();
+			throw new InstanceNotFoundException(reservationNotFoundMsg(id));
+		} catch(TransactionException e) {
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
+		}
+	}
+
+	/**
+	 * Retrieves the client with specified name and surname from the database
+	 * within a transaction.
 	 * 
 	 * @param firstName						the name of the client to find.
 	 * @param lastName						the surname of the client to find.
-	 * @return								the {@code Client} named {@code firstName} and {@code lastName}.
+	 * @return								the {@code Client} named {@code firstName}
+	 * 										and {@code lastName}.
 	 * @throws IllegalArgumentException		if {@code firstName} or {@code lastName} are null.
-	 * @throws InstanceNotFoundException	if there is no client with those names in database.
+	 * @throws InstanceNotFoundException	if there is no client with those names in the database.
 	 * @throws DatabaseException			if a transaction failure occurs on database.
 	 */
 	@Override
@@ -115,7 +171,7 @@ public class TransactionalBookingService implements BookingService{
 	 * @param date							the date of the reservation to find.
 	 * @return								the {@code Reservation} on {@code date}.
 	 * @throws IllegalArgumentException		if {@code date} is null.
-	 * @throws InstanceNotFoundException	if there is no reservation on that date in database.
+	 * @throws InstanceNotFoundException	if there is no reservation on that date in the database.
 	 * @throws DatabaseException			if a transaction failure occurs on database.
 	 */
 	@Override
@@ -125,14 +181,11 @@ public class TransactionalBookingService implements BookingService{
 			throw new IllegalArgumentException("Date of reservation to find cannot be null.");
 		
 		try {
-			return transactionManager.doInTransaction(
-				(ReservationRepository reservationRepository) -> {
-					Optional<Reservation> possibleReservation = reservationRepository.findByDate(date);
-					if (possibleReservation.isPresent())
-						return possibleReservation.get();
-					throw new InstanceNotFoundException(reservationNotFoundMsg(date));
-				}
-			);
+			Optional<Reservation> possibleReservation = transactionManager.doInTransaction(
+				(ReservationRepository reservationRepository) -> reservationRepository.findByDate(date));
+			if (possibleReservation.isPresent())
+				return possibleReservation.get();
+			throw new InstanceNotFoundException(reservationNotFoundMsg(date));
 		} catch(TransactionException e) {
 			LOGGER.warn(e.getMessage());
 			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
@@ -182,7 +235,8 @@ public class TransactionalBookingService implements BookingService{
 	 * @return									the {@code Reservation} inserted.
 	 * @throws IllegalArgumentException			if {@code reservation} is null.
 	 * @throws InstanceAlreadyExistsException	if {@code reservation} is already in the database.
-	 * @throws InstanceNotFoundException		if the associated {@code client} doesn't exist in the database.
+	 * @throws InstanceNotFoundException		if the associated {@code client} doesn't
+	 * 											exist in the database.
 	 * @throws DatabaseException				if a transaction failure occurs on database.
 	 */
 	@Override
@@ -217,14 +271,81 @@ public class TransactionalBookingService implements BookingService{
 	}
 
 	/**
-	 * Deletes the client with specified name and surname
-	 * and all his reservation from the database within a transaction.
+	 * Deletes the client with the specified id and all his reservation from the database
+	 * within a transaction.
+	 * 
+	 * @param id							the identifier of the client to remove.
+	 * @throws IllegalArgumentException		if {@code id} is null.
+	 * @throws InstanceNotFoundException	if there is no client with that identifier
+	 * 										in the database.
+	 * @throws DatabaseException			if a database error occurs.
+	 */
+	@Override
+	public void removeClient(UUID id) throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
+		if (id == null)
+			throw new IllegalArgumentException("Identifier of client to remove cannot be null.");
+		
+		try {
+			transactionManager.doInTransaction(
+				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+					Optional<Client> possibleClient = clientRepository.findById(id);
+					if (possibleClient.isPresent()) {
+						List<Reservation> reservationList = reservationRepository.findByClient(id);
+						for (Reservation reservation : reservationList)
+							reservationRepository.delete(reservation);
+						clientRepository.delete(possibleClient.get());
+						return null;
+					}
+					throw new InstanceNotFoundException(clientNotFoundMsg(id));
+				}
+			);
+		} catch(TransactionException e) {
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
+		}
+	}
+
+	/**
+	 * Deletes the reservation with the specified id from the database within a transaction.
+	 * 
+	 * @param id							the identifier of the reservation to remove.
+	 * @throws IllegalArgumentException		if {@code id} is null.
+	 * @throws InstanceNotFoundException	if there is no reservation with that identifier
+	 * 										in the database.
+	 * @throws DatabaseException			if a database error occurs.
+	 */
+	@Override
+	public void removeReservation(UUID id)
+			throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
+		if (id == null)
+			throw new IllegalArgumentException("Identifier of reservation to remove cannot be null.");
+		
+		try {
+			transactionManager.doInTransaction(
+				(ReservationRepository reservationRepository) -> {
+					Optional<Reservation> possibleReservation = reservationRepository.findById(id);
+					if (possibleReservation.isPresent()) {
+						reservationRepository.delete(possibleReservation.get());
+						return null;
+					}
+					throw new InstanceNotFoundException(reservationNotFoundMsg(id));
+				}
+			);
+		} catch(TransactionException e) {
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
+		}
+	}
+
+	/**
+	 * Deletes the client with specified name and surname and all his reservation
+	 * from the database within a transaction.
 	 * This method checks if the client is present in the database before removing.
 	 * 
 	 * @param firstName						the name of the client to remove.
 	 * @param lastName						the surname of the client to remove.
 	 * @throws IllegalArgumentException		if {@code firstName} or {@code lastName} are null.
-	 * @throws InstanceNotFoundException	if there is no client with those names in database.
+	 * @throws InstanceNotFoundException	if there is no client with those names in the database.
 	 * @throws DatabaseException			if a transaction failure occurs on database.
 	 */
 	@Override
@@ -261,7 +382,7 @@ public class TransactionalBookingService implements BookingService{
 	 * 
 	 * @param date							the date of the reservation to find.
 	 * @throws IllegalArgumentException		if {@code date} is null.
-	 * @throws InstanceNotFoundException	if there is no reservation on that date in database.
+	 * @throws InstanceNotFoundException	if there is no reservation on that date in the database.
 	 * @throws DatabaseException			if a transaction failure occurs on database.
 	 */
 	@Override
@@ -288,7 +409,16 @@ public class TransactionalBookingService implements BookingService{
 	}
 
 	/**
-	 * Generates a message for the client that was not found.
+	 * Generates a message for the client with specified id that was not found.
+	 * 
+	 * @param id	the identifier of the client not found.
+	 */
+	private String clientNotFoundMsg(UUID id) {
+		return "There is no client identified by \"" + id.toString() + "\" in the database.";
+	}
+
+	/**
+	 * Generates a message for the client with specified names that was not found.
 	 * 
 	 * @param firstName	the name of the client not found.
 	 * @param lastName	the surname of the client not found.
@@ -298,7 +428,16 @@ public class TransactionalBookingService implements BookingService{
 	}
 
 	/**
-	 * Generates a message for the reservation that was not found.
+	 * Generates a message for the reservation with specified id that was not found.
+	 * 
+	 * @param date	the date of the reservation not found.
+	 */
+	private String reservationNotFoundMsg(UUID id) {
+		return "There is no reservation identified by \"" + id + "\" in the database.";
+	}
+
+	/**
+	 * Generates a message for the reservation on specified date that was not found.
 	 * 
 	 * @param date	the date of the reservation not found.
 	 */
