@@ -148,4 +148,36 @@ public interface BookingService {
 	 * @throws DatabaseException			if a database error occurs.
 	 */
 	public void removeReservationOn(LocalDate date) throws IllegalArgumentException, InstanceNotFoundException, DatabaseException;
+
+	/**
+	 * Changes name and surname of the client with the specified id in the database.
+	 * 
+	 * @param id								the identifier of the client to rename.
+	 * @param newFirstName						the new name for the client.
+	 * @param newLastName						the new surname for the client.
+	 * @return									the {@code Client} renamed.
+	 * @throws IllegalArgumentException			if {@code id}, {@code newFirstName} or
+	 * 											{@code newLastName} are null.
+	 * @throws InstanceNotFoundException		if there is no {@code client} with specified id
+	 * 											in the database.
+	 * @throws InstanceAlreadyExistsException	if a {@code Client} with those names is
+	 * 											already in the database.
+	 * @throws DatabaseException				if a database error occurs.
+	 */
+	public Client renameClient(UUID id, String newFirstName, String newLastName) throws IllegalArgumentException, InstanceNotFoundException, InstanceAlreadyExistsException, DatabaseException;
+
+	/**
+	 * Changes date of the reservation with the specified id in the database.
+	 * 
+	 * @param id								the identifier of the reservation to reschedule.
+	 * @param newDate							the new date for the reservation.
+	 * @return									the {@code Reservation} rescheduled.
+	 * @throws IllegalArgumentException			if {@code id} or {@code newDate} are null.
+	 * @throws InstanceNotFoundException		if there is no {@code reservation} with
+	 * 											specified id in the database.
+	 * @throws InstanceAlreadyExistsException	if a {@code reservation} with that date is 
+	 * 											already in the database.
+	 * @throws DatabaseException				if a database error occurs.
+	 */
+	public Reservation rescheduleReservation(UUID id, LocalDate newDate) throws IllegalArgumentException, InstanceNotFoundException, InstanceAlreadyExistsException, DatabaseException;
 }

@@ -94,7 +94,7 @@ public class TransactionalBookingService implements BookingService{
 	@Override
 	public Client findClient(UUID id) throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
 		if (id == null)
-			throw new IllegalArgumentException("Identifier of client to find cannot be null.");
+			throw new IllegalArgumentException(notNullMsg("Identifier of client to find"));
 		
 		try {
 			Optional<Client> possibleClient = transactionManager.doInTransaction(
@@ -121,7 +121,7 @@ public class TransactionalBookingService implements BookingService{
 	public Reservation findReservation(UUID id)
 			throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
 		if (id == null)
-			throw new IllegalArgumentException("Identifier of reservation to find cannot be null.");
+			throw new IllegalArgumentException(notNullMsg("Identifier of reservation to find"));
 		
 		try {
 			Optional<Reservation> possibleReservation = transactionManager.doInTransaction(
@@ -151,7 +151,7 @@ public class TransactionalBookingService implements BookingService{
 	public Client findClientNamed(String firstName, String lastName)
 			throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
 		if (firstName == null || lastName == null)
-			throw new IllegalArgumentException("Names of client to find cannot be null.");
+			throw new IllegalArgumentException(notNullMsg("Names of client to find"));
 		
 		try {
 			Optional<Client> possibleClient = transactionManager.doInTransaction(
@@ -178,7 +178,7 @@ public class TransactionalBookingService implements BookingService{
 	public Reservation findReservationOn(LocalDate date)
 			throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
 		if (date == null)
-			throw new IllegalArgumentException("Date of reservation to find cannot be null.");
+			throw new IllegalArgumentException(notNullMsg("Date of reservation to find"));
 		
 		try {
 			Optional<Reservation> possibleReservation = transactionManager.doInTransaction(
@@ -206,7 +206,7 @@ public class TransactionalBookingService implements BookingService{
 	public Client insertNewClient(Client client)
 			throws IllegalArgumentException, InstanceAlreadyExistsException, DatabaseException {
 		if (client == null)
-			throw new IllegalArgumentException("Client to insert cannot be null.");
+			throw new IllegalArgumentException(notNullMsg("Client to insert"));
 		
 		try {
 			return transactionManager.doInTransaction(
@@ -243,7 +243,7 @@ public class TransactionalBookingService implements BookingService{
 	public Reservation insertNewReservation(Reservation reservation) throws IllegalArgumentException,
 			InstanceAlreadyExistsException, InstanceNotFoundException, DatabaseException {
 		if (reservation == null)
-			throw new IllegalArgumentException("Reservation to insert cannot be null.");
+			throw new IllegalArgumentException(notNullMsg("Reservation to insert"));
 		
 		try {
 			return transactionManager.doInTransaction(
@@ -283,7 +283,7 @@ public class TransactionalBookingService implements BookingService{
 	@Override
 	public void removeClient(UUID id) throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
 		if (id == null)
-			throw new IllegalArgumentException("Identifier of client to remove cannot be null.");
+			throw new IllegalArgumentException(notNullMsg("Identifier of client to remove"));
 		
 		try {
 			transactionManager.doInTransaction(
@@ -318,7 +318,7 @@ public class TransactionalBookingService implements BookingService{
 	public void removeReservation(UUID id)
 			throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
 		if (id == null)
-			throw new IllegalArgumentException("Identifier of reservation to remove cannot be null.");
+			throw new IllegalArgumentException(notNullMsg("Identifier of reservation to remove"));
 		
 		try {
 			transactionManager.doInTransaction(
@@ -352,7 +352,7 @@ public class TransactionalBookingService implements BookingService{
 	public void removeClientNamed(String firstName, String lastName)
 			throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
 		if (firstName == null || lastName == null)
-			throw new IllegalArgumentException("Names of client to remove cannot be null.");
+			throw new IllegalArgumentException(notNullMsg("Names of client to remove"));
 		
 		try {
 			transactionManager.doInTransaction(
@@ -389,7 +389,7 @@ public class TransactionalBookingService implements BookingService{
 	public void removeReservationOn(LocalDate date)
 			throws IllegalArgumentException, InstanceNotFoundException, DatabaseException {
 		if (date == null)
-			throw new IllegalArgumentException("Date of reservation to remove cannot be null.");
+			throw new IllegalArgumentException(notNullMsg("Date of reservation to remove"));
 		
 		try {
 			transactionManager.doInTransaction(
@@ -409,12 +409,113 @@ public class TransactionalBookingService implements BookingService{
 	}
 
 	/**
+	 * Changes name and surname of the client with the specified id in the database
+	 * within a transaction.
+	 * 
+	 * @param id								the identifier of the client to rename.
+	 * @param newFirstName						the new name for the client.
+	 * @param newLastName						the new surname for the client.
+	 * @return									the {@code Client} renamed.
+	 * @throws IllegalArgumentException			if {@code id}, {@code newFirstName} or
+	 * 											{@code newLastName} are null.
+	 * @throws InstanceNotFoundException		if there is no {@code client} with specified id
+	 * 											in the database.
+	 * @throws InstanceAlreadyExistsException	if a {@code Client} with those names is
+	 * 											already in the database.
+	 * @throws DatabaseException				if a database error occurs.
+	 */
+	@Override
+	public Client renameClient(UUID id, String newFirstName, String newLastName) throws IllegalArgumentException,
+			InstanceNotFoundException, InstanceAlreadyExistsException, DatabaseException {
+		if (id == null)
+			throw new IllegalArgumentException(notNullMsg("Identifier of client to rename"));
+		if (newFirstName == null || newLastName == null)
+			throw new IllegalArgumentException(notNullMsg("New names for client to be renamed"));
+		
+		try {
+			return transactionManager.doInTransaction(
+				(ClientRepository clientRepository) -> {
+					Optional<Client> possibleClientInDB = clientRepository.findById(id);
+					if (possibleClientInDB.isEmpty())
+						throw new InstanceNotFoundException(clientNotFoundMsg(id));
+					Optional<Client> possibleSameNameClient = clientRepository
+							.findByName(newFirstName, newLastName);
+					if (possibleSameNameClient.isPresent())
+						throw new InstanceAlreadyExistsException(
+								possibleSameNameClient.get().toString() + " is already in the database.");
+					Client clientInDB = possibleClientInDB.get();
+					clientInDB.setFirstName(newFirstName);
+					clientInDB.setLastName(newLastName);
+					return clientRepository.save(clientInDB);
+				}
+			);
+		} catch(TransactionException e) {
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
+		}
+	}
+
+	/**
+	 * Changes date of the reservation with the specified id in the database
+	 * within a transaction.
+	 * 
+	 * @param id								the identifier of the reservation to reschedule.
+	 * @param newDate							the new date for the reservation.
+	 * @return									the {@code Reservation} rescheduled.
+	 * @throws IllegalArgumentException			if {@code id} or {@code newDate} are null.
+	 * @throws InstanceNotFoundException		if there is no {@code reservation} with
+	 * 											specified id in the database.
+	 * @throws InstanceAlreadyExistsException	if a {@code reservation} with that date is 
+	 * 											already in the database.
+	 * @throws DatabaseException				if a database error occurs.
+	 */
+	@Override
+	public Reservation rescheduleReservation(UUID id, LocalDate newDate) throws IllegalArgumentException,
+			InstanceNotFoundException, InstanceAlreadyExistsException, DatabaseException {
+		if (id == null)
+			throw new IllegalArgumentException(notNullMsg("Identifier of reservation to reschedule"));
+		if (newDate == null)
+			throw new IllegalArgumentException(notNullMsg("New date for reservation to be rescheduled"));
+		
+		try {
+			return transactionManager.doInTransaction(
+				(ReservationRepository reservationRepository) -> {
+					Optional<Reservation> possibleReservationInDB =
+							reservationRepository.findById(id);
+					if (possibleReservationInDB.isEmpty())
+						throw new InstanceNotFoundException(reservationNotFoundMsg(id));
+					Optional<Reservation> possibleSameDateReservation =
+							reservationRepository.findByDate(newDate);
+					if (possibleSameDateReservation.isPresent())
+						throw new InstanceAlreadyExistsException(
+								possibleSameDateReservation.get().toString() + " is already in the database.");
+					Reservation reservationInDB = possibleReservationInDB.get();
+					reservationInDB.setDate(newDate);
+					return reservationRepository.save(reservationInDB);
+				}
+			);
+		} catch(TransactionException e) {
+			LOGGER.warn(e.getMessage());
+			throw new DatabaseException(DATABASE_ERROR_MSG, e.getCause());
+		}
+	}
+
+	/**
+	 * Generates a message for the client with specified id that was not found.
+	 * 
+	 * @param id	the identifier of the client not found.
+	 */
+	private String notNullMsg(String something) {
+		return something + " cannot be null.";
+	}
+
+	/**
 	 * Generates a message for the client with specified id that was not found.
 	 * 
 	 * @param id	the identifier of the client not found.
 	 */
 	private String clientNotFoundMsg(UUID id) {
-		return "There is no client identified by \"" + id.toString() + "\" in the database.";
+		return "There is no client identified by \"" + id + "\" in the database.";
 	}
 
 	/**

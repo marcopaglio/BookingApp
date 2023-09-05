@@ -23,6 +23,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
@@ -55,6 +57,11 @@ class TransactionalBookingServiceTest {
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2023-04-24");
 	private static final Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 	private static final UUID A_RESERVATION_UUID = UUID.fromString("1959c0a1-8416-45fd-8376-83098299bd48");
+
+	private static final String ANOTHER_FIRSTNAME = "Maria";
+	private static final String ANOTHER_LASTNAME = "De Lucia";
+	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse("2023-09-05");
+	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("c01a64c2-73e6-4b70-808f-00f9bd82571d");
 
 	@Mock
 	private TransactionManager transactionManager;
@@ -121,7 +128,7 @@ class TransactionalBookingServiceTest {
 		}
 
 		@Test
-		@DisplayName("Null date on 'findReservation'")
+		@DisplayName("Null id on 'findReservation'")
 		void testFindReservationWhenIdIsNullShouldThrow() {
 			assertThatThrownBy(
 					() -> transactionalBookingService.findReservation(null))
@@ -156,21 +163,14 @@ class TransactionalBookingServiceTest {
 					ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
 		}
 
-		@Test
+		@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
 		@DisplayName("Null names on 'removeClientNamed'")
-		void testRemoveClientNamedWhenNamesAreNullShouldThrow() {
+		@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
+				nullValues = {"null"}
+		)
+		void testRemoveClientNamedWhenNamesAreNullShouldThrow(String firstName, String lastName) {
 			assertThatThrownBy(
-					() -> transactionalBookingService.removeClientNamed(null, A_LASTNAME))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Names of client to remove cannot be null.");
-			
-			assertThatThrownBy(
-					() -> transactionalBookingService.removeClientNamed(A_FIRSTNAME, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Names of client to remove cannot be null.");
-			
-			assertThatThrownBy(
-					() -> transactionalBookingService.removeClientNamed(null, null))
+					() -> transactionalBookingService.removeClientNamed(firstName, lastName))
 				.isInstanceOf(IllegalArgumentException.class)
 				.hasMessage("Names of client to remove cannot be null.");
 			
@@ -212,6 +212,61 @@ class TransactionalBookingServiceTest {
 			
 			verify(transactionManager, never()).doInTransaction(
 					ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
+		}
+
+		@Test
+		@DisplayName("Null id on 'renameClient'")
+		void testRenameClientWhenIdIsNullShouldThrow() {
+			assertThatThrownBy(
+					() -> transactionalBookingService.renameClient(
+							null, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Identifier of client to rename cannot be null.");
+			
+			verify(transactionManager, never()).doInTransaction(
+					ArgumentMatchers.<ClientTransactionCode<?>>any());
+		}
+
+		@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
+		@DisplayName("Null new names on 'renameClient'")
+		@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
+				nullValues = {"null"}
+		)
+		void testRenameClientWhenNewNamesAreNullShouldThrow(String firstName, String lastName) {
+			assertThatThrownBy(
+					() -> transactionalBookingService.renameClient(
+							A_CLIENT_UUID, firstName, lastName))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("New names for client to be renamed cannot be null.");
+			
+			verify(transactionManager, never()).doInTransaction(
+					ArgumentMatchers.<ClientTransactionCode<?>>any());
+		}
+
+		@Test
+		@DisplayName("Null id on 'rescheduleReservation'")
+		void testRescheduleReservationWhenIdIsNullShouldThrow() {
+			assertThatThrownBy(
+					() -> transactionalBookingService.rescheduleReservation(
+							null, ANOTHER_LOCALDATE))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Identifier of reservation to reschedule cannot be null.");
+			
+			verify(transactionManager, never()).doInTransaction(
+					ArgumentMatchers.<ReservationTransactionCode<?>>any());
+		}
+
+		@Test
+		@DisplayName("Null new date on 'rescheduleReservation'")
+		void testRescheduleReservationWhenNewDateIsNullShouldThrow() {
+			assertThatThrownBy(
+					() -> transactionalBookingService.rescheduleReservation(
+							A_RESERVATION_UUID, null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("New date for reservation to be rescheduled cannot be null.");
+			
+			verify(transactionManager, never()).doInTransaction(
+					ArgumentMatchers.<ReservationTransactionCode<?>>any());
 		}
 	}
 
@@ -407,6 +462,89 @@ class TransactionalBookingServiceTest {
 					verifyNoMoreInteractions(transactionManager, clientRepository);
 				}
 			}
+
+			@Nested
+			@DisplayName("Tests for 'renameClient'")
+			class RenameClientTest {
+
+				@Test
+				@DisplayName("A same name client doesn't exist")
+				void testRenameClientWhenThereIsNoClientWithSameNewNamesShouldRenameAndReturn() {
+					Client spiedClient = spy(A_CLIENT);
+					Client renamedClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+					
+					when(clientRepository.findById(A_CLIENT_UUID))
+						.thenReturn(Optional.of(spiedClient));
+					// default stubbing for clientRepository.findByName(firstName, lastName)
+					when(clientRepository.save(spiedClient)).thenReturn(renamedClient);
+					
+					assertThat(transactionalBookingService.renameClient(
+							A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
+						.isEqualTo(renamedClient);
+					
+					InOrder inOrder = Mockito.inOrder(
+							transactionManager, clientRepository, spiedClient);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+					inOrder.verify(clientRepository).findById(A_CLIENT_UUID);
+					inOrder.verify(clientRepository).findByName(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+					inOrder.verify(spiedClient).setFirstName(ANOTHER_FIRSTNAME);
+					inOrder.verify(spiedClient).setLastName(ANOTHER_LASTNAME);
+					inOrder.verify(clientRepository).save(spiedClient);
+					
+					verifyNoMoreInteractions(transactionManager, clientRepository, spiedClient);
+				}
+
+				@Test
+				@DisplayName("A same name client already exists")
+				void testRenameClientWhenThereIsAlreadyAClientWithSameNewNamesShouldNotRenameAndThrow() {
+					Client spiedClient = spy(A_CLIENT);
+					Client anotherClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+					
+					when(clientRepository.findById(A_CLIENT_UUID))
+						.thenReturn(Optional.of(spiedClient));
+					when(clientRepository.findByName(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
+						.thenReturn(Optional.of(anotherClient));
+					
+					assertThatThrownBy(() -> transactionalBookingService.renameClient(
+							A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
+						.isInstanceOf(InstanceAlreadyExistsException.class)
+						.hasMessage("Client [" + ANOTHER_FIRSTNAME + " " + ANOTHER_LASTNAME
+								+ "] is already in the database.");
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+					inOrder.verify(clientRepository).findById(A_CLIENT_UUID);
+					inOrder.verify(clientRepository).findByName(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+					
+					verify(spiedClient, never()).setFirstName(ANOTHER_FIRSTNAME);
+					verify(spiedClient, never()).setLastName(ANOTHER_LASTNAME);
+					verify(clientRepository, never()).save(spiedClient);
+				}
+
+				@Test
+				@DisplayName("Client to rename doesn't exist")
+				void testRenameClientWhenClientToRenameDoesNotExistShouldThrow() {
+					// default stubbing for clientRepository.findById(id)
+					
+					assertThatThrownBy(() -> transactionalBookingService.renameClient(
+							A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
+						.isInstanceOf(InstanceNotFoundException.class)
+						.hasMessage("There is no client identified by \""
+								+ A_CLIENT_UUID + "\" in the database.");
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ClientTransactionCode<?>>any());
+					inOrder.verify(clientRepository).findById(A_CLIENT_UUID);
+					
+					verifyNoMoreInteractions(transactionManager, clientRepository);
+				}
+			}
 		}
 
 		@Nested
@@ -450,6 +588,16 @@ class TransactionalBookingServiceTest {
 			void testInsertNewClientWhenTransactionFailsShouldThrow() {
 				assertThatThrownBy(
 						() -> transactionalBookingService.insertNewClient(A_CLIENT))
+					.isInstanceOf(DatabaseException.class)
+					.hasMessage("A database error occurs: the request cannot be executed.");
+			}
+
+			@Test
+			@DisplayName("Transaction fails on 'renameClient'")
+			void testRenameClientWhenTransactionFailsShouldThrow() {
+				assertThatThrownBy(
+						() -> transactionalBookingService.renameClient(
+								A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
 					.isInstanceOf(DatabaseException.class)
 					.hasMessage("A database error occurs: the request cannot be executed.");
 			}
@@ -685,6 +833,90 @@ class TransactionalBookingServiceTest {
 					verifyNoMoreInteractions(transactionManager, reservationRepository);
 				}
 			}
+
+			@Nested
+			@DisplayName("Tests for 'rescheduleReservation'")
+			class RescheduleReservationTest {
+
+				@Test
+				@DisplayName("A same date reservation doesn't exist")
+				void testRescheduleReservationWhenThereIsNoReservationInTheSameNewDateShouldRescheduleAndReturn() {
+					Reservation spiedReservation = spy(A_RESERVATION);
+					Reservation rescheduledReservation = new Reservation(
+							A_CLIENT_UUID, ANOTHER_LOCALDATE);
+					
+					when(reservationRepository.findById(A_RESERVATION_UUID))
+						.thenReturn(Optional.of(spiedReservation));
+					// default stubbing for reservationRepository.findByDate(date)
+					when(reservationRepository.save(spiedReservation))
+						.thenReturn(rescheduledReservation);
+					
+					assertThat(transactionalBookingService
+							.rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE))
+						.isEqualTo(rescheduledReservation);
+					
+					InOrder inOrder = Mockito.inOrder(
+							transactionManager, reservationRepository, spiedReservation);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
+					inOrder.verify(reservationRepository).findById(A_RESERVATION_UUID);
+					inOrder.verify(reservationRepository).findByDate(ANOTHER_LOCALDATE);
+					inOrder.verify(spiedReservation).setDate(ANOTHER_LOCALDATE);
+					inOrder.verify(reservationRepository).save(spiedReservation);
+					
+					verifyNoMoreInteractions(
+							transactionManager, reservationRepository, spiedReservation);
+				}
+
+				@Test
+				@DisplayName("A same date reservation already exists")
+				void testRescheduleReservationWhenThereIsAlreadyAReservationInTheSameNewDateShouldRescheduleAndReturn() {
+					Reservation spiedReservation = spy(A_RESERVATION);
+					Reservation anotherReservation = new Reservation(
+							ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
+					
+					when(reservationRepository.findById(A_RESERVATION_UUID))
+						.thenReturn(Optional.of(spiedReservation));
+					when(reservationRepository.findByDate(ANOTHER_LOCALDATE))
+						.thenReturn(Optional.of(anotherReservation));
+					
+					assertThatThrownBy(() -> transactionalBookingService
+							.rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE))
+						.isInstanceOf(InstanceAlreadyExistsException.class)
+						.hasMessage("Reservation [date=" + ANOTHER_LOCALDATE.toString()
+								+ "] is already in the database.");
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
+					inOrder.verify(reservationRepository).findById(A_RESERVATION_UUID);
+					inOrder.verify(reservationRepository).findByDate(ANOTHER_LOCALDATE);
+					
+					verify(spiedReservation, never()).setDate(ANOTHER_LOCALDATE);
+					verify(reservationRepository, never()).save(spiedReservation);
+				}
+
+				@Test
+				@DisplayName("Reservation to reschedule doesn't exist")
+				void testRescheduleReservationWhenReservationToRescheduleDoesNotExistShouldThrow() {
+					
+					assertThatThrownBy(() -> transactionalBookingService
+							.rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE))
+						.isInstanceOf(InstanceNotFoundException.class)
+						.hasMessage("There is no reservation identified by \""
+								+ A_RESERVATION_UUID + "\" in the database.");
+					
+					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
+					
+					inOrder.verify(transactionManager)
+						.doInTransaction(ArgumentMatchers.<ReservationTransactionCode<?>>any());
+					inOrder.verify(reservationRepository).findById(A_RESERVATION_UUID);
+					
+					verifyNoMoreInteractions(transactionManager, reservationRepository);
+				}
+			}
 		}
 
 		@Nested
@@ -736,6 +968,15 @@ class TransactionalBookingServiceTest {
 			void testRemoveReservationOnWhenTransactionFailsShouldThrow() {
 				assertThatThrownBy(
 						() -> transactionalBookingService.removeReservationOn(A_LOCALDATE))
+					.isInstanceOf(DatabaseException.class)
+					.hasMessage("A database error occurs: the request cannot be executed.");
+			}
+
+			@Test
+			@DisplayName("Transaction fails on 'rescheduleReservation'")
+			void testRescheduleReservationWhenTransactionFailsShouldThrow() {
+				assertThatThrownBy(
+						() -> transactionalBookingService.rescheduleReservation(A_RESERVATION_UUID, A_LOCALDATE))
 					.isInstanceOf(DatabaseException.class)
 					.hasMessage("A database error occurs: the request cannot be executed.");
 			}
