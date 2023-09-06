@@ -1,10 +1,7 @@
-package io.github.marcopaglio.booking.validator;
+package io.github.marcopaglio.booking.validator.restricted;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -16,75 +13,63 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import io.github.marcopaglio.booking.model.Client;
-import io.github.marcopaglio.booking.model.Reservation;
-
-@DisplayName("Tests for ReservationValidator class")
-class ReservationValidatorTest {
-	private static final Client VALID_SPIED_CLIENT = spy(new Client("Mario", "Rossi"));
+@DisplayName("Tests for RestrictedReservationValidator class")
+class RestrictedReservationValidatorTest {
 	private static final UUID VALID_UUID = UUID.fromString("95a995a6-6461-4bae-a88c-2ac40e26accd");
 	private static final String VALID_DATE = "2022-12-22";
 
+	private RestrictedReservationValidator reservationValidator;
+
 	@BeforeEach
-	void setupClient() {
-		when(VALID_SPIED_CLIENT.getId()).thenReturn(VALID_UUID);
+	void setUp() throws Exception {
+		reservationValidator = new RestrictedReservationValidator();
 	}
-	
+
 	@Nested
-	@DisplayName("Tests for 'newValidatedReservation'")
-	class NewValidatedReservationTest {
+	@DisplayName("Tests for 'validateClientId'")
+	class ValidateClientIdTest {
 
 		@Test
-		@DisplayName("Creation has success")
-		void testNewValidatedReservationWhenInputsAreValidShouldReturnReservation() {
-			Reservation reservation = ReservationValidator
-					.newValidatedReservation(VALID_SPIED_CLIENT, VALID_DATE);
-			
-			assertAll(
-				() -> assertThat(reservation.getClientId()).isEqualTo(VALID_UUID),
-				() -> assertThat(reservation.getDate()).isEqualTo(LocalDate.parse(VALID_DATE))
-			);
+		@DisplayName("ClientId is valid")
+		void testValidateClientIdWhenClientIdIsValidShouldReturnTheSameClientId() {
+			assertThat(reservationValidator.validateClientId(VALID_UUID))
+				.isEqualTo(VALID_UUID);
 		}
 
-		@Nested
-		@DisplayName("Null inputs")
-		class NullInputsTest {
-
-			@Test
-			@DisplayName("Null client")
-			void testNewValidatedReservationWhenClientIsNullShouldThrow() {
-				assertThatThrownBy(() -> ReservationValidator
-						.newValidatedReservation(null, VALID_DATE))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Reservation needs a not null client.");
-			}
-
-			@Test
-			@DisplayName("Null clientId")
-			void testNewValidatedReservationWhenClientIdIsNullShouldThrow() {
-				when(VALID_SPIED_CLIENT.getId()).thenReturn(null);
-				
-				assertThatThrownBy(() -> ReservationValidator
-						.newValidatedReservation(VALID_SPIED_CLIENT, VALID_DATE))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Reservation needs a not null client identifier.");
-			}
-
-			@Test
-			@DisplayName("Null date")
-			void testNewValidatedReservationWhenDateIsNullShouldThrow() {
-				assertThatThrownBy(() -> ReservationValidator
-						.newValidatedReservation(VALID_SPIED_CLIENT, null))
-					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Reservation needs a not null date.");
-			}
+		@Test
+		@DisplayName("Null clientId")
+		void testValidateClientIdWhenClientIdIsNullShouldThrow() {
+			assertThatThrownBy(() -> reservationValidator.validateClientId(null))
+				.isInstanceOf(IllegalArgumentException.class)
+				.hasMessage("Reservation needs a not null client identifier.");
 		}
+	}
+
+	@Nested
+	@DisplayName("Tests for 'validateDate'")
+	class ValidateDateTest {
+
+		@Test
+		@DisplayName("Date is valid")
+		void testValidateDateWhenDateIsValidShouldReturnTheLocalDate() {
+			assertThat(reservationValidator.validateDate(VALID_DATE))
+				.isEqualTo(LocalDate.parse(VALID_DATE));
+		}
+
 
 		@Nested
 		@DisplayName("Invalid dates")
 		class InvalidDatesTest {
+	
+			@Test
+			@DisplayName("Null date")
+			void testValidateDateWhenDateIsNullShouldThrow() {
+				assertThatThrownBy(() -> reservationValidator.validateDate(null))
+					.isInstanceOf(IllegalArgumentException.class)
+					.hasMessage("Reservation needs a not null date.");
+			}
 
-			@ParameterizedTest(name = "{index}: ''{0}''")
+		@ParameterizedTest(name = "{index}: ''{0}''")
 			@DisplayName("Non-numeric date")
 			@ValueSource(strings = {
 				"2022-12-dd", "2022-MM-21", "aAAa-12-21",			// alphabetic characters
@@ -98,10 +83,9 @@ class ReservationValidatorTest {
 				"2\n22-1\n-21", "2022-1\u2028-2\u2028",				// double line separator
 				"2022-\r\n-\r\n", "202\u2029-1\u2029-21"			// double line separator
 			})
-			void testNewValidatedReservationWhenDateContainsNonNumericCharactersShouldThrow(
+			void testValidateDateWhenDateContainsNonNumericCharactersShouldThrow(
 					String nonNumericDate) {
-				assertThatThrownBy(() -> ReservationValidator
-						.newValidatedReservation(VALID_SPIED_CLIENT, nonNumericDate))
+				assertThatThrownBy(() -> reservationValidator.validateDate(nonNumericDate))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Reservation needs a only numeric date.");
 			}
@@ -114,10 +98,8 @@ class ReservationValidatorTest {
 				"20226-12-21", "2022-126-21", "2022-12-216",			// different number of digits
 				"202-212-21", "20221-2-12", "2022-122-1", "2022-1-221"	// different number of digits
 			})
-			void testNewValidatedReservationWhenDateFormatIsWrongShouldThrow(
-					String wrongFormatDate) {
-				assertThatThrownBy(() -> ReservationValidator
-						.newValidatedReservation(VALID_SPIED_CLIENT, wrongFormatDate))
+			void testValidateDateWhenDateFormatIsWrongShouldThrow(String wrongFormatDate) {
+				assertThatThrownBy(() -> reservationValidator.validateDate(wrongFormatDate))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Reservation needs a date in format aaaa-mm-dd.");
 			}
@@ -140,9 +122,8 @@ class ReservationValidatorTest {
 				"2022-11-31",	// November
 				"2022-12-32"	// December 
 			})
-			void testNewValidatedReservationWhenDayInDateIsWrongShouldThrow(String outOfRangeDate) {
-				assertThatThrownBy(() -> ReservationValidator
-						.newValidatedReservation(VALID_SPIED_CLIENT, outOfRangeDate))
+			void testValidateDateWhenDayInDateIsWrongShouldThrow(String outOfRangeDate) {
+				assertThatThrownBy(() -> reservationValidator.validateDate(outOfRangeDate))
 					.isInstanceOf(IllegalArgumentException.class);
 			}
 		}

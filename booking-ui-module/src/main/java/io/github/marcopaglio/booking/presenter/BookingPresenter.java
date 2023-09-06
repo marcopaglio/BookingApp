@@ -23,12 +23,10 @@ public interface BookingPresenter {
 	 * Creates and inserts a new client in the repository and notifies the view(s)
 	 * about the changes.
 	 * 
-	 * @param firstName					the name of the client to add.
-	 * @param lastName					the surname of the client to add.
-	 * @return							the {@code Client} added to the repository.
-	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
+	 * @param firstName	the name of the client to add.
+	 * @param lastName	the surname of the client to add.
 	 */
-	public Client addClient(String firstName, String lastName) throws IllegalArgumentException;
+	public void addClient(String firstName, String lastName);
 
 	/**
 	 * Creates and inserts a new reservation in the repository and notifies the view(s)
