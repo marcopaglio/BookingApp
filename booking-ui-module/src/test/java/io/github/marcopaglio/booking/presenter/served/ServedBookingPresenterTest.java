@@ -1,7 +1,6 @@
 package io.github.marcopaglio.booking.presenter.served;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -66,41 +65,6 @@ class ServedBookingPresenterTest {
 
 	@InjectMocks
 	private ServedBookingPresenter servedBookingPresenter;
-
-	@Nested
-	@DisplayName("Null inputs on methods")
-	class NullInputsTest {
-
-		@Test
-		@DisplayName("Null client on 'deleteClient'")
-		void testDeleteClientWhenClientIsNullShouldThrow() {
-			assertThatThrownBy(() -> servedBookingPresenter.deleteClient(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client to delete cannot be null.");
-		
-			verifyNoInteractions(bookingService, view);
-		}
-
-		@Test
-		@DisplayName("Null reservation on 'deleteReservation'")
-		void testDeleteReservationWhenDateIsNullShouldThrow() {
-			assertThatThrownBy(() -> servedBookingPresenter.deleteReservation(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Reservation to delete cannot be null.");
-			
-			verifyNoInteractions(bookingService, view);
-		}
-
-		@DisplayName("Client is null")
-		@Test
-		void testAddReservationWhenClientIsNullShouldNotInsertAndNotShowError() {
-			assertThatNoException().isThrownBy(
-					() -> servedBookingPresenter.addReservation(null, A_DATE));
-			
-			verify(view).showFormError("Select a client to add the reservation to.");
-			verify(bookingService, never()).insertNewReservation(any(Reservation.class));
-		}
-	}
 
 	@Nested
 	@DisplayName("Tests for 'allClients'")
@@ -212,6 +176,15 @@ class ServedBookingPresenterTest {
 	class DeleteClientTest {
 
 		@Test
+		@DisplayName("Client is null")
+		void testDeleteClientWhenClientIsNullShouldShowErrorAndNotInsert() {
+			assertThatNoException().isThrownBy(() -> servedBookingPresenter.deleteClient(null));
+		
+			verify(view).showFormError("Select a client to delete.");
+			verifyNoInteractions(bookingService);
+		}
+
+		@Test
 		@DisplayName("Client is in repository")
 		void testDeleteClientWhenClientIsInRepositoryShouldDelegateToServiceAndNotifyView() {
 			servedBookingPresenter.deleteClient(A_CLIENT);
@@ -226,7 +199,7 @@ class ServedBookingPresenterTest {
 
 		@Test
 		@DisplayName("Client is not in repository")
-		void testDeleteClientWhenClientIsNotInRepositoryShouldNotifyAndUpdateView() {
+		void testDeleteClientWhenClientIsNotInRepositoryShouldShowErrorAndUpdateView() {
 			doThrow(new InstanceNotFoundException())
 				.when(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 			
@@ -249,17 +222,23 @@ class ServedBookingPresenterTest {
 
 		@Test
 		@DisplayName("Database request fails")
-		void testDeleteClientWhenDatabaseRequestFailsShouldNotThrowAndShowError() {
+		void testDeleteClientWhenDatabaseRequestFailsShouldShowErrorAndUpdateView() {
 			doThrow(new DatabaseException())
 				.when(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 			
-			assertThatNoException().isThrownBy(() -> servedBookingPresenter.deleteClient(A_CLIENT));
+			assertThatNoException().isThrownBy(
+					() -> servedBookingPresenter.deleteClient(A_CLIENT));
 			
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
 			inOrder.verify(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
-			inOrder.verify(view).showClientError(
-					"An error occurred while deleting Client [" + A_FIRSTNAME + " " + A_LASTNAME + "].");
+			inOrder.verify(view).showClientError("An error occurred while deleting Client ["
+					+ A_FIRSTNAME + " " + A_LASTNAME + "].");
+			// updateAll
+			inOrder.verify(bookingService).findAllReservations();
+			inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
+			inOrder.verify(bookingService).findAllClients();
+			inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
 			
 			verifyNoMoreInteractions(bookingService, view);
 		}
@@ -268,6 +247,16 @@ class ServedBookingPresenterTest {
 	@Nested
 	@DisplayName("Tests for 'deleteReservation'")
 	class DeleteReservationTest {
+
+		@Test
+		@DisplayName("Reservation is null")
+		void testDeleteReservationWhenReservationIsNullShouldShowErrorAndNotInsert() {
+			assertThatNoException().isThrownBy(
+					() -> servedBookingPresenter.deleteReservation(null));
+		
+			verify(view).showFormError("Select a reservation to delete.");
+			verifyNoInteractions(bookingService);
+		}
 
 		@Test
 		@DisplayName("Reservation is in repository")
@@ -284,7 +273,7 @@ class ServedBookingPresenterTest {
 
 		@Test
 		@DisplayName("Reservation is not in repository")
-		void testDeleteReservationWhenReservationIsNotInRepositoryShouldNotifyAndUpdateView() {
+		void testDeleteReservationWhenReservationIsNotInRepositoryShouldShowErrorAndUpdateView() {
 			doThrow(new InstanceNotFoundException())
 				.when(bookingService).removeReservationOn(A_LOCALDATE);
 			
@@ -307,8 +296,9 @@ class ServedBookingPresenterTest {
 
 		@Test
 		@DisplayName("Database request fails")
-		void testDeleteReservationWhenDatabaseRequestFailsShouldNotThrowAndShowError() {
-			doThrow(new DatabaseException()).when(bookingService).removeReservationOn(A_LOCALDATE);
+		void testDeleteReservationWhenDatabaseRequestFailsShouldShowErrorAndUpdateView() {
+			doThrow(new DatabaseException())
+				.when(bookingService).removeReservationOn(A_LOCALDATE);
 			
 			assertThatNoException().isThrownBy(
 					() -> servedBookingPresenter.deleteReservation(A_RESERVATION));
@@ -446,6 +436,16 @@ class ServedBookingPresenterTest {
 			when(spiedClient.getId()).thenReturn(A_CLIENT_UUID);
 		}
 
+		@DisplayName("Client is null")
+		@Test
+		void testAddReservationWhenClientIsNullShouldShowErrorAndNotInsert() {
+			assertThatNoException().isThrownBy(
+					() -> servedBookingPresenter.addReservation(null, A_DATE));
+			
+			verify(view).showFormError("Select a client to add the reservation to.");
+			verifyNoInteractions(bookingService);
+		}
+
 		@Nested
 		@DisplayName("Validation is successful")
 		class ValidationSuccessfulTest {
@@ -567,7 +567,7 @@ class ServedBookingPresenterTest {
 			@Test
 			@DisplayName("Date is not valid")
 			@ValueSource(strings = {"2O23-O4-24", "24-04-2023", "2022-13-12", "2022-08-32"})
-			void testAddReservationWhenDateIsNotValidShouldShowErrorAndThrow() {
+			void testAddReservationWhenDateIsNotValidShouldNotInsertAndShowError() {
 				when(reservationValidator.validateDate(A_DATE))
 					.thenThrow(illegalArgumentException);
 				

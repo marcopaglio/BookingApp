@@ -161,6 +161,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	/**
 	 * Validates and inserts a new reservation in the repository and notifies the view
 	 * about the changes. This method delegates the inserting to the service layer.
+	 * 
 	 * @param client	the associated client of the reservation to add.
 	 * @param date		the date of the reservation to add.
 	 */
@@ -231,25 +232,27 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * view about the changes.
 	 * This method delegates its elimination and of all his reservations to the service layer.
 	 *
-	 * @param client					the client to delete.
-	 * @throws IllegalArgumentException	if {@code client} is null.
+	 * @param client	the client to delete.
 	 */
 	@Override
-	public void deleteClient(Client client) throws IllegalArgumentException {
-		if (client == null)
-			throw new IllegalArgumentException("Client to delete cannot be null.");
-		
-		try {
-			bookingService.removeClientNamed(client.getFirstName(), client.getLastName());
-			view.clientRemoved(client);
-			LOGGER.info(() -> String.format("%s has been deleted with success.", client.toString()));
-		} catch (InstanceNotFoundException e) {
-			LOGGER.warn(e.getMessage());
-			view.showClientError(client.toString() + " has already been deleted.");
-			updateAll();
-		} catch(DatabaseException e) {
-			LOGGER.warn(e.getMessage());
-			view.showClientError("An error occurred while deleting " + client.toString() + ".");
+	public void deleteClient(Client client) {
+		if (client == null) {
+			LOGGER.warn("Client to delete cannot be null.");
+			view.showFormError("Select a client to delete.");
+		} else {
+			try {
+				bookingService.removeClientNamed(client.getFirstName(), client.getLastName());
+				view.clientRemoved(client);
+				LOGGER.info(() -> String.format("%s has been deleted with success.", client.toString()));
+			} catch (InstanceNotFoundException e) {
+				LOGGER.warn(e.getMessage());
+				view.showClientError(client.toString() + " has already been deleted.");
+				updateAll();
+			} catch(DatabaseException e) {
+				LOGGER.warn(e.getMessage());
+				view.showClientError("An error occurred while deleting " + client.toString() + ".");
+				updateAll();
+			}
 		}
 	}
 
@@ -257,25 +260,26 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * Removes an existing reservation from the repository and notifies the view about the changes.
 	 * This method delegates its elimination to the service layer.
 	 *
-	 * @param reservation				the {@code Reservation} to delete.
-	 * @throws IllegalArgumentException	if {@code reservation} is null.
+	 * @param reservation	the reservation to delete.
 	 */
 	@Override
-	public void deleteReservation(Reservation reservation) throws IllegalArgumentException {
-		if (reservation == null)
-			throw new IllegalArgumentException("Reservation to delete cannot be null.");
-		
-		try {
-			bookingService.removeReservationOn(reservation.getDate());
-			view.reservationRemoved(reservation);
-			LOGGER.info(() -> String.format("%s has been deleted with success.", reservation.toString()));
-		} catch (InstanceNotFoundException e) {
-			LOGGER.warn(e.getMessage());
-			view.showReservationError(reservation.toString() + " has already been deleted.");
-			updateAll();
-		} catch(DatabaseException e) {
-			LOGGER.warn(e.getMessage());
-			view.showReservationError("An error occurred while deleting " + reservation.toString() + ".");
+	public void deleteReservation(Reservation reservation) {
+		if (reservation == null) {
+			LOGGER.warn("Reservation to delete cannot be null.");
+			view.showFormError("Select a reservation to delete.");
+		} else {
+			try {
+				bookingService.removeReservationOn(reservation.getDate());
+				view.reservationRemoved(reservation);
+				LOGGER.info(() -> String.format("%s has been deleted with success.", reservation.toString()));
+			} catch (InstanceNotFoundException e) {
+				LOGGER.warn(e.getMessage());
+				view.showReservationError(reservation.toString() + " has already been deleted.");
+				updateAll();
+			} catch(DatabaseException e) {
+				LOGGER.warn(e.getMessage());
+				view.showReservationError("An error occurred while deleting " + reservation.toString() + ".");
+			}
 		}
 	}
 }

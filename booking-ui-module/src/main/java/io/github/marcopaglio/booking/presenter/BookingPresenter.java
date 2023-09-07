@@ -31,6 +31,7 @@ public interface BookingPresenter {
 	/**
 	 * Creates and inserts a new reservation in the repository and notifies the view(s)
 	 * about the changes.
+	 * 
 	 * @param client	the associated client of the reservation to add.
 	 * @param date		the date of the reservation to add.
 	 */
@@ -40,17 +41,16 @@ public interface BookingPresenter {
 	 * Removes an existing client and all his reservations from the repository and notifies the 
 	 * view(s) about the changes.
 	 *
-	 * @param client					the client to delete.
-	 * @throws IllegalArgumentException	if {@code reservation} is null.
+	 * @param client	the client to delete.
 	 */
-	public void deleteClient(Client client) throws IllegalArgumentException;
+	public void deleteClient(Client client);
 
 	/**
-	 * Removes an existing reservation from the repository and notifies the view(s) about the changes.
+	 * Removes an existing reservation from the repository and notifies the view(s)
+	 * about the changes.
 	 *
-	 * @param reservation				the {@code Reservation} to delete.
-	 * @throws IllegalArgumentException	if {@code reservation} is null.
+	 * @param reservation	the reservation to delete.
 	 */
-	public void deleteReservation(Reservation reservation) throws IllegalArgumentException;
+	public void deleteReservation(Reservation reservation);
 
 }
