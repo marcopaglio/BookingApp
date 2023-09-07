@@ -118,10 +118,10 @@
           <artifactId>pitest-maven</artifactId>
           <configuration>
             <targetClasses>
-              <targetClasse>io.github.marcopaglio.booking.validator.*</targetClasse>
+              <targetClasse>io.github.marcopaglio.booking.validator.restricted.*</targetClasse>
             </targetClasses>
             <targetTests>
-              <targetTest>io.github.marcopaglio.booking.validator.*</targetTest>
+              <targetTest>io.github.marcopaglio.booking.validator.restricted.*</targetTest>
             </targetTests>
           </configuration>
         </plugin>
