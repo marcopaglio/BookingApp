@@ -65,4 +65,6 @@ public interface View {
 	 * @param message	the message to show.
 	 */
 	public void showFormError(String message);
+
+	public void clientRenamed(Client renamedClient);
 }

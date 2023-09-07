@@ -20,6 +20,22 @@ public interface BookingPresenter {
 	public void allReservations();
 
 	/**
+	 * Removes an existing client and all his reservations from the repository and notifies the 
+	 * view(s) about the changes.
+	 *
+	 * @param client	the client to delete.
+	 */
+	public void deleteClient(Client client);
+
+	/**
+	 * Removes an existing reservation from the repository and notifies the view(s)
+	 * about the changes.
+	 *
+	 * @param reservation	the reservation to delete.
+	 */
+	public void deleteReservation(Reservation reservation);
+
+	/**
 	 * Creates and inserts a new client in the repository and notifies the view(s)
 	 * about the changes.
 	 * 
@@ -38,19 +54,11 @@ public interface BookingPresenter {
 	public void addReservation(Client client, String date);
 
 	/**
-	 * Removes an existing client and all his reservations from the repository and notifies the 
-	 * view(s) about the changes.
-	 *
-	 * @param client	the client to delete.
+	 * Modifies names of an existing client and notifies the view(s) about the changes.
+	 * 
+	 * @param client		the client to modify.
+	 * @param newFirstName	the new name for the client.
+	 * @param newLastName	the new surname for the client.
 	 */
-	public void deleteClient(Client client);
-
-	/**
-	 * Removes an existing reservation from the repository and notifies the view(s)
-	 * about the changes.
-	 *
-	 * @param reservation	the reservation to delete.
-	 */
-	public void deleteReservation(Reservation reservation);
-
+	public void renameClient(Client client, String newFirstName, String newLastName);
 }

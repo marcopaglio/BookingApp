@@ -2,6 +2,7 @@ package io.github.marcopaglio.booking.presenter.served;
 
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -45,8 +46,8 @@ class ServedBookingPresenterTest {
 	final static private String A_FIRSTNAME = "Mario";
 	final static private String A_LASTNAME = "Rossi";
 	final static private Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME);
-	
 	final static private UUID A_CLIENT_UUID = UUID.fromString("0617d050-9cde-49e5-8fca-d448a7115ccd");
+
 	final static private String A_DATE = "2023-04-24";
 	final static private LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
 	final static private Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
@@ -429,11 +430,11 @@ class ServedBookingPresenterTest {
 	@Nested
 	@DisplayName("Tests for 'addReservation'")
 	class AddReservationTest {
-		private Client spiedClient = spy(A_CLIENT);
+		private Client clientWithId = spy(A_CLIENT);
 
 		@BeforeEach
 		void stubbingClient() throws Exception {
-			when(spiedClient.getId()).thenReturn(A_CLIENT_UUID);
+			when(clientWithId.getId()).thenReturn(A_CLIENT_UUID);
 		}
 
 		@DisplayName("Client is null")
@@ -462,7 +463,7 @@ class ServedBookingPresenterTest {
 			void testAddReservationWhenReservationIsNewShouldValidateItDelegateToServiceAndNotifyView() {
 				when(bookingService.insertNewReservation(A_RESERVATION)).thenReturn(A_RESERVATION);
 				
-				servedBookingPresenter.addReservation(spiedClient, A_DATE);
+				servedBookingPresenter.addReservation(clientWithId, A_DATE);
 				
 				InOrder inOrder = Mockito.inOrder(reservationValidator, bookingService, view);
 				
@@ -481,7 +482,7 @@ class ServedBookingPresenterTest {
 					.thenThrow(new InstanceAlreadyExistsException());
 				
 				assertThatNoException().isThrownBy(
-						() -> servedBookingPresenter.addReservation(spiedClient, A_DATE));
+						() -> servedBookingPresenter.addReservation(clientWithId, A_DATE));
 				
 				InOrder inOrder = Mockito.inOrder(reservationValidator, bookingService, view);
 				
@@ -504,7 +505,7 @@ class ServedBookingPresenterTest {
 					.thenThrow(new InstanceNotFoundException());
 				
 				assertThatNoException().isThrownBy(
-						() -> servedBookingPresenter.addReservation(spiedClient, A_DATE));
+						() -> servedBookingPresenter.addReservation(clientWithId, A_DATE));
 				
 				InOrder inOrder = Mockito.inOrder(reservationValidator, bookingService, view);
 				
@@ -527,7 +528,7 @@ class ServedBookingPresenterTest {
 					.thenThrow(new DatabaseException());
 				
 				assertThatNoException().isThrownBy(
-						() -> servedBookingPresenter.addReservation(spiedClient, A_DATE));
+						() -> servedBookingPresenter.addReservation(clientWithId, A_DATE));
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
@@ -557,7 +558,7 @@ class ServedBookingPresenterTest {
 					.thenThrow(illegalArgumentException);
 				
 				assertThatNoException().isThrownBy(
-						() -> servedBookingPresenter.addReservation(spiedClient, A_DATE));
+						() -> servedBookingPresenter.addReservation(clientWithId, A_DATE));
 				
 				verify(reservationValidator).validateClientId(A_CLIENT_UUID);
 				verify(view).showFormError("Client's identifier associated with reservation is not valid.");
@@ -572,11 +573,192 @@ class ServedBookingPresenterTest {
 					.thenThrow(illegalArgumentException);
 				
 				assertThatNoException().isThrownBy(
-						() -> servedBookingPresenter.addReservation(spiedClient, A_DATE));
+						() -> servedBookingPresenter.addReservation(clientWithId, A_DATE));
 				
 				verify(reservationValidator).validateDate(A_DATE);
 				verify(view).showFormError("Date of reservation is not valid.");
 				verify(bookingService, never()).insertNewReservation(any(Reservation.class));
+			}
+		}
+	}
+
+	@Nested
+	@DisplayName("Tests for 'renameClient'")
+	class RenameClientTest {
+		private String newFirstName = "Maria ";
+		private String newLastName = "De  Lucia";
+
+		@DisplayName("Client is null")
+		@Test
+		void testRenameClientWhenClientIsNullShouldShowError() {
+			assertThatNoException().isThrownBy(
+					() -> servedBookingPresenter.renameClient(null, newFirstName, newLastName));
+			
+			verify(view).showFormError("Select a client to rename.");
+			verifyNoInteractions(bookingService);
+		}
+
+		@Nested
+		@DisplayName("Validation is successful")
+		class ValidationSuccessfulTest {
+			private String validatedFirstName = "Maria";
+			private String validatedLastName = "De Lucia";
+			private Client renamedClient = new Client(validatedFirstName, validatedLastName);
+
+			private Client spiedClient = spy(A_CLIENT);
+
+			@BeforeEach
+			void stubbingClient() throws Exception {
+				when(spiedClient.getId()).thenReturn(A_CLIENT_UUID);
+			}
+
+			@BeforeEach
+			void stubbingValidator() throws Exception {
+				when(clientValidator.validateFirstName(newFirstName)).thenReturn(validatedFirstName);
+				when(clientValidator.validateLastName(newLastName)).thenReturn(validatedLastName);
+			}
+
+			@Test
+			@DisplayName("Renamed client is new")
+			void testRenameClientWhenRenamedClientIsNewShouldValidateItDelegateToServiceAndNotifyView() {
+				when(bookingService.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName))
+					.thenReturn(renamedClient);
+				
+				servedBookingPresenter.renameClient(spiedClient, newFirstName, newLastName);
+				
+				InOrder inOrder = Mockito.inOrder(clientValidator, bookingService, view);
+				
+				verify(clientValidator).validateFirstName(newFirstName);
+				verify(clientValidator).validateLastName(newLastName);
+				inOrder.verify(bookingService)
+					.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName);
+				inOrder.verify(view).clientRenamed(renamedClient);
+				
+				verifyNoMoreInteractions(clientValidator, bookingService, view);
+			}
+
+			@Test
+			@DisplayName("Validated names have not changed")
+			void testRenameClientWhenValidatedNamesAreNotChangedShouldShowErrorAndNotRename() {
+				when(spiedClient.getFirstName()).thenReturn(validatedFirstName);
+				when(spiedClient.getLastName()).thenReturn(validatedLastName);
+				
+				servedBookingPresenter.renameClient(spiedClient, newFirstName, newLastName);
+				
+				verify(clientValidator).validateFirstName(newFirstName);
+				verify(clientValidator).validateLastName(newLastName);
+				verify(view).showFormError("Insert new names for the client to be renamed.");
+				verify(bookingService, never())
+					.renameClient(any(UUID.class), anyString(), anyString());
+			}
+
+			@Test
+			@DisplayName("Renamed client is not new")
+			void testRenameClientWhenRenamedClientIsNotNewShouldShowErrorAndUpdateView() {
+				when(bookingService.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName))
+					.thenThrow(new InstanceAlreadyExistsException());
+				
+				assertThatNoException().isThrownBy(() -> servedBookingPresenter
+						.renameClient(spiedClient, newFirstName, newLastName));
+				
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
+				
+				inOrder.verify(bookingService)
+					.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName);
+				inOrder.verify(view).showClientError("Client [" + validatedFirstName
+						+ " " + validatedLastName + "] already exists.");
+				// updateAll
+				inOrder.verify(bookingService).findAllReservations();
+				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
+				inOrder.verify(bookingService).findAllClients();
+				inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
+				
+				verifyNoMoreInteractions(bookingService, view);
+			}
+
+			@Test
+			@DisplayName("Client is not in database")
+			void testRenameClientWhenClientIsNotInDatabaseShouldShowErrorAndUpdateView() {
+				when(bookingService.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName))
+					.thenThrow(new InstanceNotFoundException());
+				
+				assertThatNoException().isThrownBy(() -> servedBookingPresenter
+						.renameClient(spiedClient, newFirstName, newLastName));
+				
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
+				
+				inOrder.verify(bookingService)
+					.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName);
+				inOrder.verify(view).showClientError(
+						"Client [" + A_FIRSTNAME + " " + A_LASTNAME + "] no longer exists.");
+				// updateAll
+				inOrder.verify(bookingService).findAllReservations();
+				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
+				inOrder.verify(bookingService).findAllClients();
+				inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
+				
+				verifyNoMoreInteractions(bookingService, view);
+			}
+
+			@Test
+			@DisplayName("Database request fails")
+			void testRenameClientWhenDatabaseRequestFailsShouldShowErrorAndUpdateView() {
+				when(bookingService.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName))
+					.thenThrow(new DatabaseException());
+				
+				assertThatNoException().isThrownBy(() -> servedBookingPresenter
+						.renameClient(spiedClient, newFirstName, newLastName));
+				
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
+				
+				inOrder.verify(bookingService)
+					.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName);
+				inOrder.verify(view).showClientError("Something went wrong while renaming Client ["
+						+ A_FIRSTNAME + " " + A_LASTNAME + "].");
+				// updateAll
+				inOrder.verify(bookingService).findAllReservations();
+				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
+				inOrder.verify(bookingService).findAllClients();
+				inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
+				
+				verifyNoMoreInteractions(bookingService, view);
+			}
+		}
+
+		@Nested
+		@DisplayName("Validation is failure")
+		class ValidationFailureTest {
+			private IllegalArgumentException illegalArgumentException =
+					new IllegalArgumentException();
+
+			@Test
+			@DisplayName("Name is not valid")
+			void testRenameClientWhenNameIsNotValidShouldShowErrorAndNotRename() {
+				when(clientValidator.validateFirstName(newFirstName))
+					.thenThrow(illegalArgumentException);
+				
+				assertThatNoException().isThrownBy(() -> servedBookingPresenter
+						.renameClient(A_CLIENT, newFirstName, newLastName));
+				
+				verify(clientValidator).validateFirstName(newFirstName);
+				verify(view).showFormError("Client's name is not valid.");
+				verify(bookingService, never())
+					.renameClient(any(UUID.class), anyString(), anyString());
+			}
+
+			@Test
+			@DisplayName("Surname is not valid")
+			void testRenameClientWhenSurnameIsNotValidShouldShowErrorAndNotRename() {
+				when(clientValidator.validateLastName(newLastName))
+					.thenThrow(illegalArgumentException);
+				
+				assertThatNoException().isThrownBy(() -> servedBookingPresenter
+						.renameClient(A_CLIENT, newFirstName, newLastName));
+				
+				verify(clientValidator).validateLastName(newLastName);
+				verify(view).showFormError("Client's surname is not valid.");
+				verify(bookingService, never())
+					.renameClient(any(UUID.class), anyString(), anyString());
 			}
 		}
 	}
