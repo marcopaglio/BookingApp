@@ -31,12 +31,10 @@ public interface BookingPresenter {
 	/**
 	 * Creates and inserts a new reservation in the repository and notifies the view(s)
 	 * about the changes.
-	 * 
-	 * @param date						a {@code String} contained the date of the reservation to add.
-	 * @param client					the {@code Client} associated to the reservation to add.
-	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
+	 * @param client	the associated client of the reservation to add.
+	 * @param date		the date of the reservation to add.
 	 */
-	public void addReservation(String date, Client client);
+	public void addReservation(Client client, String date);
 
 	/**
 	 * Removes an existing client and all his reservations from the repository and notifies the 

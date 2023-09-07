@@ -1,6 +1,9 @@
 package io.github.marcopaglio.booking.presenter.served;
 
 
+import java.time.LocalDate;
+import java.util.UUID;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -99,11 +102,11 @@ public class ServedBookingPresenter implements BookingPresenter {
 	}
 
 	/**
-	 * Creates and inserts a new client in the repository and notifies the view
+	 * Validates and inserts a new client in the repository and notifies the view
 	 * about the changes. This method delegates the inserting to the service layer.
 	 * 
-	 * @param firstName					the name of the client to add.
-	 * @param lastName					the surname of the client to add.
+	 * @param firstName	the name of the client to add.
+	 * @param lastName	the surname of the client to add.
 	 */
 	@Override
 	public void addClient(String firstName, String lastName) {
@@ -116,10 +119,12 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s has been added with success.", clientInDB.toString()));
 			} catch(InstanceAlreadyExistsException e) {
 				LOGGER.warn(e.getMessage());
+				view.showClientError(client.toString() + " already exists.");
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
-				view.showClientError("An error occurred while adding " + client.toString() + ".");
+				view.showClientError("Something went wrong while adding " + client.toString() + ".");
+				updateAll();
 			}
 		}
 	}
@@ -128,49 +133,59 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * Manages the creation of a client object. If the creation goes wrong,
 	 * the method notifies the view before returning a null object.
 	 * 
-	 * @param firstName					the name of the client to create.
-	 * @param lastName					the surname of the client to create.
-	 * @return							the {@code Client} created.
+	 * @param firstName	the name of the client to create.
+	 * @param lastName	the surname of the client to create.
+	 * @return			the {@code Client} created, if validation is successful;
+	 * 					a {@code null} object, otherwise.
 	 */
 	private Client createClient(String firstName, String lastName) {
 		try {
-			return new Client(
-					clientValidator.validateFirstName(firstName),
-					clientValidator.validateLastName(lastName));
+			firstName = clientValidator.validateFirstName(firstName);
 		} catch(IllegalArgumentException e) {
 			LOGGER.warn(e.getMessage());
-			view.showFormError("Client's name or surname is not valid.");
+			view.showFormError("Client's name is not valid.");
 			return null;
 		}
+		
+		try {
+			lastName = clientValidator.validateLastName(lastName);
+		} catch(IllegalArgumentException e) {
+			LOGGER.warn(e.getMessage());
+			view.showFormError("Client's surname is not valid.");
+			return null;
+		}
+		
+		return new Client(firstName, lastName);
 	}
 
 	/**
-	 * Creates and inserts a new reservation in the repository and notifies the view
+	 * Validates and inserts a new reservation in the repository and notifies the view
 	 * about the changes. This method delegates the inserting to the service layer.
-	 * 
-	 * @param date						a {@code String} contained the date of the reservation to add.
-	 * @param client					the {@code Client} associated to the reservation to add.
-	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
+	 * @param client	the associated client of the reservation to add.
+	 * @param date		the date of the reservation to add.
 	 */
 	@Override
-	public void addReservation(String date, Client client) throws IllegalArgumentException {
-		Reservation reservation = createReservation(date, client);
+	public void addReservation(Client client, String date) {
+		Reservation reservation = createReservation(client, date);
 		
-		try {
-			Reservation reservationInDB = bookingService.insertNewReservation(reservation);
-			view.reservationAdded(reservationInDB);
-			LOGGER.info(() -> String.format("%s has been added with success.", reservationInDB.toString()));
-		} catch(InstanceAlreadyExistsException e) {
-			LOGGER.warn(e.getMessage());
-			view.showReservationError(reservation.toString() + " has already been booked.");
-			updateAll();
-		} catch(InstanceNotFoundException e) {
-			LOGGER.warn(e.getMessage());
-			view.showReservationError(reservation.toString() + "'s client has been deleted.");
-			updateAll();
-		} catch(DatabaseException e) {
-			LOGGER.warn(e.getMessage());
-			view.showReservationError("An error occurred while adding " + reservation.toString() + ".");
+		if (reservation != null) {
+			try {
+				Reservation reservationInDB = bookingService.insertNewReservation(reservation);
+				view.reservationAdded(reservationInDB);
+				LOGGER.info(() -> String.format("%s has been added with success.", reservationInDB.toString()));
+			} catch(InstanceAlreadyExistsException e) {
+				LOGGER.warn(e.getMessage());
+				view.showReservationError(reservation.toString() + " is already booked.");
+				updateAll();
+			} catch(InstanceNotFoundException e) {
+				LOGGER.warn(e.getMessage());
+				view.showReservationError(reservation.toString() + "'s client no longer exists.");
+				updateAll();
+			} catch(DatabaseException e) {
+				LOGGER.warn(e.getMessage());
+				view.showReservationError("Something went wrong while adding " + reservation.toString() + ".");
+				updateAll();
+			}
 		}
 	}
 
@@ -178,24 +193,37 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * Manages the creation of a reservation object. If the creation goes wrong,
 	 * the method notifies the view before throwing an exception.
 	 * 
-	 * @param client					the associated client of the reservation to create.
-	 * @param date						the date of the reservation to create.
-	 * @return							the {@code Reservation} created.
-	 * @throws IllegalArgumentException	if at least one of the argument is null or not valid.
+	 * @param client	the associated client of the reservation to create.
+	 * @param date		the date of the reservation to create.
+	 * @return			the {@code Reservation} created, if validation is successful;
+	 * 					a {@code null} object, otherwise.
 	 */
-	private Reservation createReservation(String date, Client client) throws IllegalArgumentException {
-		if (client == null)
-			throw new IllegalArgumentException("Reservation's client to add cannot be null.");
+	private Reservation createReservation(Client client, String date) throws IllegalArgumentException {
+		if (client == null) {
+			LOGGER.warn("Reservation's client to add cannot be null.");
+			view.showFormError("Select a client to add the reservation to.");
+			return null;
+		}
+		
+		UUID clientId;
+		LocalDate localDate;
+		try {
+			clientId = reservationValidator.validateClientId(client.getId());
+		} catch(IllegalArgumentException e) {
+			LOGGER.warn(e.getMessage());
+			view.showFormError("Client's identifier associated with reservation is not valid.");
+			return null;
+		}
 		
 		try {
-			return new Reservation(
-					reservationValidator.validateClientId(client.getId()),
-					reservationValidator.validateDate(date));
+			localDate = reservationValidator.validateDate(date);
 		} catch(IllegalArgumentException e) {
+			LOGGER.warn(e.getMessage());
 			view.showFormError("Date of reservation is not valid.");
-			throw e;
-			// nella view non si lancia eccezioni, ma si logga il messaggio di errore delle entità
+			return null;
 		}
+		
+		return new Reservation(clientId, localDate);
 	}
 
 	/**
