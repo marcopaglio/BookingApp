@@ -51,6 +51,7 @@ class ServedBookingPresenterTest {
 	final static private String A_DATE = "2023-04-24";
 	final static private LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
 	final static private Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+	final static private UUID A_RESERVATION_UUID = UUID.fromString("3069144c-5c3d-4ee2-9458-ac67dd763fff");
 
 	@Mock
 	private BookingService bookingService;
@@ -576,7 +577,7 @@ class ServedBookingPresenterTest {
 						() -> servedBookingPresenter.addReservation(clientWithId, A_DATE));
 				
 				verify(reservationValidator).validateDate(A_DATE);
-				verify(view).showFormError("Date of reservation is not valid.");
+				verify(view).showFormError("Reservation's date is not valid.");
 				verify(bookingService, never()).insertNewReservation(any(Reservation.class));
 			}
 		}
@@ -635,21 +636,6 @@ class ServedBookingPresenterTest {
 				inOrder.verify(view).clientRenamed(renamedClient);
 				
 				verifyNoMoreInteractions(clientValidator, bookingService, view);
-			}
-
-			@Test
-			@DisplayName("Validated names have not changed")
-			void testRenameClientWhenValidatedNamesAreNotChangedShouldShowErrorAndNotRename() {
-				when(spiedClient.getFirstName()).thenReturn(validatedFirstName);
-				when(spiedClient.getLastName()).thenReturn(validatedLastName);
-				
-				servedBookingPresenter.renameClient(spiedClient, newFirstName, newLastName);
-				
-				verify(clientValidator).validateFirstName(newFirstName);
-				verify(clientValidator).validateLastName(newLastName);
-				verify(view).showFormError("Insert new names for the client to be renamed.");
-				verify(bookingService, never())
-					.renameClient(any(UUID.class), anyString(), anyString());
 			}
 
 			@Test
@@ -723,6 +709,21 @@ class ServedBookingPresenterTest {
 				
 				verifyNoMoreInteractions(bookingService, view);
 			}
+
+			@Test
+			@DisplayName("Validated names have not changed")
+			void testRenameClientWhenValidatedNamesHaveNotChangedShouldShowErrorAndNotRename() {
+				when(spiedClient.getFirstName()).thenReturn(validatedFirstName);
+				when(spiedClient.getLastName()).thenReturn(validatedLastName);
+				
+				servedBookingPresenter.renameClient(spiedClient, newFirstName, newLastName);
+				
+				verify(clientValidator).validateFirstName(newFirstName);
+				verify(clientValidator).validateLastName(newLastName);
+				verify(view).showFormError("Insert new names for the client to be renamed.");
+				verify(bookingService, never())
+					.renameClient(any(UUID.class), anyString(), anyString());
+			}
 		}
 
 		@Nested
@@ -760,6 +761,160 @@ class ServedBookingPresenterTest {
 				verify(bookingService, never())
 					.renameClient(any(UUID.class), anyString(), anyString());
 			}
+		}
+	}
+
+	@Nested
+	@DisplayName("Tests for 'rescheduleReservation'")
+	class RescheduleReservationTest {
+		private String newDate = "2023-09-05";
+
+		@DisplayName("Reservation is null")
+		@Test
+		void testRescheduleReservationWhenReservationIsNullShouldShowError() {
+			assertThatNoException().isThrownBy(
+					() -> servedBookingPresenter.rescheduleReservation(null, newDate));
+			
+			verify(view).showFormError("Select a reservation to reschedule.");
+			verifyNoInteractions(bookingService);
+		}
+
+		@Nested
+		@DisplayName("Validation is successful")
+		class ValidationSuccessfulTest {
+			private LocalDate validatedDate = LocalDate.parse(newDate);
+			private Reservation rescheduleReservation = new Reservation(A_CLIENT_UUID, validatedDate);
+
+			private Reservation spiedReservation = spy(A_RESERVATION);
+
+			@BeforeEach
+			void stubbingClient() throws Exception {
+				when(spiedReservation.getId()).thenReturn(A_RESERVATION_UUID);
+			}
+
+			@BeforeEach
+			void stubbingValidator() throws Exception {
+				when(reservationValidator.validateDate(newDate)).thenReturn(validatedDate);
+			}
+
+			@Test
+			@DisplayName("Rescheduled reservation is new")
+			void testRescheduleReservationWhenRescheduledReservationIsNewShouldValidateItDelegateToServiceAndNotifyView() {
+				when(bookingService.rescheduleReservation(A_RESERVATION_UUID, validatedDate))
+					.thenReturn(rescheduleReservation);
+				
+				servedBookingPresenter.rescheduleReservation(spiedReservation, newDate);
+				
+				InOrder inOrder = Mockito.inOrder(reservationValidator, bookingService, view);
+				
+				verify(reservationValidator).validateDate(newDate);
+				inOrder.verify(bookingService)
+					.rescheduleReservation(A_RESERVATION_UUID, validatedDate);
+				inOrder.verify(view).reservationRescheduled(rescheduleReservation);
+				
+				verifyNoMoreInteractions(reservationValidator, bookingService, view);
+			}
+
+			@Test
+			@DisplayName("Rescheduled reservation is not new")
+			void testRescheduleReservationWhenRescheduledReservationIsNotNewShouldShowErrorAndUpdateView() {
+				when(bookingService.rescheduleReservation(A_RESERVATION_UUID, validatedDate))
+					.thenThrow(new InstanceAlreadyExistsException());
+				
+				assertThatNoException().isThrownBy(() -> servedBookingPresenter
+						.rescheduleReservation(spiedReservation, newDate));
+				
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
+				
+				inOrder.verify(bookingService)
+					.rescheduleReservation(A_RESERVATION_UUID, validatedDate);
+				inOrder.verify(view).showReservationError(
+						"Reservation [date=" + validatedDate + "] is already booked.");
+				// updateAll
+				inOrder.verify(bookingService).findAllReservations();
+				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
+				inOrder.verify(bookingService).findAllClients();
+				inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
+				
+				verifyNoMoreInteractions(bookingService, view);
+			}
+
+			@Test
+			@DisplayName("Reservation is not in database")
+			void testRescheduleReservationWhenReservationIsNotInDatabaseShouldShowErrorAndUpdateView() {
+				when(bookingService.rescheduleReservation(A_RESERVATION_UUID, validatedDate))
+					.thenThrow(new InstanceNotFoundException());
+				
+				assertThatNoException().isThrownBy(() -> servedBookingPresenter
+						.rescheduleReservation(spiedReservation, newDate));
+				
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
+				
+				inOrder.verify(bookingService)
+					.rescheduleReservation(A_RESERVATION_UUID, validatedDate);
+				inOrder.verify(view).showReservationError(
+						"Reservation [date=" + A_LOCALDATE + "] no longer exists.");
+				// updateAll
+				inOrder.verify(bookingService).findAllReservations();
+				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
+				inOrder.verify(bookingService).findAllClients();
+				inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
+				
+				verifyNoMoreInteractions(bookingService, view);
+			}
+
+			@Test
+			@DisplayName("Database request fails")
+			void testRescheduleReservationWhenDatabaseRequestFailsShouldShowErrorAndUpdateView() {
+				when(bookingService.rescheduleReservation(A_RESERVATION_UUID, validatedDate))
+					.thenThrow(new DatabaseException());
+				
+				assertThatNoException().isThrownBy(() -> servedBookingPresenter
+						.rescheduleReservation(spiedReservation, newDate));
+				
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
+				
+				inOrder.verify(bookingService)
+					.rescheduleReservation(A_RESERVATION_UUID, validatedDate);
+				inOrder.verify(view).showReservationError(
+						"Something went wrong while rescheduling Reservation [date="
+						+ A_LOCALDATE + "].");
+				// updateAll
+				inOrder.verify(bookingService).findAllReservations();
+				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
+				inOrder.verify(bookingService).findAllClients();
+				inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
+				
+				verifyNoMoreInteractions(bookingService, view);
+			}
+
+			@Test
+			@DisplayName("Validated date has not changed")
+			void testRescheduleReservationWhenValidatedDateHasNotChangedShouldShowErrorAndNotReschedule() {
+				when(spiedReservation.getDate()).thenReturn(validatedDate);
+				
+				servedBookingPresenter.rescheduleReservation(spiedReservation, newDate);
+				
+				verify(reservationValidator).validateDate(newDate);
+				verify(view).showFormError("Insert a new date for the reservation to be rescheduled.");
+				verify(bookingService, never())
+					.rescheduleReservation(any(UUID.class), any(LocalDate.class));
+			}
+		}
+
+		@Test
+		@DisplayName("Date is not valid")
+		void testRescheduleReservationWhenDateIsNotValidShouldShowErrorAndNotReschedule() {
+			when(reservationValidator.validateDate(newDate))
+				.thenThrow(new IllegalArgumentException());
+			
+			assertThatNoException().isThrownBy(() -> servedBookingPresenter
+					.rescheduleReservation(A_RESERVATION, newDate));
+			
+			verify(reservationValidator).validateDate(newDate);
+			verify(view).showFormError("Reservation's date is not valid.");
+			verify(bookingService, never())
+			.rescheduleReservation(any(UUID.class), any(LocalDate.class));
 		}
 	}
 }

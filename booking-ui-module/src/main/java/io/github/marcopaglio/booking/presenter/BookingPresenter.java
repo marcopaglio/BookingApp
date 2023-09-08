@@ -61,4 +61,12 @@ public interface BookingPresenter {
 	 * @param newLastName	the new surname for the client.
 	 */
 	public void renameClient(Client client, String newFirstName, String newLastName);
+
+	/**
+	 * Modifies the date of an existing reservation and notifies the view(s) about the changes.
+	 * 
+	 * @param reservation	the reservation to modify.
+	 * @param newDate		the new date for the reservation.
+	 */
+	public void rescheduleReservation(Reservation reservation, String newDate);
 }

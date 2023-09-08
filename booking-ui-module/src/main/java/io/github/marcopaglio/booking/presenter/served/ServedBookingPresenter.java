@@ -207,6 +207,38 @@ public class ServedBookingPresenter implements BookingPresenter {
 	}
 
 	/**
+	 * Performs client name validation thought {@code clientValidator}.
+	 * 
+	 * @param firstName					the name to validate.
+	 * @return							the validated name as {@code String}.
+	 * @throws IllegalArgumentException	if validation fails.
+	 */
+	private String getValidatedFirstName(String firstName) throws IllegalArgumentException {
+		try {
+			return clientValidator.validateFirstName(firstName);
+		} catch(IllegalArgumentException e) {
+			LOGGER.warn(e.getMessage());
+			throw new IllegalArgumentException("Client's name is not valid.");
+		}
+	}
+
+	/**
+	 * Performs client surname validation thought {@code clientValidator}.
+	 * 
+	 * @param lastName					the surname to validate.
+	 * @return							the validated surname as {@code String}.
+	 * @throws IllegalArgumentException	if validation fails.
+	 */
+	private String getValidatedLastName(String lastName) throws IllegalArgumentException {
+		try {
+			return clientValidator.validateLastName(lastName);
+		} catch(IllegalArgumentException e) {
+			LOGGER.warn(e.getMessage());
+			throw new IllegalArgumentException("Client's surname is not valid.");
+		}
+	}
+
+	/**
 	 * Validates and inserts a new reservation in the repository and notifies the view
 	 * about the changes. This method delegates the inserting to the service layer.
 	 * 
@@ -254,27 +286,57 @@ public class ServedBookingPresenter implements BookingPresenter {
 			return null;
 		}
 		
-		UUID clientId;
-		LocalDate localDate;
 		try {
-			clientId = reservationValidator.validateClientId(client.getId());
+			return new Reservation(
+					getValidatedClientId(client.getId()),
+					getValidatedDate(date));
 		} catch(IllegalArgumentException e) {
-			LOGGER.warn(e.getMessage());
-			view.showFormError("Client's identifier associated with reservation is not valid.");
+			view.showFormError(e.getMessage());
 			return null;
 		}
-		
-		try {
-			localDate = reservationValidator.validateDate(date);
-		} catch(IllegalArgumentException e) {
-			LOGGER.warn(e.getMessage());
-			view.showFormError("Date of reservation is not valid.");
-			return null;
-		}
-		
-		return new Reservation(clientId, localDate);
 	}
 
+	/**
+	 * Performs reservation client's identifier validation thought {@code reservationValidator}.
+	 * 
+	 * @param clientId					the client identifier to validate.
+	 * @return							the validated client identifier as {@code UUID}.
+	 * @throws IllegalArgumentException	if validation fails.
+	 */
+	private UUID getValidatedClientId(UUID clientId) throws IllegalArgumentException {
+		try {
+			return reservationValidator.validateClientId(clientId);
+		} catch(IllegalArgumentException e) {
+			LOGGER.warn(e.getMessage());
+			throw new IllegalArgumentException("Client's identifier associated with reservation is not valid.");
+		}
+	}
+
+	/**
+	 * Performs reservation date validation thought {@code reservationValidator}.
+	 * 
+	 * @param date						the date to validate.
+	 * @return							the validated date as {@code LocalDate}.
+	 * @throws IllegalArgumentException	if validation fails.
+	 */
+	private LocalDate getValidatedDate(String date) throws IllegalArgumentException {
+		try {
+			return reservationValidator.validateDate(date);
+		} catch(IllegalArgumentException e) {
+			LOGGER.warn(e.getMessage());
+			throw new IllegalArgumentException("Reservation's date is not valid.");
+		}
+	}
+
+	/**
+	 * Validates and modifies names of an existing client and notifies the view about the changes.
+	 * This method delegates the renaming to the service layer only if new names are
+	 * actually different from the old ones.
+	 * 
+	 * @param client		the client to modify.
+	 * @param newFirstName	the new name for the client.
+	 * @param newLastName	the new surname for the client.
+	 */
 	@Override
 	public void renameClient(Client client, String newFirstName, String newLastName) {
 		if (client == null) {
@@ -305,8 +367,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.info(() -> String.format("%s has been renamed with success.", clientInDB.toString()));
 		} catch(InstanceAlreadyExistsException e) {
 			LOGGER.warn(e.getMessage());
-			view.showClientError("Client [" + newFirstName + " " + newLastName
-					+ "] already exists.");
+			view.showClientError("Client [" + newFirstName + " " + newLastName + "] already exists.");
 			updateAll();
 		} catch(InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
@@ -319,21 +380,53 @@ public class ServedBookingPresenter implements BookingPresenter {
 		}
 	}
 
-	private String getValidatedFirstName(String firstName) throws IllegalArgumentException {
+	/**
+	 * Modifies the date of an existing reservation and notifies the view about the changes.
+	 * This method delegates the rescheduling to the service layer only if new date is
+	 * actually different from the old one.
+	 * 
+	 * @param reservation	the reservation to modify.
+	 * @param newDate		the new date for the reservation.
+	 */
+	@Override
+	public void rescheduleReservation(Reservation reservation, String newDate) {
+		if (reservation == null) {
+			LOGGER.warn("Reservation to reschedule cannot be null.");
+			view.showFormError("Select a reservation to reschedule.");
+			return;
+		}
+		
+		LocalDate validatedDate;
 		try {
-			return clientValidator.validateFirstName(firstName);
+			validatedDate = getValidatedDate(newDate);
 		} catch(IllegalArgumentException e) {
+			view.showFormError(e.getMessage());
+			return;
+		}
+		
+		if (validatedDate == reservation.getDate()) {
+			LOGGER.warn("The new date is the same as the old one.");
+			view.showFormError("Insert a new date for the reservation to be rescheduled.");
+			return;
+		}
+		
+		try {
+			Reservation reservationInDB = bookingService
+					.rescheduleReservation(reservation.getId(), validatedDate);
+			view.reservationRescheduled(reservationInDB);
+			LOGGER.info(() -> String.format("%s has been rescheduled with success.", reservationInDB.toString()));
+		} catch(InstanceAlreadyExistsException e) {
 			LOGGER.warn(e.getMessage());
-			throw new IllegalArgumentException("Client's name is not valid.");
+			view.showReservationError("Reservation [date=" + validatedDate + "] is already booked.");
+			updateAll();
+		} catch(InstanceNotFoundException e) {
+			LOGGER.warn(e.getMessage());
+			view.showReservationError(reservation.toString() + " no longer exists.");
+			updateAll();
+		} catch(DatabaseException e) {
+			LOGGER.warn(e.getMessage());
+			view.showReservationError("Something went wrong while rescheduling " + reservation.toString() + ".");
+			updateAll();
 		}
 	}
-	
-	private String getValidatedLastName(String lastName) throws IllegalArgumentException {
-		try {
-			return clientValidator.validateLastName(lastName);
-		} catch(IllegalArgumentException e) {
-			LOGGER.warn(e.getMessage());
-			throw new IllegalArgumentException("Client's surname is not valid.");
-		}
-	}
-}
+}	//TODO: finally col messaggio not null
