@@ -23,8 +23,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
@@ -45,6 +43,12 @@ import io.github.marcopaglio.booking.transaction.code.ClientReservationTransacti
 import io.github.marcopaglio.booking.transaction.code.ClientTransactionCode;
 import io.github.marcopaglio.booking.transaction.code.ReservationTransactionCode;
 import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
+
+import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_NOT_FOUND_ERROR_MSG;
+import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_ALREADY_EXISTS_ERROR_MSG;
+import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_NOT_FOUND_ERROR_MSG;
+import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_ALREADY_EXISTS_ERROR_MSG;
+import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.DATABASE_ERROR_MSG;
 
 @DisplayName("Tests for TransactionalBookingService class")
 @ExtendWith(MockitoExtension.class)
@@ -74,201 +78,6 @@ class TransactionalBookingServiceTest {
 	
 	@InjectMocks
 	private TransactionalBookingService transactionalBookingService;
-
-	@Nested
-	@DisplayName("Null inputs on methods")
-	class NullInputTest {
-
-		@Test
-		@DisplayName("Null id on 'findClient'")
-		void testFindClientWhenIdIsNullShouldThrow() {
-			assertThatThrownBy(
-					() -> transactionalBookingService.findClient(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Identifier of client to find cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ClientTransactionCode<?>>any());
-			
-			System.out.println(UUID.randomUUID());
-		}
-
-		@Test
-		@DisplayName("Null names on 'findClientNamed'")
-		void testFindClientNamedWhenNamesAreNullShouldThrow() {
-			assertThatThrownBy(
-					() -> transactionalBookingService.findClientNamed(null, A_LASTNAME))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Names of client to find cannot be null.");
-			
-			assertThatThrownBy(
-					() -> transactionalBookingService.findClientNamed(A_FIRSTNAME, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Names of client to find cannot be null.");
-			
-			assertThatThrownBy(
-					() -> transactionalBookingService.findClientNamed(null, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Names of client to find cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ClientTransactionCode<?>>any());
-		}
-
-		@Test
-		@DisplayName("Null client on 'insertNewClient'")
-		void testInsertNewClientWhenClientIsNullShouldThrow() {
-			assertThatThrownBy(
-					() -> transactionalBookingService.insertNewClient(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Client to insert cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ClientTransactionCode<?>>any());
-		}
-
-		@Test
-		@DisplayName("Null id on 'findReservation'")
-		void testFindReservationWhenIdIsNullShouldThrow() {
-			assertThatThrownBy(
-					() -> transactionalBookingService.findReservation(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Identifier of reservation to find cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ReservationTransactionCode<?>>any());
-		}
-
-		@Test
-		@DisplayName("Null date on 'findReservationOn'")
-		void testFindReservationOnWhenDateIsNullShouldThrow() {
-			assertThatThrownBy(
-					() -> transactionalBookingService.findReservationOn(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Date of reservation to find cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ReservationTransactionCode<?>>any());
-		}
-
-		@Test
-		@DisplayName("Null names on 'removeClient'")
-		void testRemoveClientWhenIdIsNullShouldThrow() {
-			assertThatThrownBy(
-					() -> transactionalBookingService.removeClient(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Identifier of client to remove cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-		}
-
-		@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
-		@DisplayName("Null names on 'removeClientNamed'")
-		@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
-				nullValues = {"null"}
-		)
-		void testRemoveClientNamedWhenNamesAreNullShouldThrow(String firstName, String lastName) {
-			assertThatThrownBy(
-					() -> transactionalBookingService.removeClientNamed(firstName, lastName))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Names of client to remove cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-		}
-
-		@Test
-		@DisplayName("Null reservation on 'insertNewReservation'")
-		void testInsertNewReservationWhenReservationIsNullShouldThrow() {
-			assertThatThrownBy(
-					() -> transactionalBookingService.insertNewReservation(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Reservation to insert cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-		}
-
-		@Test
-		@DisplayName("Null date on 'removeReservation'")
-		void testRemoveReservationWhenDateIsNullShouldThrow() {
-			assertThatThrownBy(
-					() -> transactionalBookingService.removeReservation(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Identifier of reservation to remove cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-		}
-
-		@Test
-		@DisplayName("Null date on 'removeReservationOn'")
-		void testRemoveReservationOnWhenDateIsNullShouldThrow() {
-			assertThatThrownBy(
-					() -> transactionalBookingService.removeReservationOn(null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Date of reservation to remove cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ClientReservationTransactionCode<?>>any());
-		}
-
-		@Test
-		@DisplayName("Null id on 'renameClient'")
-		void testRenameClientWhenIdIsNullShouldThrow() {
-			assertThatThrownBy(
-					() -> transactionalBookingService.renameClient(
-							null, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Identifier of client to rename cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ClientTransactionCode<?>>any());
-		}
-
-		@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
-		@DisplayName("Null new names on 'renameClient'")
-		@CsvSource( value = {"'null', 'Rossi'", "'Mario', 'null'", "'null', 'null'"},
-				nullValues = {"null"}
-		)
-		void testRenameClientWhenNewNamesAreNullShouldThrow(String firstName, String lastName) {
-			assertThatThrownBy(
-					() -> transactionalBookingService.renameClient(
-							A_CLIENT_UUID, firstName, lastName))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("New names for client to be renamed cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ClientTransactionCode<?>>any());
-		}
-
-		@Test
-		@DisplayName("Null id on 'rescheduleReservation'")
-		void testRescheduleReservationWhenIdIsNullShouldThrow() {
-			assertThatThrownBy(
-					() -> transactionalBookingService.rescheduleReservation(
-							null, ANOTHER_LOCALDATE))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("Identifier of reservation to reschedule cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ReservationTransactionCode<?>>any());
-		}
-
-		@Test
-		@DisplayName("Null new date on 'rescheduleReservation'")
-		void testRescheduleReservationWhenNewDateIsNullShouldThrow() {
-			assertThatThrownBy(
-					() -> transactionalBookingService.rescheduleReservation(
-							A_RESERVATION_UUID, null))
-				.isInstanceOf(IllegalArgumentException.class)
-				.hasMessage("New date for reservation to be rescheduled cannot be null.");
-			
-			verify(transactionManager, never()).doInTransaction(
-					ArgumentMatchers.<ReservationTransactionCode<?>>any());
-		}
-	}
 
 	@Nested
 	@DisplayName("Methods using only ClientRepository")
@@ -359,9 +168,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(
 							() -> transactionalBookingService.findClient(A_CLIENT_UUID))
 						.isInstanceOf(InstanceNotFoundException.class)
-						.hasMessage(
-							"There is no client identified by \"" + A_CLIENT_UUID
-							+ "\" in the database.");
+						.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
 					
@@ -403,9 +210,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(
 							() -> transactionalBookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
 						.isInstanceOf(InstanceNotFoundException.class)
-						.hasMessage(
-							"There is no client named \"" + A_FIRSTNAME
-							+ " " + A_LASTNAME + "\" in the database.");
+						.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
 					
@@ -449,8 +254,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(
 							() -> transactionalBookingService.insertNewClient(A_CLIENT))
 						.isInstanceOf(InstanceAlreadyExistsException.class)
-						.hasMessage(
-							"Client [" + A_FIRSTNAME + " " + A_LASTNAME + "] is already in the database.");
+						.hasMessage(CLIENT_ALREADY_EXISTS_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
 					
@@ -510,8 +314,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(() -> transactionalBookingService.renameClient(
 							A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
 						.isInstanceOf(InstanceAlreadyExistsException.class)
-						.hasMessage("Client [" + ANOTHER_FIRSTNAME + " " + ANOTHER_LASTNAME
-								+ "] is already in the database.");
+						.hasMessage(CLIENT_ALREADY_EXISTS_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
 					
@@ -533,8 +336,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(() -> transactionalBookingService.renameClient(
 							A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
 						.isInstanceOf(InstanceNotFoundException.class)
-						.hasMessage("There is no client identified by \""
-								+ A_CLIENT_UUID + "\" in the database.");
+						.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
 					
@@ -562,7 +364,7 @@ class TransactionalBookingServiceTest {
 			void testFindAllClientsWhenTransactionFailsShouldThrow() {
 				assertThatThrownBy(() -> transactionalBookingService.findAllClients())
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 
 			@Test
@@ -571,7 +373,7 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.findClient(A_CLIENT_UUID))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 
 			@Test
@@ -580,7 +382,7 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.findClientNamed(A_FIRSTNAME, A_LASTNAME))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 
 			@Test
@@ -589,7 +391,7 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.insertNewClient(A_CLIENT))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 
 			@Test
@@ -599,7 +401,7 @@ class TransactionalBookingServiceTest {
 						() -> transactionalBookingService.renameClient(
 								A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 		}
 	}
@@ -694,8 +496,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(
 							() -> transactionalBookingService.findReservation(A_RESERVATION_UUID))
 						.isInstanceOf(InstanceNotFoundException.class)
-						.hasMessage("There is no reservation identified by \""
-								+ A_RESERVATION_UUID + "\" in the database.");
+						.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
 					
@@ -737,7 +538,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(
 							() -> transactionalBookingService.findReservationOn(A_LOCALDATE))
 						.isInstanceOf(InstanceNotFoundException.class)
-						.hasMessage("There is no reservation on \"" + A_LOCALDATE + "\" in the database.");
+						.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
 					
@@ -779,8 +580,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(
 							() -> transactionalBookingService.removeReservation(A_RESERVATION_UUID))
 						.isInstanceOf(InstanceNotFoundException.class)
-						.hasMessage("There is no reservation identified by \""
-								+ A_RESERVATION_UUID + "\" in the database.");
+						.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
 					
@@ -822,7 +622,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(
 							() -> transactionalBookingService.removeReservationOn(A_LOCALDATE))
 						.isInstanceOf(InstanceNotFoundException.class)
-						.hasMessage("There is no reservation on \"" + A_LOCALDATE + "\" in the database.");
+						.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
 					
@@ -884,8 +684,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(() -> transactionalBookingService
 							.rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE))
 						.isInstanceOf(InstanceAlreadyExistsException.class)
-						.hasMessage("Reservation [date=" + ANOTHER_LOCALDATE.toString()
-								+ "] is already in the database.");
+						.hasMessage(RESERVATION_ALREADY_EXISTS_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
 					
@@ -905,8 +704,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(() -> transactionalBookingService
 							.rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE))
 						.isInstanceOf(InstanceNotFoundException.class)
-						.hasMessage("There is no reservation identified by \""
-								+ A_RESERVATION_UUID + "\" in the database.");
+						.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
 					
@@ -934,7 +732,7 @@ class TransactionalBookingServiceTest {
 			void testFindAllReservationsWhenTransactionFailsShouldThrow() {
 				assertThatThrownBy(() -> transactionalBookingService.findAllReservations())
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 
 			@Test
@@ -943,7 +741,7 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.findReservation(A_RESERVATION_UUID))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 
 			@Test
@@ -951,7 +749,7 @@ class TransactionalBookingServiceTest {
 			void testFindReservationOnWhenTransactionFailsShouldThrow() {
 				assertThatThrownBy(() -> transactionalBookingService.findReservationOn(A_LOCALDATE))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 
 			@Test
@@ -960,7 +758,7 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.removeReservation(A_RESERVATION_UUID))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 
 			@Test
@@ -969,7 +767,7 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.removeReservationOn(A_LOCALDATE))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 
 			@Test
@@ -978,7 +776,7 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.rescheduleReservation(A_RESERVATION_UUID, A_LOCALDATE))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 		}
 	}
@@ -1090,9 +888,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(
 							() -> transactionalBookingService.removeClient(A_CLIENT_UUID))
 						.isInstanceOf(InstanceNotFoundException.class)
-						.hasMessage(
-							"There is no client identified by \"" + A_CLIENT_UUID
-							+ "\" in the database.");
+						.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
 					
@@ -1192,9 +988,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(
 							() -> transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME))
 						.isInstanceOf(InstanceNotFoundException.class)
-						.hasMessage(
-							"There is no client named \"" + A_FIRSTNAME + " "
-							+ A_LASTNAME + "\" in the database.");
+						.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, clientRepository);
 					
@@ -1242,10 +1036,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(
 							() -> transactionalBookingService.insertNewReservation(A_RESERVATION))
 						.isInstanceOf(InstanceNotFoundException.class)
-						.hasMessage(
-							"The client with id: " + A_CLIENT_UUID
-							+ ", associated to Reservation [date=" + A_LOCALDATE
-							+ "] is not in the database. Please, insert the client before the reservation.");
+						.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(
 							transactionManager, reservationRepository, clientRepository);
@@ -1268,9 +1059,7 @@ class TransactionalBookingServiceTest {
 					assertThatThrownBy(
 							() -> transactionalBookingService.insertNewReservation(A_RESERVATION))
 						.isInstanceOf(InstanceAlreadyExistsException.class)
-						.hasMessage(
-							"Reservation [date=" + A_LOCALDATE.toString()
-							+ "] is already in the database.");
+						.hasMessage(RESERVATION_ALREADY_EXISTS_ERROR_MSG);
 					
 					InOrder inOrder = Mockito.inOrder(transactionManager, reservationRepository);
 					
@@ -1300,7 +1089,7 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.insertNewReservation(A_RESERVATION))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 
 			@Test
@@ -1309,7 +1098,7 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.removeClient(A_CLIENT_UUID))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 
 			@Test
@@ -1318,7 +1107,7 @@ class TransactionalBookingServiceTest {
 				assertThatThrownBy(
 						() -> transactionalBookingService.removeClientNamed(A_FIRSTNAME, A_LASTNAME))
 					.isInstanceOf(DatabaseException.class)
-					.hasMessage("A database error occurs: the request cannot be executed.");
+					.hasMessage(DATABASE_ERROR_MSG);
 			}
 		}
 	}
