@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -17,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -42,7 +42,7 @@ import io.github.marcopaglio.booking.view.View;
 
 @DisplayName("Tests for ServedBookingPresenter class")
 @ExtendWith(MockitoExtension.class)
-class ServedBookingPresenterTest { // TODO costanti
+class ServedBookingPresenterTest {
 	final static private String A_FIRSTNAME = "Mario";
 	final static private String A_LASTNAME = "Rossi";
 	final static private Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME);
@@ -51,6 +51,7 @@ class ServedBookingPresenterTest { // TODO costanti
 	final static private String A_DATE = "2023-04-24";
 	final static private LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
 	final static private Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+	final static private UUID A_RESERVATION_UUID = UUID.fromString("3069144c-5c3d-4ee2-9458-ac67dd763fff");
 
 	@Mock
 	private BookingService bookingService;
@@ -66,6 +67,12 @@ class ServedBookingPresenterTest { // TODO costanti
 
 	@InjectMocks
 	private ServedBookingPresenter servedBookingPresenter;
+
+	@BeforeAll
+	static void setId() throws Exception {
+		A_CLIENT.setId(A_CLIENT_UUID);
+		A_RESERVATION.setId(A_RESERVATION_UUID);
+	}
 
 	@Nested
 	@DisplayName("Tests for 'allClients'")
@@ -104,8 +111,8 @@ class ServedBookingPresenterTest { // TODO costanti
 		}
 
 		@Test
-		@DisplayName("Database request fails on 'allClients'")
-		void testAllClientsWhenDatabaseRequestFailsShouldNotThrowAndShowError() {
+		@DisplayName("Database request fails")
+		void testAllClientsWhenDatabaseRequestFailsShouldShowErrorAndNotThrow() {
 			doThrow(new DatabaseException()).when(bookingService).findAllClients();
 			
 			assertThatNoException().isThrownBy(() -> servedBookingPresenter.allClients());
@@ -158,7 +165,7 @@ class ServedBookingPresenterTest { // TODO costanti
 
 		@Test
 		@DisplayName("Database request fails")
-		void testAllReservationsWhenDatabaseRequestFailsShouldNotThrowAndShowError() {
+		void testAllReservationsWhenDatabaseRequestFailsShouldShowErrorAndNotThrow() {
 			doThrow(new DatabaseException()).when(bookingService).findAllReservations();
 			
 			assertThatNoException().isThrownBy(() -> servedBookingPresenter.allReservations());
@@ -178,7 +185,7 @@ class ServedBookingPresenterTest { // TODO costanti
 
 		@Test
 		@DisplayName("Client is null")
-		void testDeleteClientWhenClientIsNullShouldShowErrorAndNotInsert() {
+		void testDeleteClientWhenClientIsNullShouldShowError() {
 			assertThatNoException().isThrownBy(() -> servedBookingPresenter.deleteClient(null));
 		
 			verify(view).showFormError("Select a client to delete.");
@@ -250,7 +257,7 @@ class ServedBookingPresenterTest { // TODO costanti
 
 		@Test
 		@DisplayName("Reservation is null")
-		void testDeleteReservationWhenReservationIsNullShouldShowErrorAndNotInsert() {
+		void testDeleteReservationWhenReservationIsNullShouldShowError() {
 			assertThatNoException().isThrownBy(
 					() -> servedBookingPresenter.deleteReservation(null));
 		
@@ -334,14 +341,14 @@ class ServedBookingPresenterTest { // TODO costanti
 				
 				servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME);
 				
-				InOrder inOrder = Mockito.inOrder(clientValidator, bookingService, view);
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				verify(clientValidator).validateFirstName(A_FIRSTNAME);
 				verify(clientValidator).validateLastName(A_LASTNAME);
 				inOrder.verify(bookingService).insertNewClient(A_CLIENT);
 				inOrder.verify(view).clientAdded(A_CLIENT);
 				
-				verifyNoMoreInteractions(clientValidator, bookingService, view);
+				verifyNoMoreInteractions(bookingService, view);
 			}
 
 			@Test
@@ -398,7 +405,7 @@ class ServedBookingPresenterTest { // TODO costanti
 
 			@Test
 			@DisplayName("Name is not valid")
-			void testAddClientWhenNameIsNotValidShouldNotInsertAndShowError() {
+			void testAddClientWhenNameIsNotValidShouldShowErrorAndNotInsert() {
 				when(clientValidator.validateFirstName(A_FIRSTNAME))
 					.thenThrow(illegalArgumentException);
 				
@@ -412,7 +419,7 @@ class ServedBookingPresenterTest { // TODO costanti
 
 			@Test
 			@DisplayName("Surname is not valid")
-			void testAddClientWhenSurnameIsNotValidShouldNotInsertAndShowError() {
+			void testAddClientWhenSurnameIsNotValidShouldShowErrorAndNotInsert() {
 				when(clientValidator.validateLastName(A_LASTNAME))
 					.thenThrow(illegalArgumentException);
 				
@@ -429,16 +436,10 @@ class ServedBookingPresenterTest { // TODO costanti
 	@Nested
 	@DisplayName("Tests for 'addReservation'")
 	class AddReservationTest {
-		private Client clientWithId = spy(A_CLIENT);
-
-		@BeforeEach
-		void stubbingClient() throws Exception {
-			when(clientWithId.getId()).thenReturn(A_CLIENT_UUID);
-		}
 
 		@DisplayName("Client is null")
 		@Test
-		void testAddReservationWhenClientIsNullShouldShowErrorAndNotInsert() {
+		void testAddReservationWhenClientIsNullShouldShowError() {
 			assertThatNoException().isThrownBy(
 					() -> servedBookingPresenter.addReservation(null, A_DATE));
 			
@@ -462,16 +463,16 @@ class ServedBookingPresenterTest { // TODO costanti
 			void testAddReservationWhenReservationIsNewShouldValidateItDelegateToServiceAndNotifyView() {
 				when(bookingService.insertNewReservation(A_RESERVATION)).thenReturn(A_RESERVATION);
 				
-				servedBookingPresenter.addReservation(clientWithId, A_DATE);
+				servedBookingPresenter.addReservation(A_CLIENT, A_DATE);
 				
-				InOrder inOrder = Mockito.inOrder(reservationValidator, bookingService, view);
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				verify(reservationValidator).validateClientId(A_CLIENT_UUID);
 				verify(reservationValidator).validateDate(A_DATE);
 				inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
 				inOrder.verify(view).reservationAdded(A_RESERVATION);
 				
-				verifyNoMoreInteractions(reservationValidator, bookingService, view);
+				verifyNoMoreInteractions(bookingService, view);
 			}
 
 			@Test
@@ -481,9 +482,9 @@ class ServedBookingPresenterTest { // TODO costanti
 					.thenThrow(new InstanceAlreadyExistsException());
 				
 				assertThatNoException().isThrownBy(
-						() -> servedBookingPresenter.addReservation(clientWithId, A_DATE));
+						() -> servedBookingPresenter.addReservation(A_CLIENT, A_DATE));
 				
-				InOrder inOrder = Mockito.inOrder(reservationValidator, bookingService, view);
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
 				inOrder.verify(view).showReservationError(
@@ -494,7 +495,7 @@ class ServedBookingPresenterTest { // TODO costanti
 				inOrder.verify(bookingService).findAllClients();
 				inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
 				
-				verifyNoMoreInteractions(reservationValidator, bookingService, view);
+				verifyNoMoreInteractions(bookingService, view);
 			}
 
 			@Test
@@ -504,20 +505,20 @@ class ServedBookingPresenterTest { // TODO costanti
 					.thenThrow(new InstanceNotFoundException());
 				
 				assertThatNoException().isThrownBy(
-						() -> servedBookingPresenter.addReservation(clientWithId, A_DATE));
+						() -> servedBookingPresenter.addReservation(A_CLIENT, A_DATE));
 				
-				InOrder inOrder = Mockito.inOrder(reservationValidator, bookingService, view);
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
 				inOrder.verify(view).showReservationError(
-						A_RESERVATION.toString() + "'s client no longer exists.");
+						A_RESERVATION.toString() + "'s client [id=" + A_CLIENT_UUID + "] no longer exists.");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
 				inOrder.verify(bookingService).findAllClients();
 				inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
 				
-				verifyNoMoreInteractions(reservationValidator, bookingService, view);
+				verifyNoMoreInteractions(bookingService, view);
 			}
 
 			@Test
@@ -527,7 +528,7 @@ class ServedBookingPresenterTest { // TODO costanti
 					.thenThrow(new DatabaseException());
 				
 				assertThatNoException().isThrownBy(
-						() -> servedBookingPresenter.addReservation(clientWithId, A_DATE));
+						() -> servedBookingPresenter.addReservation(A_CLIENT, A_DATE));
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
@@ -552,12 +553,12 @@ class ServedBookingPresenterTest { // TODO costanti
 
 			@Test
 			@DisplayName("ClientId is not valid")
-			void testAddReservationWhenClientIdIsNotValidShouldNotInsertAndShowError() {
+			void testAddReservationWhenClientIdIsNotValidShouldShowErrorAndNotInsert() {
 				when(reservationValidator.validateClientId(A_CLIENT_UUID))
 					.thenThrow(illegalArgumentException);
 				
 				assertThatNoException().isThrownBy(
-						() -> servedBookingPresenter.addReservation(clientWithId, A_DATE));
+						() -> servedBookingPresenter.addReservation(A_CLIENT, A_DATE));
 				
 				verify(reservationValidator).validateClientId(A_CLIENT_UUID);
 				verify(view).showFormError("Client's identifier associated with reservation is not valid.");
@@ -567,12 +568,12 @@ class ServedBookingPresenterTest { // TODO costanti
 			@Test
 			@DisplayName("Date is not valid")
 			@ValueSource(strings = {"2O23-O4-24", "24-04-2023", "2022-13-12", "2022-08-32"})
-			void testAddReservationWhenDateIsNotValidShouldNotInsertAndShowError() {
+			void testAddReservationWhenDateIsNotValidShouldShowErrorAndNotInsert() {
 				when(reservationValidator.validateDate(A_DATE))
 					.thenThrow(illegalArgumentException);
 				
 				assertThatNoException().isThrownBy(
-						() -> servedBookingPresenter.addReservation(clientWithId, A_DATE));
+						() -> servedBookingPresenter.addReservation(A_CLIENT, A_DATE));
 				
 				verify(reservationValidator).validateDate(A_DATE);
 				verify(view).showFormError("Reservation's date is not valid.");
@@ -604,13 +605,6 @@ class ServedBookingPresenterTest { // TODO costanti
 			private String validatedLastName = "De Lucia";
 			private Client renamedClient = new Client(validatedFirstName, validatedLastName);
 
-			private Client spiedClient = spy(A_CLIENT);
-
-			@BeforeEach
-			void stubbingClient() throws Exception {
-				when(spiedClient.getId()).thenReturn(A_CLIENT_UUID);
-			}
-
 			@BeforeEach
 			void stubbingValidator() throws Exception {
 				when(clientValidator.validateFirstName(newFirstName)).thenReturn(validatedFirstName);
@@ -623,9 +617,9 @@ class ServedBookingPresenterTest { // TODO costanti
 				when(bookingService.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName))
 					.thenReturn(renamedClient);
 				
-				servedBookingPresenter.renameClient(spiedClient, newFirstName, newLastName);
+				servedBookingPresenter.renameClient(A_CLIENT, newFirstName, newLastName);
 				
-				InOrder inOrder = Mockito.inOrder(clientValidator, bookingService, view);
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				verify(clientValidator).validateFirstName(newFirstName);
 				verify(clientValidator).validateLastName(newLastName);
@@ -633,7 +627,66 @@ class ServedBookingPresenterTest { // TODO costanti
 					.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName);
 				inOrder.verify(view).clientRenamed(renamedClient);
 				
-				verifyNoMoreInteractions(clientValidator, bookingService, view);
+				verifyNoMoreInteractions(bookingService, view);
+			}
+
+			@Test
+			@DisplayName("Validated name has not changed")
+			void testRenameClientWhenValidatedNameHasNotChangedShouldRename() {
+				Client client = new Client(validatedFirstName, A_LASTNAME);
+				client.setId(A_CLIENT_UUID);
+				
+				when(bookingService.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName))
+					.thenReturn(renamedClient);
+				
+				servedBookingPresenter.renameClient(client, newFirstName, newLastName);
+				
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
+				
+				verify(clientValidator).validateFirstName(newFirstName);
+				verify(clientValidator).validateLastName(newLastName);
+				inOrder.verify(bookingService)
+					.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName);
+				inOrder.verify(view).clientRenamed(renamedClient);
+				
+				verifyNoMoreInteractions(bookingService, view);
+			}
+
+			@Test
+			@DisplayName("Validated surname has not changed")
+			void testRenameClientWhenValidatedSurnameHasNotChangedShouldRename() {
+				Client client = new Client(A_FIRSTNAME, validatedLastName);
+				client.setId(A_CLIENT_UUID);
+				
+				when(bookingService.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName))
+					.thenReturn(renamedClient);
+				
+				servedBookingPresenter.renameClient(client, newFirstName, newLastName);
+				
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
+				
+				verify(clientValidator).validateFirstName(newFirstName);
+				verify(clientValidator).validateLastName(newLastName);
+				inOrder.verify(bookingService)
+					.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName);
+				inOrder.verify(view).clientRenamed(renamedClient);
+				
+				verifyNoMoreInteractions(bookingService, view);
+			}
+
+			@Test
+			@DisplayName("Both validated names have not changed")
+			void testRenameClientWhenBothValidatedNamesHaveNotChangedShouldShowErrorAndNotRename() {
+				Client client = new Client(validatedFirstName, validatedLastName);
+				client.setId(A_CLIENT_UUID);
+				
+				servedBookingPresenter.renameClient(client, newFirstName, newLastName);
+				
+				verify(clientValidator).validateFirstName(newFirstName);
+				verify(clientValidator).validateLastName(newLastName);
+				verify(view).showFormError("Insert new names for the client to be renamed.");
+				verify(bookingService, never())
+					.renameClient(any(UUID.class), anyString(), anyString());
 			}
 
 			@Test
@@ -643,7 +696,7 @@ class ServedBookingPresenterTest { // TODO costanti
 					.thenThrow(new InstanceAlreadyExistsException());
 				
 				assertThatNoException().isThrownBy(() -> servedBookingPresenter
-						.renameClient(spiedClient, newFirstName, newLastName));
+						.renameClient(A_CLIENT, newFirstName, newLastName));
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
@@ -667,7 +720,7 @@ class ServedBookingPresenterTest { // TODO costanti
 					.thenThrow(new InstanceNotFoundException());
 				
 				assertThatNoException().isThrownBy(() -> servedBookingPresenter
-						.renameClient(spiedClient, newFirstName, newLastName));
+						.renameClient(A_CLIENT, newFirstName, newLastName));
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
@@ -690,7 +743,7 @@ class ServedBookingPresenterTest { // TODO costanti
 					.thenThrow(new DatabaseException());
 				
 				assertThatNoException().isThrownBy(() -> servedBookingPresenter
-						.renameClient(spiedClient, newFirstName, newLastName));
+						.renameClient(A_CLIENT, newFirstName, newLastName));
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
@@ -705,21 +758,6 @@ class ServedBookingPresenterTest { // TODO costanti
 				inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
 				
 				verifyNoMoreInteractions(bookingService, view);
-			}
-
-			@Test
-			@DisplayName("Validated names have not changed")
-			void testRenameClientWhenValidatedNamesHaveNotChangedShouldShowErrorAndNotRename() {
-				when(spiedClient.getFirstName()).thenReturn(validatedFirstName);
-				when(spiedClient.getLastName()).thenReturn(validatedLastName);
-				
-				servedBookingPresenter.renameClient(spiedClient, newFirstName, newLastName);
-				
-				verify(clientValidator).validateFirstName(newFirstName);
-				verify(clientValidator).validateLastName(newLastName);
-				verify(view).showFormError("Insert new names for the client to be renamed.");
-				verify(bookingService, never())
-					.renameClient(any(UUID.class), anyString(), anyString());
 			}
 		}
 
@@ -765,7 +803,6 @@ class ServedBookingPresenterTest { // TODO costanti
 	@DisplayName("Tests for 'rescheduleReservation'")
 	class RescheduleReservationTest {
 		private String newDate = "2023-09-05";
-		final private UUID reservationId = UUID.fromString("3069144c-5c3d-4ee2-9458-ac67dd763fff");
 
 		@DisplayName("Reservation is null")
 		@Test
@@ -781,14 +818,7 @@ class ServedBookingPresenterTest { // TODO costanti
 		@DisplayName("Validation is successful")
 		class ValidationSuccessfulTest {
 			private LocalDate validatedDate = LocalDate.parse(newDate);
-			private Reservation rescheduleReservation = new Reservation(A_CLIENT_UUID, validatedDate);
-
-			private Reservation spiedReservation = spy(A_RESERVATION);
-
-			@BeforeEach
-			void stubbingClient() throws Exception {
-				when(spiedReservation.getId()).thenReturn(reservationId);
-			}
+			private Reservation rescheduledReservation = new Reservation(A_CLIENT_UUID, validatedDate);
 
 			@BeforeEach
 			void stubbingValidator() throws Exception {
@@ -798,34 +828,34 @@ class ServedBookingPresenterTest { // TODO costanti
 			@Test
 			@DisplayName("Rescheduled reservation is new")
 			void testRescheduleReservationWhenRescheduledReservationIsNewShouldValidateItDelegateToServiceAndNotifyView() {
-				when(bookingService.rescheduleReservation(reservationId, validatedDate))
-					.thenReturn(rescheduleReservation);
+				when(bookingService.rescheduleReservation(A_RESERVATION_UUID, validatedDate))
+					.thenReturn(rescheduledReservation);
 				
-				servedBookingPresenter.rescheduleReservation(spiedReservation, newDate);
+				servedBookingPresenter.rescheduleReservation(A_RESERVATION, newDate);
 				
-				InOrder inOrder = Mockito.inOrder(reservationValidator, bookingService, view);
+				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				verify(reservationValidator).validateDate(newDate);
 				inOrder.verify(bookingService)
-					.rescheduleReservation(reservationId, validatedDate);
-				inOrder.verify(view).reservationRescheduled(rescheduleReservation);
+					.rescheduleReservation(A_RESERVATION_UUID, validatedDate);
+				inOrder.verify(view).reservationRescheduled(rescheduledReservation);
 				
-				verifyNoMoreInteractions(reservationValidator, bookingService, view);
+				verifyNoMoreInteractions(bookingService, view);
 			}
 
 			@Test
 			@DisplayName("Rescheduled reservation is not new")
 			void testRescheduleReservationWhenRescheduledReservationIsNotNewShouldShowErrorAndUpdateView() {
-				when(bookingService.rescheduleReservation(reservationId, validatedDate))
+				when(bookingService.rescheduleReservation(A_RESERVATION_UUID, validatedDate))
 					.thenThrow(new InstanceAlreadyExistsException());
 				
 				assertThatNoException().isThrownBy(() -> servedBookingPresenter
-						.rescheduleReservation(spiedReservation, newDate));
+						.rescheduleReservation(A_RESERVATION, newDate));
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				inOrder.verify(bookingService)
-					.rescheduleReservation(reservationId, validatedDate);
+					.rescheduleReservation(A_RESERVATION_UUID, validatedDate);
 				inOrder.verify(view).showReservationError(
 						"A reservation on " + validatedDate + " has already been made.");
 				// updateAll
@@ -840,16 +870,16 @@ class ServedBookingPresenterTest { // TODO costanti
 			@Test
 			@DisplayName("Reservation is not in database")
 			void testRescheduleReservationWhenReservationIsNotInDatabaseShouldShowErrorAndUpdateView() {
-				when(bookingService.rescheduleReservation(reservationId, validatedDate))
+				when(bookingService.rescheduleReservation(A_RESERVATION_UUID, validatedDate))
 					.thenThrow(new InstanceNotFoundException());
 				
 				assertThatNoException().isThrownBy(() -> servedBookingPresenter
-						.rescheduleReservation(spiedReservation, newDate));
+						.rescheduleReservation(A_RESERVATION, newDate));
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				inOrder.verify(bookingService)
-					.rescheduleReservation(reservationId, validatedDate);
+					.rescheduleReservation(A_RESERVATION_UUID, validatedDate);
 				inOrder.verify(view).showReservationError(
 						A_RESERVATION.toString() + " no longer exists.");
 				// updateAll
@@ -864,16 +894,16 @@ class ServedBookingPresenterTest { // TODO costanti
 			@Test
 			@DisplayName("Database request fails")
 			void testRescheduleReservationWhenDatabaseRequestFailsShouldShowErrorAndUpdateView() {
-				when(bookingService.rescheduleReservation(reservationId, validatedDate))
+				when(bookingService.rescheduleReservation(A_RESERVATION_UUID, validatedDate))
 					.thenThrow(new DatabaseException());
 				
 				assertThatNoException().isThrownBy(() -> servedBookingPresenter
-						.rescheduleReservation(spiedReservation, newDate));
+						.rescheduleReservation(A_RESERVATION, newDate));
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				inOrder.verify(bookingService)
-					.rescheduleReservation(reservationId, validatedDate);
+					.rescheduleReservation(A_RESERVATION_UUID, validatedDate);
 				inOrder.verify(view).showReservationError(
 						"Something went wrong while rescheduling " + A_RESERVATION.toString() + ".");
 				// updateAll
@@ -888,9 +918,9 @@ class ServedBookingPresenterTest { // TODO costanti
 			@Test
 			@DisplayName("Validated date has not changed")
 			void testRescheduleReservationWhenValidatedDateHasNotChangedShouldShowErrorAndNotReschedule() {
-				when(spiedReservation.getDate()).thenReturn(validatedDate);
+				Reservation reservation = new Reservation(A_CLIENT_UUID, validatedDate);
 				
-				servedBookingPresenter.rescheduleReservation(spiedReservation, newDate);
+				servedBookingPresenter.rescheduleReservation(reservation, newDate);
 				
 				verify(reservationValidator).validateDate(newDate);
 				verify(view).showFormError("Insert a new date for the reservation to be rescheduled.");
@@ -911,7 +941,7 @@ class ServedBookingPresenterTest { // TODO costanti
 			verify(reservationValidator).validateDate(newDate);
 			verify(view).showFormError("Reservation's date is not valid.");
 			verify(bookingService, never())
-			.rescheduleReservation(any(UUID.class), any(LocalDate.class));
+				.rescheduleReservation(any(UUID.class), any(LocalDate.class));
 		}
 	}
 }
