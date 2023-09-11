@@ -74,7 +74,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.info("All clients have been retrieved with success.");
 		} catch(DatabaseException e) {
 			LOGGER.warn(e.getMessage());
-			view.showClientError("An error occurred while updating clients.");
+			view.showClientError(databaseErrorMsg("updating clients"));
 		}
 	}
 
@@ -89,7 +89,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 		LOGGER.info("All reservations have been retrieved with success.");
 		} catch(DatabaseException e) {
 			LOGGER.warn(e.getMessage());
-			view.showReservationError("An error occurred while updating reservations.");
+			view.showReservationError(databaseErrorMsg("updating reservations"));
 		}
 	}
 
@@ -121,11 +121,11 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s has been deleted with success.", client.toString()));
 			} catch (InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
-				view.showClientError(client.toString() + " has already been deleted.");
+				view.showClientError(instanceNotFoundErrorMsg(client.toString()));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
-				view.showClientError("An error occurred while deleting " + client.toString() + ".");
+				view.showClientError(databaseErrorMsg("deleting " + client.toString()));
 				updateAll();
 			}
 		}
@@ -149,11 +149,11 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s has been deleted with success.", reservation.toString()));
 			} catch (InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
-				view.showReservationError(reservation.toString() + " has already been deleted.");
+				view.showReservationError(instanceNotFoundErrorMsg(reservation.toString()));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
-				view.showReservationError("An error occurred while deleting " + reservation.toString() + ".");
+				view.showReservationError(databaseErrorMsg("deleting " + reservation.toString()));
 			}
 		}
 	}
@@ -176,11 +176,12 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s has been added with success.", clientInDB.toString()));
 			} catch(InstanceAlreadyExistsException e) {
 				LOGGER.warn(e.getMessage());
-				view.showClientError(client.toString() + " already exists.");
+				view.showClientError(clientAlreadyExistsErrorMsg(
+						client.getFirstName(), client.getLastName()));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
-				view.showClientError("Something went wrong while adding " + client.toString() + ".");
+				view.showClientError(databaseErrorMsg("adding " + client.toString()));
 				updateAll();
 			}
 		}
@@ -256,15 +257,16 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s has been added with success.", reservationInDB.toString()));
 			} catch(InstanceAlreadyExistsException e) {
 				LOGGER.warn(e.getMessage());
-				view.showReservationError(reservation.toString() + " is already booked.");
+				view.showReservationError(reservationAlreadyExistsErrorMsg(
+						reservation.getDate().toString()));
 				updateAll();
 			} catch(InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
-				view.showReservationError(reservation.toString() + "'s client no longer exists.");
+				view.showReservationError(instanceNotFoundErrorMsg(reservation.toString() + "'s client"));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
-				view.showReservationError("Something went wrong while adding " + reservation.toString() + ".");
+				view.showReservationError(databaseErrorMsg("adding " + reservation.toString()));
 				updateAll();
 			}
 		}
@@ -367,15 +369,15 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.info(() -> String.format("%s has been renamed with success.", clientInDB.toString()));
 		} catch(InstanceAlreadyExistsException e) {
 			LOGGER.warn(e.getMessage());
-			view.showClientError("Client [" + newFirstName + " " + newLastName + "] already exists.");
+			view.showClientError(clientAlreadyExistsErrorMsg(newFirstName, newLastName));
 			updateAll();
 		} catch(InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
-			view.showClientError(client.toString() + " no longer exists.");
+			view.showClientError(instanceNotFoundErrorMsg(client.toString()));
 			updateAll();
 		} catch(DatabaseException e) {
 			LOGGER.warn(e.getMessage());
-			view.showClientError("Something went wrong while renaming " + client.toString() + ".");
+			view.showClientError(databaseErrorMsg("renaming " + client.toString()));
 			updateAll();
 		}
 	}
@@ -417,16 +419,58 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.info(() -> String.format("%s has been rescheduled with success.", reservationInDB.toString()));
 		} catch(InstanceAlreadyExistsException e) {
 			LOGGER.warn(e.getMessage());
-			view.showReservationError("Reservation [date=" + validatedDate + "] is already booked.");
+			view.showReservationError(reservationAlreadyExistsErrorMsg(validatedDate.toString()));
 			updateAll();
 		} catch(InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
-			view.showReservationError(reservation.toString() + " no longer exists.");
+			view.showReservationError(instanceNotFoundErrorMsg(reservation.toString()));
 			updateAll();
 		} catch(DatabaseException e) {
 			LOGGER.warn(e.getMessage());
-			view.showReservationError("Something went wrong while rescheduling " + reservation.toString() + ".");
+			view.showReservationError(databaseErrorMsg("rescheduling " + reservation.toString()));
 			updateAll();
 		}
 	}
-}	//TODO: finally col messaggio not null
+
+	/**
+	 * Generates an error message used when a {@code InstanceAlreadyExistsException} occurs
+	 * for {@code Client} entities.
+	 * 
+	 * @param date	the date of the existing reservation.
+	 * @return		a {@code String} containing the generated error message.
+	 */
+	private String clientAlreadyExistsErrorMsg(String firstName, String lastName) {
+		return "A client named " + firstName + " " + lastName + " has already been made.";
+	}
+
+	/**
+	 * Generates an error message used when a {@code InstanceAlreadyExistsException} occurs
+	 * for {@code Reservation} entities.
+	 * 
+	 * @param date	the date of the existing reservation.
+	 * @return		a {@code String} containing the generated error message.
+	 */
+	private String reservationAlreadyExistsErrorMsg(String date) {
+		return "A reservation on " + date + " has already been made.";
+	}
+
+	/**
+	 * Generates an error message used when a {@code InstanceNotFoundException} occurs.
+	 * 
+	 * @param notFoundInstance	description of the not found object.
+	 * @return					a {@code String} containing the generated error message.
+	 */
+	private String instanceNotFoundErrorMsg(String notFoundInstance) {
+		return notFoundInstance + " no longer exists.";
+	}
+
+	/**
+	 * Generates an error message used when a {@code DatabaseException} occurs.
+	 * 
+	 * @param failedAction	description of the failed actions.
+	 * @return				a {@code String} containing the generated error message.
+	 */
+	private String databaseErrorMsg(String failedAction) {
+		return "Something went wrong while " + failedAction + ".";
+	}
+}
