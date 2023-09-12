@@ -8,7 +8,7 @@ import io.github.marcopaglio.booking.model.Reservation;
 /**
  * This interface provides methods for operating on a user interface for the booking application.
  */
-public interface View {
+public interface BookingView {
 
 	/**
 	 * Displays the clients of the given list on the user interface.

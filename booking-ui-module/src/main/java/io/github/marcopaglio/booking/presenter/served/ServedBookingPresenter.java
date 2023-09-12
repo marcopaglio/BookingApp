@@ -17,7 +17,7 @@ import io.github.marcopaglio.booking.presenter.BookingPresenter;
 import io.github.marcopaglio.booking.service.BookingService;
 import io.github.marcopaglio.booking.validator.ClientValidator;
 import io.github.marcopaglio.booking.validator.ReservationValidator;
-import io.github.marcopaglio.booking.view.View;
+import io.github.marcopaglio.booking.view.BookingView;
 
 /**
  * A concrete implementation of the presenter for the booking application using
@@ -32,7 +32,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	/**
 	 * Displays changes of the model on a user interface.
 	 */
-	private View view;
+	private BookingView view;
 
 	/**
 	 * Allows the presenter to interact with repositories.
@@ -55,7 +55,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @param view				the {@code View} used to show the user interface.
 	 * @param bookingService	the {@code BookingService} used to interact with repositories.
 	 */
-	public ServedBookingPresenter(View view, BookingService bookingService,
+	public ServedBookingPresenter(BookingView view, BookingService bookingService,
 			ClientValidator clientValidator, ReservationValidator reservationValidator) {
 		this.view = view;
 		this.bookingService = bookingService;

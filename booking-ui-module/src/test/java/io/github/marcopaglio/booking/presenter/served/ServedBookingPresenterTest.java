@@ -38,7 +38,7 @@ import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.service.BookingService;
 import io.github.marcopaglio.booking.validator.ClientValidator;
 import io.github.marcopaglio.booking.validator.ReservationValidator;
-import io.github.marcopaglio.booking.view.View;
+import io.github.marcopaglio.booking.view.BookingView;
 
 @DisplayName("Tests for ServedBookingPresenter class")
 @ExtendWith(MockitoExtension.class)
@@ -63,7 +63,7 @@ class ServedBookingPresenterTest {
 	private ReservationValidator reservationValidator;
 
 	@Mock
-	private View view;
+	private BookingView view;
 
 	@InjectMocks
 	private ServedBookingPresenter servedBookingPresenter;
