@@ -270,6 +270,12 @@
           </plugin>
         </plugins>
       </build>
+      <properties>
+        <!-- Rule: "Tests should include assertions"  -->
+        <!-- SonarQube does not know that AssertJ Swing methods effectively assert something -->
+        <sonar.issue.ignore.multicriteria.e4.ruleKey>java:S2699</sonar.issue.ignore.multicriteria.e4.ruleKey>
+        <sonar.issue.ignore.multicriteria.e4.resourceKey>**/*Swing*Test.java</sonar.issue.ignore.multicriteria.e4.resourceKey>
+      </properties>
     </profile>
   </profiles>
 </project>
