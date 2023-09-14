@@ -20,24 +20,27 @@ import java.awt.Insets;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import javax.swing.SwingConstants;
 
 public class BookingSwingView extends JFrame implements BookingView {
 
 	private JPanel contentPane;
-	private JTextField nameInputTextBox;
-	private JButton addClientButton;
-	private JLabel dateLabel;
-	private JTextField dateInputTextBox;
-	private JButton addReservationButton;
-	private JLabel surnameLabel;
-	private JTextField surnameInputTextBox;
-	private JButton renameButton;
-	private JButton rescheduleButton;
-	private JLabel formErrorMessageLabel;
-	private JButton removeClientButton;
-	private JButton removeReservationButton;
-	private JLabel clientErrorMessageLabel;
-	private JLabel reservationErrorMessageLabel;
+	private JTextField nameFormTxt;
+	private JButton addClientBtn;
+	private JLabel dateLbl;
+	private JTextField dateFormTxt;
+	private JButton addReservationBtn;
+	private JLabel lastNameLbl;
+	private JTextField surnameFormTxt;
+	private JButton renameBtn;
+	private JButton rescheduleBtn;
+	private JLabel formErrorMsgLbl;
+	private JButton removeClientBtn;
+	private JButton removeReservationBtn;
+	private JLabel clientErrorMsgLbl;
+	private JLabel reservationErrorMsgLbl;
 	private JScrollPane clientScrollPane;
 	private JList clientList;
 	private JScrollPane reservationScrollPane;
@@ -77,112 +80,130 @@ public class BookingSwingView extends JFrame implements BookingView {
 		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
 		contentPane.setLayout(gbl_contentPane);
 		
-		JLabel nameLabel = new JLabel("Name");
-		nameLabel.setName("nameLabel");
-		GridBagConstraints gbc_nameLabel = new GridBagConstraints();
-		gbc_nameLabel.anchor = GridBagConstraints.EAST;
-		gbc_nameLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_nameLabel.gridx = 0;
-		gbc_nameLabel.gridy = 0;
-		contentPane.add(nameLabel, gbc_nameLabel);
+		// events
+		final KeyAdapter clientBtnEnabler = new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				addClientBtn.setEnabled(
+					!nameFormTxt.getText().trim().isEmpty() &&
+					!surnameFormTxt.getText().trim().isEmpty()
+				);
+			}
+		};
 		
-		nameInputTextBox = new JTextField();
-		nameInputTextBox.setName("nameInputTextBox");
-		nameInputTextBox.setToolTipText("Names must not contain numbers (e.g. 0-9) or any type of symbol or special character (e.g. ~`! @#$%^&*()_-+={[}]|\\:;\"'<,>.?/)");
-		GridBagConstraints gbc_nameInputTextBox = new GridBagConstraints();
-		gbc_nameInputTextBox.fill = GridBagConstraints.HORIZONTAL;
-		gbc_nameInputTextBox.insets = new Insets(0, 0, 5, 5);
-		gbc_nameInputTextBox.gridx = 1;
-		gbc_nameInputTextBox.gridy = 0;
-		contentPane.add(nameInputTextBox, gbc_nameInputTextBox);
-		nameInputTextBox.setColumns(10);
+		// First row
+		JLabel firstNameLbl = new JLabel("First Name");
+		firstNameLbl.setName("firstNameLbl");
+		GridBagConstraints gbc_firstNameLbl = new GridBagConstraints();
+		gbc_firstNameLbl.anchor = GridBagConstraints.EAST;
+		gbc_firstNameLbl.insets = new Insets(0, 0, 5, 5);
+		gbc_firstNameLbl.gridx = 0;
+		gbc_firstNameLbl.gridy = 0;
+		contentPane.add(firstNameLbl, gbc_firstNameLbl);
 		
-		addClientButton = new JButton("Add Client");
-		addClientButton.setEnabled(false);
-		addClientButton.setName("addClientButton");
-		addClientButton.setToolTipText("");
-		GridBagConstraints gbc_addClientButton = new GridBagConstraints();
-		gbc_addClientButton.insets = new Insets(0, 0, 5, 5);
-		gbc_addClientButton.gridx = 2;
-		gbc_addClientButton.gridy = 0;
-		contentPane.add(addClientButton, gbc_addClientButton);
+		nameFormTxt = new JTextField();
+		nameFormTxt.addKeyListener(clientBtnEnabler);
+		nameFormTxt.setName("nameFormTxt");
+		nameFormTxt.setToolTipText("Names must not contain numbers (e.g. 0-9) or any type of symbol or special character (e.g. ~`! @#$%^&*()_-+={[}]|\\:;\"'<,>.?/)");
+		GridBagConstraints gbc_nameFormTxt = new GridBagConstraints();
+		gbc_nameFormTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbc_nameFormTxt.insets = new Insets(0, 0, 5, 5);
+		gbc_nameFormTxt.gridx = 1;
+		gbc_nameFormTxt.gridy = 0;
+		contentPane.add(nameFormTxt, gbc_nameFormTxt);
+		nameFormTxt.setColumns(10);
 		
-		dateLabel = new JLabel("Date");
-		dateLabel.setName("dateLabel");
-		GridBagConstraints gbc_dateLabel = new GridBagConstraints();
-		gbc_dateLabel.anchor = GridBagConstraints.EAST;
-		gbc_dateLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_dateLabel.gridx = 3;
-		gbc_dateLabel.gridy = 0;
-		contentPane.add(dateLabel, gbc_dateLabel);
+		addClientBtn = new JButton("Add Client");
+		addClientBtn.setEnabled(false);
+		addClientBtn.setName("addClientBtn");
+		addClientBtn.setToolTipText("");
+		GridBagConstraints gbc_addClientBtn = new GridBagConstraints();
+		gbc_addClientBtn.insets = new Insets(0, 0, 5, 5);
+		gbc_addClientBtn.gridx = 2;
+		gbc_addClientBtn.gridy = 0;
+		contentPane.add(addClientBtn, gbc_addClientBtn);
 		
-		dateInputTextBox = new JTextField();
-		dateInputTextBox.setToolTipText("Dates must be in format aaaa-mm-dd (e.g. 2022-04-24)");
-		dateInputTextBox.setName("dateInputTextBox");
-		GridBagConstraints gbc_dateInputTextBox = new GridBagConstraints();
-		gbc_dateInputTextBox.insets = new Insets(0, 0, 5, 5);
-		gbc_dateInputTextBox.fill = GridBagConstraints.HORIZONTAL;
-		gbc_dateInputTextBox.gridx = 4;
-		gbc_dateInputTextBox.gridy = 0;
-		contentPane.add(dateInputTextBox, gbc_dateInputTextBox);
-		dateInputTextBox.setColumns(10);
+		dateLbl = new JLabel("Date");
+		dateLbl.setName("dateLbl");
+		GridBagConstraints gbc_dateLbl = new GridBagConstraints();
+		gbc_dateLbl.anchor = GridBagConstraints.EAST;
+		gbc_dateLbl.insets = new Insets(0, 0, 5, 5);
+		gbc_dateLbl.gridx = 3;
+		gbc_dateLbl.gridy = 0;
+		contentPane.add(dateLbl, gbc_dateLbl);
 		
-		addReservationButton = new JButton("Add Reservation");
-		addReservationButton.setEnabled(false);
-		addReservationButton.setName("addReservationButton");
-		GridBagConstraints gbc_addReservationButton = new GridBagConstraints();
-		gbc_addReservationButton.insets = new Insets(0, 0, 5, 0);
-		gbc_addReservationButton.gridx = 5;
-		gbc_addReservationButton.gridy = 0;
-		contentPane.add(addReservationButton, gbc_addReservationButton);
+		dateFormTxt = new JTextField();
+		dateFormTxt.setToolTipText("Dates must be in format aaaa-mm-dd (e.g. 2022-04-24)");
+		dateFormTxt.setName("dateFormTxt");
+		GridBagConstraints gbc_dateFormTxt = new GridBagConstraints();
+		gbc_dateFormTxt.insets = new Insets(0, 0, 5, 5);
+		gbc_dateFormTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbc_dateFormTxt.gridx = 4;
+		gbc_dateFormTxt.gridy = 0;
+		contentPane.add(dateFormTxt, gbc_dateFormTxt);
+		dateFormTxt.setColumns(10);
 		
-		surnameLabel = new JLabel("Surname");
-		surnameLabel.setName("surnameLabel");
-		GridBagConstraints gbc_surnameLabel = new GridBagConstraints();
-		gbc_surnameLabel.anchor = GridBagConstraints.EAST;
-		gbc_surnameLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_surnameLabel.gridx = 0;
-		gbc_surnameLabel.gridy = 1;
-		contentPane.add(surnameLabel, gbc_surnameLabel);
+		addReservationBtn = new JButton("Add Reservation");
+		addReservationBtn.setEnabled(false);
+		addReservationBtn.setName("addReservationBtn");
+		GridBagConstraints gbc_addReservationBtn = new GridBagConstraints();
+		gbc_addReservationBtn.insets = new Insets(0, 0, 5, 0);
+		gbc_addReservationBtn.gridx = 5;
+		gbc_addReservationBtn.gridy = 0;
+		contentPane.add(addReservationBtn, gbc_addReservationBtn);
 		
-		surnameInputTextBox = new JTextField();
-		surnameInputTextBox.setToolTipText("Surnames must not contain numbers (e.g. 0-9) or any type of symbol or special character (e.g. ~`! @#$%^&*()_-+={[}]|\\:;\"'<,>.?/)");
-		surnameInputTextBox.setName("surnameInputTextBox");
-		GridBagConstraints gbc_surnameInputTextBox = new GridBagConstraints();
-		gbc_surnameInputTextBox.insets = new Insets(0, 0, 5, 5);
-		gbc_surnameInputTextBox.fill = GridBagConstraints.HORIZONTAL;
-		gbc_surnameInputTextBox.gridx = 1;
-		gbc_surnameInputTextBox.gridy = 1;
-		contentPane.add(surnameInputTextBox, gbc_surnameInputTextBox);
-		surnameInputTextBox.setColumns(10);
+		// Second row
+		lastNameLbl = new JLabel("Last Name");
+		lastNameLbl.setVerticalAlignment(SwingConstants.BOTTOM);
+		lastNameLbl.setName("lastNameLbl");
+		GridBagConstraints gbc_lastNameLbl = new GridBagConstraints();
+		gbc_lastNameLbl.anchor = GridBagConstraints.EAST;
+		gbc_lastNameLbl.insets = new Insets(0, 0, 5, 5);
+		gbc_lastNameLbl.gridx = 0;
+		gbc_lastNameLbl.gridy = 1;
+		contentPane.add(lastNameLbl, gbc_lastNameLbl);
 		
-		renameButton = new JButton("Rename");
-		renameButton.setEnabled(false);
-		renameButton.setName("renameButton");
-		GridBagConstraints gbc_renameButton = new GridBagConstraints();
-		gbc_renameButton.insets = new Insets(0, 0, 5, 5);
-		gbc_renameButton.gridx = 2;
-		gbc_renameButton.gridy = 1;
-		contentPane.add(renameButton, gbc_renameButton);
+		surnameFormTxt = new JTextField();
+		surnameFormTxt.addKeyListener(clientBtnEnabler);
+		surnameFormTxt.setToolTipText("Surnames must not contain numbers (e.g. 0-9) or any type of symbol or special character (e.g. ~`! @#$%^&*()_-+={[}]|\\:;\"'<,>.?/)");
+		surnameFormTxt.setName("surnameFormTxt");
+		GridBagConstraints gbc_surnameFormTxt = new GridBagConstraints();
+		gbc_surnameFormTxt.insets = new Insets(0, 0, 5, 5);
+		gbc_surnameFormTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbc_surnameFormTxt.gridx = 1;
+		gbc_surnameFormTxt.gridy = 1;
+		contentPane.add(surnameFormTxt, gbc_surnameFormTxt);
+		surnameFormTxt.setColumns(10);
 		
-		rescheduleButton = new JButton("Reschedule");
-		rescheduleButton.setName("rescheduleButton");
-		rescheduleButton.setEnabled(false);
-		GridBagConstraints gbc_rescheduleButton = new GridBagConstraints();
-		gbc_rescheduleButton.insets = new Insets(0, 0, 5, 0);
-		gbc_rescheduleButton.gridx = 5;
-		gbc_rescheduleButton.gridy = 1;
-		contentPane.add(rescheduleButton, gbc_rescheduleButton);
+		renameBtn = new JButton("Rename");
+		renameBtn.setEnabled(false);
+		renameBtn.setName("renameBtn");
+		GridBagConstraints gbc_renameBtn = new GridBagConstraints();
+		gbc_renameBtn.insets = new Insets(0, 0, 5, 5);
+		gbc_renameBtn.gridx = 2;
+		gbc_renameBtn.gridy = 1;
+		contentPane.add(renameBtn, gbc_renameBtn);
 		
-		formErrorMessageLabel = new JLabel(" ");
-		formErrorMessageLabel.setName("formErrorMessageLabel");
-		GridBagConstraints gbc_formErrorMessageLabel = new GridBagConstraints();
-		gbc_formErrorMessageLabel.insets = new Insets(0, 0, 5, 0);
-		gbc_formErrorMessageLabel.gridwidth = 6;
-		gbc_formErrorMessageLabel.gridx = 0;
-		gbc_formErrorMessageLabel.gridy = 2;
-		contentPane.add(formErrorMessageLabel, gbc_formErrorMessageLabel);
+		rescheduleBtn = new JButton("Reschedule");
+		rescheduleBtn.setName("rescheduleBtn");
+		rescheduleBtn.setEnabled(false);
+		GridBagConstraints gbc_rescheduleBtn = new GridBagConstraints();
+		gbc_rescheduleBtn.insets = new Insets(0, 0, 5, 0);
+		gbc_rescheduleBtn.gridx = 5;
+		gbc_rescheduleBtn.gridy = 1;
+		contentPane.add(rescheduleBtn, gbc_rescheduleBtn);
 		
+		// Third row
+		formErrorMsgLbl = new JLabel(" ");
+		formErrorMsgLbl.setName("formErrorMsgLbl");
+		GridBagConstraints gbc_formErrorMsgLbl = new GridBagConstraints();
+		gbc_formErrorMsgLbl.insets = new Insets(0, 0, 5, 0);
+		gbc_formErrorMsgLbl.gridwidth = 6;
+		gbc_formErrorMsgLbl.gridx = 0;
+		gbc_formErrorMsgLbl.gridy = 2;
+		contentPane.add(formErrorMsgLbl, gbc_formErrorMsgLbl);
+		
+		// Fourth row
 		clientScrollPane = new JScrollPane();
 		clientScrollPane.setName("clientScrollPane");
 		GridBagConstraints gbc_clientScrollPane = new GridBagConstraints();
@@ -211,40 +232,42 @@ public class BookingSwingView extends JFrame implements BookingView {
 		reservationList.setName("reservationList");
 		reservationScrollPane.setViewportView(reservationList);
 		
-		removeClientButton = new JButton("Remove Client");
-		removeClientButton.setEnabled(false);
-		removeClientButton.setName("removeClientButton");
-		GridBagConstraints gbc_removeClientButton = new GridBagConstraints();
-		gbc_removeClientButton.insets = new Insets(0, 0, 5, 5);
-		gbc_removeClientButton.gridx = 2;
-		gbc_removeClientButton.gridy = 4;
-		contentPane.add(removeClientButton, gbc_removeClientButton);
+		// Fifth row
+		removeClientBtn = new JButton("Remove Client");
+		removeClientBtn.setEnabled(false);
+		removeClientBtn.setName("removeClientBtn");
+		GridBagConstraints gbc_removeClientBtn = new GridBagConstraints();
+		gbc_removeClientBtn.insets = new Insets(0, 0, 5, 5);
+		gbc_removeClientBtn.gridx = 2;
+		gbc_removeClientBtn.gridy = 4;
+		contentPane.add(removeClientBtn, gbc_removeClientBtn);
 		
-		removeReservationButton = new JButton("Remove Reservation");
-		removeReservationButton.setName("removeReservationButton");
-		removeReservationButton.setEnabled(false);
-		GridBagConstraints gbc_removeReservationButton = new GridBagConstraints();
-		gbc_removeReservationButton.insets = new Insets(0, 0, 5, 0);
-		gbc_removeReservationButton.gridx = 5;
-		gbc_removeReservationButton.gridy = 4;
-		contentPane.add(removeReservationButton, gbc_removeReservationButton);
+		removeReservationBtn = new JButton("Remove Reservation");
+		removeReservationBtn.setName("removeReservationBtn");
+		removeReservationBtn.setEnabled(false);
+		GridBagConstraints gbc_removeReservationBtn = new GridBagConstraints();
+		gbc_removeReservationBtn.insets = new Insets(0, 0, 5, 0);
+		gbc_removeReservationBtn.gridx = 5;
+		gbc_removeReservationBtn.gridy = 4;
+		contentPane.add(removeReservationBtn, gbc_removeReservationBtn);
 		
-		clientErrorMessageLabel = new JLabel(" ");
-		clientErrorMessageLabel.setName("clientErrorMessageLabel");
-		GridBagConstraints gbc_clientErrorMessageLabel = new GridBagConstraints();
-		gbc_clientErrorMessageLabel.gridwidth = 3;
-		gbc_clientErrorMessageLabel.insets = new Insets(0, 0, 0, 5);
-		gbc_clientErrorMessageLabel.gridx = 0;
-		gbc_clientErrorMessageLabel.gridy = 5;
-		contentPane.add(clientErrorMessageLabel, gbc_clientErrorMessageLabel);
+		// Sixth row
+		clientErrorMsgLbl = new JLabel(" ");
+		clientErrorMsgLbl.setName("clientErrorMsgLbl");
+		GridBagConstraints gbc_clientErrorMsgLbl = new GridBagConstraints();
+		gbc_clientErrorMsgLbl.gridwidth = 3;
+		gbc_clientErrorMsgLbl.insets = new Insets(0, 0, 0, 5);
+		gbc_clientErrorMsgLbl.gridx = 0;
+		gbc_clientErrorMsgLbl.gridy = 5;
+		contentPane.add(clientErrorMsgLbl, gbc_clientErrorMsgLbl);
 		
-		reservationErrorMessageLabel = new JLabel(" ");
-		reservationErrorMessageLabel.setName("reservationErrorMessageLabel");
-		GridBagConstraints gbc_reservationErrorMessageLabel = new GridBagConstraints();
-		gbc_reservationErrorMessageLabel.gridwidth = 3;
-		gbc_reservationErrorMessageLabel.gridx = 3;
-		gbc_reservationErrorMessageLabel.gridy = 5;
-		contentPane.add(reservationErrorMessageLabel, gbc_reservationErrorMessageLabel);
+		reservationErrorMsgLbl = new JLabel(" ");
+		reservationErrorMsgLbl.setName("reservationErrorMsgLbl");
+		GridBagConstraints gbc_reservationErrorMsgLbl = new GridBagConstraints();
+		gbc_reservationErrorMsgLbl.gridwidth = 3;
+		gbc_reservationErrorMsgLbl.gridx = 3;
+		gbc_reservationErrorMsgLbl.gridy = 5;
+		contentPane.add(reservationErrorMsgLbl, gbc_reservationErrorMsgLbl);
 	}
 
 	@Override

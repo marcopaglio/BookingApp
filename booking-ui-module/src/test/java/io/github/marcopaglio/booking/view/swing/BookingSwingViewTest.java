@@ -1,6 +1,7 @@
 package io.github.marcopaglio.booking.view.swing;
 
 import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
 
 import org.assertj.swing.annotation.GUITest;
@@ -11,6 +12,7 @@ import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.junit.runner.GUITestRunner;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
 
+@DisplayName("Tests for BookingSwingView class")
 @RunWith(GUITestRunner.class)
 public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
@@ -29,11 +31,13 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		window.show();
 	}
 
+	// Tests on controls
 	@Test @GUITest
+	@DisplayName("Initial states")
 	public void testControlsInitialStates() {
 		// First row
-		window.label(JLabelMatcher.withText("Name"));
-		window.textBox("nameInputTextBox")
+		window.label(JLabelMatcher.withText("First Name"));
+		window.textBox("nameFormTxt")
 			.requireEnabled()
 			.requireEditable()
 			.requireEmpty()
@@ -44,15 +48,15 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			.requireVisible();
 		
 		window.label(JLabelMatcher.withText("Date"));
-		window.textBox("dateInputTextBox").requireEnabled().requireEditable().requireEmpty()
+		window.textBox("dateFormTxt").requireEnabled().requireEditable().requireEmpty()
 			.requireToolTip("Dates must be in format aaaa-mm-dd (e.g. 2022-04-24)");
 		window.button(JButtonMatcher.withText("Add Reservation"))
 			.requireDisabled()
 			.requireVisible();
 		
 		// Second row
-		window.label(JLabelMatcher.withText("Surname"));
-		window.textBox("surnameInputTextBox")
+		window.label(JLabelMatcher.withText("Last Name"));
+		window.textBox("surnameFormTxt")
 			.requireEnabled()
 			.requireEditable()
 			.requireEmpty()
@@ -67,7 +71,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			.requireVisible();
 		
 		// Third row
-		window.label("formErrorMessageLabel").requireText(" ");
+		window.label("formErrorMsgLbl").requireText(" ");
 		
 		// Fourth row
 		window.scrollPane("clientScrollPane");
@@ -86,8 +90,63 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			.requireVisible();
 		
 		// Sixth row
-		window.label("clientErrorMessageLabel").requireText(" ");
+		window.label("clientErrorMsgLbl").requireText(" ");
 		
-		window.label("reservationErrorMessageLabel").requireText(" ");
+		window.label("reservationErrorMsgLbl").requireText(" ");
 	}
+
+		// Add Client Button
+		@Test @GUITest
+		@DisplayName("Name form is not empty and some text is typed in surname form")
+		public void testAddClientBtnWhenNameFormIsNotEmptyAndSomeTextIsTypedInSurnameFormShouldBeEnabled() {
+			window.textBox("nameFormTxt").setText("Mario");
+			window.textBox("surnameFormTxt").enterText("Rossi");
+			
+			window.button(JButtonMatcher.withText("Add Client")).requireEnabled();
+		}
+
+		@Test @GUITest
+		@DisplayName("Name form is blank and some text is typed in surname form")
+		public void testAddClientBtnWhenNameFormIsBlankAndSomeTextIsTypedInSurnameFormShouldBeDisabled() {
+			window.textBox("nameFormTxt").setText(" ");
+			window.textBox("surnameFormTxt").enterText("Rossi");
+			
+			window.button(JButtonMatcher.withText("Add Client")).requireDisabled();
+		}
+
+		@Test @GUITest
+		@DisplayName("Name form is not empty and some spaces are typed in surname form")
+		public void testAddClientBtnWhenNameFormIsNotemptyAndSomeSpacesAreTypedInSurnameFormShouldBeDisabled() {
+			window.textBox("nameFormTxt").setText("Mario");
+			window.textBox("surnameFormTxt").enterText("   ");
+			
+			window.button(JButtonMatcher.withText("Add Client")).requireDisabled();
+		}
+
+		@Test @GUITest
+		@DisplayName("Surname form is not empty and some text is typed in name form")
+		public void testAddClientBtnWhenSurnameFormIsNotEmptyAndSomeTextIsTypedInNameFormShouldBeEnabled() {
+			window.textBox("surnameFormTxt").setText("Rossi");
+			window.textBox("nameFormTxt").enterText("Mario");
+	
+			window.button(JButtonMatcher.withText("Add Client")).requireEnabled();
+		}
+
+		@Test @GUITest
+		@DisplayName("Surname form is blank and some text is typed in name form")
+		public void testAddClientBtnWhenSurnameFormIsBlankAndSomeTextIsTypedInNameFormShouldBeDisabled() {
+			window.textBox("surnameFormTxt").setText(" ");
+			window.textBox("nameFormTxt").enterText("Mario");
+			
+			window.button(JButtonMatcher.withText("Add Client")).requireDisabled();
+		}
+
+		@Test @GUITest
+		@DisplayName("Surname form is not empty and some spaces are typed in name form")
+		public void testAddClientBtnWhenSurnameFormIsNotEmptyAndSomeSpacesAreTypedInNameFormShouldBeEnabled() {
+			window.textBox("surnameFormTxt").setText("Rossi");
+			window.textBox("nameFormTxt").enterText("   ");
+	
+			window.button(JButtonMatcher.withText("Add Client")).requireDisabled();
+		}
 }
