@@ -29,12 +29,16 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
 
 public class BookingSwingView extends JFrame implements BookingView {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private JPanel contentPane;
 	private JTextField nameFormTxt;
 	private JButton addClientBtn;
 	private JLabel dateLbl;
-	private JTextField dateFormTxt;
+	private JTextField yearFormTxt;
 	private JButton addReservationBtn;
 	private JLabel lastNameLbl;
 	private JTextField surnameFormTxt;
@@ -124,6 +128,25 @@ public class BookingSwingView extends JFrame implements BookingView {
 			}
 		};
 		
+		final KeyAdapter reservationBtnEnabler = new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				addReservationBtn.setEnabled(
+					!yearFormTxt.getText().trim().isEmpty() &&
+					!monthFormTxt.getText().trim().isEmpty() &&
+					!dayFormTxt.getText().trim().isEmpty() &&
+					clientList.getSelectedIndex() != -1
+				);
+				
+				rescheduleBtn.setEnabled(
+					!yearFormTxt.getText().trim().isEmpty() &&
+					!monthFormTxt.getText().trim().isEmpty() &&
+					!dayFormTxt.getText().trim().isEmpty() &&
+					reservationList.getSelectedIndex() != -1
+				);
+			}
+		};
+		
 		// First row
 		JLabel firstNameLbl = new JLabel("First Name");
 		firstNameLbl.setName("firstNameLbl");
@@ -146,8 +169,6 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(nameFormTxt, gbc_nameFormTxt);
 		nameFormTxt.setColumns(10);
 		
-		surnameFormTxt = new JTextField();
-		surnameFormTxt.addKeyListener(clientBtnEnabler);
 		lastNameLbl = new JLabel("Last Name");
 		lastNameLbl.setVerticalAlignment(SwingConstants.BOTTOM);
 		lastNameLbl.setName("lastNameLbl");
@@ -157,6 +178,9 @@ public class BookingSwingView extends JFrame implements BookingView {
 		gbc_lastNameLbl.gridx = 2;
 		gbc_lastNameLbl.gridy = 0;
 		contentPane.add(lastNameLbl, gbc_lastNameLbl);
+		
+		surnameFormTxt = new JTextField();
+		surnameFormTxt.addKeyListener(clientBtnEnabler);
 		surnameFormTxt.setToolTipText("Surnames must not contain numbers (e.g. 0-9) or any type of symbol or special character (e.g. ~`! @#$%^&*()_-+={[}]|\\:;\"'<,>.?/)");
 		surnameFormTxt.setName("surnameFormTxt");
 		GridBagConstraints gbc_surnameFormTxt = new GridBagConstraints();
@@ -176,16 +200,17 @@ public class BookingSwingView extends JFrame implements BookingView {
 		gbc_dateLbl.gridy = 0;
 		contentPane.add(dateLbl, gbc_dateLbl);
 		
-		dateFormTxt = new JTextField();
-		dateFormTxt.setToolTipText("yyyy");
-		dateFormTxt.setName("yearFormTxt");
-		GridBagConstraints gbc_dateFormTxt = new GridBagConstraints();
-		gbc_dateFormTxt.insets = new Insets(0, 0, 5, 5);
-		gbc_dateFormTxt.fill = GridBagConstraints.HORIZONTAL;
-		gbc_dateFormTxt.gridx = 5;
-		gbc_dateFormTxt.gridy = 0;
-		contentPane.add(dateFormTxt, gbc_dateFormTxt);
-		dateFormTxt.setColumns(10);
+		yearFormTxt = new JTextField();
+		yearFormTxt.addKeyListener(reservationBtnEnabler);
+		yearFormTxt.setToolTipText("yyyy");
+		yearFormTxt.setName("yearFormTxt");
+		GridBagConstraints gbc_yearFormTxt = new GridBagConstraints();
+		gbc_yearFormTxt.insets = new Insets(0, 0, 5, 5);
+		gbc_yearFormTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbc_yearFormTxt.gridx = 5;
+		gbc_yearFormTxt.gridy = 0;
+		contentPane.add(yearFormTxt, gbc_yearFormTxt);
+		yearFormTxt.setColumns(10);
 		
 		dash1Lbl = new JLabel("-");
 		dash1Lbl.setName("dash1Lbl");
@@ -197,16 +222,17 @@ public class BookingSwingView extends JFrame implements BookingView {
 		gbc_dash1Lbl.gridy = 0;
 		contentPane.add(dash1Lbl, gbc_dash1Lbl);
 		
-		dayFormTxt = new JTextField();
-		dayFormTxt.setName("dayFormTxt");
-		dayFormTxt.setToolTipText("dd");
-		GridBagConstraints gbc_dayFormTxt = new GridBagConstraints();
-		gbc_dayFormTxt.insets = new Insets(0, 0, 5, 5);
-		gbc_dayFormTxt.fill = GridBagConstraints.HORIZONTAL;
-		gbc_dayFormTxt.gridx = 7;
-		gbc_dayFormTxt.gridy = 0;
-		contentPane.add(dayFormTxt, gbc_dayFormTxt);
-		dayFormTxt.setColumns(10);
+		monthFormTxt = new JTextField();
+		monthFormTxt.addKeyListener(reservationBtnEnabler);
+		monthFormTxt.setName("monthFormTxt");
+		monthFormTxt.setToolTipText("mm");
+		GridBagConstraints gbc_monthFormTxt = new GridBagConstraints();
+		gbc_monthFormTxt.insets = new Insets(0, 0, 5, 0);
+		gbc_monthFormTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbc_monthFormTxt.gridx = 7;
+		gbc_monthFormTxt.gridy = 0;
+		contentPane.add(monthFormTxt, gbc_monthFormTxt);
+		monthFormTxt.setColumns(10);
 		
 		dash2Lbl = new JLabel("-");
 		dash2Lbl.setName("dash2Lbl");
@@ -217,16 +243,17 @@ public class BookingSwingView extends JFrame implements BookingView {
 		gbc_dash2Lbl.gridy = 0;
 		contentPane.add(dash2Lbl, gbc_dash2Lbl);
 		
-		monthFormTxt = new JTextField();
-		monthFormTxt.setName("monthFormTxt");
-		monthFormTxt.setToolTipText("mm");
-		GridBagConstraints gbc_monthFormTxt = new GridBagConstraints();
-		gbc_monthFormTxt.insets = new Insets(0, 0, 5, 0);
-		gbc_monthFormTxt.fill = GridBagConstraints.HORIZONTAL;
-		gbc_monthFormTxt.gridx = 9;
-		gbc_monthFormTxt.gridy = 0;
-		contentPane.add(monthFormTxt, gbc_monthFormTxt);
-		monthFormTxt.setColumns(10);
+		dayFormTxt = new JTextField();
+		dayFormTxt.addKeyListener(reservationBtnEnabler);
+		dayFormTxt.setName("dayFormTxt");
+		dayFormTxt.setToolTipText("dd");
+		GridBagConstraints gbc_dayFormTxt = new GridBagConstraints();
+		gbc_dayFormTxt.insets = new Insets(0, 0, 5, 5);
+		gbc_dayFormTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbc_dayFormTxt.gridx = 9;
+		gbc_dayFormTxt.gridy = 0;
+		contentPane.add(dayFormTxt, gbc_dayFormTxt);
+		dayFormTxt.setColumns(10);
 		
 		// Second row
 		addClientBtn = new JButton("Add Client");
@@ -254,7 +281,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		addReservationBtn.setEnabled(false);
 		addReservationBtn.setName("addReservationBtn");
 		GridBagConstraints gbc_addReservationBtn = new GridBagConstraints();
-		gbc_addReservationBtn.gridwidth = 4;
+		gbc_addReservationBtn.gridwidth = 2;
 		gbc_addReservationBtn.insets = new Insets(0, 0, 5, 5);
 		gbc_addReservationBtn.gridx = 4;
 		gbc_addReservationBtn.gridy = 1;
@@ -264,9 +291,9 @@ public class BookingSwingView extends JFrame implements BookingView {
 		rescheduleBtn.setName("rescheduleBtn");
 		rescheduleBtn.setEnabled(false);
 		GridBagConstraints gbc_rescheduleBtn = new GridBagConstraints();
-		gbc_rescheduleBtn.gridwidth = 2;
+		gbc_rescheduleBtn.gridwidth = 4;
 		gbc_rescheduleBtn.insets = new Insets(0, 0, 5, 0);
-		gbc_rescheduleBtn.gridx = 8;
+		gbc_rescheduleBtn.gridx = 6;
 		gbc_rescheduleBtn.gridy = 1;
 		contentPane.add(rescheduleBtn, gbc_rescheduleBtn);
 		
@@ -275,7 +302,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		formErrorMsgLbl.setName("formErrorMsgLbl");
 		GridBagConstraints gbc_formErrorMsgLbl = new GridBagConstraints();
 		gbc_formErrorMsgLbl.insets = new Insets(0, 0, 5, 5);
-		gbc_formErrorMsgLbl.gridwidth = 8;
+		gbc_formErrorMsgLbl.gridwidth = 10;
 		gbc_formErrorMsgLbl.gridx = 0;
 		gbc_formErrorMsgLbl.gridy = 2;
 		contentPane.add(formErrorMsgLbl, gbc_formErrorMsgLbl);
@@ -303,6 +330,13 @@ public class BookingSwingView extends JFrame implements BookingView {
 				);
 				
 				removeClientBtn.setEnabled(clientList.getSelectedIndex() != -1);
+				
+				addReservationBtn.setEnabled(
+					!yearFormTxt.getText().trim().isEmpty() &&
+					!monthFormTxt.getText().trim().isEmpty() &&
+					!dayFormTxt.getText().trim().isEmpty() &&
+					clientList.getSelectedIndex() != -1
+				);
 			}
 		});
 		clientList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -321,6 +355,19 @@ public class BookingSwingView extends JFrame implements BookingView {
 		
 		reservationListModel = new DefaultListModel<>();
 		reservationList = new JList<>(reservationListModel);
+		reservationList.addListSelectionListener(new ListSelectionListener() {
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				rescheduleBtn.setEnabled(
+					!yearFormTxt.getText().trim().isEmpty() &&
+					!monthFormTxt.getText().trim().isEmpty() &&
+					!dayFormTxt.getText().trim().isEmpty() &&
+					reservationList.getSelectedIndex() != -1
+				);
+				
+				removeReservationBtn.setEnabled(reservationList.getSelectedIndex() != -1);
+			}
+		});
 		reservationList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		reservationList.setName("reservationList");
 		reservationScrollPane.setViewportView(reservationList);
@@ -360,7 +407,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		reservationErrorMsgLbl.setName("reservationErrorMsgLbl");
 		GridBagConstraints gbc_reservationErrorMsgLbl = new GridBagConstraints();
 		gbc_reservationErrorMsgLbl.insets = new Insets(0, 0, 0, 5);
-		gbc_reservationErrorMsgLbl.gridwidth = 4;
+		gbc_reservationErrorMsgLbl.gridwidth = 6;
 		gbc_reservationErrorMsgLbl.gridx = 4;
 		gbc_reservationErrorMsgLbl.gridy = 5;
 		contentPane.add(reservationErrorMsgLbl, gbc_reservationErrorMsgLbl);
