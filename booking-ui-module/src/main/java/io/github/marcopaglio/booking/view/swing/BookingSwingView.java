@@ -35,7 +35,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private BookingPresenter setBookingPresenter;
+	private BookingPresenter bookingPresenter;
 
 	private JPanel contentPane;
 	private JTextField nameFormTxt;
@@ -137,7 +137,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	// METHODS
 
 	public void setBookingPresenter(BookingPresenter bookingPresenter) {
-		this.setBookingPresenter = bookingPresenter;
+		this.bookingPresenter = bookingPresenter;
 	}
 
 	/**
@@ -250,11 +250,21 @@ public class BookingSwingView extends JFrame implements BookingView {
 		clientListModel.addElement(client);
 	}
 
+	/**
+	 * Makes the just deleted reservation disappear from the user interface through Swing.
+	 * 
+	 * @param reservation	the {@code Reservation} to remove from the view.
+	 */
 	@Override
 	public void reservationRemoved(Reservation reservation) {
 		reservationListModel.removeElement(reservation);
 	}
 
+	/**
+	 * Makes the just deleted client disappear from the user interface through Swing.
+	 * 
+	 * @param client	the {@code Client} to remove from the view.
+	 */
 	@Override
 	public void clientRemoved(Client client) {
 		clientListModel.removeElement(client);
@@ -272,22 +282,34 @@ public class BookingSwingView extends JFrame implements BookingView {
 		
 	}
 
+	/**
+	 * Displays an error message that involves reservation objects through Swing.
+	 * 
+	 * @param message	the message to show.
+	 */
 	@Override
 	public void showReservationError(String message) {
-		// TODO Auto-generated method stub
-		
+		reservationErrorMsgLbl.setText(message);
 	}
 
+	/**
+	 * Displays an error message that involves client objects through Swing.
+	 * 
+	 * @param message	the message to show.
+	 */
 	@Override
 	public void showClientError(String message) {
-		// TODO Auto-generated method stub
-		
+		clientErrorMsgLbl.setText(message);
 	}
 
+	/**
+	 * Displays an error message that involves form inputs through Swing.
+	 * 
+	 * @param message	the message to show.
+	 */
 	@Override
 	public void showFormError(String message) {
-		// TODO Auto-generated method stub
-		
+		formErrorMsgLbl.setText(message);
 	}
 
 	/**

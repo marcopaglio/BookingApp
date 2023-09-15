@@ -1531,6 +1531,38 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 		////////////// Tests for 'clientRemoved'
 
+		///////////// Tests for error viewers
+		@Test @GUITest
+		@DisplayName("Test for 'showReservationError'")
+		public void testShowReservationErrorShouldShowTheMessage() {
+			String message = "An error message that involves reservations.";
+			
+			GuiActionRunner.execute(() -> bookingSwingView.showReservationError(message));
+			
+			reservationErrorMsgLbl.requireText(message);
+		}
+
+		@Test @GUITest
+		@DisplayName("Test for 'showClientError'")
+		public void testShowClientErrorShouldShowTheMessage() {
+			String message = "An error message that involves clients.";
+			
+			GuiActionRunner.execute(() -> bookingSwingView.showClientError(message));
+			
+			clientErrorMsgLbl.requireText(message);
+		}
+
+		@Test @GUITest
+		@DisplayName("Test for 'showFormError'")
+		public void testShowFormErrorShouldShowTheMessage() {
+			String message = "An error message that involves forms.";
+			
+			GuiActionRunner.execute(() -> bookingSwingView.showFormError(message));
+			
+			formErrorMsgLbl.requireText(message);
+		}
+		///////////// Tests for error viewers
+
 		private void enableButton(JButton button) {
 			GuiActionRunner.execute(() -> button.setEnabled(true));
 		}
