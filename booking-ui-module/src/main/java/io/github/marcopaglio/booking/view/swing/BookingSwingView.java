@@ -252,14 +252,12 @@ public class BookingSwingView extends JFrame implements BookingView {
 
 	@Override
 	public void reservationRemoved(Reservation reservation) {
-		// TODO Auto-generated method stub
-		
+		reservationListModel.removeElement(reservation);
 	}
 
 	@Override
 	public void clientRemoved(Client client) {
-		// TODO Auto-generated method stub
-		
+		clientListModel.removeElement(client);
 	}
 
 	@Override

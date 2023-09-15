@@ -1421,6 +1421,116 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 		////////////// Tests for 'clientAdded'
 
+		////////////// Tests for 'reservationRemoved'
+		@Test @GUITest
+		@DisplayName("There is only that reservation")
+		public void testReservationRemovedWhenThereIsOnlyThatReservationShouldRemoveItFromTheList() {
+			addReservationInList(A_RESERVATION);
+			
+			GuiActionRunner.execute(() -> bookingSwingView.reservationRemoved(A_RESERVATION));
+			
+			assertThat(reservationList.contents()).isEmpty();
+		}
+
+		@Test @GUITest
+		@DisplayName("There are others reservations")
+		public void testReservationRemovedWhenThereAreOtherReservationsShouldRemoveItFromTheListAndNotChangeTheOthers() {
+			addReservationInList(A_RESERVATION);
+			addReservationInList(ANOTHER_RESERVATION);
+			
+			GuiActionRunner.execute(() -> bookingSwingView.reservationRemoved(A_RESERVATION));
+			
+			assertThat(reservationList.contents()).containsExactly(ANOTHER_RESERVATION.toString());
+		}
+
+		@Test @GUITest
+		@DisplayName("Another reservation is selected")
+		public void testReservationRemovedWhenAnotherReservationIsSelectedShouldNotChangeTheSelection() {
+			addReservationInList(A_RESERVATION);
+			addReservationInList(ANOTHER_RESERVATION);
+			reservationList.selectItem(1);
+			
+			GuiActionRunner.execute(() -> bookingSwingView.reservationRemoved(A_RESERVATION));
+			
+			String[] selectedReservations = reservationList.selection();
+			assertThat(selectedReservations).hasSize(1);
+			assertThat(selectedReservations[0]).isEqualTo(ANOTHER_RESERVATION.toString());
+		}
+
+		@Test @GUITest
+		@DisplayName("That reservation is selected and some buttons are enabled")
+		public void testReservationRemovedWhenThatReservationIsSelectedAndThereAreSomeButtonsEnabledShouldRemoveSelectionAndDisableThem() {
+			addReservationInList(A_RESERVATION);
+			addReservationInList(ANOTHER_RESERVATION);
+			
+			reservationList.selectItem(0);
+			enableButton(bookingSwingView.getRescheduleBtn());
+			enableButton(bookingSwingView.getRemoveReservationBtn());
+			
+			GuiActionRunner.execute(() -> bookingSwingView.reservationRemoved(A_RESERVATION));
+			
+			reservationList.requireNoSelection();
+			rescheduleBtn.requireDisabled();
+			removeReservationBtn.requireDisabled();
+		}
+		////////////// Tests for 'reservationRemoved'
+
+		////////////// Tests for 'clientRemoved'
+		@Test @GUITest
+		@DisplayName("There is only that client")
+		public void testClientRemovedWhenThereIsOnlyThatClientShouldRemoveItFromTheList() {
+			addClientInList(A_CLIENT);
+			
+			GuiActionRunner.execute(() -> bookingSwingView.clientRemoved(A_CLIENT));
+			
+			assertThat(clientList.contents()).isEmpty();
+		}
+
+		@Test @GUITest
+		@DisplayName("There are others clients")
+		public void testClientRemovedWhenThereAreOtherClientsShouldRemoveItFromTheListAndNotChangeTheOthers() {
+			addClientInList(A_CLIENT);
+			addClientInList(ANOTHER_CLIENT);
+			
+			GuiActionRunner.execute(() -> bookingSwingView.clientRemoved(A_CLIENT));
+			
+			assertThat(clientList.contents()).containsExactly(ANOTHER_CLIENT.toString());
+		}
+
+		@Test @GUITest
+		@DisplayName("Another client is selected")
+		public void testClientRemovedWhenAnotherClientIsSelectedShouldNotChangeTheSelection() {
+			addClientInList(A_CLIENT);
+			addClientInList(ANOTHER_CLIENT);
+			clientList.selectItem(0);
+			
+			GuiActionRunner.execute(() -> bookingSwingView.clientRemoved(ANOTHER_CLIENT));
+			
+			String[] selectedClients = clientList.selection();
+			assertThat(selectedClients).hasSize(1);
+			assertThat(selectedClients[0]).isEqualTo(A_CLIENT.toString());
+		}
+
+		@Test @GUITest
+		@DisplayName("That client is selected and some buttons are enabled")
+		public void testClientRemovedWhenThatClientIsSelectedAndThereAreSomeButtonsEnabledShouldRemoveSelectionAndDisableThem() {
+			addClientInList(A_CLIENT);
+			addClientInList(ANOTHER_CLIENT);
+			
+			clientList.selectItem(1);
+			enableButton(bookingSwingView.getRenameBtn());
+			enableButton(bookingSwingView.getRemoveClientBtn());
+			enableButton(bookingSwingView.getAddReservationBtn());
+			
+			GuiActionRunner.execute(() -> bookingSwingView.clientRemoved(ANOTHER_CLIENT));
+			
+			clientList.requireNoSelection();
+			renameBtn.requireDisabled();
+			removeClientBtn.requireDisabled();
+			addReservationBtn.requireDisabled();
+		}
+		////////////// Tests for 'clientRemoved'
+
 		private void enableButton(JButton button) {
 			GuiActionRunner.execute(() -> button.setEnabled(true));
 		}
