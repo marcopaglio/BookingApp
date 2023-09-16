@@ -28,6 +28,8 @@ import javax.swing.SwingConstants;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.ListSelectionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class BookingSwingView extends JFrame implements BookingView {
 	/**
@@ -141,8 +143,17 @@ public class BookingSwingView extends JFrame implements BookingView {
 	}
 
 	/**
+	 * @return the addClientBtn
+	 */
+	@Generated
+	JButton getAddClientBtn() {
+		return addClientBtn;
+	}
+
+	/**
 	 * @return the rescheduleBtn
 	 */
+	@Generated
 	JButton getRescheduleBtn() {
 		return rescheduleBtn;
 	}
@@ -150,6 +161,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	/**
 	 * @return the removeReservationBtn
 	 */
+	@Generated
 	JButton getRemoveReservationBtn() {
 		return removeReservationBtn;
 	}
@@ -192,6 +204,30 @@ public class BookingSwingView extends JFrame implements BookingView {
 	@Generated
 	DefaultListModel<Reservation> getReservationListModel() {
 		return reservationListModel;
+	}
+
+	/**
+	 * @return the formErrorMsgLbl
+	 */
+	@Generated
+	JLabel getFormErrorMsgLbl() {
+		return formErrorMsgLbl;
+	}
+
+	/**
+	 * @return the clientErrorMsgLbl
+	 */
+	@Generated
+	JLabel getClientErrorMsgLbl() {
+		return clientErrorMsgLbl;
+	}
+
+	/**
+	 * @return the reservationErrorMsgLbl
+	 */
+	@Generated
+	JLabel getReservationErrorMsgLbl() {
+		return reservationErrorMsgLbl;
 	}
 
 	/**
@@ -270,16 +306,32 @@ public class BookingSwingView extends JFrame implements BookingView {
 		clientListModel.removeElement(client);
 	}
 
+	/**
+	 * Displays the changes of the client just renamed on the user interface through Swing.
+	 * 
+	 * @param oldClient		the {@code Client} to replace from the view.
+	 * @param renamedClient	the {@code Client} that replaces the old one.
+	 */
 	@Override
-	public void clientRenamed(Client renamedClient) {
-		// TODO Auto-generated method stub
-		
+	public void clientRenamed(Client oldClient, Client renamedClient) {
+		clientListModel.addElement(renamedClient);
+		if (clientList.getSelectedIndex() == clientListModel.indexOf(oldClient))
+			clientList.setSelectedValue(renamedClient, true);
+		clientListModel.removeElement(oldClient);
 	}
 
+	/**
+	 * Displays the changes of the reservation just rescheduled on the user interface through Swing.
+	 * 
+	 * @param oldReservation			the {@code Reservation} to replace from the view.
+	 * @param rescheduledReservation	the {@code Reservation} that replaces the old one.
+	 */
 	@Override
-	public void reservationRescheduled(Reservation rescheduleReservation) {
-		// TODO Auto-generated method stub
-		
+	public void reservationRescheduled(Reservation oldReservation, Reservation rescheduledReservation) {
+		reservationListModel.addElement(rescheduledReservation);
+		if (reservationList.getSelectedIndex() == reservationListModel.indexOf(oldReservation))
+			reservationList.setSelectedValue(rescheduledReservation, true);
+		reservationListModel.removeElement(oldReservation);
 	}
 
 	/**
@@ -455,7 +507,25 @@ public class BookingSwingView extends JFrame implements BookingView {
 		dayFormTxt.setColumns(10);
 		
 		// Second row
+		formErrorMsgLbl = new JLabel(" ");
+		formErrorMsgLbl.setName("formErrorMsgLbl");
+		GridBagConstraints gbc_formErrorMsgLbl = new GridBagConstraints();
+		gbc_formErrorMsgLbl.insets = new Insets(0, 0, 5, 5);
+		gbc_formErrorMsgLbl.gridwidth = 10;
+		gbc_formErrorMsgLbl.gridx = 0;
+		gbc_formErrorMsgLbl.gridy = 1;
+		contentPane.add(formErrorMsgLbl, gbc_formErrorMsgLbl);
+		
+		// Third row
 		addClientBtn = new JButton("Add Client");
+		addClientBtn.addActionListener(e -> {
+			bookingPresenter.addClient(nameFormTxt.getText(), surnameFormTxt.getText());
+			nameFormTxt.setText("");
+			surnameFormTxt.setText("");
+			addClientBtn.setEnabled(false);
+			formErrorMsgLbl.setText(" ");
+			clientErrorMsgLbl.setText(" ");
+		});
 		addClientBtn.setEnabled(false);
 		addClientBtn.setName("addClientBtn");
 		addClientBtn.setToolTipText("");
@@ -463,48 +533,71 @@ public class BookingSwingView extends JFrame implements BookingView {
 		gbc_addClientBtn.gridwidth = 2;
 		gbc_addClientBtn.insets = new Insets(0, 0, 5, 5);
 		gbc_addClientBtn.gridx = 0;
-		gbc_addClientBtn.gridy = 1;
+		gbc_addClientBtn.gridy = 2;
 		contentPane.add(addClientBtn, gbc_addClientBtn);
 		
 		renameBtn = new JButton("Rename");
+		renameBtn.addActionListener(e -> {
+			bookingPresenter.renameClient(
+					clientListModel.get(clientList.getSelectedIndex()),
+					nameFormTxt.getText(),
+					surnameFormTxt.getText());
+			nameFormTxt.setText("");
+			surnameFormTxt.setText("");
+			renameBtn.setEnabled(false);
+			formErrorMsgLbl.setText(" ");
+			clientErrorMsgLbl.setText(" ");
+		});
 		renameBtn.setEnabled(false);
 		renameBtn.setName("renameBtn");
 		GridBagConstraints gbc_renameBtn = new GridBagConstraints();
 		gbc_renameBtn.gridwidth = 2;
 		gbc_renameBtn.insets = new Insets(0, 0, 5, 5);
 		gbc_renameBtn.gridx = 2;
-		gbc_renameBtn.gridy = 1;
+		gbc_renameBtn.gridy = 2;
 		contentPane.add(renameBtn, gbc_renameBtn);
 		
 		addReservationBtn = new JButton("Add Reservation");
+		addReservationBtn.addActionListener(e -> {
+			bookingPresenter.addReservation(
+					clientListModel.get(clientList.getSelectedIndex()),
+					yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
+			addReservationBtn.setEnabled(false);
+			yearFormTxt.setText("");
+			monthFormTxt.setText("");
+			dayFormTxt.setText("");
+			formErrorMsgLbl.setText(" ");
+			reservationErrorMsgLbl.setText(" ");
+		});
 		addReservationBtn.setEnabled(false);
 		addReservationBtn.setName("addReservationBtn");
 		GridBagConstraints gbc_addReservationBtn = new GridBagConstraints();
 		gbc_addReservationBtn.gridwidth = 2;
 		gbc_addReservationBtn.insets = new Insets(0, 0, 5, 5);
 		gbc_addReservationBtn.gridx = 4;
-		gbc_addReservationBtn.gridy = 1;
+		gbc_addReservationBtn.gridy = 2;
 		contentPane.add(addReservationBtn, gbc_addReservationBtn);
 		
 		rescheduleBtn = new JButton("Reschedule");
+		rescheduleBtn.addActionListener(e -> {
+			bookingPresenter.rescheduleReservation(
+					reservationListModel.get(reservationList.getSelectedIndex()),
+					yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
+			rescheduleBtn.setEnabled(false);
+			yearFormTxt.setText("");
+			monthFormTxt.setText("");
+			dayFormTxt.setText("");
+			formErrorMsgLbl.setText(" ");
+			reservationErrorMsgLbl.setText(" ");
+		});
 		rescheduleBtn.setName("rescheduleBtn");
 		rescheduleBtn.setEnabled(false);
 		GridBagConstraints gbc_rescheduleBtn = new GridBagConstraints();
 		gbc_rescheduleBtn.gridwidth = 4;
 		gbc_rescheduleBtn.insets = new Insets(0, 0, 5, 0);
 		gbc_rescheduleBtn.gridx = 6;
-		gbc_rescheduleBtn.gridy = 1;
+		gbc_rescheduleBtn.gridy = 2;
 		contentPane.add(rescheduleBtn, gbc_rescheduleBtn);
-		
-		// Third row
-		formErrorMsgLbl = new JLabel(" ");
-		formErrorMsgLbl.setName("formErrorMsgLbl");
-		GridBagConstraints gbc_formErrorMsgLbl = new GridBagConstraints();
-		gbc_formErrorMsgLbl.insets = new Insets(0, 0, 5, 5);
-		gbc_formErrorMsgLbl.gridwidth = 10;
-		gbc_formErrorMsgLbl.gridx = 0;
-		gbc_formErrorMsgLbl.gridy = 2;
-		contentPane.add(formErrorMsgLbl, gbc_formErrorMsgLbl);
 		
 		// Fourth row
 		clientScrollPane = new JScrollPane();
@@ -543,6 +636,12 @@ public class BookingSwingView extends JFrame implements BookingView {
 		
 		// Fifth row
 		removeClientBtn = new JButton("Remove Client");
+		removeClientBtn.addActionListener(e -> {
+			bookingPresenter.deleteClient(clientListModel.get(clientList.getSelectedIndex()));
+			removeClientBtn.setEnabled(false);
+			formErrorMsgLbl.setText(" ");
+			clientErrorMsgLbl.setText(" ");
+		});
 		removeClientBtn.setEnabled(false);
 		removeClientBtn.setName("removeClientBtn");
 		GridBagConstraints gbc_removeClientBtn = new GridBagConstraints();
@@ -553,6 +652,12 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(removeClientBtn, gbc_removeClientBtn);
 		
 		removeReservationBtn = new JButton("Remove Reservation");
+		removeReservationBtn.addActionListener(e -> {
+			bookingPresenter.deleteReservation(reservationListModel.get(reservationList.getSelectedIndex()));
+			removeReservationBtn.setEnabled(false);
+			formErrorMsgLbl.setText(" ");
+			reservationErrorMsgLbl.setText(" ");
+		});
 		removeReservationBtn.setName("removeReservationBtn");
 		removeReservationBtn.setEnabled(false);
 		GridBagConstraints gbc_removeReservationBtn = new GridBagConstraints();

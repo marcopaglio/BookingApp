@@ -625,7 +625,7 @@ class ServedBookingPresenterTest {
 				verify(clientValidator).validateLastName(newLastName);
 				inOrder.verify(bookingService)
 					.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName);
-				inOrder.verify(view).clientRenamed(renamedClient);
+				inOrder.verify(view).clientRenamed(A_CLIENT, renamedClient);
 				
 				verifyNoMoreInteractions(bookingService, view);
 			}
@@ -647,7 +647,7 @@ class ServedBookingPresenterTest {
 				verify(clientValidator).validateLastName(newLastName);
 				inOrder.verify(bookingService)
 					.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName);
-				inOrder.verify(view).clientRenamed(renamedClient);
+				inOrder.verify(view).clientRenamed(client, renamedClient);
 				
 				verifyNoMoreInteractions(bookingService, view);
 			}
@@ -669,7 +669,7 @@ class ServedBookingPresenterTest {
 				verify(clientValidator).validateLastName(newLastName);
 				inOrder.verify(bookingService)
 					.renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName);
-				inOrder.verify(view).clientRenamed(renamedClient);
+				inOrder.verify(view).clientRenamed(client, renamedClient);
 				
 				verifyNoMoreInteractions(bookingService, view);
 			}
@@ -838,7 +838,7 @@ class ServedBookingPresenterTest {
 				verify(reservationValidator).validateDate(newDate);
 				inOrder.verify(bookingService)
 					.rescheduleReservation(A_RESERVATION_UUID, validatedDate);
-				inOrder.verify(view).reservationRescheduled(rescheduledReservation);
+				inOrder.verify(view).reservationRescheduled(A_RESERVATION, rescheduledReservation);
 				
 				verifyNoMoreInteractions(bookingService, view);
 			}

@@ -366,7 +366,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 		try {
 			Client clientInDB = bookingService.renameClient(
 					client.getId(), newFirstName, newLastName);
-			view.clientRenamed(clientInDB);
+			view.clientRenamed(client, clientInDB);
 			LOGGER.info(() -> String.format("%s has been renamed with success.", clientInDB.toString()));
 		} catch(InstanceAlreadyExistsException e) {
 			LOGGER.warn(e.getMessage());
@@ -416,7 +416,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 		try {
 			Reservation reservationInDB = bookingService
 					.rescheduleReservation(reservation.getId(), validatedDate);
-			view.reservationRescheduled(reservationInDB);
+			view.reservationRescheduled(reservation, reservationInDB);
 			LOGGER.info(() -> String.format("%s has been rescheduled with success.", reservationInDB.toString()));
 		} catch(InstanceAlreadyExistsException e) {
 			LOGGER.warn(e.getMessage());
