@@ -36,7 +36,7 @@ jobs:
         restore-keys: ${{ runner.os }}-m2-
 
     - name: Build with Maven Wrapper and SonarCloud
-      run: ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER
+      run: xvfb-run ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER
       working-directory: ${{ env.workdir }}
       env:
         ADDITIONAL_COVERALLS_ARGS: -DrepoToken=${{ secrets.COVERALLS_TOKEN }}
