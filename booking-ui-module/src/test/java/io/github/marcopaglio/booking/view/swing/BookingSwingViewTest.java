@@ -166,13 +166,13 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			.requireToolTip("dd");
 		
 		// Second row
+		formErrorMsgLbl.requireText(" ");
+		
+		// Third row
 		addClientBtn.requireDisabled().requireVisible();
 		renameBtn.requireDisabled().requireVisible();
 		addReservationBtn.requireDisabled().requireVisible();
 		rescheduleBtn.requireDisabled().requireVisible();
-		
-		// Third row
-		formErrorMsgLbl.requireText(" ");
 		
 		// Fourth row
 		window.scrollPane("clientScrollPane");
@@ -191,63 +191,109 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 	}
 
 		////////////// Add Client Button
-		@Test @GUITest
-		@DisplayName("Name is not empty and text is typed in surname")
-		public void testAddClientBtnWhenNameIsNotEmptyAndTextIsTypedInSurnameShouldBeEnabled() {
-			nameFormTxt.setText(A_FIRSTNAME);
-			surnameFormTxt.enterText(A_LASTNAME);
-			
-			addClientBtn.requireEnabled();
-		}
+			////////////// Name Form Text
+			@Test @GUITest
+			@DisplayName("Not blank surname and text is typed")
+			public void testNameFormTxtWhenSurnameIsNotBlankAndTextIsTypedShouldEnableAddClientBtn() {
+				surnameFormTxt.setText(A_LASTNAME);
+				nameFormTxt.enterText(A_FIRSTNAME);
+		
+				addClientBtn.requireEnabled();
+			}
 
-		@Test @GUITest
-		@DisplayName("Name is not empty and spaces are typed in surname")
-		public void testAddClientBtnWhenNameIsNotemptyAndSpacesAreTypedInSurnameShouldBeDisabled() {
-			nameFormTxt.setText(A_FIRSTNAME);
-			surnameFormTxt.enterText("  ");
-			
-			addClientBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Name is empty and text is typed in surname")
-		public void testAddClientBtnWhenNameIsEmptyAndTextIsTypedInSurnameShouldBeDisabled() {
-			nameFormTxt.setText(" ");
-			surnameFormTxt.enterText(A_LASTNAME);
-			
-			addClientBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Surname is not empty and text is typed in name")
-		public void testAddClientBtnWhenSurnameIsNotEmptyAndTextIsTypedInNameShouldBeEnabled() {
-			surnameFormTxt.setText(A_LASTNAME);
-			nameFormTxt.enterText(A_FIRSTNAME);
+			@Test @GUITest
+			@DisplayName("Not blank surname and text is deleted")
+			public void testNameFormTxtWhenSurnameIsNotBlankAndTextIsDeletedShouldDisableAddClientBtn() {
+				surnameFormTxt.setText(A_LASTNAME);
+				nameFormTxt.setText(A_FIRSTNAME);
+				enableButton(bookingSwingView.getAddClientBtn());
+				
+				nameFormTxt.deleteText();
+		
+				addClientBtn.requireDisabled();
+			}
 	
-			addClientBtn.requireEnabled();
-		}
+			@Test @GUITest
+			@DisplayName("Not blank surname and spaces are typed")
+			public void testNameFormTxtWhenSurnameIsNotBlankAndSpacesAreTypedShouldNotEnableAddClientBtn() {
+				surnameFormTxt.setText(A_LASTNAME);
+				nameFormTxt.enterText("   ");
+		
+				addClientBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty surname and text is typed")
+			public void testNameFormTxtWhenSurnameIsEmptyAndTextIsTypedShouldNotEnableAddClientBtn() {
+				surnameFormTxt.setText("");
+				nameFormTxt.enterText(A_FIRSTNAME);
+				
+				addClientBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank surname and text is typed")
+			public void testNameFormTxtWhenSurnameIsBlankAndTextIsTypedShouldNotEnableAddClientBtn() {
+				surnameFormTxt.setText("  ");
+				nameFormTxt.enterText(A_FIRSTNAME);
+				
+				addClientBtn.requireDisabled();
+			}
+			////////////// Name Form Text
+
+			////////////// Surname Form Text
+			@Test @GUITest
+			@DisplayName("Not blank name and text is typed")
+			public void testSurnameFormTxtWhenNameIsNotBlankAndTextIsTypedShouldEnableAddClientBtn() {
+				nameFormTxt.setText(A_FIRSTNAME);
+				surnameFormTxt.enterText(A_LASTNAME);
+				
+				addClientBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Not blank name and text is deleted")
+			public void testSurnameFormTxtWhenNameIsNotBlankAndTextIsDeletedShouldDisableAddClientBtn() {
+				nameFormTxt.setText(A_FIRSTNAME);
+				surnameFormTxt.enterText(A_LASTNAME);
+				enableButton(bookingSwingView.getAddClientBtn());
+				
+				surnameFormTxt.deleteText();
+				
+				addClientBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Not blank name and spaces are typed")
+			public void testSurnameFormTxtWhenNameIsNotBlankAndSpacesAreTypedShouldNotEnableAddClientBtn() {
+				nameFormTxt.setText(A_FIRSTNAME);
+				surnameFormTxt.enterText("  ");
+				
+				addClientBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty name and text is typed")
+			public void testSurnameFormTxtWhenNameIsEmptyAndTextIsTypedShouldNotEnableAddClientBtn() {
+				nameFormTxt.setText("");
+				surnameFormTxt.enterText(A_LASTNAME);
+				
+				addClientBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank name and text is typed")
+			public void testSurnameFormTxtWhenNameIsBlankAndTextIsTypedShouldNotEnableAddClientBtn() {
+				nameFormTxt.setText("  ");
+				surnameFormTxt.enterText(A_LASTNAME);
+				
+				addClientBtn.requireDisabled();
+			}
+			////////////// Surname Form Text
 
 		@Test @GUITest
-		@DisplayName("Surname is not empty and spaces are typed in name")
-		public void testAddClientBtnWhenSurnameIsNotEmptyAndSpacesAreTypedInNameShouldBeDisabled() {
-			surnameFormTxt.setText(A_LASTNAME);
-			nameFormTxt.enterText("   ");
-	
-			addClientBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Surname is empty and text is typed in name")
-		public void testAddClientBtnWhenSurnameIsEmptyAndTextIsTypedInNameShouldBeDisabled() {
-			surnameFormTxt.setText(" ");
-			nameFormTxt.enterText(A_FIRSTNAME);
-			
-			addClientBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Button is clicked and there are error messages")
-		public void testAddClientBtnWhenItIsClickedAndThereAreFormAndClientErrorMessagesShouldDelegateToPresenterResetFormsAndErrorsAndDisableIt() {
+		@DisplayName("Button is clicked")
+		public void testAddClientBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormsAndFormAndClientErrorsAndDisableIt() {
 			setTextLabel(bookingSwingView.getFormErrorMsgLbl(),
 					"An error message that involves forms.");
 			setTextLabel(bookingSwingView.getClientErrorMsgLbl(),
@@ -259,177 +305,344 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			addClientBtn.click();
 			
 			verify(bookingPresenter).addClient(A_FIRSTNAME, A_LASTNAME);
+			addClientBtn.requireDisabled();
 			nameFormTxt.requireEmpty();
 			surnameFormTxt.requireEmpty();
-			addClientBtn.requireDisabled();
 			formErrorMsgLbl.requireText(" ");
 			clientErrorMsgLbl.requireText(" ");
 		}
 		////////////// Add Client Button
 
-		////////////// Rename Client Button
-		@Test @GUITest
-		@DisplayName("Client selected, name not empty and text is typed in surname")
-		public void testRenameClientBtnWhenAClientIsSelectedNameIsNotEmptyAndTextIsTypedInSurnameShouldBeEnabled() {
-			addClientInList(A_CLIENT);
-			clientList.selectItem(0);
-			nameFormTxt.setText(A_FIRSTNAME);
-			
-			surnameFormTxt.enterText(ANOTHER_LASTNAME);
-			
-			renameBtn.requireEnabled();
-		}
+
+		////////////// Rename Button
+			////////////// Name Form Text
+			@Test @GUITest
+			@DisplayName("Client selected, not blank surname and text is typed")
+			public void testNameFormTxtWhenAClientIsSelectedAndSurnameIsNotBlankAndTextIsTypedShouldEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				surnameFormTxt.setText(A_LASTNAME);
+				
+				nameFormTxt.enterText(ANOTHER_FIRSTNAME);
+				
+				renameBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client selected, not blank surname and text is deleted")
+			public void testNameFormTxtWhenAClientIsSelectedAndSurnameIsNotBlankAndTextIsDeletedShouldDisableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				nameFormTxt.setText(ANOTHER_FIRSTNAME);
+				surnameFormTxt.setText(A_LASTNAME);
+				enableButton(bookingSwingView.getRenameBtn());
+				
+				nameFormTxt.deleteText();
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client selected, not blank surname and spaces are typed")
+			public void testNameFormTxtWhenAClientIsSelectedAndSurnameIsNotBlankAndSpacesAreTypedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				surnameFormTxt.setText(A_LASTNAME);
+				
+				nameFormTxt.enterText("  ");
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client selected, empty surname and text is typed")
+			public void testNameFormTxtWhenAClientIsSelectedAndSurnameIsEmptyAndTextIsTypedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				surnameFormTxt.setText("");
+				
+				nameFormTxt.enterText(ANOTHER_FIRSTNAME);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client selected, blank surname and text is typed")
+			public void testNameFormTxtWhenAClientIsSelectedAndSurnameIsBlankAndTextIsTypedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				surnameFormTxt.setText("   ");
+				
+				nameFormTxt.enterText(ANOTHER_FIRSTNAME);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, not blank surname and text is typed")
+			public void testNameFormTxtWhenClientIsNotSelectedAndSurnameIsNotBlankAndTextIsTypedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				surnameFormTxt.setText(A_LASTNAME);
+				
+				nameFormTxt.enterText(ANOTHER_FIRSTNAME);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, empty surname and text is typed")
+			public void testNameFormTxtWhenClientIsNotSelectedAndSurnameIsEmptyAndTextIsTypedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				surnameFormTxt.setText("");
+				
+				nameFormTxt.enterText(ANOTHER_FIRSTNAME);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, blank surname and text is typed")
+			public void testNameFormTxtWhenClientIsNotSelectedAndSurnameIsBlankAndTextIsTypedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				surnameFormTxt.setText("  ");
+				
+				nameFormTxt.enterText(ANOTHER_FIRSTNAME);
+				
+				renameBtn.requireDisabled();
+			}
+			////////////// Name Form Text
+
+			////////////// Surname Form Text
+			@Test @GUITest
+			@DisplayName("Client selected, not blank name and text is typed")
+			public void testSurnameFormTxtWhenAClientIsSelectedAndNameIsNotBlankAndTextIsTypedShouldEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				nameFormTxt.setText(A_FIRSTNAME);
+				
+				surnameFormTxt.enterText(ANOTHER_LASTNAME);
+				
+				renameBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client selected, not blank name and text is deleted")
+			public void testSurnameFormTxtWhenAClientIsSelectedAndSurnameIsNotBlankAndTextIsDeletedShouldDisableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				nameFormTxt.setText(A_FIRSTNAME);
+				surnameFormTxt.setText(ANOTHER_LASTNAME);
+				enableButton(bookingSwingView.getRenameBtn());
+				
+				surnameFormTxt.deleteText();
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client selected, not blank name and spaces are typed")
+			public void testSurnameFormTxtWhenAClientIsSelectedAndNameIsNotBlankAndSpacesAreTypedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				nameFormTxt.setText(A_FIRSTNAME);
+				
+				surnameFormTxt.enterText("  ");
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client selected, empty name and text is typed")
+			public void testSurnameFormTxtWhenAClientIsSelectedAndNameIsEmptyAndTextIsTypedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				nameFormTxt.setText("");
+				
+				surnameFormTxt.enterText(ANOTHER_LASTNAME);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client selected, blank name and text is typed")
+			public void testSurnameFormTxtWhenAClientIsSelectedAndNameIsBlankAndTextIsTypedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				nameFormTxt.setText(" ");
+				
+				surnameFormTxt.enterText(ANOTHER_LASTNAME);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, not blank name and text is typed")
+			public void testSurnameFormTxtWhenClientIsNotSelectedAndNameIsNotBlankAndTextIsTypedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				nameFormTxt.setText(A_FIRSTNAME);
+				
+				surnameFormTxt.enterText(ANOTHER_LASTNAME);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, empty name and text is typed")
+			public void testSurnameFormTxtWhenClientIsNotSelectedAndNameIsEmptyAndTextIsTypedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				nameFormTxt.setText("");
+				
+				surnameFormTxt.enterText(ANOTHER_LASTNAME);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, blank name and text is typed")
+			public void testSurnameFormTxtWhenClientIsNotSelectedAndNameIsBlankAndTextIsTypedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				nameFormTxt.setText("  ");
+				
+				surnameFormTxt.enterText(ANOTHER_LASTNAME);
+				
+				renameBtn.requireDisabled();
+			}
+			////////////// Surname Form Text
+
+			////////////// Client List
+			@Test @GUITest
+			@DisplayName("Not blank name and surname and client is selected")
+			public void testClientListWhenNameAndSurnameAreNotBlankAndAClientIsSelectedShouldEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				nameFormTxt.setText(ANOTHER_FIRSTNAME);
+				surnameFormTxt.setText(ANOTHER_LASTNAME);
+				
+				clientList.selectItem(0);
+				
+				renameBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Not blank name and surname and client is deselected")
+			public void testClientListWhenNameAndSurnameAreNotBlankAndAClientIsDeselectedShouldDisableRenameBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				nameFormTxt.setText(ANOTHER_FIRSTNAME);
+				surnameFormTxt.setText(ANOTHER_LASTNAME);
+				enableButton(bookingSwingView.getRenameBtn());
+				
+				// unselectItem would be more clear but it doesn't trigger the list selection listener
+				clientList.clearSelection();
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty name, not blank surname and client is selected")
+			public void testClientListWhenNameIsEmptyAndSurnameIsNotBlankAndAClientIsSelectedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				nameFormTxt.setText("");
+				surnameFormTxt.setText(ANOTHER_LASTNAME);
+				
+				clientList.selectItem(0);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank name, not blank surname and client is selected")
+			public void testClientListWhenNameIsBlankAndSurnameIsNotBlankAndAClientIsSelectedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				nameFormTxt.setText(" ");
+				surnameFormTxt.setText(ANOTHER_LASTNAME);
+				
+				clientList.selectItem(0);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Not blank name, empty surname and client is selected")
+			public void testClientListWhenNameIsNotBlankAndSurnameIsEmptyAndAClientIsSelectedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				nameFormTxt.setText(ANOTHER_FIRSTNAME);
+				surnameFormTxt.setText("");
+				
+				clientList.selectItem(0);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Not blank name, blank surname and client is selected")
+			public void testClientListWhenNameIsNotBlankAndSurnameIsBlankAndAClientIsSelectedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				nameFormTxt.setText(ANOTHER_FIRSTNAME);
+				surnameFormTxt.setText("  ");
+				
+				clientList.selectItem(0);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty name and surname and client is selected")
+			public void testClientListWhenBothNameAndSurnameAreEmptyAndAClientIsSelectedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				nameFormTxt.setText("");
+				surnameFormTxt.setText("");
+				
+				clientList.selectItem(0);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty name, blank surname and client is selected")
+			public void testClientListWhenNameIsEmptyAndSurnameIsBlankAndAClientIsSelectedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				nameFormTxt.setText("");
+				surnameFormTxt.setText("  ");
+				
+				clientList.selectItem(0);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank name and empty surname and client is selected")
+			public void testClientListWhenNameIsBlankAndSurnameIsEmptyAndAClientIsSelectedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				nameFormTxt.setText("   ");
+				surnameFormTxt.setText("");
+				
+				clientList.selectItem(0);
+				
+				renameBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank name and surname and client is selected")
+			public void testClientListWhenBothNameAndSurnameAreBlankAndAClientIsSelectedShouldNotEnableRenameBtn() {
+				addClientInList(A_CLIENT);
+				nameFormTxt.setText(" ");
+				surnameFormTxt.setText("   ");
+				
+				clientList.selectItem(0);
+				
+				renameBtn.requireDisabled();
+			}
+			////////////// Client List
 
 		@Test @GUITest
-		@DisplayName("Client selected, name not empty and spaces are typed in surname")
-		public void testRenameClientBtnWhenAClientIsSelectedNameIsNotEmptyAndSpacesAreTypedInSurnameShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			clientList.selectItem(0);
-			nameFormTxt.setText(A_FIRSTNAME);
-			
-			surnameFormTxt.enterText("  ");
-			
-			renameBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Client is not selected or name is empty and text is typed in surname")
-		public void testRenameClientBtnWhenClientIsNotSelectedOrNameIsEmptyAndTextIsTypedInSurnameShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			// name is empty
-			clientList.selectItem(0);
-			nameFormTxt.setText(" ");
-			surnameFormTxt.enterText(ANOTHER_LASTNAME);
-			renameBtn.requireDisabled();
-			
-			// clear surname
-			surnameFormTxt.setText("");
-			
-			// client is not selected
-			clientList.clearSelection();
-			nameFormTxt.setText(A_FIRSTNAME);
-			surnameFormTxt.enterText(ANOTHER_LASTNAME);
-			renameBtn.requireDisabled();
-			
-			// clear surname
-			surnameFormTxt.setText("");
-			
-			// name is empty and client is not selected
-			clientList.clearSelection();
-			nameFormTxt.setText(" ");
-			surnameFormTxt.enterText(ANOTHER_LASTNAME);
-			renameBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Client selected, surname not empty and text is typed in name")
-		public void testRenameClientBtnWhenAClientIsSelectedSurnameIsNotEmptyAndTextIsTypedInNameShouldBeEnabled() {
-			addClientInList(A_CLIENT);
-			clientList.selectItem(0);
-			surnameFormTxt.setText(A_LASTNAME);
-			
-			nameFormTxt.enterText(ANOTHER_FIRSTNAME);
-			
-			renameBtn.requireEnabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Client selected, surname not empty and spaces are typed in name")
-		public void testRenameClientBtnWhenAClientIsSelectedSurnameIsNotEmptyAndSpacesAreTypedInNameShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			clientList.selectItem(0);
-			surnameFormTxt.setText(A_LASTNAME);
-			
-			nameFormTxt.enterText("  ");
-			
-			renameBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Client is not selected or surname is empty and text is typed in name")
-		public void testRenameClientBtnWhenClientIsNotSelectedOrSurnameIsEmptyAndTextIsTypedInNameShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			// name is empty
-			clientList.selectItem(0);
-			surnameFormTxt.setText(" ");
-			nameFormTxt.enterText(ANOTHER_FIRSTNAME);
-			renameBtn.requireDisabled();
-			
-			// clear surname
-			nameFormTxt.setText("");
-			
-			// client is not selected
-			clientList.clearSelection();
-			surnameFormTxt.setText(A_LASTNAME);
-			nameFormTxt.enterText(ANOTHER_FIRSTNAME);
-			renameBtn.requireDisabled();
-			
-			// clear surname
-			nameFormTxt.setText("");
-			
-			// name is empty and client is not selected
-			clientList.clearSelection();
-			surnameFormTxt.setText(" ");
-			nameFormTxt.enterText(ANOTHER_FIRSTNAME);
-			renameBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Name and surname not empty and client is selected")
-		public void testRenameClientBtnWhenNameAndSurnameAreNotEmptyAndAClientIsSelectedShouldBeEnabled() {
-			addClientInList(A_CLIENT);
-			nameFormTxt.setText(ANOTHER_FIRSTNAME);
-			surnameFormTxt.setText(ANOTHER_LASTNAME);
-			
-			clientList.selectItem(0);
-			
-			renameBtn.requireEnabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Name and surname not empty and client not selected")
-		public void testRenameClientBtnWhenNameAndSurnameAreNotEmptyAndAClientIsNotSelectedShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			nameFormTxt.setText(ANOTHER_FIRSTNAME);
-			surnameFormTxt.setText(ANOTHER_LASTNAME);
-			
-			clientList.clearSelection();
-			
-			renameBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Name or surname are empty and client is selected")
-		public void testRenameClientBtnWhenNameOrSurnameAreEmptyAndAClientIsSelectedShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			// only name is empty
-			nameFormTxt.setText("");
-			surnameFormTxt.setText(ANOTHER_LASTNAME);
-			clientList.selectItem(0);
-			renameBtn.requireDisabled();
-			
-			// clear selection
-			clientList.clearSelection();
-			
-			// only surname is empty
-			nameFormTxt.setText(ANOTHER_FIRSTNAME);
-			surnameFormTxt.setText(" ");
-			clientList.selectItem(0);
-			renameBtn.requireDisabled();
-			
-			// clear selection
-			clientList.clearSelection();
-			
-			// both name and surname are empty
-			nameFormTxt.setText(" ");
-			surnameFormTxt.setText("");
-			clientList.selectItem(0);
-			renameBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Button is clicked and there are error messages")
-		public void testRenameClientBtnWhenItIsClickedAndThereAreFormAndClientErrorMessagesShouldDelegateToPresenterResetFormsAndErrorsAndDisableIt() {
+		@DisplayName("Button is clicked")
+		public void testRenameBtnWhenItIsClickedShouldDelegateToPresenterResetFormsAndFormAndClientErrorsAndDisableIt() {
 			setTextLabel(bookingSwingView.getFormErrorMsgLbl(),
 					"An error message that involves forms.");
 			setTextLabel(bookingSwingView.getClientErrorMsgLbl(),
@@ -449,7 +662,9 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			formErrorMsgLbl.requireText(" ");
 			clientErrorMsgLbl.requireText(" ");
 		}
-		////////////// Rename Client Button
+		////////////// Rename Button
+
+
 
 		////////////// Remove Client Button
 		@Test @GUITest

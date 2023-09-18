@@ -66,10 +66,70 @@ public class BookingSwingView extends JFrame implements BookingView {
 	private JTextField monthFormTxt;
 
 	// EVENT HANDLERS
+	private final transient KeyAdapter nameFormListener = new KeyAdapter() {
+		@Override
+		public void keyReleased(KeyEvent e) {
+			addClientBtn.setEnabled(
+				!nameFormTxt.getText().isBlank() &&
+				!surnameFormTxt.getText().isBlank()
+			);
+			
+			renameBtn.setEnabled(
+				!nameFormTxt.getText().isBlank() &&
+				!surnameFormTxt.getText().isBlank() &&
+				clientList.getSelectedIndex() != -1
+			);
+		}
+	};
+
+	private final transient KeyAdapter surnameFormListener = new KeyAdapter() {
+		@Override
+		public void keyReleased(KeyEvent e) {
+			addClientBtn.setEnabled(
+				!nameFormTxt.getText().trim().isEmpty() &&
+				!surnameFormTxt.getText().trim().isEmpty()
+			);
+			
+			renameBtn.setEnabled(
+				!nameFormTxt.getText().isBlank() &&
+				!surnameFormTxt.getText().isBlank() &&
+				clientList.getSelectedIndex() != -1
+			);
+		}
+	};
+
+	private final transient ActionListener addClientAction = e -> {
+		bookingPresenter.addClient(nameFormTxt.getText(), surnameFormTxt.getText());
+		addClientBtn.setEnabled(false);
+		nameFormTxt.setText("");
+		surnameFormTxt.setText("");
+		formErrorMsgLbl.setText(" ");
+		clientErrorMsgLbl.setText(" ");
+	};
+
+	private final transient ListSelectionListener clientListListener = e -> {
+		renameBtn.setEnabled(
+			!nameFormTxt.getText().isBlank() &&
+			!surnameFormTxt.getText().isBlank() &&
+			clientList.getSelectedIndex() != -1
+		);
+	};
+
+	private final transient ActionListener renameAction = e -> {
+		bookingPresenter.renameClient(
+				clientList.getSelectedValue(),
+				nameFormTxt.getText(),
+				surnameFormTxt.getText());
+		renameBtn.setEnabled(false);
+		nameFormTxt.setText("");
+		surnameFormTxt.setText("");
+		formErrorMsgLbl.setText(" ");
+		clientErrorMsgLbl.setText(" ");
+	};
 
 	private final KeyAdapter clientBtnEnabler = new KeyAdapter() {
 		@Override
-		public void keyReleased(KeyEvent e) {
+		public void keyReleased(KeyEvent e) {/*
 			addClientBtn.setEnabled(
 				!nameFormTxt.getText().trim().isEmpty() &&
 				!surnameFormTxt.getText().trim().isEmpty()
@@ -79,13 +139,13 @@ public class BookingSwingView extends JFrame implements BookingView {
 				!nameFormTxt.getText().trim().isEmpty() &&
 				!surnameFormTxt.getText().trim().isEmpty() &&
 				clientList.getSelectedIndex() != -1
-			);
+			);*/
 		}
 	};
 
 	private final KeyAdapter reservationBtnEnabler = new KeyAdapter() {
 		@Override
-		public void keyReleased(KeyEvent e) {
+		public void keyReleased(KeyEvent e) {/*
 			addReservationBtn.setEnabled(
 				!yearFormTxt.getText().trim().isEmpty() &&
 				!monthFormTxt.getText().trim().isEmpty() &&
@@ -98,11 +158,11 @@ public class BookingSwingView extends JFrame implements BookingView {
 				!monthFormTxt.getText().trim().isEmpty() &&
 				!dayFormTxt.getText().trim().isEmpty() &&
 				reservationList.getSelectedIndex() != -1
-			);
+			);*/
 		}
 	};
 
-	private final ListSelectionListener clientListListener = new ListSelectionListener() {
+/*	private final ListSelectionListener clientListListener = new ListSelectionListener() {
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
 			renameBtn.setEnabled(
@@ -120,11 +180,11 @@ public class BookingSwingView extends JFrame implements BookingView {
 				clientList.getSelectedIndex() != -1
 			);
 		}
-	};
+	};*/
 
 	private final ListSelectionListener reservationListListener = new ListSelectionListener() {
 		@Override
-		public void valueChanged(ListSelectionEvent e) {
+		public void valueChanged(ListSelectionEvent e) {/*
 			rescheduleBtn.setEnabled(
 				!yearFormTxt.getText().trim().isEmpty() &&
 				!monthFormTxt.getText().trim().isEmpty() &&
@@ -132,7 +192,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 				reservationList.getSelectedIndex() != -1
 			);
 			
-			removeReservationBtn.setEnabled(reservationList.getSelectedIndex() != -1);
+			removeReservationBtn.setEnabled(reservationList.getSelectedIndex() != -1);*/
 		}
 	};
 
@@ -238,14 +298,14 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 * @param clients	the {@code List} of clients to show.
 	 */
 	@Override
-	public void showAllClients(List<Client> clients) {
+	public void showAllClients(List<Client> clients) {/*
 		clientListModel.removeAllElements();
 		clients.stream().forEach(clientListModel::addElement);
 		
 		clientList.clearSelection();
 		addReservationBtn.setEnabled(false);
 		renameBtn.setEnabled(false);
-		removeClientBtn.setEnabled(false);
+		removeClientBtn.setEnabled(false);*/
 	}
 
 	/**
@@ -256,13 +316,13 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 * @param reservations	the {@code List} of reservations to show.
 	 */
 	@Override
-	public void showAllReservations(List<Reservation> reservations) {
+	public void showAllReservations(List<Reservation> reservations) {/*
 		reservationListModel.removeAllElements();
 		reservations.stream().forEach(reservationListModel::addElement);
 		
 		reservationList.clearSelection();
 		rescheduleBtn.setEnabled(false);
-		removeReservationBtn.setEnabled(false);
+		removeReservationBtn.setEnabled(false);*/
 	}
 
 	/**
@@ -273,7 +333,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	@Override
 	public void reservationAdded(Reservation reservation) {
-		reservationListModel.addElement(reservation);
+		//reservationListModel.addElement(reservation);
 	}
 
 	/**
@@ -283,7 +343,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	@Override
 	public void clientAdded(Client client) {
-		clientListModel.addElement(client);
+		//clientListModel.addElement(client);
 	}
 
 	/**
@@ -293,7 +353,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	@Override
 	public void reservationRemoved(Reservation reservation) {
-		reservationListModel.removeElement(reservation);
+		//reservationListModel.removeElement(reservation);
 	}
 
 	/**
@@ -303,7 +363,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	@Override
 	public void clientRemoved(Client client) {
-		clientListModel.removeElement(client);
+		//clientListModel.removeElement(client);
 	}
 
 	/**
@@ -313,11 +373,11 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 * @param renamedClient	the {@code Client} that replaces the old one.
 	 */
 	@Override
-	public void clientRenamed(Client oldClient, Client renamedClient) {
+	public void clientRenamed(Client oldClient, Client renamedClient) {/*
 		clientListModel.addElement(renamedClient);
 		if (clientList.getSelectedIndex() == clientListModel.indexOf(oldClient))
 			clientList.setSelectedValue(renamedClient, true);
-		clientListModel.removeElement(oldClient);
+		clientListModel.removeElement(oldClient);*/
 	}
 
 	/**
@@ -327,11 +387,11 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 * @param rescheduledReservation	the {@code Reservation} that replaces the old one.
 	 */
 	@Override
-	public void reservationRescheduled(Reservation oldReservation, Reservation rescheduledReservation) {
+	public void reservationRescheduled(Reservation oldReservation, Reservation rescheduledReservation) {/*
 		reservationListModel.addElement(rescheduledReservation);
 		if (reservationList.getSelectedIndex() == reservationListModel.indexOf(oldReservation))
 			reservationList.setSelectedValue(rescheduledReservation, true);
-		reservationListModel.removeElement(oldReservation);
+		reservationListModel.removeElement(oldReservation);*/
 	}
 
 	/**
@@ -341,7 +401,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	@Override
 	public void showReservationError(String message) {
-		reservationErrorMsgLbl.setText(message);
+		//reservationErrorMsgLbl.setText(message);
 	}
 
 	/**
@@ -351,7 +411,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	@Override
 	public void showClientError(String message) {
-		clientErrorMsgLbl.setText(message);
+		//clientErrorMsgLbl.setText(message);
 	}
 
 	/**
@@ -361,7 +421,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	@Override
 	public void showFormError(String message) {
-		formErrorMsgLbl.setText(message);
+		//formErrorMsgLbl.setText(message);
 	}
 
 	/**
@@ -409,7 +469,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(firstNameLbl, gbc_firstNameLbl);
 		
 		nameFormTxt = new JTextField();
-		nameFormTxt.addKeyListener(clientBtnEnabler);
+		nameFormTxt.addKeyListener(nameFormListener);
 		nameFormTxt.setName("nameFormTxt");
 		nameFormTxt.setToolTipText("Names must not contain numbers (e.g. 0-9) or any type of symbol or special character (e.g. ~`! @#$%^&*()_-+={[}]|\\:;\"'<,>.?/)");
 		GridBagConstraints gbc_nameFormTxt = new GridBagConstraints();
@@ -431,7 +491,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(lastNameLbl, gbc_lastNameLbl);
 		
 		surnameFormTxt = new JTextField();
-		surnameFormTxt.addKeyListener(clientBtnEnabler);
+		surnameFormTxt.addKeyListener(surnameFormListener);
 		surnameFormTxt.setToolTipText("Surnames must not contain numbers (e.g. 0-9) or any type of symbol or special character (e.g. ~`! @#$%^&*()_-+={[}]|\\:;\"'<,>.?/)");
 		surnameFormTxt.setName("surnameFormTxt");
 		GridBagConstraints gbc_surnameFormTxt = new GridBagConstraints();
@@ -518,14 +578,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		
 		// Third row
 		addClientBtn = new JButton("Add Client");
-		addClientBtn.addActionListener(e -> {
-			bookingPresenter.addClient(nameFormTxt.getText(), surnameFormTxt.getText());
-			nameFormTxt.setText("");
-			surnameFormTxt.setText("");
-			addClientBtn.setEnabled(false);
-			formErrorMsgLbl.setText(" ");
-			clientErrorMsgLbl.setText(" ");
-		});
+		addClientBtn.addActionListener(addClientAction);
 		addClientBtn.setEnabled(false);
 		addClientBtn.setName("addClientBtn");
 		addClientBtn.setToolTipText("");
@@ -537,17 +590,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(addClientBtn, gbc_addClientBtn);
 		
 		renameBtn = new JButton("Rename");
-		renameBtn.addActionListener(e -> {
-			bookingPresenter.renameClient(
-					clientListModel.get(clientList.getSelectedIndex()),
-					nameFormTxt.getText(),
-					surnameFormTxt.getText());
-			nameFormTxt.setText("");
-			surnameFormTxt.setText("");
-			renameBtn.setEnabled(false);
-			formErrorMsgLbl.setText(" ");
-			clientErrorMsgLbl.setText(" ");
-		});
+		renameBtn.addActionListener(renameAction);
 		renameBtn.setEnabled(false);
 		renameBtn.setName("renameBtn");
 		GridBagConstraints gbc_renameBtn = new GridBagConstraints();
@@ -558,7 +601,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(renameBtn, gbc_renameBtn);
 		
 		addReservationBtn = new JButton("Add Reservation");
-		addReservationBtn.addActionListener(e -> {
+		addReservationBtn.addActionListener(e -> {/*
 			bookingPresenter.addReservation(
 					clientListModel.get(clientList.getSelectedIndex()),
 					yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
@@ -567,7 +610,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 			monthFormTxt.setText("");
 			dayFormTxt.setText("");
 			formErrorMsgLbl.setText(" ");
-			reservationErrorMsgLbl.setText(" ");
+			reservationErrorMsgLbl.setText(" ");*/
 		});
 		addReservationBtn.setEnabled(false);
 		addReservationBtn.setName("addReservationBtn");
@@ -579,7 +622,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(addReservationBtn, gbc_addReservationBtn);
 		
 		rescheduleBtn = new JButton("Reschedule");
-		rescheduleBtn.addActionListener(e -> {
+		rescheduleBtn.addActionListener(e -> {/*
 			bookingPresenter.rescheduleReservation(
 					reservationListModel.get(reservationList.getSelectedIndex()),
 					yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
@@ -588,7 +631,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 			monthFormTxt.setText("");
 			dayFormTxt.setText("");
 			formErrorMsgLbl.setText(" ");
-			reservationErrorMsgLbl.setText(" ");
+			reservationErrorMsgLbl.setText(" ");*/
 		});
 		rescheduleBtn.setName("rescheduleBtn");
 		rescheduleBtn.setEnabled(false);
@@ -636,11 +679,11 @@ public class BookingSwingView extends JFrame implements BookingView {
 		
 		// Fifth row
 		removeClientBtn = new JButton("Remove Client");
-		removeClientBtn.addActionListener(e -> {
+		removeClientBtn.addActionListener(e -> {/*
 			bookingPresenter.deleteClient(clientListModel.get(clientList.getSelectedIndex()));
 			removeClientBtn.setEnabled(false);
 			formErrorMsgLbl.setText(" ");
-			clientErrorMsgLbl.setText(" ");
+			clientErrorMsgLbl.setText(" ");*/
 		});
 		removeClientBtn.setEnabled(false);
 		removeClientBtn.setName("removeClientBtn");
@@ -652,11 +695,11 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(removeClientBtn, gbc_removeClientBtn);
 		
 		removeReservationBtn = new JButton("Remove Reservation");
-		removeReservationBtn.addActionListener(e -> {
+		removeReservationBtn.addActionListener(e -> {/*
 			bookingPresenter.deleteReservation(reservationListModel.get(reservationList.getSelectedIndex()));
 			removeReservationBtn.setEnabled(false);
 			formErrorMsgLbl.setText(" ");
-			reservationErrorMsgLbl.setText(" ");
+			reservationErrorMsgLbl.setText(" ");*/
 		});
 		removeReservationBtn.setName("removeReservationBtn");
 		removeReservationBtn.setEnabled(false);
