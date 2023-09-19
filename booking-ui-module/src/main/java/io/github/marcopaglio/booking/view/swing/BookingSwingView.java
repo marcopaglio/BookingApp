@@ -77,7 +77,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 			renameBtn.setEnabled(
 				!nameFormTxt.getText().isBlank() &&
 				!surnameFormTxt.getText().isBlank() &&
-				clientList.getSelectedIndex() != -1
+				!clientList.isSelectionEmpty()
 			);
 		}
 	};
@@ -86,16 +86,101 @@ public class BookingSwingView extends JFrame implements BookingView {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			addClientBtn.setEnabled(
-				!nameFormTxt.getText().trim().isEmpty() &&
-				!surnameFormTxt.getText().trim().isEmpty()
+				!nameFormTxt.getText().isBlank() &&
+				!surnameFormTxt.getText().isBlank()
 			);
 			
 			renameBtn.setEnabled(
 				!nameFormTxt.getText().isBlank() &&
 				!surnameFormTxt.getText().isBlank() &&
-				clientList.getSelectedIndex() != -1
+				!clientList.isSelectionEmpty()
 			);
 		}
+	};
+
+	private final transient KeyAdapter dayFormListener = new KeyAdapter() {
+		@Override
+		public void keyReleased(KeyEvent e) {
+			addReservationBtn.setEnabled(
+				!yearFormTxt.getText().isBlank() &&
+				!monthFormTxt.getText().isBlank() &&
+				!dayFormTxt.getText().isBlank() &&
+				!clientList.isSelectionEmpty()
+			);
+			
+			rescheduleBtn.setEnabled(
+				!yearFormTxt.getText().isBlank() &&
+				!monthFormTxt.getText().isBlank() &&
+				!dayFormTxt.getText().isBlank() &&
+				!reservationList.isSelectionEmpty()
+			);
+		}
+	};
+
+	private final transient KeyAdapter monthFormListener = new KeyAdapter() {
+		@Override
+		public void keyReleased(KeyEvent e) {
+			addReservationBtn.setEnabled(
+				!yearFormTxt.getText().isBlank() &&
+				!monthFormTxt.getText().isBlank() &&
+				!dayFormTxt.getText().isBlank() &&
+				!clientList.isSelectionEmpty()
+			);
+			
+			rescheduleBtn.setEnabled(
+				!yearFormTxt.getText().isBlank() &&
+				!monthFormTxt.getText().isBlank() &&
+				!dayFormTxt.getText().isBlank() &&
+				!reservationList.isSelectionEmpty()
+			);
+		}
+	};
+
+	private final transient KeyAdapter yearFormListener = new KeyAdapter() {
+		@Override
+		public void keyReleased(KeyEvent e) {
+			addReservationBtn.setEnabled(
+				!yearFormTxt.getText().isBlank() &&
+				!monthFormTxt.getText().isBlank() &&
+				!dayFormTxt.getText().isBlank() &&
+				!clientList.isSelectionEmpty()
+			);
+			
+			rescheduleBtn.setEnabled(
+				!yearFormTxt.getText().isBlank() &&
+				!monthFormTxt.getText().isBlank() &&
+				!dayFormTxt.getText().isBlank() &&
+				!reservationList.isSelectionEmpty()
+			);
+		}
+	};
+
+	private final transient ListSelectionListener clientListListener = e -> {
+		renameBtn.setEnabled(
+			!nameFormTxt.getText().isBlank() &&
+			!surnameFormTxt.getText().isBlank() &&
+			!clientList.isSelectionEmpty()
+		);
+		
+		removeClientBtn.setEnabled(!clientList.isSelectionEmpty());
+		
+		addReservationBtn.setEnabled(
+			!yearFormTxt.getText().isBlank() &&
+			!monthFormTxt.getText().isBlank() &&
+			!dayFormTxt.getText().isBlank() &&
+			!clientList.isSelectionEmpty()
+		);
+	};
+
+	private final transient ListSelectionListener reservationListListener = e -> {
+		rescheduleBtn.setEnabled(
+			!yearFormTxt.getText().isBlank() &&
+			!monthFormTxt.getText().isBlank() &&
+			!dayFormTxt.getText().isBlank() &&
+			!reservationList.isSelectionEmpty()
+		);
+		
+		removeReservationBtn.setEnabled(!reservationList.isSelectionEmpty());
 	};
 
 	private final transient ActionListener addClientAction = e -> {
@@ -105,14 +190,6 @@ public class BookingSwingView extends JFrame implements BookingView {
 		surnameFormTxt.setText("");
 		formErrorMsgLbl.setText(" ");
 		clientErrorMsgLbl.setText(" ");
-	};
-
-	private final transient ListSelectionListener clientListListener = e -> {
-		renameBtn.setEnabled(
-			!nameFormTxt.getText().isBlank() &&
-			!surnameFormTxt.getText().isBlank() &&
-			clientList.getSelectedIndex() != -1
-		);
 	};
 
 	private final transient ActionListener renameAction = e -> {
@@ -127,77 +204,45 @@ public class BookingSwingView extends JFrame implements BookingView {
 		clientErrorMsgLbl.setText(" ");
 	};
 
-	private final KeyAdapter clientBtnEnabler = new KeyAdapter() {
-		@Override
-		public void keyReleased(KeyEvent e) {/*
-			addClientBtn.setEnabled(
-				!nameFormTxt.getText().trim().isEmpty() &&
-				!surnameFormTxt.getText().trim().isEmpty()
-			);
-			
-			renameBtn.setEnabled(
-				!nameFormTxt.getText().trim().isEmpty() &&
-				!surnameFormTxt.getText().trim().isEmpty() &&
-				clientList.getSelectedIndex() != -1
-			);*/
-		}
+	private final transient ActionListener removeClientAction = e -> {
+		bookingPresenter.deleteClient(clientList.getSelectedValue());
+		removeClientBtn.setEnabled(false);
+		formErrorMsgLbl.setText(" ");
+		clientErrorMsgLbl.setText(" ");
 	};
 
-	private final KeyAdapter reservationBtnEnabler = new KeyAdapter() {
-		@Override
-		public void keyReleased(KeyEvent e) {/*
-			addReservationBtn.setEnabled(
-				!yearFormTxt.getText().trim().isEmpty() &&
-				!monthFormTxt.getText().trim().isEmpty() &&
-				!dayFormTxt.getText().trim().isEmpty() &&
-				clientList.getSelectedIndex() != -1
-			);
-			
-			rescheduleBtn.setEnabled(
-				!yearFormTxt.getText().trim().isEmpty() &&
-				!monthFormTxt.getText().trim().isEmpty() &&
-				!dayFormTxt.getText().trim().isEmpty() &&
-				reservationList.getSelectedIndex() != -1
-			);*/
-		}
+	private final transient ActionListener addReservationAction = e -> {
+		bookingPresenter.addReservation(
+			clientList.getSelectedValue(),
+			yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
+		addReservationBtn.setEnabled(false);
+		yearFormTxt.setText("");
+		monthFormTxt.setText("");
+		dayFormTxt.setText("");
+		formErrorMsgLbl.setText(" ");
+		reservationErrorMsgLbl.setText(" ");
 	};
 
-/*	private final ListSelectionListener clientListListener = new ListSelectionListener() {
-		@Override
-		public void valueChanged(ListSelectionEvent e) {
-			renameBtn.setEnabled(
-				!nameFormTxt.getText().trim().isEmpty() &&
-				!surnameFormTxt.getText().trim().isEmpty() &&
-				clientList.getSelectedIndex() != -1
-			);
-			
-			removeClientBtn.setEnabled(clientList.getSelectedIndex() != -1);
-			
-			addReservationBtn.setEnabled(
-				!yearFormTxt.getText().trim().isEmpty() &&
-				!monthFormTxt.getText().trim().isEmpty() &&
-				!dayFormTxt.getText().trim().isEmpty() &&
-				clientList.getSelectedIndex() != -1
-			);
-		}
-	};*/
+	private final transient ActionListener rescheduleAction = e -> {
+		bookingPresenter.rescheduleReservation(
+			reservationList.getSelectedValue(),
+			yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
+		rescheduleBtn.setEnabled(false);
+		yearFormTxt.setText("");
+		monthFormTxt.setText("");
+		dayFormTxt.setText("");
+		formErrorMsgLbl.setText(" ");
+		reservationErrorMsgLbl.setText(" ");
+	};
 
-	private final ListSelectionListener reservationListListener = new ListSelectionListener() {
-		@Override
-		public void valueChanged(ListSelectionEvent e) {/*
-			rescheduleBtn.setEnabled(
-				!yearFormTxt.getText().trim().isEmpty() &&
-				!monthFormTxt.getText().trim().isEmpty() &&
-				!dayFormTxt.getText().trim().isEmpty() &&
-				reservationList.getSelectedIndex() != -1
-			);
-			
-			removeReservationBtn.setEnabled(reservationList.getSelectedIndex() != -1);*/
-		}
+	private final transient ActionListener removeReservationAction = e -> {
+		bookingPresenter.deleteReservation(reservationList.getSelectedValue());
+		removeReservationBtn.setEnabled(false);
+		formErrorMsgLbl.setText(" ");
+		reservationErrorMsgLbl.setText(" ");
 	};
 
 	// METHODS
-
 	public void setBookingPresenter(BookingPresenter bookingPresenter) {
 		this.bookingPresenter = bookingPresenter;
 	}
@@ -298,14 +343,14 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 * @param clients	the {@code List} of clients to show.
 	 */
 	@Override
-	public void showAllClients(List<Client> clients) {/*
+	public void showAllClients(List<Client> clients) {
 		clientListModel.removeAllElements();
 		clients.stream().forEach(clientListModel::addElement);
 		
-		clientList.clearSelection();
-		addReservationBtn.setEnabled(false);
-		renameBtn.setEnabled(false);
-		removeClientBtn.setEnabled(false);*/
+		//clientList.clearSelection();
+		//addReservationBtn.setEnabled(false);
+		//renameBtn.setEnabled(false);
+		//removeClientBtn.setEnabled(false);
 	}
 
 	/**
@@ -512,7 +557,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(dateLbl, gbc_dateLbl);
 		
 		yearFormTxt = new JTextField();
-		yearFormTxt.addKeyListener(reservationBtnEnabler);
+		yearFormTxt.addKeyListener(yearFormListener);
 		yearFormTxt.setToolTipText("yyyy");
 		yearFormTxt.setName("yearFormTxt");
 		GridBagConstraints gbc_yearFormTxt = new GridBagConstraints();
@@ -534,7 +579,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(dash1Lbl, gbc_dash1Lbl);
 		
 		monthFormTxt = new JTextField();
-		monthFormTxt.addKeyListener(reservationBtnEnabler);
+		monthFormTxt.addKeyListener(monthFormListener);
 		monthFormTxt.setName("monthFormTxt");
 		monthFormTxt.setToolTipText("mm");
 		GridBagConstraints gbc_monthFormTxt = new GridBagConstraints();
@@ -555,7 +600,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(dash2Lbl, gbc_dash2Lbl);
 		
 		dayFormTxt = new JTextField();
-		dayFormTxt.addKeyListener(reservationBtnEnabler);
+		dayFormTxt.addKeyListener(dayFormListener);
 		dayFormTxt.setName("dayFormTxt");
 		dayFormTxt.setToolTipText("dd");
 		GridBagConstraints gbc_dayFormTxt = new GridBagConstraints();
@@ -601,17 +646,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(renameBtn, gbc_renameBtn);
 		
 		addReservationBtn = new JButton("Add Reservation");
-		addReservationBtn.addActionListener(e -> {/*
-			bookingPresenter.addReservation(
-					clientListModel.get(clientList.getSelectedIndex()),
-					yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
-			addReservationBtn.setEnabled(false);
-			yearFormTxt.setText("");
-			monthFormTxt.setText("");
-			dayFormTxt.setText("");
-			formErrorMsgLbl.setText(" ");
-			reservationErrorMsgLbl.setText(" ");*/
-		});
+		addReservationBtn.addActionListener(addReservationAction);
 		addReservationBtn.setEnabled(false);
 		addReservationBtn.setName("addReservationBtn");
 		GridBagConstraints gbc_addReservationBtn = new GridBagConstraints();
@@ -622,6 +657,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(addReservationBtn, gbc_addReservationBtn);
 		
 		rescheduleBtn = new JButton("Reschedule");
+		rescheduleBtn.addActionListener(rescheduleAction);
 		rescheduleBtn.addActionListener(e -> {/*
 			bookingPresenter.rescheduleReservation(
 					reservationListModel.get(reservationList.getSelectedIndex()),
@@ -679,12 +715,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		
 		// Fifth row
 		removeClientBtn = new JButton("Remove Client");
-		removeClientBtn.addActionListener(e -> {/*
-			bookingPresenter.deleteClient(clientListModel.get(clientList.getSelectedIndex()));
-			removeClientBtn.setEnabled(false);
-			formErrorMsgLbl.setText(" ");
-			clientErrorMsgLbl.setText(" ");*/
-		});
+		removeClientBtn.addActionListener(removeClientAction);
 		removeClientBtn.setEnabled(false);
 		removeClientBtn.setName("removeClientBtn");
 		GridBagConstraints gbc_removeClientBtn = new GridBagConstraints();
@@ -695,12 +726,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(removeClientBtn, gbc_removeClientBtn);
 		
 		removeReservationBtn = new JButton("Remove Reservation");
-		removeReservationBtn.addActionListener(e -> {/*
-			bookingPresenter.deleteReservation(reservationListModel.get(reservationList.getSelectedIndex()));
-			removeReservationBtn.setEnabled(false);
-			formErrorMsgLbl.setText(" ");
-			reservationErrorMsgLbl.setText(" ");*/
-		});
+		removeReservationBtn.addActionListener(removeReservationAction);
 		removeReservationBtn.setName("removeReservationBtn");
 		removeReservationBtn.setEnabled(false);
 		GridBagConstraints gbc_removeReservationBtn = new GridBagConstraints();

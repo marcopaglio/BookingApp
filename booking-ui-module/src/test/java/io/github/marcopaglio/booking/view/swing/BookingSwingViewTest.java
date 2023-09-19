@@ -202,8 +202,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Not blank surname and text is deleted")
-			public void testNameFormTxtWhenSurnameIsNotBlankAndTextIsDeletedShouldDisableAddClientBtn() {
+			@DisplayName("Add client enabled and text is deleted")
+			public void testNameFormTxtWhenAddClientBtnIsEnabledAndTextIsDeletedShouldDisableAddClientBtn() {
 				surnameFormTxt.setText(A_LASTNAME);
 				nameFormTxt.setText(A_FIRSTNAME);
 				enableButton(bookingSwingView.getAddClientBtn());
@@ -252,8 +252,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Not blank name and text is deleted")
-			public void testSurnameFormTxtWhenNameIsNotBlankAndTextIsDeletedShouldDisableAddClientBtn() {
+			@DisplayName("Add client enabled and text is deleted")
+			public void testSurnameFormTxtWhenAddClientBtnIsEnabledAndTextIsDeletedShouldDisableAddClientBtn() {
 				nameFormTxt.setText(A_FIRSTNAME);
 				surnameFormTxt.enterText(A_LASTNAME);
 				enableButton(bookingSwingView.getAddClientBtn());
@@ -329,8 +329,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Client selected, not blank surname and text is deleted")
-			public void testNameFormTxtWhenAClientIsSelectedAndSurnameIsNotBlankAndTextIsDeletedShouldDisableRenameBtn() {
+			@DisplayName("Rename enabled and text is deleted")
+			public void testNameFormTxtWhenRenameBtnIsEnabledAndTextIsDeletedShouldDisableRenameBtn() {
 				addClientInList(A_CLIENT);
 				clientList.selectItem(0);
 				nameFormTxt.setText(ANOTHER_FIRSTNAME);
@@ -355,8 +355,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Client selected, empty surname and text is typed")
-			public void testNameFormTxtWhenAClientIsSelectedAndSurnameIsEmptyAndTextIsTypedShouldNotEnableRenameBtn() {
+			@DisplayName("Empty surname and text is typed")
+			public void testNameFormTxtWhenSurnameIsEmptyAndTextIsTypedShouldNotEnableRenameBtn() {
 				addClientInList(A_CLIENT);
 				clientList.selectItem(0);
 				surnameFormTxt.setText("");
@@ -367,8 +367,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Client selected, blank surname and text is typed")
-			public void testNameFormTxtWhenAClientIsSelectedAndSurnameIsBlankAndTextIsTypedShouldNotEnableRenameBtn() {
+			@DisplayName("Blank surname and text is typed")
+			public void testNameFormTxtWhenSurnameIsBlankAndTextIsTypedShouldNotEnableRenameBtn() {
 				addClientInList(A_CLIENT);
 				clientList.selectItem(0);
 				surnameFormTxt.setText("   ");
@@ -379,23 +379,11 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Client not selected, not blank surname and text is typed")
-			public void testNameFormTxtWhenClientIsNotSelectedAndSurnameIsNotBlankAndTextIsTypedShouldNotEnableRenameBtn() {
+			@DisplayName("Client not selected and text is typed")
+			public void testNameFormTxtWhenClientIsNotSelectedAndTextIsTypedShouldNotEnableRenameBtn() {
 				addClientInList(A_CLIENT);
 				clientList.clearSelection();
 				surnameFormTxt.setText(A_LASTNAME);
-				
-				nameFormTxt.enterText(ANOTHER_FIRSTNAME);
-				
-				renameBtn.requireDisabled();
-			}
-
-			@Test @GUITest
-			@DisplayName("Client not selected, empty surname and text is typed")
-			public void testNameFormTxtWhenClientIsNotSelectedAndSurnameIsEmptyAndTextIsTypedShouldNotEnableRenameBtn() {
-				addClientInList(A_CLIENT);
-				clientList.clearSelection();
-				surnameFormTxt.setText("");
 				
 				nameFormTxt.enterText(ANOTHER_FIRSTNAME);
 				
@@ -429,8 +417,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Client selected, not blank name and text is deleted")
-			public void testSurnameFormTxtWhenAClientIsSelectedAndSurnameIsNotBlankAndTextIsDeletedShouldDisableRenameBtn() {
+			@DisplayName("Rename enabled and text is deleted")
+			public void testSurnameFormTxtWhenRenameBtnIsEnabledAndTextIsDeletedShouldDisableRenameBtn() {
 				addClientInList(A_CLIENT);
 				clientList.selectItem(0);
 				nameFormTxt.setText(A_FIRSTNAME);
@@ -455,8 +443,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Client selected, empty name and text is typed")
-			public void testSurnameFormTxtWhenAClientIsSelectedAndNameIsEmptyAndTextIsTypedShouldNotEnableRenameBtn() {
+			@DisplayName("Empty name and text is typed")
+			public void testSurnameFormTxtWhenNameIsEmptyAndTextIsTypedShouldNotEnableRenameBtn() {
 				addClientInList(A_CLIENT);
 				clientList.selectItem(0);
 				nameFormTxt.setText("");
@@ -467,8 +455,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Client selected, blank name and text is typed")
-			public void testSurnameFormTxtWhenAClientIsSelectedAndNameIsBlankAndTextIsTypedShouldNotEnableRenameBtn() {
+			@DisplayName("Blank name and text is typed")
+			public void testSurnameFormTxtWhenNameIsBlankAndTextIsTypedShouldNotEnableRenameBtn() {
 				addClientInList(A_CLIENT);
 				clientList.selectItem(0);
 				nameFormTxt.setText(" ");
@@ -479,23 +467,11 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Client not selected, not blank name and text is typed")
-			public void testSurnameFormTxtWhenClientIsNotSelectedAndNameIsNotBlankAndTextIsTypedShouldNotEnableRenameBtn() {
+			@DisplayName("Client not selected and text is typed")
+			public void testSurnameFormTxtWhenClientIsNotSelectedAndTextIsTypedShouldNotEnableRenameBtn() {
 				addClientInList(A_CLIENT);
 				clientList.clearSelection();
 				nameFormTxt.setText(A_FIRSTNAME);
-				
-				surnameFormTxt.enterText(ANOTHER_LASTNAME);
-				
-				renameBtn.requireDisabled();
-			}
-
-			@Test @GUITest
-			@DisplayName("Client not selected, empty name and text is typed")
-			public void testSurnameFormTxtWhenClientIsNotSelectedAndNameIsEmptyAndTextIsTypedShouldNotEnableRenameBtn() {
-				addClientInList(A_CLIENT);
-				clientList.clearSelection();
-				nameFormTxt.setText("");
 				
 				surnameFormTxt.enterText(ANOTHER_LASTNAME);
 				
@@ -507,7 +483,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			public void testSurnameFormTxtWhenClientIsNotSelectedAndNameIsBlankAndTextIsTypedShouldNotEnableRenameBtn() {
 				addClientInList(A_CLIENT);
 				clientList.clearSelection();
-				nameFormTxt.setText("  ");
+				nameFormTxt.setText("");
 				
 				surnameFormTxt.enterText(ANOTHER_LASTNAME);
 				
@@ -529,8 +505,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Not blank name and surname and client is deselected")
-			public void testClientListWhenNameAndSurnameAreNotBlankAndAClientIsDeselectedShouldDisableRenameBtn() {
+			@DisplayName("Rename enabled and client is deselected")
+			public void testClientListWhenRenameBtnIsEnabledAndAClientIsDeselectedShouldDisableRenameBtn() {
 				addClientInList(A_CLIENT);
 				clientList.selectItem(0);
 				nameFormTxt.setText(ANOTHER_FIRSTNAME);
@@ -544,8 +520,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Empty name, not blank surname and client is selected")
-			public void testClientListWhenNameIsEmptyAndSurnameIsNotBlankAndAClientIsSelectedShouldNotEnableRenameBtn() {
+			@DisplayName("Empty name and client is selected")
+			public void testClientListWhenNameIsEmptyAndAClientIsSelectedShouldNotEnableRenameBtn() {
 				addClientInList(A_CLIENT);
 				nameFormTxt.setText("");
 				surnameFormTxt.setText(ANOTHER_LASTNAME);
@@ -556,8 +532,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Blank name, not blank surname and client is selected")
-			public void testClientListWhenNameIsBlankAndSurnameIsNotBlankAndAClientIsSelectedShouldNotEnableRenameBtn() {
+			@DisplayName("Blank name and client is selected")
+			public void testClientListWhenNameIsBlankAndAClientIsSelectedShouldNotEnableRenameBtn() {
 				addClientInList(A_CLIENT);
 				nameFormTxt.setText(" ");
 				surnameFormTxt.setText(ANOTHER_LASTNAME);
@@ -568,8 +544,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Not blank name, empty surname and client is selected")
-			public void testClientListWhenNameIsNotBlankAndSurnameIsEmptyAndAClientIsSelectedShouldNotEnableRenameBtn() {
+			@DisplayName("Empty surname and client is selected")
+			public void testClientListWhenSurnameIsEmptyAndAClientIsSelectedShouldNotEnableRenameBtn() {
 				addClientInList(A_CLIENT);
 				nameFormTxt.setText(ANOTHER_FIRSTNAME);
 				surnameFormTxt.setText("");
@@ -580,47 +556,11 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Not blank name, blank surname and client is selected")
-			public void testClientListWhenNameIsNotBlankAndSurnameIsBlankAndAClientIsSelectedShouldNotEnableRenameBtn() {
+			@DisplayName("Blank surname and client is selected")
+			public void testClientListWhenSurnameIsBlankAndAClientIsSelectedShouldNotEnableRenameBtn() {
 				addClientInList(A_CLIENT);
 				nameFormTxt.setText(ANOTHER_FIRSTNAME);
 				surnameFormTxt.setText("  ");
-				
-				clientList.selectItem(0);
-				
-				renameBtn.requireDisabled();
-			}
-
-			@Test @GUITest
-			@DisplayName("Empty name and surname and client is selected")
-			public void testClientListWhenBothNameAndSurnameAreEmptyAndAClientIsSelectedShouldNotEnableRenameBtn() {
-				addClientInList(A_CLIENT);
-				nameFormTxt.setText("");
-				surnameFormTxt.setText("");
-				
-				clientList.selectItem(0);
-				
-				renameBtn.requireDisabled();
-			}
-
-			@Test @GUITest
-			@DisplayName("Empty name, blank surname and client is selected")
-			public void testClientListWhenNameIsEmptyAndSurnameIsBlankAndAClientIsSelectedShouldNotEnableRenameBtn() {
-				addClientInList(A_CLIENT);
-				nameFormTxt.setText("");
-				surnameFormTxt.setText("  ");
-				
-				clientList.selectItem(0);
-				
-				renameBtn.requireDisabled();
-			}
-
-			@Test @GUITest
-			@DisplayName("Blank name and empty surname and client is selected")
-			public void testClientListWhenNameIsBlankAndSurnameIsEmptyAndAClientIsSelectedShouldNotEnableRenameBtn() {
-				addClientInList(A_CLIENT);
-				nameFormTxt.setText("   ");
-				surnameFormTxt.setText("");
 				
 				clientList.selectItem(0);
 				
@@ -631,7 +571,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			@DisplayName("Blank name and surname and client is selected")
 			public void testClientListWhenBothNameAndSurnameAreBlankAndAClientIsSelectedShouldNotEnableRenameBtn() {
 				addClientInList(A_CLIENT);
-				nameFormTxt.setText(" ");
+				nameFormTxt.setText("");
 				surnameFormTxt.setText("   ");
 				
 				clientList.selectItem(0);
@@ -665,29 +605,34 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		////////////// Rename Button
 
 
-
 		////////////// Remove Client Button
-		@Test @GUITest
-		@DisplayName("A client is selected")
-		public void testRemoveClientBtnWhenAClientIsSelectedShouldBeEnabled() {
-			addClientInList(A_CLIENT);
-			clientList.selectItem(0);
-			
-			removeClientBtn.requireEnabled();
-		}
+			////////////// Client List
+			@Test @GUITest
+			@DisplayName("Client is selected")
+			public void testClientListWhenAClientIsSelectedShouldEnableRemoveClientBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				
+				removeClientBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Remove client enabled and client is deselected")
+			public void testClientListWhenRemoveClientBtnIsEnabledAndClientIsDeselectedShouldDisableRemoveClientBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				enableButton(bookingSwingView.getRemoveClientBtn());
+				
+				// unselectItem would be more clear but it doesn't trigger the list selection listener
+				clientList.clearSelection();
+				
+				removeClientBtn.requireDisabled();
+			}
+			////////////// Client List
 
 		@Test @GUITest
-		@DisplayName("No clients are selected")
-		public void testRemoveClientBtnWhenNoClientsAreSelectedShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			clientList.clearSelection();
-			
-			removeClientBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Button is clicked and there are error messages")
-		public void testRemoveClientBtnWhenItIsClickedAndThereAreFormAndClientErrorMessagesShouldDelegateToPresenterResetErrorsAndDisableIt() {
+		@DisplayName("Button is clicked")
+		public void testRemoveClientBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormAndClientErrorsAndDisableIt() {
 			setTextLabel(bookingSwingView.getFormErrorMsgLbl(),
 					"An error message that involves forms.");
 			setTextLabel(bookingSwingView.getClientErrorMsgLbl(),
@@ -705,402 +650,651 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 		////////////// Remove Client Button
 
+
 		////////////// Add Reservation Button
-		@Test @GUITest
-		@DisplayName("Client is selected, year and month are not empty and text is typed in day")
-		public void testAddReservationBtnWhenAClientIsSelectedYearAndMonthAreNotEmptyAndTextIsTypedInDayShouldBeEnabled() {
-			addClientInList(A_CLIENT);
-			clientList.selectItem(0);
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText(A_MONTH);
-			
-			dayFormTxt.enterText(A_DAY);
-			
-			addReservationBtn.requireEnabled();
-		}
+			////////////// Day Form Text
+			@Test @GUITest
+			@DisplayName("Client selected, not blank year and month and text is typed")
+			public void testDayFormTxtWhenAClientIsSelectedAndBothYearAndMonthAreNotBlankAndTextIsTypedShouldEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				
+				dayFormTxt.enterText(A_DAY);
+				
+				addReservationBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Add reservation enabled and text is deleted")
+			public void testDayFormTxtWhenAddReservationBtnIsEnabledAndTextIsDeletedShouldDisableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				enableButton(bookingSwingView.getAddReservationBtn());
+				
+				dayFormTxt.deleteText();
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client selected, not blank year and month and spaces are typed")
+			public void testDayFormTxtWhenAClientIsSelectedAndBothYearAndMonthAreNotBlankAndSpacesAreTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				
+				dayFormTxt.enterText(" ");
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty month and text is typed")
+			public void testDayFormTxtWhenMonthIsEmptyAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText("");
+				
+				dayFormTxt.enterText(A_DAY);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank month and text is typed")
+			public void testDayFormTxtWhenMonthIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText("   ");
+				
+				dayFormTxt.enterText(A_DAY);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty year and text is typed")
+			public void testDayFormTxtWhenYearIsEmptyAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText("");
+				monthFormTxt.setText(A_MONTH);
+				
+				dayFormTxt.enterText(A_DAY);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and text is typed")
+			public void testDayFormTxtWhenYearIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText("   ");
+				monthFormTxt.setText(A_MONTH);
+				
+				dayFormTxt.enterText(A_DAY);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected and text is typed")
+			public void testDayFormTxtWhenClientIsNotSelectedAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				
+				dayFormTxt.enterText(A_DAY);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and month and text is typed")
+			public void testDayFormTxtWhenBothYearAndMonthAreBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText("  ");
+				monthFormTxt.setText("");
+				
+				dayFormTxt.enterText(A_DAY);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, blank year and text is typed")
+			public void testDayFormTxtWhenClientIsNotSelectedAndYearIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				yearFormTxt.setText("  ");
+				monthFormTxt.setText(A_MONTH);
+				
+				dayFormTxt.enterText(A_DAY);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, blank month and text is typed")
+			public void testDayFormTxtWhenClientIsNotSelectedAndMonthIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText("");
+				
+				dayFormTxt.enterText(A_DAY);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, blank year and month and text is typed")
+			public void testDayFormTxtWhenClientIsNotSelectedAndBothYearAndMonthAreBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				yearFormTxt.setText("");
+				monthFormTxt.setText("  ");
+				
+				dayFormTxt.enterText(A_DAY);
+				
+				addReservationBtn.requireDisabled();
+			}
+			////////////// Day Form Text
+
+			////////////// Month Form Text
+			@Test @GUITest
+			@DisplayName("Client selected, not blank year and day and text is typed")
+			public void testMonthFormTxtWhenAClientIsSelectedAndBothYearAndDayAreNotBlankAndTextIsTypedShouldEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				dayFormTxt.setText(A_DAY);
+				
+				monthFormTxt.enterText(A_MONTH);
+				
+				addReservationBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Add reservation enabled and text is deleted")
+			public void testMonthFormTxtWhenAddReservationBtnIsEnabledAndTextIsDeletedShouldDisableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				enableButton(bookingSwingView.getAddReservationBtn());
+				
+				monthFormTxt.deleteText();
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client selected, both not blank year and day and spaces are typed")
+			public void testMonthFormTxtWhenAClientIsSelectedAndBothYearAndDayAreNotBlankAndSpacesAreTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				dayFormTxt.setText(A_DAY);
+				
+				monthFormTxt.enterText("  ");
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty year and text is typed")
+			public void testMonthFormTxtWhenYearIsEmptyAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText("");
+				dayFormTxt.setText(A_DAY);
+				
+				monthFormTxt.enterText(A_MONTH);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and text is typed")
+			public void testMonthFormTxtWhenYearIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText("  ");
+				dayFormTxt.setText(A_DAY);
+				
+				monthFormTxt.enterText(A_MONTH);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty day and text is typed")
+			public void testMonthFormTxtWhenDayIsEmptyAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				dayFormTxt.setText("");
+				
+				monthFormTxt.enterText(A_MONTH);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank day and text is typed")
+			public void testMonthFormTxtWhenDayIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				dayFormTxt.setText("  ");
+				
+				monthFormTxt.enterText(A_MONTH);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected and text is typed")
+			public void testMonthFormTxtWhenClientIsNotSelectedAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				yearFormTxt.setText(A_YEAR);
+				dayFormTxt.setText(A_DAY);
+				
+				monthFormTxt.enterText(A_MONTH);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and day and text is typed")
+			public void testMonthFormTxtWhenBothYearAndDayAreBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText("");
+				dayFormTxt.setText("");
+				
+				monthFormTxt.enterText(A_MONTH);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, blank year and text is typed")
+			public void testMonthFormTxtWhenClientIsNotSelectedAndYearIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				yearFormTxt.setText("  ");
+				dayFormTxt.setText(A_DAY);
+				
+				monthFormTxt.enterText(A_MONTH);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, blank day and text is typed")
+			public void testMonthFormTxtWhenClientIsNotSelectedAndDayIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				yearFormTxt.setText(A_YEAR);
+				dayFormTxt.setText("  ");
+				
+				monthFormTxt.enterText(A_MONTH);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, blank year and day and text is typed")
+			public void testMonthFormTxtWhenClientIsNotSelectedAndBothYearAndDayAreBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				yearFormTxt.setText("");
+				dayFormTxt.setText("  ");
+				
+				monthFormTxt.enterText(A_MONTH);
+				
+				addReservationBtn.requireDisabled();
+			}
+			////////////// Month Form Text
+
+			////////////// Year Form Text
+			@Test @GUITest
+			@DisplayName("Client selected, not blank month and day and text is typed")
+			public void testYearFormTxtWhenAClientIsSelectedAndBothMonthAndDayAreNotBlankAndTextIsTypedShouldEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				
+				yearFormTxt.enterText(A_YEAR);
+				
+				addReservationBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Add Reservation enabled and text is deleted")
+			public void testYearFormTxtWhenAddReservationBtnIsEnabledAndTextIsDeletedShouldDisableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				enableButton(bookingSwingView.getAddReservationBtn());
+				
+				yearFormTxt.deleteText();
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client selected, not blank month and day and spaces are typed")
+			public void testYearFormTxtWhenAClientIsSelectedAndBothMonthAndDayAreNotBlankAndSpacesAreTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				
+				yearFormTxt.enterText("   ");
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty month and text is typed")
+			public void testYearFormTxtWhenMonthIsEmptyAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				monthFormTxt.setText("");
+				dayFormTxt.setText(A_DAY);
+				
+				yearFormTxt.enterText(A_YEAR);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank month and text is typed")
+			public void testYearFormTxtWhenMonthIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				monthFormTxt.setText("   ");
+				dayFormTxt.setText(A_DAY);
+				
+				yearFormTxt.enterText(A_YEAR);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty day and text is typed")
+			public void testYearFormTxtWhenDayIsEmptyAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText("");
+				
+				yearFormTxt.enterText(A_YEAR);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank day and text is typed")
+			public void testYearFormTxtWhenDayIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText("   ");
+				
+				yearFormTxt.enterText(A_YEAR);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected and text is typed")
+			public void testYearFormTxtWhenClientIsNotSelectedAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				
+				yearFormTxt.enterText(A_YEAR);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank month and day and text is typed")
+			public void testYearFormTxtWhenBothMonthAndDayAreBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				monthFormTxt.setText("  ");
+				dayFormTxt.setText("  ");
+				
+				yearFormTxt.enterText(A_YEAR);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, blank month and text is typed")
+			public void testYearFormTxtWhenClientIsNotSelectedAndMonthIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				monthFormTxt.setText("");
+				dayFormTxt.setText(A_DAY);
+				
+				yearFormTxt.enterText(A_YEAR);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, blank day and text is typed")
+			public void testYearFormTxtWhenClientIsNotSelectedAndDayIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText("");
+				
+				yearFormTxt.enterText(A_YEAR);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Client not selected, blank month and day and text is typed")
+			public void testYearFormTxtWhenClientIsNotSelectedAndBothMonthAndDayAreBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.clearSelection();
+				monthFormTxt.setText("  ");
+				dayFormTxt.setText("");
+				
+				yearFormTxt.enterText(A_YEAR);
+				
+				addReservationBtn.requireDisabled();
+			}
+			////////////// Year Form Text
+
+			////////////// Client List
+			@Test @GUITest
+			@DisplayName("Not blank year, month and day and client is selected")
+			public void testClientListWhenBothYearMonthAndDayAreNotBlankAndClientIsSelectedShouldEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				
+				clientList.selectItem(0);
+				
+				addReservationBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Add reservation enabled and client is deselected")
+			public void testClientListWhenAddReservationBtnIsEnabledAndClientIsDeselectedShouldDisableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				clientList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				enableButton(bookingSwingView.getAddReservationBtn());
+				
+				clientList.clearSelection();
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty year and day and client is selected")
+			public void testClientListWhenYearIsEmptyAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				yearFormTxt.setText("");
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				
+				clientList.selectItem(0);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and client is selected")
+			public void testClientListWhenYearIsBlankAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				yearFormTxt.setText("   ");
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				
+				clientList.selectItem(0);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty month and client is selected")
+			public void testClientListWhenMonthIsEmptyAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText("");
+				dayFormTxt.setText(A_DAY);
+				
+				clientList.selectItem(0);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank month and client is selected")
+			public void testClientListWhenMonthIsBlankAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText("  ");
+				dayFormTxt.setText(A_DAY);
+				
+				clientList.selectItem(0);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty day and client is selected")
+			public void testClientListWhenDayIsEmptyAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText("");
+				
+				clientList.selectItem(0);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank day and client is selected")
+			public void testClientListWhenDayIsBlankAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(" ");
+				
+				clientList.selectItem(0);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and month and client is selected")
+			public void testClientListWhenBothYearAndMonthAreBlankAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				yearFormTxt.setText("");
+				monthFormTxt.setText(" ");
+				dayFormTxt.setText(A_DAY);
+				
+				clientList.selectItem(0);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and day and client is selected")
+			public void testClientListWhenBothYearAndDayAreBlankAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				yearFormTxt.setText("  ");
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText("");
+				
+				clientList.selectItem(0);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank month and day and client is selected")
+			public void testClientListWhenBothMonthAndDayAreBlankAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText("");
+				dayFormTxt.setText("   ");
+				
+				clientList.selectItem(0);
+				
+				addReservationBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year, month and day and client is selected")
+			public void testClientListWhenBothYearAndMonthAndDayAreBlankAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
+				addClientInList(A_CLIENT);
+				yearFormTxt.setText("   ");
+				monthFormTxt.setText("  ");
+				dayFormTxt.setText("   ");
+				
+				clientList.selectItem(0);
+				
+				addReservationBtn.requireDisabled();
+			}
+			////////////// Client List
 
 		@Test @GUITest
-		@DisplayName("Client is selected, year and month are not empty and spaces are typed in day")
-		public void testAddReservationBtnWhenAClientIsSelectedYearAndMonthAreNotEmptyAndSpacesAreTypedInDayShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			clientList.selectItem(0);
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText(A_MONTH);
-			
-			dayFormTxt.enterText(" ");
-			
-			addReservationBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Client is not selected or year or month are empty and text is typed in day")
-		public void testAddReservationBtnWhenClientIsNotSelectedOrYearOrMonthAreEmptyAndTextIsTypedInDayShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			// only year is empty
-			clientList.selectItem(0);
-			yearFormTxt.setText(" ");
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.enterText(A_DAY);
-			addReservationBtn.requireDisabled();
-			
-			// clear day
-			dayFormTxt.setText("");
-			
-			// only month is empty
-			clientList.selectItem(0);
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText("  ");
-			dayFormTxt.enterText(A_DAY);
-			addReservationBtn.requireDisabled();
-			
-			// clear day
-			dayFormTxt.setText("");
-			
-			// client is not selected
-			clientList.clearSelection();
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.enterText(A_DAY);
-			addReservationBtn.requireDisabled();
-			
-			// clear day
-			dayFormTxt.setText("");
-			
-			// both year and month are empty
-			clientList.selectItem(0);
-			yearFormTxt.setText("  ");
-			monthFormTxt.setText(" ");
-			dayFormTxt.enterText(A_DAY);
-			addReservationBtn.requireDisabled();
-			
-			// clear day
-			dayFormTxt.setText("");
-			
-			// client is not selected and year is empty
-			clientList.clearSelection();
-			yearFormTxt.setText("   ");
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.enterText(A_DAY);
-			addReservationBtn.requireDisabled();
-			
-			// clear day
-			dayFormTxt.setText("");
-			
-			// client is not selected and month is empty
-			clientList.clearSelection();
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText("   ");
-			dayFormTxt.enterText(A_DAY);
-			addReservationBtn.requireDisabled();
-			
-			// clear day
-			dayFormTxt.setText("");
-			
-			// client is not selected and year and month are empty
-			clientList.clearSelection();
-			yearFormTxt.setText("");
-			monthFormTxt.setText("");
-			dayFormTxt.enterText(A_DAY);
-			addReservationBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Client is selected, year and day are not empty and text is typed in month")
-		public void testAddReservationBtnWhenAClientIsSelectedYearAndDayAreNotEmptyAndTextIsTypedInMonthShouldBeEnabled() {
-			addClientInList(A_CLIENT);
-			clientList.selectItem(0);
-			yearFormTxt.setText(A_YEAR);
-			dayFormTxt.setText(A_DAY);
-			
-			monthFormTxt.enterText(A_MONTH);
-			
-			addReservationBtn.requireEnabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Client is selected, year and day are not empty and spaces are typed in month")
-		public void testAddReservationBtnWhenAClientIsSelectedYearAndDayAreNotEmptyAndSpacesAreTypedInMonthShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			clientList.selectItem(0);
-			yearFormTxt.setText(A_YEAR);
-			dayFormTxt.setText(A_DAY);
-			
-			monthFormTxt.enterText("  ");
-			
-			addReservationBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Client is not selected or year or day are empty and text is typed in month")
-		public void testAddReservationBtnWhenClientIsNotSelectedOrYearOrDayAreEmptyAndTextIsTypedInMonthShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			// only year is empty
-			clientList.selectItem(0);
-			yearFormTxt.setText(" ");
-			dayFormTxt.setText(A_DAY);
-			monthFormTxt.enterText(A_MONTH);
-			addReservationBtn.requireDisabled();
-			
-			// clear month
-			monthFormTxt.setText("");
-			
-			// only day is empty
-			clientList.selectItem(0);
-			yearFormTxt.setText(A_YEAR);
-			dayFormTxt.setText("  ");
-			monthFormTxt.enterText(A_MONTH);
-			addReservationBtn.requireDisabled();
-			
-			// clear month
-			monthFormTxt.setText("");
-			
-			// client is not selected
-			clientList.clearSelection();
-			yearFormTxt.setText(A_YEAR);
-			dayFormTxt.setText(A_DAY);
-			monthFormTxt.enterText(A_MONTH);
-			addReservationBtn.requireDisabled();
-			
-			// clear month
-			monthFormTxt.setText("");
-			
-			// both year and day are empty
-			clientList.selectItem(0);
-			yearFormTxt.setText("  ");
-			dayFormTxt.setText(" ");
-			monthFormTxt.enterText(A_MONTH);
-			addReservationBtn.requireDisabled();
-			
-			// clear month
-			monthFormTxt.setText("");
-			
-			// client is not selected and year is empty
-			clientList.clearSelection();
-			yearFormTxt.setText("   ");
-			dayFormTxt.setText(A_DAY);
-			monthFormTxt.enterText(A_MONTH);
-			addReservationBtn.requireDisabled();
-			
-			// clear month
-			monthFormTxt.setText("");
-			
-			// client is not selected and day is empty
-			clientList.clearSelection();
-			yearFormTxt.setText(A_YEAR);
-			dayFormTxt.setText("   ");
-			monthFormTxt.enterText(A_MONTH);
-			addReservationBtn.requireDisabled();
-			
-			// clear month
-			monthFormTxt.setText("");
-			
-			// client is not selected and year and day are empty
-			clientList.clearSelection();
-			yearFormTxt.setText("");
-			dayFormTxt.setText("");
-			monthFormTxt.enterText(A_MONTH);
-			addReservationBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Client is selected, month and day are not empty and text is typed in year")
-		public void testAddReservationBtnWhenAClientIsSelectedMonthAndDayAreNotEmptyAndTextIsTypedInYearShouldBeEnabled() {
-			addClientInList(A_CLIENT);
-			clientList.selectItem(0);
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText(A_DAY);
-			
-			yearFormTxt.enterText(A_YEAR);
-			
-			addReservationBtn.requireEnabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Client is selected, month and day are not empty and spaces are typed in year")
-		public void testAddReservationBtnWhenAClientIsSelectedMonthAndDayAreNotEmptyAndSpacesAreTypedInYearShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			clientList.selectItem(0);
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText(A_DAY);
-			
-			yearFormTxt.enterText("   ");
-			
-			addReservationBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Client is not selected or month or day are empty and text is typed in year")
-		public void testAddReservationBtnWhenClientIsNotSelectedOrMonthOrDayAreEmptyAndTextIsTypedInYearShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			// only month is empty
-			clientList.selectItem(0);
-			monthFormTxt.setText(" ");
-			dayFormTxt.setText(A_DAY);
-			yearFormTxt.enterText(A_YEAR);
-			addReservationBtn.requireDisabled();
-			
-			// clear year
-			yearFormTxt.setText("");
-			
-			// only day is empty
-			clientList.selectItem(0);
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText("  ");
-			yearFormTxt.enterText(A_YEAR);
-			addReservationBtn.requireDisabled();
-			
-			// clear year
-			yearFormTxt.setText("");
-			
-			// client is not selected
-			clientList.clearSelection();
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText(A_DAY);
-			yearFormTxt.enterText(A_YEAR);
-			addReservationBtn.requireDisabled();
-			
-			// clear year
-			yearFormTxt.setText("");
-			
-			// both month and day are empty
-			clientList.selectItem(0);
-			monthFormTxt.setText("  ");
-			dayFormTxt.setText(" ");
-			yearFormTxt.enterText(A_YEAR);
-			addReservationBtn.requireDisabled();
-			
-			// clear year
-			yearFormTxt.setText("");
-			
-			// client is not selected and month is empty
-			clientList.clearSelection();
-			monthFormTxt.setText("   ");
-			dayFormTxt.setText(A_DAY);
-			yearFormTxt.enterText(A_YEAR);
-			addReservationBtn.requireDisabled();
-			
-			// clear year
-			yearFormTxt.setText("");
-			
-			// client is not selected and day is empty
-			clientList.clearSelection();
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText("   ");
-			yearFormTxt.enterText(A_YEAR);
-			addReservationBtn.requireDisabled();
-			
-			// clear year
-			yearFormTxt.setText("");
-			
-			// client is not selected and month and day are empty
-			clientList.clearSelection();
-			monthFormTxt.setText("");
-			dayFormTxt.setText("");
-			yearFormTxt.enterText(A_YEAR);
-			addReservationBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Year, month and day are not empty and client is selected")
-		public void testAddReservationBtnWhenYearMonthAndDayAreNotEmptyAndClientIsSelectedShouldBeEnabled() {
-			addClientInList(A_CLIENT);
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText(A_DAY);
-			
-			clientList.selectItem(0);
-			
-			addReservationBtn.requireEnabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Year, month and day are not empty and client is not selected")
-		public void testAddReservationBtnWhenYearMonthAndDayAreNotEmptyAndClientIsNotSelectedShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText(A_DAY);
-			
-			clientList.clearSelection();
-			
-			addReservationBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Year, month or day are empty and client is selected")
-		public void testAddReservationBtnWhenYearMonthOrDayAreEmptyAndAClientIsSelectedShouldBeDisabled() {
-			addClientInList(A_CLIENT);
-			// only year is empty
-			yearFormTxt.setText("");
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText(A_DAY);
-			clientList.selectItem(0);
-			addReservationBtn.requireDisabled();
-			
-			// clear selection
-			clientList.clearSelection();
-			
-			// only month is empty
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText(" ");
-			dayFormTxt.setText(A_DAY);
-			clientList.selectItem(0);
-			addReservationBtn.requireDisabled();
-			
-			// clear selection
-			clientList.clearSelection();
-			
-			// only day is empty
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText("  ");
-			clientList.selectItem(0);
-			addReservationBtn.requireDisabled();
-			
-			// clear selection
-			clientList.clearSelection();
-			
-			// both year and month are empty
-			yearFormTxt.setText(" ");
-			monthFormTxt.setText("  ");
-			dayFormTxt.setText(A_DAY);
-			clientList.selectItem(0);
-			addReservationBtn.requireDisabled();
-			
-			// clear selection
-			clientList.clearSelection();
-			
-			// both year and day are empty
-			yearFormTxt.setText("  ");
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText("");
-			clientList.selectItem(0);
-			addReservationBtn.requireDisabled();
-			
-			// clear selection
-			clientList.clearSelection();
-			
-			// both month and day are empty
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText("");
-			dayFormTxt.setText(" ");
-			clientList.selectItem(0);
-			addReservationBtn.requireDisabled();
-			
-			// clear selection
-			clientList.clearSelection();
-			
-			// both year, month and day are empty
-			yearFormTxt.setText("   ");
-			monthFormTxt.setText("   ");
-			dayFormTxt.setText("   ");
-			clientList.selectItem(0);
-			addReservationBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Button is clicked and there are error messages")
-		public void testAddReservationBtnWhenItIsClickedAndThereAreFormAndReservationErrorMessagesShouldDelegateToPresenterResetFormsAndErrorsAndDisableIt() {
+		@DisplayName("Button is clicked")
+		public void testAddReservationBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormsAndFormAndReservationErrorsAndDisableIt() {
 			setTextLabel(bookingSwingView.getFormErrorMsgLbl(),
 					"An error message that involves forms.");
 			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(),
@@ -1124,402 +1318,651 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 		////////////// Add Reservation Button
 
+
 		////////////// Reschedule Reservation Button
-		@Test @GUITest
-		@DisplayName("Reservation is selected, year and month are not empty and text is typed in day")
-		public void testRescheduleBtnWhenAReservationIsSelectedYearAndMonthAreNotEmptyAndTextIsTypedInDayShouldBeEnabled() {
-			addReservationInList(A_RESERVATION);
-			reservationList.selectItem(0);
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText(A_MONTH);
-			
-			dayFormTxt.enterText(ANOTHER_DAY);
-			
-			rescheduleBtn.requireEnabled();
-		}
+			////////////// Day Form Text
+			@Test @GUITest
+			@DisplayName("Reservation selected, not blank year and month and text is typed")
+			public void testDayFormTxtWhenAReservationIsSelectedAndBothYearAndMonthAreNotBlankAndTextIsTypedShouldEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				
+				dayFormTxt.enterText(ANOTHER_DAY);
+				
+				rescheduleBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reschedule enabled and text is deleted")
+			public void testDayFormTxtWhenRescheduleBtnIsEnabledAndTextIsDeletedShouldDisableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(ANOTHER_DAY);
+				enableButton(bookingSwingView.getRescheduleBtn());
+				
+				dayFormTxt.deleteText();
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation selected, not blank year and month and spaces are typed")
+			public void testDayFormTxtWhenAReservationIsSelectedAndBothYearAndMonthAreNotBlankAndSpacesAreTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				
+				dayFormTxt.enterText(" ");
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty year and text is typed")
+			public void testDayFormTxtWhenYearIsEmptyAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText("");
+				monthFormTxt.setText(A_MONTH);
+				
+				dayFormTxt.enterText(ANOTHER_DAY);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and text is typed")
+			public void testDayFormTxtWhenYearIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText("   ");
+				monthFormTxt.setText(A_MONTH);
+				
+				dayFormTxt.enterText(ANOTHER_DAY);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty month and text is typed")
+			public void testDayFormTxtWhenMonthIsEmptyAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText("");
+				
+				dayFormTxt.enterText(ANOTHER_DAY);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank month and text is typed")
+			public void testDayFormTxtWhenMonthIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText("   ");
+				
+				dayFormTxt.enterText(ANOTHER_DAY);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation not selected and text is typed")
+			public void testDayFormTxtWhenReservationIsNotSelectedAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.clearSelection();
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				
+				dayFormTxt.enterText(ANOTHER_DAY);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and month and text is typed")
+			public void testDayFormTxtWhenBothYearAndMonthAreBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText("  ");
+				monthFormTxt.setText("");
+				
+				dayFormTxt.enterText(ANOTHER_DAY);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation not selected, blank year and text is typed")
+			public void testDayFormTxtWhenReservationIsNotSelectedAndYearIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.clearSelection();
+				yearFormTxt.setText("");
+				monthFormTxt.setText(A_MONTH);
+				
+				dayFormTxt.enterText(ANOTHER_DAY);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation not selected, blank month and text is typed")
+			public void testDayFormTxtWhenReservationIsNotSelectedAndMonthIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.clearSelection();
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText("  ");
+				
+				dayFormTxt.enterText(ANOTHER_DAY);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation not selected, blank year and month and text is typed")
+			public void testDayFormTxtWhenReservationIsNotSelectedAndBothYearAndMonthAreBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.clearSelection();
+				yearFormTxt.setText("");
+				monthFormTxt.setText("  ");
+				
+				dayFormTxt.enterText(ANOTHER_DAY);
+				
+				rescheduleBtn.requireDisabled();
+			}
+			////////////// Day Form Text
+
+			////////////// Month Form Text
+			@Test @GUITest
+			@DisplayName("Reservation selected, not blank year and day and text is typed")
+			public void testMonthFormTxtWhenAReservationIsSelectedAndBothYearAndDayAreNotBlankAndTextIsTypedShouldEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				dayFormTxt.setText(A_DAY);
+				
+				monthFormTxt.enterText(ANOTHER_MONTH);
+				
+				rescheduleBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reschedule enabled and text is deleted")
+			public void testMonthFormTxtWhenRescheduleBtnIsEnabledAndTextIsDeletedShouldDisableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				monthFormTxt.setText(ANOTHER_MONTH);
+				dayFormTxt.setText(A_DAY);
+				enableButton(bookingSwingView.getRescheduleBtn());
+				
+				monthFormTxt.deleteText();
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation selected, not blank year and day and spaces are typed")
+			public void testMonthFormTxtWhenAReservationIsSelectedAndBothYearAndDayAreNotBlankAndSpacesAreTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				dayFormTxt.setText(A_DAY);
+				
+				monthFormTxt.enterText("  ");
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty year and text is typed")
+			public void testMonthFormTxtWhenYearIsEmptyAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText("");
+				dayFormTxt.setText(A_DAY);
+				
+				monthFormTxt.enterText(ANOTHER_MONTH);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and text is typed")
+			public void testMonthFormTxtWhenYearIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText("   ");
+				dayFormTxt.setText(A_DAY);
+				
+				monthFormTxt.enterText(ANOTHER_MONTH);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty day and text is typed")
+			public void testMonthFormTxtWhenDayIsEmptyAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				dayFormTxt.setText("");
+				
+				monthFormTxt.enterText(ANOTHER_MONTH);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank day and text is typed")
+			public void testMonthFormTxtWhenDayIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText(A_YEAR);
+				dayFormTxt.setText(" ");
+				
+				monthFormTxt.enterText(ANOTHER_MONTH);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation not selected and text is typed")
+			public void testMonthFormTxtWhenReservationIsNotSelectedAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.clearSelection();
+				yearFormTxt.setText(A_YEAR);
+				dayFormTxt.setText(A_DAY);
+				
+				monthFormTxt.enterText(ANOTHER_MONTH);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and day and text is typed")
+			public void testMonthFormTxtWhenBothYearAndDayAreBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText(" ");
+				dayFormTxt.setText(" ");
+				
+				monthFormTxt.enterText(ANOTHER_MONTH);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation not selected, blank year and text is typed")
+			public void testMonthFormTxtWhenReservationIsNotSelectedAndYearIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.clearSelection();
+				yearFormTxt.setText("  ");
+				dayFormTxt.setText(A_DAY);
+				
+				monthFormTxt.enterText(ANOTHER_MONTH);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation not selected, blank day and text is typed")
+			public void testMonthFormTxtWhenReservationIsNotSelectedAndDayIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.clearSelection();
+				yearFormTxt.setText(A_YEAR);
+				dayFormTxt.setText("");
+				
+				monthFormTxt.enterText(ANOTHER_MONTH);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation not selected, blank year and day and text is typed")
+			public void testMonthFormTxtWhenReservationIsNotSelectedAndBothYearAndDayAreBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.clearSelection();
+				yearFormTxt.setText("");
+				dayFormTxt.setText("   ");
+				
+				monthFormTxt.enterText(ANOTHER_MONTH);
+				
+				rescheduleBtn.requireDisabled();
+			}
+			////////////// Month Form Text
+
+			////////////// Year Form Text
+			@Test @GUITest
+			@DisplayName("Reservation selected, not blank month and day and text is typed")
+			public void testYearFormTxtWhenAReservationIsSelectedAndBothMonthAndDayAreNotBlankAndTextIsTypedShouldEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				
+				yearFormTxt.enterText(ANOTHER_YEAR);
+				
+				rescheduleBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reschedule enabled and text is deleted")
+			public void testYearFormTxtWhenRescheduleBtnIsEnabledAndTextIsTypedShouldDisableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText(ANOTHER_YEAR);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				enableButton(bookingSwingView.getRescheduleBtn());
+				
+				yearFormTxt.deleteText();
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation is selected, not blank month and day and spaces are typed")
+			public void testYearFormTxtWhenAReservationIsSelectedAndBothMonthAndDayAreNotBlankAndSpacesAreTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				
+				yearFormTxt.enterText("   ");
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty month and text is typed")
+			public void testYearFormTxtWhenMonthIsEmptyAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				monthFormTxt.setText("");
+				dayFormTxt.setText(A_DAY);
+				
+				yearFormTxt.enterText(ANOTHER_YEAR);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank month and text is typed")
+			public void testYearFormTxtWhenMonthIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				monthFormTxt.setText("  ");
+				dayFormTxt.setText(A_DAY);
+				
+				yearFormTxt.enterText(ANOTHER_YEAR);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty day and text is typed")
+			public void testYearFormTxtWhenDayIsEmptyAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText("");
+				
+				yearFormTxt.enterText(ANOTHER_YEAR);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank day and text is typed")
+			public void testYearFormTxtWhenDayIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText("  ");
+				
+				yearFormTxt.enterText(ANOTHER_YEAR);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation not selected and text is typed")
+			public void testYearFormTxtWhenReservationIsNotSelectedAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.clearSelection();
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(A_DAY);
+				
+				yearFormTxt.enterText(ANOTHER_YEAR);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank month and day and text is typed")
+			public void testYearFormTxtWhenBothMonthAndDayAreBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				monthFormTxt.setText(" ");
+				dayFormTxt.setText(" ");
+				
+				yearFormTxt.enterText(ANOTHER_YEAR);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation not selected and blank month and text is typed")
+			public void testYearFormTxtWhenReservationIsNotSelectedAndMonthIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.clearSelection();
+				monthFormTxt.setText(" ");
+				dayFormTxt.setText(A_DAY);
+				
+				yearFormTxt.enterText(ANOTHER_YEAR);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation not selected and blank day and text is typed")
+			public void testYearFormTxtWhenReservationIsNotSelectedAndDayIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.clearSelection();
+				monthFormTxt.setText(A_MONTH);
+				dayFormTxt.setText(" ");
+				
+				yearFormTxt.enterText(ANOTHER_YEAR);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation not selected and blank month and day and text is typed")
+			public void testYearFormTxtWhenReservationIsNotSelectedAndBothMonthAndDayAreBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.clearSelection();
+				monthFormTxt.setText("  ");
+				dayFormTxt.setText("  ");
+				
+				yearFormTxt.enterText(ANOTHER_YEAR);
+				
+				rescheduleBtn.requireDisabled();
+			}
+			////////////// Year Form Text
+
+			////////////// Reservation List
+			@Test @GUITest
+			@DisplayName("Not blank year, month and day and reservation is selected")
+			public void testReservationListWhenBothYearAndMonthAndDayAreNotBlankAndReservationIsSelectedShouldEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				yearFormTxt.setText(ANOTHER_YEAR);
+				monthFormTxt.setText(ANOTHER_MONTH);
+				dayFormTxt.setText(ANOTHER_DAY);
+				
+				reservationList.selectItem(0);
+				
+				rescheduleBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Reschedule enabled and reservation is deselected")
+			public void testReservationListWhenRescheduleBtnIsEnabledAndReservationIsDeselectedShouldDisabledRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				yearFormTxt.setText(ANOTHER_YEAR);
+				monthFormTxt.setText(ANOTHER_MONTH);
+				dayFormTxt.setText(ANOTHER_DAY);
+				enableButton(bookingSwingView.getRescheduleBtn());
+				
+				reservationList.clearSelection();
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty year and reservation is selected")
+			public void testReservationListWhenYearIsEmptyAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				yearFormTxt.setText("");
+				monthFormTxt.setText(ANOTHER_MONTH);
+				dayFormTxt.setText(ANOTHER_DAY);
+				
+				reservationList.selectItem(0);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and reservation is selected")
+			public void testReservationListWhenYearIsBlankAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				yearFormTxt.setText(" ");
+				monthFormTxt.setText(ANOTHER_MONTH);
+				dayFormTxt.setText(ANOTHER_DAY);
+				
+				reservationList.selectItem(0);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty month and reservation is selected")
+			public void testReservationListWhenMonthIsEmptyAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				yearFormTxt.setText(ANOTHER_YEAR);
+				monthFormTxt.setText("");
+				dayFormTxt.setText(ANOTHER_DAY);
+				
+				reservationList.selectItem(0);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank month and reservation is selected")
+			public void testReservationListWhenMonthIsBlankAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				yearFormTxt.setText(ANOTHER_YEAR);
+				monthFormTxt.setText("   ");
+				dayFormTxt.setText(ANOTHER_DAY);
+				
+				reservationList.selectItem(0);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Empty day and reservation is selected")
+			public void testReservationListWhenDayIsEmptyAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				yearFormTxt.setText(ANOTHER_YEAR);
+				monthFormTxt.setText(ANOTHER_MONTH);
+				dayFormTxt.setText("");
+				
+				reservationList.selectItem(0);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank day and reservation is selected")
+			public void testReservationListWhenDayIsBlankAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				yearFormTxt.setText(ANOTHER_YEAR);
+				monthFormTxt.setText(ANOTHER_MONTH);
+				dayFormTxt.setText("  ");
+				
+				reservationList.selectItem(0);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and month and reservation is selected")
+			public void testReservationListWhenBothYearAndMonthAreBlankAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				yearFormTxt.setText("  ");
+				monthFormTxt.setText("  ");
+				dayFormTxt.setText(ANOTHER_DAY);
+				
+				reservationList.selectItem(0);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year and day and reservation is selected")
+			public void testReservationListWhenBothYearAndDayAreBlankAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				yearFormTxt.setText("   ");
+				monthFormTxt.setText(ANOTHER_MONTH);
+				dayFormTxt.setText("   ");
+				
+				reservationList.selectItem(0);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank month and day and reservation is selected")
+			public void testReservationListWhenBothMonthAndDayAreBlankAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				yearFormTxt.setText(ANOTHER_YEAR);
+				monthFormTxt.setText(" ");
+				dayFormTxt.setText(" ");
+				
+				reservationList.selectItem(0);
+				
+				rescheduleBtn.requireDisabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Blank year, month and day and reservation is selected")
+			public void testReservationListWhenBothYearAndMonthAndDayAreBlankAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
+				addReservationInList(A_RESERVATION);
+				yearFormTxt.setText("");
+				monthFormTxt.setText("");
+				dayFormTxt.setText("");
+				
+				reservationList.selectItem(0);
+				
+				rescheduleBtn.requireDisabled();
+			}
+			////////////// Reservation List
 
 		@Test @GUITest
-		@DisplayName("Reservation is selected, year and month are not empty and spaces are typed in day")
-		public void testRescheduleBtnWhenAReservationIsSelectedYearAndMonthAreNotEmptyAndSpacesAreTypedInDayShouldBeDisabled() {
-			addReservationInList(A_RESERVATION);
-			reservationList.selectItem(0);
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText(A_MONTH);
-			
-			dayFormTxt.enterText(" ");
-			
-			rescheduleBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Reservation is not selected or year or month are empty and text is typed in day")
-		public void testRescheduleBtnWhenReservationIsNotSelectedOrYearOrMonthAreEmptyAndTextIsTypedInDayShouldBeDisabled() {
-			addReservationInList(A_RESERVATION);
-			// only year is empty
-			reservationList.selectItem(0);
-			yearFormTxt.setText(" ");
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.enterText(ANOTHER_DAY);
-			rescheduleBtn.requireDisabled();
-			
-			// clear day
-			dayFormTxt.setText("");
-			
-			// only month is empty
-			reservationList.selectItem(0);
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText("  ");
-			dayFormTxt.enterText(ANOTHER_DAY);
-			rescheduleBtn.requireDisabled();
-			
-			// clear day
-			dayFormTxt.setText("");
-			
-			// client is not selected
-			reservationList.clearSelection();
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.enterText(ANOTHER_DAY);
-			rescheduleBtn.requireDisabled();
-			
-			// clear day
-			dayFormTxt.setText("");
-			
-			// both year and month are empty
-			reservationList.selectItem(0);
-			yearFormTxt.setText("  ");
-			monthFormTxt.setText(" ");
-			dayFormTxt.enterText(ANOTHER_DAY);
-			rescheduleBtn.requireDisabled();
-			
-			// clear day
-			dayFormTxt.setText("");
-			
-			// client is not selected and year is empty
-			reservationList.clearSelection();
-			yearFormTxt.setText("   ");
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.enterText(ANOTHER_DAY);
-			rescheduleBtn.requireDisabled();
-			
-			// clear day
-			dayFormTxt.setText("");
-			
-			// client is not selected and month is empty
-			reservationList.clearSelection();
-			yearFormTxt.setText(A_YEAR);
-			monthFormTxt.setText("   ");
-			dayFormTxt.enterText(ANOTHER_DAY);
-			rescheduleBtn.requireDisabled();
-			
-			// clear day
-			dayFormTxt.setText("");
-			
-			// client is not selected and year and month are empty
-			reservationList.clearSelection();
-			yearFormTxt.setText("");
-			monthFormTxt.setText("");
-			dayFormTxt.enterText(ANOTHER_DAY);
-			rescheduleBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Reservation is selected, year and day are not empty and text is typed in month")
-		public void testRescheduleBtnWhenAReservationIsSelectedYearAndDayAreNotEmptyAndTextIsTypedInMonthShouldBeEnabled() {
-			addReservationInList(A_RESERVATION);
-			reservationList.selectItem(0);
-			yearFormTxt.setText(A_YEAR);
-			dayFormTxt.setText(A_DAY);
-			
-			monthFormTxt.enterText(ANOTHER_MONTH);
-			
-			rescheduleBtn.requireEnabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Reservation is selected, year and day are not empty and spaces are typed in month")
-		public void testRescheduleBtnWhenAReservationIsSelectedYearAndDayAreNotEmptyAndSpacesAreTypedInMonthShouldBeDisabled() {
-			addReservationInList(A_RESERVATION);
-			reservationList.selectItem(0);
-			yearFormTxt.setText(A_YEAR);
-			dayFormTxt.setText(A_DAY);
-			
-			monthFormTxt.enterText("  ");
-			
-			rescheduleBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Reservation is not selected or year or day are empty and text is typed in month")
-		public void testRescheduleBtnWhenReservationIsNotSelectedOrYearOrDayAreEmptyAndTextIsTypedInMonthShouldBeDisabled() {
-			addReservationInList(A_RESERVATION);
-			// only year is empty
-			reservationList.selectItem(0);
-			yearFormTxt.setText(" ");
-			dayFormTxt.setText(A_DAY);
-			monthFormTxt.enterText(ANOTHER_MONTH);
-			rescheduleBtn.requireDisabled();
-			
-			// clear month
-			monthFormTxt.setText("");
-			
-			// only day is empty
-			reservationList.selectItem(0);
-			yearFormTxt.setText(A_YEAR);
-			dayFormTxt.setText("  ");
-			monthFormTxt.enterText(ANOTHER_MONTH);
-			rescheduleBtn.requireDisabled();
-			
-			// clear month
-			monthFormTxt.setText("");
-			
-			// client is not selected
-			reservationList.clearSelection();
-			yearFormTxt.setText(A_YEAR);
-			dayFormTxt.setText(A_DAY);
-			monthFormTxt.enterText(ANOTHER_MONTH);
-			rescheduleBtn.requireDisabled();
-			
-			// clear month
-			monthFormTxt.setText("");
-			
-			// both year and day are empty
-			reservationList.selectItem(0);
-			yearFormTxt.setText("  ");
-			dayFormTxt.setText(" ");
-			monthFormTxt.enterText(ANOTHER_MONTH);
-			rescheduleBtn.requireDisabled();
-			
-			// clear month
-			monthFormTxt.setText("");
-			
-			// client is not selected and year is empty
-			reservationList.clearSelection();
-			yearFormTxt.setText("   ");
-			dayFormTxt.setText(A_DAY);
-			monthFormTxt.enterText(ANOTHER_MONTH);
-			rescheduleBtn.requireDisabled();
-			
-			// clear month
-			monthFormTxt.setText("");
-			
-			// client is not selected and day is empty
-			reservationList.clearSelection();
-			yearFormTxt.setText(A_YEAR);
-			dayFormTxt.setText("   ");
-			monthFormTxt.enterText(ANOTHER_MONTH);
-			rescheduleBtn.requireDisabled();
-			
-			// clear month
-			monthFormTxt.setText("");
-			
-			// client is not selected and year and day are empty
-			reservationList.clearSelection();
-			yearFormTxt.setText("");
-			dayFormTxt.setText("");
-			monthFormTxt.enterText(ANOTHER_MONTH);
-			rescheduleBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Reservation is selected, month and day are not empty and text is typed in year")
-		public void testRescheduleBtnWhenAReservationIsSelectedMonthAndDayAreNotEmptyAndTextIsTypedInYearShouldBeEnabled() {
-			addReservationInList(A_RESERVATION);
-			reservationList.selectItem(0);
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText(A_DAY);
-			
-			yearFormTxt.enterText(ANOTHER_YEAR);
-			
-			rescheduleBtn.requireEnabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Reservation is selected, month and day are not empty and spaces are typed in year")
-		public void testRescheduleBtnWhenAReservationIsSelectedMonthAndDayAreNotEmptyAndSpacesAreTypedInYearShouldBeDisabled() {
-			addReservationInList(A_RESERVATION);
-			reservationList.selectItem(0);
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText(A_DAY);
-			
-			yearFormTxt.enterText("   ");
-			
-			rescheduleBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Reservation is not selected or month or day are empty and text is typed in year")
-		public void testRescheduleBtnWhenReservationIsNotSelectedOrMonthOrDayAreEmptyAndTextIsTypedInYearShouldBeDisabled() {
-			addReservationInList(A_RESERVATION);
-			// only month is empty
-			reservationList.selectItem(0);
-			monthFormTxt.setText(" ");
-			dayFormTxt.setText(A_DAY);
-			yearFormTxt.enterText(ANOTHER_YEAR);
-			rescheduleBtn.requireDisabled();
-			
-			// clear year
-			yearFormTxt.setText("");
-			
-			// only day is empty
-			reservationList.selectItem(0);
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText("  ");
-			yearFormTxt.enterText(ANOTHER_YEAR);
-			rescheduleBtn.requireDisabled();
-			
-			// clear year
-			yearFormTxt.setText("");
-			
-			// client is not selected
-			reservationList.clearSelection();
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText(A_DAY);
-			yearFormTxt.enterText(ANOTHER_YEAR);
-			rescheduleBtn.requireDisabled();
-			
-			// clear year
-			yearFormTxt.setText("");
-			
-			// both month and day are empty
-			reservationList.selectItem(0);
-			monthFormTxt.setText("  ");
-			dayFormTxt.setText(" ");
-			yearFormTxt.enterText(ANOTHER_YEAR);
-			rescheduleBtn.requireDisabled();
-			
-			// clear year
-			yearFormTxt.setText("");
-			
-			// client is not selected and month is empty
-			reservationList.clearSelection();
-			monthFormTxt.setText("   ");
-			dayFormTxt.setText(A_DAY);
-			yearFormTxt.enterText(ANOTHER_YEAR);
-			rescheduleBtn.requireDisabled();
-			
-			// clear year
-			yearFormTxt.setText("");
-			
-			// client is not selected and day is empty
-			reservationList.clearSelection();
-			monthFormTxt.setText(A_MONTH);
-			dayFormTxt.setText("   ");
-			yearFormTxt.enterText(ANOTHER_YEAR);
-			rescheduleBtn.requireDisabled();
-			
-			// clear year
-			yearFormTxt.setText("");
-			
-			// client is not selected and month and day are empty
-			reservationList.clearSelection();
-			monthFormTxt.setText("");
-			dayFormTxt.setText("");
-			yearFormTxt.enterText(ANOTHER_YEAR);
-			rescheduleBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Year, month and day are not empty and reservation is selected")
-		public void testRescheduleBtnWhenYearMonthAndDayAreNotEmptyAndReservationIsSelectedShouldBeEnabled() {
-			addReservationInList(A_RESERVATION);
-			yearFormTxt.setText(ANOTHER_YEAR);
-			monthFormTxt.setText(ANOTHER_MONTH);
-			dayFormTxt.setText(ANOTHER_DAY);
-			
-			reservationList.selectItem(0);
-			
-			rescheduleBtn.requireEnabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Year, month and day are not empty and reservation is not selected")
-		public void testRescheduleBtnWhenYearMonthAndDayAreNotEmptyAndReservationIsNotSelectedShouldBeDisabled() {
-			addReservationInList(A_RESERVATION);
-			yearFormTxt.setText(ANOTHER_YEAR);
-			monthFormTxt.setText(ANOTHER_MONTH);
-			dayFormTxt.setText(ANOTHER_DAY);
-			
-			reservationList.clearSelection();
-			
-			rescheduleBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Year, month or day are empty and reservation is selected")
-		public void testRescheduleBtnWhenYearMonthOrDayAreEmptyAndAReservationIsSelectedShouldBeDisabled() {
-			addReservationInList(A_RESERVATION);
-			// only year is empty
-			yearFormTxt.setText("");
-			monthFormTxt.setText(ANOTHER_MONTH);
-			dayFormTxt.setText(ANOTHER_DAY);
-			reservationList.selectItem(0);
-			rescheduleBtn.requireDisabled();
-			
-			// clear selection
-			reservationList.clearSelection();
-			
-			// only month is empty
-			yearFormTxt.setText(ANOTHER_YEAR);
-			monthFormTxt.setText(" ");
-			dayFormTxt.setText(ANOTHER_DAY);
-			reservationList.selectItem(0);
-			rescheduleBtn.requireDisabled();
-			
-			// clear selection
-			reservationList.clearSelection();
-			
-			// only day is empty
-			yearFormTxt.setText(ANOTHER_YEAR);
-			monthFormTxt.setText(ANOTHER_MONTH);
-			dayFormTxt.setText("  ");
-			reservationList.selectItem(0);
-			rescheduleBtn.requireDisabled();
-			
-			// clear selection
-			reservationList.clearSelection();
-			
-			// both year and month are empty
-			yearFormTxt.setText(" ");
-			monthFormTxt.setText("  ");
-			dayFormTxt.setText(ANOTHER_DAY);
-			reservationList.selectItem(0);
-			rescheduleBtn.requireDisabled();
-			
-			// clear selection
-			reservationList.clearSelection();
-			
-			// both year and day are empty
-			yearFormTxt.setText("  ");
-			monthFormTxt.setText(ANOTHER_MONTH);
-			dayFormTxt.setText("");
-			reservationList.selectItem(0);
-			rescheduleBtn.requireDisabled();
-			
-			// clear selection
-			reservationList.clearSelection();
-			
-			// both month and day are empty
-			yearFormTxt.setText(ANOTHER_YEAR);
-			monthFormTxt.setText("");
-			dayFormTxt.setText(" ");
-			reservationList.selectItem(0);
-			rescheduleBtn.requireDisabled();
-			
-			// clear selection
-			reservationList.clearSelection();
-			
-			// both year, month and day are empty
-			yearFormTxt.setText("   ");
-			monthFormTxt.setText("   ");
-			dayFormTxt.setText("   ");
-			reservationList.selectItem(0);
-			rescheduleBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Button is clicked and there are error messages")
-		public void testRescheduleBtnWhenItIsClickedAndThereAreFormAndReservationErrorMessagesShouldDelegateToPresenterResetFormsAndErrorsAndDisableIt() {
+		@DisplayName("Button is clicked")
+		public void testRescheduleBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormsAndFormAndReservationErrorsAndDisableIt() {
 			setTextLabel(bookingSwingView.getFormErrorMsgLbl(),
 					"An error message that involves forms.");
 			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(),
@@ -1544,27 +1987,33 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		////////////// Reschedule Reservation Button
 
 		////////////// Remove Reservation Button
-		@Test @GUITest
-		@DisplayName("A reservation is selected")
-		public void testRemoveReservationBtnWhenAReservationIsSelectedShouldBeEnabled() {
-			addReservationInList(A_RESERVATION);
-			reservationList.selectItem(0);
-			
-			removeReservationBtn.requireEnabled();
-		}
+			////////////// Reservation List
+			@Test @GUITest
+			@DisplayName("Reservation is selected")
+			public void testReservationListWhenAReservationIsSelectedShouldEnableRemoveReservationBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				
+				removeReservationBtn.requireEnabled();
+			}
+
+			@Test @GUITest
+			@DisplayName("Remove reservation enabled and reservation is deselected")
+			public void testReservationListWhenRemoveReservationBtnIsEnabledAndReservationIsDeselectedShouldDisableRemoveReservationBtn() {
+				addReservationInList(A_RESERVATION);
+				reservationList.selectItem(0);
+				enableButton(bookingSwingView.getRemoveReservationBtn());
+				
+				// unselectItem would be more clear but it doesn't trigger the list selection listener
+				reservationList.clearSelection();
+				
+				removeReservationBtn.requireDisabled();
+			}
+			////////////// Reservation List
 
 		@Test @GUITest
-		@DisplayName("No reservations are selected")
-		public void testRemoveReservationBtnWhenNoReservationsAreSelectedShouldBeDisabled() {
-			addReservationInList(A_RESERVATION);
-			reservationList.clearSelection();
-			
-			removeReservationBtn.requireDisabled();
-		}
-
-		@Test @GUITest
-		@DisplayName("Button is clicked and there are error messages")
-		public void testRemoveReservationBtnWhenItIsClickedAndThereAreFormAndReservationErrorMessagesShouldDelegateToPresenterResetErrorsAndDisableIt() {
+		@DisplayName("Button is clicked")
+		public void testRemoveReservationBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormAndReservationErrorsAndDisableIt() {
 			setTextLabel(bookingSwingView.getFormErrorMsgLbl(),
 					"An error message that involves forms.");
 			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(),
@@ -1588,31 +2037,29 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 	////////////// Tests on controls
 
 	////////////// Tests on methods
-
 		////////////// Tests for 'showAllClients'
 		@Test @GUITest
-		@DisplayName("There are no clients")
-		public void testShowAllClientsWhenThereAreNoClientsShouldNotShowAnyElements() {
+		@DisplayName("Empty list")
+		public void testShowAllClientsListOfClientsIsEmptyShouldNotShowAnyElements() {
 			bookingSwingView.showAllClients(Collections.emptyList());
 			
 			assertThat(clientList.contents()).isEmpty();
 		}
 
 		@Test @GUITest
-		@DisplayName("There are some clients")
-		public void testShowAllClientsWhenThereAreSomeClientsShouldShowAllOfThemAndResetSelection() {
+		@DisplayName("Not empty list")
+		public void testShowAllClientsWhenListOfClientsIsNotEmptyShouldShowAllOfThem() {
 			GuiActionRunner.execute(() -> bookingSwingView.showAllClients(
 					Arrays.asList(A_CLIENT, ANOTHER_CLIENT)));
 			
 			assertThat(clientList.contents())
 				.hasSize(2)
 				.containsExactlyInAnyOrder(A_CLIENT.toString(), ANOTHER_CLIENT.toString());
-			clientList.requireNoSelection();
 		}
 
 		@Test @GUITest
-		@DisplayName("There are already some clients")
-		public void testShowAllClientsWhenThereAreAlreadySomeClientsShouldShowOnlyNewOnes() {
+		@DisplayName("Other clients")
+		public void testShowAllClientsWhenThereAreOtherClientsShouldShowOnlyNewOnes() {
 			Client oldClient = new Client("Giovanni", "De Chirico");
 			addClientInList(A_CLIENT);
 			addClientInList(oldClient);
@@ -1626,8 +2073,10 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 
 		@Test @GUITest
-		@DisplayName("There are some buttons enabled")
-		public void testShowAllClientsWhenThereAreSomeButtonsEnabledShouldDisableThem() {
+		@DisplayName("Client selected and buttons enabled")
+		public void testShowAllClientsWhenThereIsAClientSelectedAndSomeButtonsEnabledShouldResetSelectionAndDisableThem() {
+			addClientInList(A_CLIENT);
+			//clientList.selectItem(0);
 			enableButton(bookingSwingView.getRenameBtn());
 			enableButton(bookingSwingView.getRemoveClientBtn());
 			enableButton(bookingSwingView.getAddReservationBtn());
@@ -1635,6 +2084,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			GuiActionRunner.execute(() -> bookingSwingView.showAllClients(
 					Arrays.asList(A_CLIENT, ANOTHER_CLIENT)));
 			
+			clientList.requireNoSelection();
 			renameBtn.requireDisabled();
 			removeClientBtn.requireDisabled();
 			addReservationBtn.requireDisabled();
