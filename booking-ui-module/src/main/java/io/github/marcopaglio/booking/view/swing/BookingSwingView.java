@@ -1,6 +1,5 @@
 package io.github.marcopaglio.booking.view.swing;
 
-import java.awt.EventQueue;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -27,9 +26,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.SwingConstants;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 
 public class BookingSwingView extends JFrame implements BookingView {
 	/**
@@ -37,7 +34,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private BookingPresenter bookingPresenter;
+	private transient BookingPresenter bookingPresenter;
 
 	private JPanel contentPane;
 	private JTextField nameFormTxt;
@@ -66,7 +63,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	private JTextField monthFormTxt;
 
 	// EVENT HANDLERS
-	private final transient KeyAdapter nameFormListener = new KeyAdapter() {/*
+	private final transient KeyAdapter nameFormListener = new KeyAdapter() {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			addClientBtn.setEnabled(
@@ -79,10 +76,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 				!surnameFormTxt.getText().isBlank() &&
 				!clientList.isSelectionEmpty()
 			);
-		}*/
+		}
 	};
 
-	private final transient KeyAdapter surnameFormListener = new KeyAdapter() {/*
+	private final transient KeyAdapter surnameFormListener = new KeyAdapter() {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			addClientBtn.setEnabled(
@@ -95,10 +92,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 				!surnameFormTxt.getText().isBlank() &&
 				!clientList.isSelectionEmpty()
 			);
-		}*/
+		}
 	};
 
-	private final transient KeyAdapter dayFormListener = new KeyAdapter() {/*
+	private final transient KeyAdapter dayFormListener = new KeyAdapter() {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			addReservationBtn.setEnabled(
@@ -114,10 +111,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 				!dayFormTxt.getText().isBlank() &&
 				!reservationList.isSelectionEmpty()
 			);
-		}*/
+		}
 	};
 
-	private final transient KeyAdapter monthFormListener = new KeyAdapter() {/*
+	private final transient KeyAdapter monthFormListener = new KeyAdapter() {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			addReservationBtn.setEnabled(
@@ -133,10 +130,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 				!dayFormTxt.getText().isBlank() &&
 				!reservationList.isSelectionEmpty()
 			);
-		}*/
+		}
 	};
 
-	private final transient KeyAdapter yearFormListener = new KeyAdapter() {/*
+	private final transient KeyAdapter yearFormListener = new KeyAdapter() {
 		@Override
 		public void keyReleased(KeyEvent e) {
 			addReservationBtn.setEnabled(
@@ -152,10 +149,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 				!dayFormTxt.getText().isBlank() &&
 				!reservationList.isSelectionEmpty()
 			);
-		}*/
+		}
 	};
 
-	private final transient ListSelectionListener clientListListener = e -> {/*
+	private final transient ListSelectionListener clientListListener = e -> {
 		renameBtn.setEnabled(
 			!nameFormTxt.getText().isBlank() &&
 			!surnameFormTxt.getText().isBlank() &&
@@ -169,10 +166,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 			!monthFormTxt.getText().isBlank() &&
 			!dayFormTxt.getText().isBlank() &&
 			!clientList.isSelectionEmpty()
-		);*/
+		);
 	};
 
-	private final transient ListSelectionListener reservationListListener = e -> {/*
+	private final transient ListSelectionListener reservationListListener = e -> {
 		rescheduleBtn.setEnabled(
 			!yearFormTxt.getText().isBlank() &&
 			!monthFormTxt.getText().isBlank() &&
@@ -180,70 +177,59 @@ public class BookingSwingView extends JFrame implements BookingView {
 			!reservationList.isSelectionEmpty()
 		);
 		
-		removeReservationBtn.setEnabled(!reservationList.isSelectionEmpty());*/
+		removeReservationBtn.setEnabled(!reservationList.isSelectionEmpty());
 	};
 
 	// TODO: il reset dei campi error deve essere fatto prima della chiamata al presenter,
 	// altrimenti viene cancellato il messaggio di errore dal presenter
-	// TODO: la cancellazione dei form deve avvenire a oggetto realizzato, altrimenti compare
-	// un messaggio di errore dei form su campi vuoti
-	private final transient ActionListener addClientAction = e -> {/*
-		bookingPresenter.addClient(nameFormTxt.getText(), surnameFormTxt.getText());
+	private final transient ActionListener addClientAction = e -> {
 		addClientBtn.setEnabled(false);
-		nameFormTxt.setText("");
-		surnameFormTxt.setText("");
 		formErrorMsgLbl.setText(" ");
-		clientErrorMsgLbl.setText(" ");*/
+		clientErrorMsgLbl.setText(" ");
+		bookingPresenter.addClient(nameFormTxt.getText(), surnameFormTxt.getText());
 	};
 
-	private final transient ActionListener renameAction = e -> {/*
+	private final transient ActionListener renameAction = e -> {
+		renameBtn.setEnabled(false);
+		formErrorMsgLbl.setText(" ");
+		clientErrorMsgLbl.setText(" ");
 		bookingPresenter.renameClient(
 				clientList.getSelectedValue(),
 				nameFormTxt.getText(),
 				surnameFormTxt.getText());
-		renameBtn.setEnabled(false);
-		nameFormTxt.setText("");
-		surnameFormTxt.setText("");
-		formErrorMsgLbl.setText(" ");
-		clientErrorMsgLbl.setText(" ");*/
+
 	};
 
-	private final transient ActionListener removeClientAction = e -> {/*
-		bookingPresenter.deleteClient(clientList.getSelectedValue());
+	private final transient ActionListener removeClientAction = e -> {
 		removeClientBtn.setEnabled(false);
 		formErrorMsgLbl.setText(" ");
-		clientErrorMsgLbl.setText(" ");*/
+		clientErrorMsgLbl.setText(" ");
+		bookingPresenter.deleteClient(clientList.getSelectedValue());
 	};
 
-	private final transient ActionListener addReservationAction = e -> {/*
+	private final transient ActionListener addReservationAction = e -> {
+		addReservationBtn.setEnabled(false);
+		formErrorMsgLbl.setText(" ");
+		reservationErrorMsgLbl.setText(" ");
 		bookingPresenter.addReservation(
 			clientList.getSelectedValue(),
 			yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
-		addReservationBtn.setEnabled(false);
-		yearFormTxt.setText("");
-		monthFormTxt.setText("");
-		dayFormTxt.setText("");
-		formErrorMsgLbl.setText(" ");
-		reservationErrorMsgLbl.setText(" ");*/
 	};
 
-	private final transient ActionListener rescheduleAction = e -> {/*
+	private final transient ActionListener rescheduleAction = e -> {
+		rescheduleBtn.setEnabled(false);
+		formErrorMsgLbl.setText(" ");
+		reservationErrorMsgLbl.setText(" ");
 		bookingPresenter.rescheduleReservation(
 			reservationList.getSelectedValue(),
 			yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
-		rescheduleBtn.setEnabled(false);
-		yearFormTxt.setText("");
-		monthFormTxt.setText("");
-		dayFormTxt.setText("");
-		formErrorMsgLbl.setText(" ");
-		reservationErrorMsgLbl.setText(" ");*/
 	};
 
-	private final transient ActionListener removeReservationAction = e -> {/*
-		bookingPresenter.deleteReservation(reservationList.getSelectedValue());
+	private final transient ActionListener removeReservationAction = e -> {
 		removeReservationBtn.setEnabled(false);
 		formErrorMsgLbl.setText(" ");
-		reservationErrorMsgLbl.setText(" ");*/
+		reservationErrorMsgLbl.setText(" ");
+		bookingPresenter.deleteReservation(reservationList.getSelectedValue());
 	};
 
 	// METHODS
@@ -409,6 +395,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 
 	/**
 	 * Makes the just deleted reservation disappear from the user interface through Swing.
+	 * If the deleted reservation was selected, this method disables related buttons.
 	 * 
 	 * @param reservation	the {@code Reservation} to remove from the view.
 	 */
@@ -424,6 +411,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 
 	/**
 	 * Makes the just deleted client disappear from the user interface through Swing.
+	 * If the deleted client was selected, this method disables related buttons.
 	 * 
 	 * @param client	the {@code Client} to remove from the view.
 	 */
@@ -440,30 +428,51 @@ public class BookingSwingView extends JFrame implements BookingView {
 
 	/**
 	 * Displays the changes of the client just renamed on the user interface through Swing.
+	 * Additionally, this method resets client forms and disables any
+	 * buttons that fire when those forms are filled out.
 	 * 
 	 * @param oldClient		the {@code Client} to replace from the view.
 	 * @param renamedClient	the {@code Client} that replaces the old one.
 	 */
 	@Override
-	public void clientRenamed(Client oldClient, Client renamedClient) {/*
-		clientListModel.addElement(renamedClient);
-		if (clientList.getSelectedIndex() == clientListModel.indexOf(oldClient))
-			clientList.setSelectedValue(renamedClient, true);
-		clientListModel.removeElement(oldClient);*/
+	public void clientRenamed(Client oldClient, Client renamedClient) {
+		int clientPosition = clientListModel.indexOf(oldClient);
+		int selectedIndex = clientList.getSelectedIndex();
+		
+		clientListModel.removeElement(oldClient);
+		clientListModel.add(clientPosition, renamedClient);
+		if (selectedIndex == clientPosition)
+			clientList.setSelectedIndex(clientPosition);
+		
+		nameFormTxt.setText("");
+		surnameFormTxt.setText("");
+		addClientBtn.setEnabled(false);
+		renameBtn.setEnabled(false);
 	}
 
 	/**
-	 * Displays the changes of the reservation just rescheduled on the user interface through Swing.
+	 * Displays the changes of the reservation just rescheduled on the user interface
+	 * through Swing. Additionally, this method resets reservation forms and disables any
+	 * buttons that fire when those forms are filled out.
 	 * 
 	 * @param oldReservation			the {@code Reservation} to replace from the view.
 	 * @param rescheduledReservation	the {@code Reservation} that replaces the old one.
 	 */
 	@Override
-	public void reservationRescheduled(Reservation oldReservation, Reservation rescheduledReservation) {/*
-		reservationListModel.addElement(rescheduledReservation);
-		if (reservationList.getSelectedIndex() == reservationListModel.indexOf(oldReservation))
-			reservationList.setSelectedValue(rescheduledReservation, true);
-		reservationListModel.removeElement(oldReservation);*/
+	public void reservationRescheduled(Reservation oldReservation, Reservation rescheduledReservation) {
+		int reservationPosition = reservationListModel.indexOf(oldReservation);
+		int selectedIndex = reservationList.getSelectedIndex();
+		
+		reservationListModel.add(reservationPosition, rescheduledReservation);
+		reservationListModel.removeElement(oldReservation);
+		if (reservationPosition == selectedIndex)
+			reservationList.setSelectedIndex(reservationPosition);
+		
+		yearFormTxt.setText("");
+		monthFormTxt.setText("");
+		dayFormTxt.setText("");
+		addReservationBtn.setEnabled(false);
+		rescheduleBtn.setEnabled(false);
 	}
 
 	/**
@@ -494,22 +503,6 @@ public class BookingSwingView extends JFrame implements BookingView {
 	@Override
 	public void showFormError(String message) {
 		formErrorMsgLbl.setText(message);
-	}
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					BookingSwingView frame = new BookingSwingView();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
 	}
 
 	/**
