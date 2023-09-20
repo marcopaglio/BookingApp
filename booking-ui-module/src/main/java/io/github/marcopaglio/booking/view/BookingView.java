@@ -83,7 +83,7 @@ public interface BookingView {
 	public void showClientError(String message);
 
 	/**
-	 * Displays an error message that involves form inputs.
+	 * Displays an error message that involves input forms.
 	 * 
 	 * @param message	the message to show.
 	 */

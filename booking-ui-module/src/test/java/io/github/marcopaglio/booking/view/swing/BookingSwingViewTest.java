@@ -48,14 +48,16 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 	private static final String A_MONTH = "04";
 	private static final String A_DAY = "24";
 	private static final String A_DATE = A_YEAR + "-" + A_MONTH + "-" + A_DAY;
-	private static final Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID,
-			LocalDate.parse(A_DATE));
+	private static final Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, LocalDate.parse(A_DATE));
 	private static final String ANOTHER_YEAR = "2023";
 	private static final String ANOTHER_MONTH = "09";
 	private static final String ANOTHER_DAY = "05";
 	private static final String ANOTHER_DATE = ANOTHER_YEAR + "-" + ANOTHER_MONTH + "-" + ANOTHER_DAY;
-	private static final Reservation ANOTHER_RESERVATION = new Reservation(A_CLIENT_UUID,
-			LocalDate.parse(ANOTHER_DATE));
+	private static final Reservation ANOTHER_RESERVATION = new Reservation(A_CLIENT_UUID, LocalDate.parse(ANOTHER_DATE));
+
+	private static final String RESERVATIONS_ERROR_MSG = "An error message that involves reservations.";
+	private static final String CLIENTS_ERROR_MSG = "An error message that involves clients.";
+	private static final String FORMS_ERROR_MSG = "An error message that involves forms.";
 
 	private FrameFixture window;
 
@@ -294,10 +296,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		@Test @GUITest
 		@DisplayName("Button is clicked")
 		public void testAddClientBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormsAndFormAndClientErrorsAndDisableIt() {
-			setTextLabel(bookingSwingView.getFormErrorMsgLbl(),
-					"An error message that involves forms.");
-			setTextLabel(bookingSwingView.getClientErrorMsgLbl(),
-					"An error message that involves clients.");
+			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getClientErrorMsgLbl(), CLIENTS_ERROR_MSG);
 			nameFormTxt.setText(A_FIRSTNAME);
 			surnameFormTxt.setText(A_LASTNAME);
 			enableButton(bookingSwingView.getAddClientBtn());
@@ -583,10 +583,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		@Test @GUITest
 		@DisplayName("Button is clicked")
 		public void testRenameBtnWhenItIsClickedShouldDelegateToPresenterResetFormsAndFormAndClientErrorsAndDisableIt() {
-			setTextLabel(bookingSwingView.getFormErrorMsgLbl(),
-					"An error message that involves forms.");
-			setTextLabel(bookingSwingView.getClientErrorMsgLbl(),
-					"An error message that involves clients.");
+			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getClientErrorMsgLbl(), CLIENTS_ERROR_MSG);
 			nameFormTxt.setText(ANOTHER_FIRSTNAME);
 			surnameFormTxt.setText(ANOTHER_LASTNAME);
 			addClientInList(A_CLIENT);
@@ -633,10 +631,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		@Test @GUITest
 		@DisplayName("Button is clicked")
 		public void testRemoveClientBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormAndClientErrorsAndDisableIt() {
-			setTextLabel(bookingSwingView.getFormErrorMsgLbl(),
-					"An error message that involves forms.");
-			setTextLabel(bookingSwingView.getClientErrorMsgLbl(),
-					"An error message that involves clients.");
+			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getClientErrorMsgLbl(), CLIENTS_ERROR_MSG);
 			addClientInList(A_CLIENT);
 			clientList.selectItem(0);
 			enableButton(bookingSwingView.getRemoveClientBtn());
@@ -1295,10 +1291,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		@Test @GUITest
 		@DisplayName("Button is clicked")
 		public void testAddReservationBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormsAndFormAndReservationErrorsAndDisableIt() {
-			setTextLabel(bookingSwingView.getFormErrorMsgLbl(),
-					"An error message that involves forms.");
-			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(),
-					"An error message that involves reservations.");
+			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(), RESERVATIONS_ERROR_MSG);
 			yearFormTxt.setText(A_YEAR);
 			monthFormTxt.setText(A_MONTH);
 			dayFormTxt.setText(A_DAY);
@@ -1963,10 +1957,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		@Test @GUITest
 		@DisplayName("Button is clicked")
 		public void testRescheduleBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormsAndFormAndReservationErrorsAndDisableIt() {
-			setTextLabel(bookingSwingView.getFormErrorMsgLbl(),
-					"An error message that involves forms.");
-			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(),
-					"An error message that involves reservations.");
+			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(), RESERVATIONS_ERROR_MSG);
 			yearFormTxt.setText(ANOTHER_YEAR);
 			monthFormTxt.setText(ANOTHER_MONTH);
 			dayFormTxt.setText(ANOTHER_DAY);
@@ -2014,10 +2006,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		@Test @GUITest
 		@DisplayName("Button is clicked")
 		public void testRemoveReservationBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormAndReservationErrorsAndDisableIt() {
-			setTextLabel(bookingSwingView.getFormErrorMsgLbl(),
-					"An error message that involves forms.");
-			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(),
-					"An error message that involves reservations.");
+			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(), RESERVATIONS_ERROR_MSG);
 			addReservationInList(A_RESERVATION);
 			reservationList.selectItem(0);
 			enableButton(bookingSwingView.getRemoveReservationBtn());
@@ -2035,6 +2025,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> label.setText(text));
 	}
 	////////////// Tests on controls
+
+
 
 	////////////// Tests on methods
 		////////////// Tests for 'showAllClients'
@@ -2058,33 +2050,32 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 
 		@Test @GUITest
-		@DisplayName("Other clients")
-		public void testShowAllClientsWhenThereAreOtherClientsShouldShowOnlyNewOnes() {
+		@DisplayName("Other clients of which one selected")
+		public void testShowAllClientsWhenThereAreOtherClientsOfWhichOneIsSelectedShouldResetSelectionAndShowOnlyNewOnes() {
 			Client oldClient = new Client("Giovanni", "De Chirico");
+			
 			addClientInList(A_CLIENT);
 			addClientInList(oldClient);
+			clientList.selectItem(0);
 			
 			GuiActionRunner.execute(() -> bookingSwingView.showAllClients(
 					Arrays.asList(A_CLIENT, ANOTHER_CLIENT)));
 			
+			clientList.requireNoSelection();
 			assertThat(clientList.contents())
 				.doesNotContain(oldClient.toString())
 				.containsExactlyInAnyOrder(A_CLIENT.toString(), ANOTHER_CLIENT.toString());
 		}
 
 		@Test @GUITest
-		@DisplayName("Client selected and buttons enabled")
-		public void testShowAllClientsWhenThereIsAClientSelectedAndSomeButtonsEnabledShouldResetSelectionAndDisableThem() {
-			addClientInList(A_CLIENT);
-			//clientList.selectItem(0);
+		@DisplayName("Buttons enabled")
+		public void testShowAllClientsWhenThereAreSpecificButtonsEnabledShouldDisableThem() {
 			enableButton(bookingSwingView.getRenameBtn());
 			enableButton(bookingSwingView.getRemoveClientBtn());
 			enableButton(bookingSwingView.getAddReservationBtn());
 			
-			GuiActionRunner.execute(() -> bookingSwingView.showAllClients(
-					Arrays.asList(A_CLIENT, ANOTHER_CLIENT)));
+			GuiActionRunner.execute(() -> bookingSwingView.showAllClients(Collections.emptyList()));
 			
-			clientList.requireNoSelection();
 			renameBtn.requireDisabled();
 			removeClientBtn.requireDisabled();
 			addReservationBtn.requireDisabled();
@@ -2093,49 +2084,51 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		////////////// Tests for 'showAllReservations'
 		@Test @GUITest
-		@DisplayName("There are no reservations")
-		public void testShowAllReservationsWhenThereAreNoReservationsShouldNotShowAnyElements() {
+		@DisplayName("Empty list")
+		public void testShowAllReservationsWhenListOfReservationsIsEmptyShouldNotShowAnyElements() {
 			bookingSwingView.showAllReservations(Collections.emptyList());
 			
 			assertThat(reservationList.contents()).isEmpty();
 		}
 
 		@Test @GUITest
-		@DisplayName("There are some reservations")
-		public void testShowAllReservationsWhenThereAreSomeReservationsShouldShowAllOfThemAndResetSelection() {
+		@DisplayName("Not empty list")
+		public void testShowAllReservationsWhenListOfReservationsIsNotEmptyShouldShowAllOfThem() {
 			GuiActionRunner.execute(() -> bookingSwingView.showAllReservations(
 					Arrays.asList(A_RESERVATION, ANOTHER_RESERVATION)));
 			
 			assertThat(reservationList.contents())
 				.hasSize(2)
 				.containsExactlyInAnyOrder(A_RESERVATION.toString(), ANOTHER_RESERVATION.toString());
-			reservationList.requireNoSelection();
 		}
 
 		@Test @GUITest
-		@DisplayName("There are already some reservations")
-		public void testShowAllReservationsWhenThereAreAlreadySomeReservationsShouldShowOnlyNewOnes() {
+		@DisplayName("Other reservations of which one selected")
+		public void testShowAllReservationsWhenThereAreOtherReservationsOfWhichOneIsSelectedShouldResetSelectionAndShowOnlyNewOnes() {
 			Reservation oldReservation = new Reservation(
 					UUID.randomUUID(), LocalDate.parse("2023-05-09"));
+			
 			addReservationInList(A_RESERVATION);
 			addReservationInList(oldReservation);
+			reservationList.selectItem(0);
 			
 			GuiActionRunner.execute(() -> bookingSwingView.showAllReservations(
 					Arrays.asList(A_RESERVATION, ANOTHER_RESERVATION)));
 			
+			reservationList.requireNoSelection();
 			assertThat(reservationList.contents())
 				.doesNotContain(oldReservation.toString())
 				.containsExactlyInAnyOrder(A_RESERVATION.toString(), ANOTHER_RESERVATION.toString());
 		}
 
 		@Test @GUITest
-		@DisplayName("There are some buttons enabled")
-		public void testShowAllReservationsWhenThereAreSomeButtonsEnabledShouldDisableThem() {
+		@DisplayName("Buttons enabled")
+		public void testShowAllReservationsWhenThereAreSpecificButtonsEnabledShouldDisableThem() {
 			enableButton(bookingSwingView.getRescheduleBtn());
 			enableButton(bookingSwingView.getRemoveReservationBtn());
 			
-			GuiActionRunner.execute(() -> bookingSwingView.showAllReservations(
-					Arrays.asList(A_RESERVATION, ANOTHER_RESERVATION)));
+			GuiActionRunner.execute(
+					() -> bookingSwingView.showAllReservations(Collections.emptyList()));
 			
 			rescheduleBtn.requireDisabled();
 			removeReservationBtn.requireDisabled();
@@ -2144,7 +2137,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		////////////// Tests for 'reservationAdded'
 		@Test @GUITest
-		@DisplayName("Reservation list is empty")
+		@DisplayName("Empty list")
 		public void testReservationAddedWhenReservationListIsEmptyShouldAddItToTheList() {
 			GuiActionRunner.execute(() -> bookingSwingView.reservationAdded(A_RESERVATION));
 			
@@ -2154,34 +2147,44 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 
 		@Test @GUITest
-		@DisplayName("There are already some reservations")
-		public void testReservationAddedWhenThereAreAlreadySomeReservationsShouldAddItToTheListAndNotChangeTheOthers() {
+		@DisplayName("Other reservations of which one selected")
+		public void testReservationAddedWhenThereAreOtherReservationsOfWhichOneIsSelectedShouldNotChangeTheOthersAndTheSelection() {
 			addReservationInList(A_RESERVATION);
+			reservationList.selectItem(0);
 			
 			GuiActionRunner.execute(() -> bookingSwingView.reservationAdded(ANOTHER_RESERVATION));
 			
 			assertThat(reservationList.contents())
 				.hasSize(2)
 				.containsExactlyInAnyOrder(A_RESERVATION.toString(), ANOTHER_RESERVATION.toString());
-		}
-
-		@Test @GUITest
-		@DisplayName("A reservation is selected")
-		public void testReservationAddedWhenAReservationIsSelectedShouldNotChangeTheSelection() {
-			addReservationInList(A_RESERVATION);
-			reservationList.selectItem(0);
-			
-			GuiActionRunner.execute(() -> bookingSwingView.reservationAdded(ANOTHER_RESERVATION));
 			
 			String[] selectedReservations = reservationList.selection();
 			assertThat(selectedReservations).hasSize(1);
 			assertThat(selectedReservations[0]).isEqualTo(A_RESERVATION.toString());
 		}
+
+		@Test @GUITest
+		@DisplayName("Not empty forms and button enabled")
+		public void testReservationAddedWhenReservationFormsAreNotEmptyAndRelatedButtonsAreEnabledShouldResetFormsAndDisableButtons() {
+			yearFormTxt.setText(A_YEAR);
+			monthFormTxt.setText(A_MONTH);
+			dayFormTxt.setText(A_DAY);
+			enableButton(bookingSwingView.getAddReservationBtn());
+			enableButton(bookingSwingView.getRescheduleBtn());
+			
+			GuiActionRunner.execute(() -> bookingSwingView.reservationAdded(A_RESERVATION));
+			
+			yearFormTxt.requireText("");
+			monthFormTxt.requireText("");
+			dayFormTxt.requireText("");
+			addReservationBtn.requireDisabled();
+			rescheduleBtn.requireDisabled();
+		}
 		////////////// Tests for 'reservationAdded'
 
 		////////////// Tests for 'clientAdded'
 		@Test @GUITest
-		@DisplayName("Client list is empty")
+		@DisplayName("Empty list")
 		public void testClientAddedWhenClientListIsEmptyShouldAddItToTheList() {
 			GuiActionRunner.execute(() -> bookingSwingView.clientAdded(A_CLIENT));
 			
@@ -2191,35 +2194,43 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 
 		@Test @GUITest
-		@DisplayName("There are already some clients")
-		public void testClientAddedWhenThereAreAlreadySomeClientsShouldAddItToTheListAndNotChangeTheOthers() {
+		@DisplayName("Other clients of which one is selected")
+		public void testClientAddedWhenThereAreOtherClientsOfWhichOneIsSelectedShouldNotChangeTheOthersAndTheSelection() {
 			addClientInList(A_CLIENT);
+			clientList.selectItem(0);
 			
 			GuiActionRunner.execute(() -> bookingSwingView.clientAdded(ANOTHER_CLIENT));
 			
 			assertThat(clientList.contents())
 				.hasSize(2)
 				.containsExactlyInAnyOrder(A_CLIENT.toString(), ANOTHER_CLIENT.toString());
-		}
-
-		@Test @GUITest
-		@DisplayName("A client is selected")
-		public void testClientAddedWhenAClientIsSelectedShouldNotChangeTheSelection() {
-			addClientInList(A_CLIENT);
-			clientList.selectItem(0);
-			
-			GuiActionRunner.execute(() -> bookingSwingView.clientAdded(ANOTHER_CLIENT));
 			
 			String[] selectedClients = clientList.selection();
 			assertThat(selectedClients).hasSize(1);
 			assertThat(selectedClients[0]).isEqualTo(A_CLIENT.toString());
 		}
+
+		@Test @GUITest
+		@DisplayName("Not empty forms and button enabled")
+		public void testClientAddedWhenClientFormsAreNotEmptyAndRelatedButtonsAreEnabledShouldResetFormsAndDisableButtons() {
+			nameFormTxt.setText(A_FIRSTNAME);
+			surnameFormTxt.setText(A_LASTNAME);
+			enableButton(bookingSwingView.getAddClientBtn());
+			enableButton(bookingSwingView.getRenameBtn());
+			
+			GuiActionRunner.execute(() -> bookingSwingView.clientAdded(A_CLIENT));
+			
+			nameFormTxt.requireText("");
+			surnameFormTxt.requireText("");
+			addClientBtn.requireDisabled();
+			renameBtn.requireDisabled();
+		}
 		////////////// Tests for 'clientAdded'
 
 		////////////// Tests for 'reservationRemoved'
 		@Test @GUITest
-		@DisplayName("There is only that reservation")
-		public void testReservationRemovedWhenThereIsOnlyThatReservationShouldRemoveItFromTheList() {
+		@DisplayName("Only that reservation")
+		public void testReservationRemovedWhenThereIsOnlyThatReservationShouldClearTheList() {
 			addReservationInList(A_RESERVATION);
 			
 			GuiActionRunner.execute(() -> bookingSwingView.reservationRemoved(A_RESERVATION));
@@ -2228,7 +2239,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 
 		@Test @GUITest
-		@DisplayName("There are others reservations")
+		@DisplayName("Others reservations")
 		public void testReservationRemovedWhenThereAreOtherReservationsShouldRemoveItFromTheListAndNotChangeTheOthers() {
 			addReservationInList(A_RESERVATION);
 			addReservationInList(ANOTHER_RESERVATION);
@@ -2239,26 +2250,12 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 
 		@Test @GUITest
-		@DisplayName("Another reservation is selected")
-		public void testReservationRemovedWhenAnotherReservationIsSelectedShouldNotChangeTheSelection() {
-			addReservationInList(A_RESERVATION);
-			addReservationInList(ANOTHER_RESERVATION);
-			reservationList.selectItem(1);
-			
-			GuiActionRunner.execute(() -> bookingSwingView.reservationRemoved(A_RESERVATION));
-			
-			String[] selectedReservations = reservationList.selection();
-			assertThat(selectedReservations).hasSize(1);
-			assertThat(selectedReservations[0]).isEqualTo(ANOTHER_RESERVATION.toString());
-		}
-
-		@Test @GUITest
-		@DisplayName("That reservation is selected and some buttons are enabled")
-		public void testReservationRemovedWhenThatReservationIsSelectedAndThereAreSomeButtonsEnabledShouldRemoveSelectionAndDisableThem() {
+		@DisplayName("That reservation selected and buttons enabled")
+		public void testReservationRemovedWhenThatReservationIsSelectedAndRelatedButtonsAreEnabledShouldClearTheSelectionAndDisableButtons() {
 			addReservationInList(A_RESERVATION);
 			addReservationInList(ANOTHER_RESERVATION);
 			
-			reservationList.selectItem(0);
+			reservationList.selectItem(A_RESERVATION.toString());
 			enableButton(bookingSwingView.getRescheduleBtn());
 			enableButton(bookingSwingView.getRemoveReservationBtn());
 			
@@ -2268,12 +2265,31 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			rescheduleBtn.requireDisabled();
 			removeReservationBtn.requireDisabled();
 		}
+
+		@Test @GUITest
+		@DisplayName("Another reservation selected and buttons enabled")
+		public void testReservationRemovedWhenAnotherReservationIsSelectedAndRelatedButtonsAreEnabledShouldNotChangeTheSelectionAndNotDisableButtons() {
+			addReservationInList(A_RESERVATION);
+			addReservationInList(ANOTHER_RESERVATION);
+			
+			reservationList.selectItem(ANOTHER_RESERVATION.toString());
+			enableButton(bookingSwingView.getRescheduleBtn());
+			enableButton(bookingSwingView.getRemoveReservationBtn());
+			
+			GuiActionRunner.execute(() -> bookingSwingView.reservationRemoved(A_RESERVATION));
+			
+			String[] selectedReservations = reservationList.selection();
+			assertThat(selectedReservations).hasSize(1);
+			assertThat(selectedReservations[0]).isEqualTo(ANOTHER_RESERVATION.toString());
+			rescheduleBtn.requireEnabled();
+			removeReservationBtn.requireEnabled();
+		}
 		////////////// Tests for 'reservationRemoved'
 
 		////////////// Tests for 'clientRemoved'
 		@Test @GUITest
-		@DisplayName("There is only that client")
-		public void testClientRemovedWhenThereIsOnlyThatClientShouldRemoveItFromTheList() {
+		@DisplayName("Only that client")
+		public void testClientRemovedWhenThereIsOnlyThatClientShouldClearTheList() {
 			addClientInList(A_CLIENT);
 			
 			GuiActionRunner.execute(() -> bookingSwingView.clientRemoved(A_CLIENT));
@@ -2282,7 +2298,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 
 		@Test @GUITest
-		@DisplayName("There are others clients")
+		@DisplayName("Others clients")
 		public void testClientRemovedWhenThereAreOtherClientsShouldRemoveItFromTheListAndNotChangeTheOthers() {
 			addClientInList(A_CLIENT);
 			addClientInList(ANOTHER_CLIENT);
@@ -2293,22 +2309,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 
 		@Test @GUITest
-		@DisplayName("Another client is selected")
-		public void testClientRemovedWhenAnotherClientIsSelectedShouldNotChangeTheSelection() {
-			addClientInList(A_CLIENT);
-			addClientInList(ANOTHER_CLIENT);
-			clientList.selectItem(A_CLIENT.toString());
-			
-			GuiActionRunner.execute(() -> bookingSwingView.clientRemoved(ANOTHER_CLIENT));
-			
-			String[] selectedClients = clientList.selection();
-			assertThat(selectedClients).hasSize(1);
-			assertThat(selectedClients[0]).isEqualTo(A_CLIENT.toString());
-		}
-
-		@Test @GUITest
-		@DisplayName("That client is selected and some buttons are enabled")
-		public void testClientRemovedWhenThatClientIsSelectedAndThereAreSomeButtonsEnabledShouldRemoveSelectionAndDisableThem() {
+		@DisplayName("That client selected and buttons enabled")
+		public void testClientRemovedWhenThatClientIsSelectedAndRelatedButtonsAreEnabledShouldClearTheSelectionAndDisableButtons() {
 			addClientInList(A_CLIENT);
 			addClientInList(ANOTHER_CLIENT);
 			
@@ -2324,8 +2326,29 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			removeClientBtn.requireDisabled();
 			addReservationBtn.requireDisabled();
 		}
-		////////////// Tests for 'clientRemoved'
 
+		@Test @GUITest
+		@DisplayName("Another client selected and buttons enabled")
+		public void testClientRemovedWhenAnotherClientIsSelectedAndRelatedButtonsAreEnabledShouldNotChangeTheSelectionAndNotDisableButtons() {
+			addClientInList(A_CLIENT);
+			addClientInList(ANOTHER_CLIENT);
+			
+			clientList.selectItem(A_CLIENT.toString());
+			enableButton(bookingSwingView.getRenameBtn());
+			enableButton(bookingSwingView.getRemoveClientBtn());
+			enableButton(bookingSwingView.getAddReservationBtn());
+			
+			GuiActionRunner.execute(() -> bookingSwingView.clientRemoved(ANOTHER_CLIENT));
+			
+			String[] selectedClients = clientList.selection();
+			assertThat(selectedClients).hasSize(1);
+			assertThat(selectedClients[0]).isEqualTo(A_CLIENT.toString());
+			renameBtn.requireEnabled();
+			removeClientBtn.requireEnabled();
+			addReservationBtn.requireEnabled();
+		}
+		////////////// Tests for 'clientRemoved'
+/*
 		////////////// Tests for 'clientRenamed'
 		@Test @GUITest
 		@DisplayName("Old client is the only one on the list")
@@ -2463,36 +2486,31 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			assertThat(selectedReservations[0]).isEqualTo(rescheduledReservation.toString());
 		}
 		////////////// Tests for 'reservationRescheduled'
-
+*/
 		///////////// Tests for error viewers
 		@Test @GUITest
 		@DisplayName("Test for 'showReservationError'")
 		public void testShowReservationErrorShouldShowTheMessage() {
-			String message = "An error message that involves reservations.";
+			GuiActionRunner.execute(
+					() -> bookingSwingView.showReservationError(RESERVATIONS_ERROR_MSG));
 			
-			GuiActionRunner.execute(() -> bookingSwingView.showReservationError(message));
-			
-			reservationErrorMsgLbl.requireText(message);
+			reservationErrorMsgLbl.requireText(RESERVATIONS_ERROR_MSG);
 		}
 
 		@Test @GUITest
 		@DisplayName("Test for 'showClientError'")
 		public void testShowClientErrorShouldShowTheMessage() {
-			String message = "An error message that involves clients.";
+			GuiActionRunner.execute(() -> bookingSwingView.showClientError(CLIENTS_ERROR_MSG));
 			
-			GuiActionRunner.execute(() -> bookingSwingView.showClientError(message));
-			
-			clientErrorMsgLbl.requireText(message);
+			clientErrorMsgLbl.requireText(CLIENTS_ERROR_MSG);
 		}
 
 		@Test @GUITest
 		@DisplayName("Test for 'showFormError'")
 		public void testShowFormErrorShouldShowTheMessage() {
-			String message = "An error message that involves forms.";
+			GuiActionRunner.execute(() -> bookingSwingView.showFormError(FORMS_ERROR_MSG));
 			
-			GuiActionRunner.execute(() -> bookingSwingView.showFormError(message));
-			
-			formErrorMsgLbl.requireText(message);
+			formErrorMsgLbl.requireText(FORMS_ERROR_MSG);
 		}
 		///////////// Tests for error viewers
 	////////////// Tests on methods

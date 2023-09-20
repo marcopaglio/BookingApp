@@ -66,7 +66,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	private JTextField monthFormTxt;
 
 	// EVENT HANDLERS
-	private final transient KeyAdapter nameFormListener = new KeyAdapter() {
+	private final transient KeyAdapter nameFormListener = new KeyAdapter() {/*
 		@Override
 		public void keyReleased(KeyEvent e) {
 			addClientBtn.setEnabled(
@@ -79,10 +79,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 				!surnameFormTxt.getText().isBlank() &&
 				!clientList.isSelectionEmpty()
 			);
-		}
+		}*/
 	};
 
-	private final transient KeyAdapter surnameFormListener = new KeyAdapter() {
+	private final transient KeyAdapter surnameFormListener = new KeyAdapter() {/*
 		@Override
 		public void keyReleased(KeyEvent e) {
 			addClientBtn.setEnabled(
@@ -95,10 +95,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 				!surnameFormTxt.getText().isBlank() &&
 				!clientList.isSelectionEmpty()
 			);
-		}
+		}*/
 	};
 
-	private final transient KeyAdapter dayFormListener = new KeyAdapter() {
+	private final transient KeyAdapter dayFormListener = new KeyAdapter() {/*
 		@Override
 		public void keyReleased(KeyEvent e) {
 			addReservationBtn.setEnabled(
@@ -114,10 +114,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 				!dayFormTxt.getText().isBlank() &&
 				!reservationList.isSelectionEmpty()
 			);
-		}
+		}*/
 	};
 
-	private final transient KeyAdapter monthFormListener = new KeyAdapter() {
+	private final transient KeyAdapter monthFormListener = new KeyAdapter() {/*
 		@Override
 		public void keyReleased(KeyEvent e) {
 			addReservationBtn.setEnabled(
@@ -133,10 +133,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 				!dayFormTxt.getText().isBlank() &&
 				!reservationList.isSelectionEmpty()
 			);
-		}
+		}*/
 	};
 
-	private final transient KeyAdapter yearFormListener = new KeyAdapter() {
+	private final transient KeyAdapter yearFormListener = new KeyAdapter() {/*
 		@Override
 		public void keyReleased(KeyEvent e) {
 			addReservationBtn.setEnabled(
@@ -152,10 +152,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 				!dayFormTxt.getText().isBlank() &&
 				!reservationList.isSelectionEmpty()
 			);
-		}
+		}*/
 	};
 
-	private final transient ListSelectionListener clientListListener = e -> {
+	private final transient ListSelectionListener clientListListener = e -> {/*
 		renameBtn.setEnabled(
 			!nameFormTxt.getText().isBlank() &&
 			!surnameFormTxt.getText().isBlank() &&
@@ -169,10 +169,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 			!monthFormTxt.getText().isBlank() &&
 			!dayFormTxt.getText().isBlank() &&
 			!clientList.isSelectionEmpty()
-		);
+		);*/
 	};
 
-	private final transient ListSelectionListener reservationListListener = e -> {
+	private final transient ListSelectionListener reservationListListener = e -> {/*
 		rescheduleBtn.setEnabled(
 			!yearFormTxt.getText().isBlank() &&
 			!monthFormTxt.getText().isBlank() &&
@@ -180,19 +180,23 @@ public class BookingSwingView extends JFrame implements BookingView {
 			!reservationList.isSelectionEmpty()
 		);
 		
-		removeReservationBtn.setEnabled(!reservationList.isSelectionEmpty());
+		removeReservationBtn.setEnabled(!reservationList.isSelectionEmpty());*/
 	};
 
-	private final transient ActionListener addClientAction = e -> {
+	// TODO: il reset dei campi error deve essere fatto prima della chiamata al presenter,
+	// altrimenti viene cancellato il messaggio di errore dal presenter
+	// TODO: la cancellazione dei form deve avvenire a oggetto realizzato, altrimenti compare
+	// un messaggio di errore dei form su campi vuoti
+	private final transient ActionListener addClientAction = e -> {/*
 		bookingPresenter.addClient(nameFormTxt.getText(), surnameFormTxt.getText());
 		addClientBtn.setEnabled(false);
 		nameFormTxt.setText("");
 		surnameFormTxt.setText("");
 		formErrorMsgLbl.setText(" ");
-		clientErrorMsgLbl.setText(" ");
+		clientErrorMsgLbl.setText(" ");*/
 	};
 
-	private final transient ActionListener renameAction = e -> {
+	private final transient ActionListener renameAction = e -> {/*
 		bookingPresenter.renameClient(
 				clientList.getSelectedValue(),
 				nameFormTxt.getText(),
@@ -201,17 +205,17 @@ public class BookingSwingView extends JFrame implements BookingView {
 		nameFormTxt.setText("");
 		surnameFormTxt.setText("");
 		formErrorMsgLbl.setText(" ");
-		clientErrorMsgLbl.setText(" ");
+		clientErrorMsgLbl.setText(" ");*/
 	};
 
-	private final transient ActionListener removeClientAction = e -> {
+	private final transient ActionListener removeClientAction = e -> {/*
 		bookingPresenter.deleteClient(clientList.getSelectedValue());
 		removeClientBtn.setEnabled(false);
 		formErrorMsgLbl.setText(" ");
-		clientErrorMsgLbl.setText(" ");
+		clientErrorMsgLbl.setText(" ");*/
 	};
 
-	private final transient ActionListener addReservationAction = e -> {
+	private final transient ActionListener addReservationAction = e -> {/*
 		bookingPresenter.addReservation(
 			clientList.getSelectedValue(),
 			yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
@@ -220,10 +224,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 		monthFormTxt.setText("");
 		dayFormTxt.setText("");
 		formErrorMsgLbl.setText(" ");
-		reservationErrorMsgLbl.setText(" ");
+		reservationErrorMsgLbl.setText(" ");*/
 	};
 
-	private final transient ActionListener rescheduleAction = e -> {
+	private final transient ActionListener rescheduleAction = e -> {/*
 		bookingPresenter.rescheduleReservation(
 			reservationList.getSelectedValue(),
 			yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
@@ -232,14 +236,14 @@ public class BookingSwingView extends JFrame implements BookingView {
 		monthFormTxt.setText("");
 		dayFormTxt.setText("");
 		formErrorMsgLbl.setText(" ");
-		reservationErrorMsgLbl.setText(" ");
+		reservationErrorMsgLbl.setText(" ");*/
 	};
 
-	private final transient ActionListener removeReservationAction = e -> {
+	private final transient ActionListener removeReservationAction = e -> {/*
 		bookingPresenter.deleteReservation(reservationList.getSelectedValue());
 		removeReservationBtn.setEnabled(false);
 		formErrorMsgLbl.setText(" ");
-		reservationErrorMsgLbl.setText(" ");
+		reservationErrorMsgLbl.setText(" ");*/
 	};
 
 	// METHODS
@@ -337,58 +341,70 @@ public class BookingSwingView extends JFrame implements BookingView {
 
 	/**
 	 * Displays the clients of the given list on the graphical user interface through Swing.
-	 * Additionally, this method resets the client list selection and disables all buttons
+	 * Additionally, this method resets the client list selection and disables any buttons
 	 * that fire when a client is selected in the list.
 	 * 
 	 * @param clients	the {@code List} of clients to show.
 	 */
 	@Override
 	public void showAllClients(List<Client> clients) {
-		clientListModel.removeAllElements();
+		clientListModel.clear();
 		clients.stream().forEach(clientListModel::addElement);
 		
-		//clientList.clearSelection();
-		//addReservationBtn.setEnabled(false);
-		//renameBtn.setEnabled(false);
-		//removeClientBtn.setEnabled(false);
+		addReservationBtn.setEnabled(false);
+		renameBtn.setEnabled(false);
+		removeClientBtn.setEnabled(false);
 	}
 
 	/**
 	 * Displays the reservations of the given list on the user interface through Swing.
-	 * Additionally, this method resets the reservation list selection and disables all buttons
+	 * Additionally, this method resets the reservation list selection and disables any buttons
 	 * that fire when a reservation is selected in the list.
 	 * 
 	 * @param reservations	the {@code List} of reservations to show.
 	 */
 	@Override
-	public void showAllReservations(List<Reservation> reservations) {/*
-		reservationListModel.removeAllElements();
+	public void showAllReservations(List<Reservation> reservations) {
+		reservationListModel.clear();
 		reservations.stream().forEach(reservationListModel::addElement);
 		
-		reservationList.clearSelection();
 		rescheduleBtn.setEnabled(false);
-		removeReservationBtn.setEnabled(false);*/
+		removeReservationBtn.setEnabled(false);
 	}
 
 	/**
 	 * Displays the reservation just inserted into the repository on the user interface
-	 * through Swing.
+	 * through Swing. Additionally, this method resets client forms and disables any
+	 * buttons that fire when those forms are filled out.
 	 * 
 	 * @param reservation	the {@code Reservation} to show.
 	 */
 	@Override
 	public void reservationAdded(Reservation reservation) {
-		//reservationListModel.addElement(reservation);
+		reservationListModel.addElement(reservation);
+		
+		yearFormTxt.setText("");
+		monthFormTxt.setText("");
+		dayFormTxt.setText("");
+		addReservationBtn.setEnabled(false);
+		rescheduleBtn.setEnabled(false);
 	}
 
 	/**
 	 * Displays the client just inserted into the repository on the user interface through Swing.
+	 * Additionally, this method resets reservation forms and disables any buttons that
+	 * fire when those forms are filled out.
 	 * 
 	 * @param client	the {@code Client} to show.
 	 */
 	@Override
 	public void clientAdded(Client client) {
-		//clientListModel.addElement(client);
+		clientListModel.addElement(client);
+		
+		nameFormTxt.setText("");
+		surnameFormTxt.setText("");
+		addClientBtn.setEnabled(false);
+		renameBtn.setEnabled(false);
 	}
 
 	/**
@@ -398,7 +414,12 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	@Override
 	public void reservationRemoved(Reservation reservation) {
-		//reservationListModel.removeElement(reservation);
+		reservationListModel.removeElement(reservation);
+		
+		if (reservationList.isSelectionEmpty()) {
+			rescheduleBtn.setEnabled(false);
+			removeReservationBtn.setEnabled(false);
+		}
 	}
 
 	/**
@@ -408,7 +429,13 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	@Override
 	public void clientRemoved(Client client) {
-		//clientListModel.removeElement(client);
+		clientListModel.removeElement(client);
+		
+		if (clientList.isSelectionEmpty()) {
+			renameBtn.setEnabled(false);
+			removeClientBtn.setEnabled(false);
+			addReservationBtn.setEnabled(false);
+		}
 	}
 
 	/**
@@ -446,7 +473,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	@Override
 	public void showReservationError(String message) {
-		//reservationErrorMsgLbl.setText(message);
+		reservationErrorMsgLbl.setText(message);
 	}
 
 	/**
@@ -456,17 +483,17 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	@Override
 	public void showClientError(String message) {
-		//clientErrorMsgLbl.setText(message);
+		clientErrorMsgLbl.setText(message);
 	}
 
 	/**
-	 * Displays an error message that involves form inputs through Swing.
+	 * Displays an error message that involves input forms through Swing.
 	 * 
 	 * @param message	the message to show.
 	 */
 	@Override
 	public void showFormError(String message) {
-		//formErrorMsgLbl.setText(message);
+		formErrorMsgLbl.setText(message);
 	}
 
 	/**
