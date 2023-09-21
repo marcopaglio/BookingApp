@@ -53,8 +53,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	private JLabel formErrorMsgLbl;
 	private JButton removeClientBtn;
 	private JButton removeReservationBtn;
-	private JLabel clientErrorMsgLbl;
-	private JLabel reservationErrorMsgLbl;
+	private JLabel operationErrorMsgLbl;
 	private JScrollPane clientScrollPane;
 	private JList<Client> clientList;
 	private DefaultListModel<Client> clientListModel;
@@ -79,7 +78,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	/**
 	 * Used for tests purpose.
 	 * 
-	 * @return the addClientBtn
+	 * @return the addClientBtn.
 	 */
 	@Generated
 	JButton getAddClientBtn() {
@@ -89,7 +88,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	/**
 	 * Used for tests purpose.
 	 * 
-	 * @return the rescheduleBtn
+	 * @return the rescheduleBtn.
 	 */
 	@Generated
 	JButton getRescheduleBtn() {
@@ -99,7 +98,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	/**
 	 * Used for tests purpose.
 	 * 
-	 * @return the removeReservationBtn
+	 * @return the removeReservationBtn.
 	 */
 	@Generated
 	JButton getRemoveReservationBtn() {
@@ -109,7 +108,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	/**
 	 * Used for tests purpose.
 	 * 
-	 * @return the addReservationBtn
+	 * @return the addReservationBtn.
 	 */
 	@Generated
 	JButton getAddReservationBtn() {
@@ -119,7 +118,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	/**
 	 * Used for tests purpose.
 	 * 
-	 * @return the renameBtn
+	 * @return the renameBtn.
 	 */
 	@Generated
 	JButton getRenameBtn() {
@@ -129,7 +128,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	/**
 	 * Used for tests purpose.
 	 * 
-	 * @return the removeClientBtn
+	 * @return the removeClientBtn.
 	 */
 	@Generated
 	JButton getRemoveClientBtn() {
@@ -139,7 +138,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	/**
 	 * Used for tests purpose.
 	 * 
-	 * @return the clientListModel
+	 * @return the clientListModel.
 	 */
 	@Generated
 	DefaultListModel<Client> getClientListModel() {
@@ -149,7 +148,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	/**
 	 * Used for tests purpose.
 	 * 
-	 * @return the reservationListModel
+	 * @return the reservationListModel.
 	 */
 	@Generated
 	DefaultListModel<Reservation> getReservationListModel() {
@@ -159,7 +158,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	/**
 	 * Used for tests purpose.
 	 * 
-	 * @return the formErrorMsgLbl
+	 * @return the formErrorMsgLbl.
 	 */
 	@Generated
 	JLabel getFormErrorMsgLbl() {
@@ -169,21 +168,11 @@ public class BookingSwingView extends JFrame implements BookingView {
 	/**
 	 * Used for tests purpose.
 	 * 
-	 * @return the clientErrorMsgLbl
+	 * @return the operationErrorMsgLbl.
 	 */
 	@Generated
-	JLabel getClientErrorMsgLbl() {
-		return clientErrorMsgLbl;
-	}
-
-	/**
-	 * Used for tests purpose.
-	 * 
-	 * @return the reservationErrorMsgLbl
-	 */
-	@Generated
-	JLabel getReservationErrorMsgLbl() {
-		return reservationErrorMsgLbl;
+	JLabel getOperationErrorMsgLbl() {
+		return operationErrorMsgLbl;
 	}
 
 	/**
@@ -230,7 +219,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	public void reservationAdded(Reservation reservation) {
 		reservationListModel.addElement(reservation);
 		
-		resetReservationErrorMsg();
+		resetErrorMsg();
 		resetDateForm();
 		addReservationBtn.setEnabled(false);
 		rescheduleBtn.setEnabled(false);
@@ -247,7 +236,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	public void clientAdded(Client client) {
 		clientListModel.addElement(client);
 		
-		resetClientErrorMsg();
+		resetErrorMsg();
 		resetFullNameForm();
 		addClientBtn.setEnabled(false);
 		renameBtn.setEnabled(false);
@@ -263,7 +252,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	public void reservationRemoved(Reservation reservation) {
 		reservationListModel.removeElement(reservation);
 		
-		resetReservationErrorMsg();
+		resetErrorMsg();
 		if (reservationList.isSelectionEmpty()) {
 			rescheduleBtn.setEnabled(false);
 			removeReservationBtn.setEnabled(false);
@@ -280,7 +269,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	public void clientRemoved(Client client) {
 		clientListModel.removeElement(client);
 		
-		resetClientErrorMsg();
+		resetErrorMsg();
 		if (clientList.isSelectionEmpty()) {
 			renameBtn.setEnabled(false);
 			removeClientBtn.setEnabled(false);
@@ -306,7 +295,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		if (selectedIndex == clientPosition)
 			clientList.setSelectedIndex(clientPosition);
 		
-		resetClientErrorMsg();
+		resetErrorMsg();
 		resetFullNameForm();
 		addClientBtn.setEnabled(false);
 		renameBtn.setEnabled(false);
@@ -330,7 +319,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		if (reservationPosition == selectedIndex)
 			reservationList.setSelectedIndex(reservationPosition);
 		
-		resetReservationErrorMsg();
+		resetErrorMsg();
 		resetDateForm();
 		addReservationBtn.setEnabled(false);
 		rescheduleBtn.setEnabled(false);
@@ -354,39 +343,21 @@ public class BookingSwingView extends JFrame implements BookingView {
 	}
 
 	/**
-	 * Resets client error messages.
+	 * Resets error messages.
 	 */
-	private void resetClientErrorMsg() {
+	private void resetErrorMsg() {
 		formErrorMsgLbl.setText(" ");
-		clientErrorMsgLbl.setText(" ");
+		operationErrorMsgLbl.setText(" ");
 	}
 
 	/**
-	 * Resets reservation error messages.
-	 */
-	private void resetReservationErrorMsg() {
-		formErrorMsgLbl.setText(" ");
-		reservationErrorMsgLbl.setText(" ");
-	}
-
-	/**
-	 * Displays an error message that involves reservation objects through Swing.
+	 * Displays an error message that involves operation results through Swing.
 	 * 
 	 * @param message	the message to show.
 	 */
 	@Override
-	public void showReservationError(String message) {
-		reservationErrorMsgLbl.setText(message);
-	}
-
-	/**
-	 * Displays an error message that involves client objects through Swing.
-	 * 
-	 * @param message	the message to show.
-	 */
-	@Override
-	public void showClientError(String message) {
-		clientErrorMsgLbl.setText(message);
+	public void showOperationError(String message) {
+		operationErrorMsgLbl.setText(message);
 	}
 
 	/**
@@ -847,23 +818,13 @@ public class BookingSwingView extends JFrame implements BookingView {
 		gbcRemoveReservationBtn.gridy = 4;
 		contentPane.add(removeReservationBtn, gbcRemoveReservationBtn);
 		
-		// Sixth row
-		clientErrorMsgLbl = new JLabel(" ");
-		clientErrorMsgLbl.setName("clientErrorMsgLbl");
-		GridBagConstraints gbcClientErrorMsgLbl = new GridBagConstraints();
-		gbcClientErrorMsgLbl.gridwidth = 4;
-		gbcClientErrorMsgLbl.insets = new Insets(0, 0, 0, 5);
-		gbcClientErrorMsgLbl.gridx = 0;
-		gbcClientErrorMsgLbl.gridy = 5;
-		contentPane.add(clientErrorMsgLbl, gbcClientErrorMsgLbl);
-		
-		reservationErrorMsgLbl = new JLabel(" ");
-		reservationErrorMsgLbl.setName("reservationErrorMsgLbl");
+		operationErrorMsgLbl = new JLabel(" ");
+		operationErrorMsgLbl.setName("operationErrorMsgLbl");
 		GridBagConstraints gbcReservationErrorMsgLbl = new GridBagConstraints();
 		gbcReservationErrorMsgLbl.insets = new Insets(0, 0, 0, 5);
-		gbcReservationErrorMsgLbl.gridwidth = 6;
-		gbcReservationErrorMsgLbl.gridx = 4;
+		gbcReservationErrorMsgLbl.gridwidth = 10;
+		gbcReservationErrorMsgLbl.gridx = 0;
 		gbcReservationErrorMsgLbl.gridy = 5;
-		contentPane.add(reservationErrorMsgLbl, gbcReservationErrorMsgLbl);
+		contentPane.add(operationErrorMsgLbl, gbcReservationErrorMsgLbl);
 	}
 }

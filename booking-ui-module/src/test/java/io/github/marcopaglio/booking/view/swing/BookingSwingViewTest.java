@@ -55,8 +55,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 	private static final String ANOTHER_DATE = ANOTHER_YEAR + "-" + ANOTHER_MONTH + "-" + ANOTHER_DAY;
 	private static final Reservation ANOTHER_RESERVATION = new Reservation(A_CLIENT_UUID, LocalDate.parse(ANOTHER_DATE));
 
-	private static final String RESERVATIONS_ERROR_MSG = "An error message that involves reservations.";
-	private static final String CLIENTS_ERROR_MSG = "An error message that involves clients.";
+	private static final String OPERATIONS_ERROR_MSG = "An error message that involves operations.";
 	private static final String FORMS_ERROR_MSG = "An error message that involves forms.";
 
 	private FrameFixture window;
@@ -67,8 +66,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 	private JTextComponentFixture monthFormTxt;
 	private JTextComponentFixture dayFormTxt;
 	private JLabelFixture formErrorMsgLbl;
-	private JLabelFixture clientErrorMsgLbl;
-	private JLabelFixture reservationErrorMsgLbl;
+	private JLabelFixture operationErrorMsgLbl;
 	private JButtonFixture addReservationBtn;
 	private JButtonFixture addClientBtn;
 	private JButtonFixture renameBtn;
@@ -106,8 +104,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		
 		// error labels
 		formErrorMsgLbl = window.label("formErrorMsgLbl");
-		clientErrorMsgLbl = window.label("clientErrorMsgLbl");
-		reservationErrorMsgLbl = window.label("reservationErrorMsgLbl");
+		operationErrorMsgLbl = window.label("operationErrorMsgLbl");
 		
 		// buttons
 		addReservationBtn = window.button(JButtonMatcher.withText("Add Reservation"));
@@ -188,8 +185,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		removeReservationBtn.requireDisabled().requireVisible();
 		
 		// Sixth row
-		clientErrorMsgLbl.requireText(" ");
-		reservationErrorMsgLbl.requireText(" ");
+		operationErrorMsgLbl.requireText(" ");
 	}
 
 		////////////// Add Client Button
@@ -2147,14 +2143,14 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		@Test @GUITest
 		@DisplayName("Error messages")
-		public void testReservationAddedWhenThereAreFormAndReservationErrorMessagesShouldResetErrors() {
+		public void testReservationAddedWhenThereAreErrorMessagesShouldResetErrors() {
 			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
-			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(), RESERVATIONS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getOperationErrorMsgLbl(), OPERATIONS_ERROR_MSG);
 			
 			GuiActionRunner.execute(() -> bookingSwingView.reservationAdded(A_RESERVATION));
 			
 			formErrorMsgLbl.requireText(" ");
-			reservationErrorMsgLbl.requireText(" ");
+			operationErrorMsgLbl.requireText(" ");
 		}
 		////////////// Tests for 'reservationAdded'
 
@@ -2205,14 +2201,14 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		@Test @GUITest
 		@DisplayName("Error messages")
-		public void testClientAddedWhenThereAreFormAndClientErrorMessagesShouldResetErrors() {
+		public void testClientAddedWhenThereAreErrorMessagesShouldResetErrors() {
 			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
-			setTextLabel(bookingSwingView.getClientErrorMsgLbl(), CLIENTS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getOperationErrorMsgLbl(), OPERATIONS_ERROR_MSG);
 			
 			GuiActionRunner.execute(() -> bookingSwingView.clientAdded(A_CLIENT));
 			
 			formErrorMsgLbl.requireText(" ");
-			clientErrorMsgLbl.requireText(" ");
+			operationErrorMsgLbl.requireText(" ");
 		}
 		////////////// Tests for 'clientAdded'
 
@@ -2282,14 +2278,14 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		@Test @GUITest
 		@DisplayName("Error messages")
-		public void testReservationRemovedWhenThereAreFormAndReservationErrorMessagesShouldResetErrors() {
+		public void testReservationRemovedWhenThereAreErrorMessagesShouldResetErrors() {
 			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
-			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(), RESERVATIONS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getOperationErrorMsgLbl(), OPERATIONS_ERROR_MSG);
 			
 			GuiActionRunner.execute(() -> bookingSwingView.reservationRemoved(A_RESERVATION));
 			
 			formErrorMsgLbl.requireText(" ");
-			reservationErrorMsgLbl.requireText(" ");
+			operationErrorMsgLbl.requireText(" ");
 		}
 		////////////// Tests for 'reservationRemoved'
 
@@ -2365,14 +2361,14 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		@Test @GUITest
 		@DisplayName("Error messages")
-		public void testClientRemovedWhenThereAreFormAndClientErrorMessagesShouldResetErrors() {
+		public void testClientRemovedWhenThereAreErrorMessagesShouldResetErrors() {
 			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
-			setTextLabel(bookingSwingView.getClientErrorMsgLbl(), CLIENTS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getOperationErrorMsgLbl(), OPERATIONS_ERROR_MSG);
 			
 			GuiActionRunner.execute(() -> bookingSwingView.clientRemoved(A_CLIENT));
 			
 			formErrorMsgLbl.requireText(" ");
-			clientErrorMsgLbl.requireText(" ");
+			operationErrorMsgLbl.requireText(" ");
 		}
 		////////////// Tests for 'clientRemoved'
 
@@ -2463,16 +2459,16 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		@Test @GUITest
 		@DisplayName("Error messages")
-		public void testClientRenamedWhenThereAreFormAndClientErrorMessagesShouldResetErrors() {
+		public void testClientRenamedWhenThereAreErrorMessagesShouldResetErrors() {
 			addClientInList(A_CLIENT);
 			
 			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
-			setTextLabel(bookingSwingView.getClientErrorMsgLbl(), CLIENTS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getOperationErrorMsgLbl(), OPERATIONS_ERROR_MSG);
 			
 			GuiActionRunner.execute(() -> bookingSwingView.clientRenamed(A_CLIENT, ANOTHER_CLIENT));
 			
 			formErrorMsgLbl.requireText(" ");
-			clientErrorMsgLbl.requireText(" ");
+			operationErrorMsgLbl.requireText(" ");
 		}
 		////////////// Tests for 'clientRenamed'
 
@@ -2574,33 +2570,25 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			addReservationInList(A_RESERVATION);
 			
 			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
-			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(), RESERVATIONS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getOperationErrorMsgLbl(), OPERATIONS_ERROR_MSG);
 			
 			GuiActionRunner.execute(() -> bookingSwingView.reservationRescheduled(
 					A_RESERVATION, ANOTHER_RESERVATION));
 			
 			formErrorMsgLbl.requireText(" ");
-			reservationErrorMsgLbl.requireText(" ");
+			operationErrorMsgLbl.requireText(" ");
 		}
 		////////////// Tests for 'reservationRescheduled'
 
 
 		///////////// Tests for error viewers
 		@Test @GUITest
-		@DisplayName("Test for 'showReservationError'")
-		public void testShowReservationErrorShouldShowTheMessage() {
+		@DisplayName("Test for 'showOperationError'")
+		public void testShowOperationErrorShouldShowTheMessage() {
 			GuiActionRunner.execute(
-					() -> bookingSwingView.showReservationError(RESERVATIONS_ERROR_MSG));
+					() -> bookingSwingView.showOperationError(OPERATIONS_ERROR_MSG));
 			
-			reservationErrorMsgLbl.requireText(RESERVATIONS_ERROR_MSG);
-		}
-
-		@Test @GUITest
-		@DisplayName("Test for 'showClientError'")
-		public void testShowClientErrorShouldShowTheMessage() {
-			GuiActionRunner.execute(() -> bookingSwingView.showClientError(CLIENTS_ERROR_MSG));
-			
-			clientErrorMsgLbl.requireText(CLIENTS_ERROR_MSG);
+			operationErrorMsgLbl.requireText(OPERATIONS_ERROR_MSG);
 		}
 
 		@Test @GUITest

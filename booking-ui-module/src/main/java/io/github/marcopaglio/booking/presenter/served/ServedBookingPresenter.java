@@ -74,7 +74,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.info("All clients have been retrieved with success.");
 		} catch(DatabaseException e) {
 			LOGGER.warn(e.getMessage());
-			view.showClientError(databaseErrorMsg("updating clients"));
+			view.showOperationError(databaseErrorMsg("updating clients"));
 		}
 	}
 
@@ -89,7 +89,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 		LOGGER.info("All reservations have been retrieved with success.");
 		} catch(DatabaseException e) {
 			LOGGER.warn(e.getMessage());
-			view.showReservationError(databaseErrorMsg("updating reservations"));
+			view.showOperationError(databaseErrorMsg("updating reservations"));
 		}
 	}
 
@@ -121,11 +121,11 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s has been deleted with success.", client.toString()));
 			} catch (InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
-				view.showClientError(instanceNotFoundErrorMsg(client.toString()));
+				view.showOperationError(instanceNotFoundErrorMsg(client.toString()));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
-				view.showClientError(databaseErrorMsg("deleting " + client.toString()));
+				view.showOperationError(databaseErrorMsg("deleting " + client.toString()));
 				updateAll();
 			}
 		}
@@ -149,11 +149,11 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s has been deleted with success.", reservation.toString()));
 			} catch (InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
-				view.showReservationError(instanceNotFoundErrorMsg(reservation.toString()));
+				view.showOperationError(instanceNotFoundErrorMsg(reservation.toString()));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
-				view.showReservationError(databaseErrorMsg("deleting " + reservation.toString()));
+				view.showOperationError(databaseErrorMsg("deleting " + reservation.toString()));
 			}
 		}
 	}
@@ -176,12 +176,12 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s has been added with success.", clientInDB.toString()));
 			} catch(InstanceAlreadyExistsException e) {
 				LOGGER.warn(e.getMessage());
-				view.showClientError(clientAlreadyExistsErrorMsg(
+				view.showOperationError(clientAlreadyExistsErrorMsg(
 						client.getFirstName(), client.getLastName()));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
-				view.showClientError(databaseErrorMsg("adding " + client.toString()));
+				view.showOperationError(databaseErrorMsg("adding " + client.toString()));
 				updateAll();
 			}
 		}
@@ -257,17 +257,17 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s has been added with success.", reservationInDB.toString()));
 			} catch(InstanceAlreadyExistsException e) {
 				LOGGER.warn(e.getMessage());
-				view.showReservationError(reservationAlreadyExistsErrorMsg(
+				view.showOperationError(reservationAlreadyExistsErrorMsg(
 						reservation.getDate().toString()));
 				updateAll();
 			} catch(InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
-				view.showReservationError(instanceNotFoundErrorMsg(reservation.toString()
+				view.showOperationError(instanceNotFoundErrorMsg(reservation.toString()
 						+ "'s client [id=" + reservation.getClientId() + "]"));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
-				view.showReservationError(databaseErrorMsg("adding " + reservation.toString()));
+				view.showOperationError(databaseErrorMsg("adding " + reservation.toString()));
 				updateAll();
 			}
 		}
@@ -370,15 +370,15 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.info(() -> String.format("%s has been renamed with success.", clientInDB.toString()));
 		} catch(InstanceAlreadyExistsException e) {
 			LOGGER.warn(e.getMessage());
-			view.showClientError(clientAlreadyExistsErrorMsg(newFirstName, newLastName));
+			view.showOperationError(clientAlreadyExistsErrorMsg(newFirstName, newLastName));
 			updateAll();
 		} catch(InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
-			view.showClientError(instanceNotFoundErrorMsg(client.toString()));
+			view.showOperationError(instanceNotFoundErrorMsg(client.toString()));
 			updateAll();
 		} catch(DatabaseException e) {
 			LOGGER.warn(e.getMessage());
-			view.showClientError(databaseErrorMsg("renaming " + client.toString()));
+			view.showOperationError(databaseErrorMsg("renaming " + client.toString()));
 			updateAll();
 		}
 	}
@@ -420,15 +420,15 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.info(() -> String.format("%s has been rescheduled with success.", reservationInDB.toString()));
 		} catch(InstanceAlreadyExistsException e) {
 			LOGGER.warn(e.getMessage());
-			view.showReservationError(reservationAlreadyExistsErrorMsg(validatedDate.toString()));
+			view.showOperationError(reservationAlreadyExistsErrorMsg(validatedDate.toString()));
 			updateAll();
 		} catch(InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
-			view.showReservationError(instanceNotFoundErrorMsg(reservation.toString()));
+			view.showOperationError(instanceNotFoundErrorMsg(reservation.toString()));
 			updateAll();
 		} catch(DatabaseException e) {
 			LOGGER.warn(e.getMessage());
-			view.showReservationError(databaseErrorMsg("rescheduling " + reservation.toString()));
+			view.showOperationError(databaseErrorMsg("rescheduling " + reservation.toString()));
 			updateAll();
 		}
 	}

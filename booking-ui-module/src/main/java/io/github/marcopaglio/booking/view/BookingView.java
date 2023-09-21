@@ -69,18 +69,11 @@ public interface BookingView {
 	public void reservationRescheduled(Reservation oldReservation, Reservation rescheduledReservation);
 
 	/**
-	 * Displays an error message that involves reservation objects.
+	 * Displays an error message that involves operation results.
 	 * 
 	 * @param message	the message to show.
 	 */
-	public void showReservationError(String message);
-
-	/**
-	 * Displays an error message that involves client objects.
-	 * 
-	 * @param message	the message to show.
-	 */
-	public void showClientError(String message);
+	public void showOperationError(String message);
 
 	/**
 	 * Displays an error message that involves input forms.
