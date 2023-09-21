@@ -24,16 +24,20 @@ import javax.swing.JScrollPane;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionListener;
 
+/**
+ * A concrete implementation of the view for the booking application using Swing.
+ */
 public class BookingSwingView extends JFrame implements BookingView {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Presenter of booking application used by the view for managing user requests.
+	 */
 	private transient BookingPresenter bookingPresenter;
 
 	private JPanel contentPane;
@@ -62,182 +66,19 @@ public class BookingSwingView extends JFrame implements BookingView {
 	private JLabel dash2Lbl;
 	private JTextField monthFormTxt;
 
-	// EVENT HANDLERS
-	private final transient KeyAdapter nameFormListener = new KeyAdapter() {
-		@Override
-		public void keyReleased(KeyEvent e) {
-			addClientBtn.setEnabled(
-				!nameFormTxt.getText().isBlank() &&
-				!surnameFormTxt.getText().isBlank()
-			);
-			
-			renameBtn.setEnabled(
-				!nameFormTxt.getText().isBlank() &&
-				!surnameFormTxt.getText().isBlank() &&
-				!clientList.isSelectionEmpty()
-			);
-		}
-	};
-
-	private final transient KeyAdapter surnameFormListener = new KeyAdapter() {
-		@Override
-		public void keyReleased(KeyEvent e) {
-			addClientBtn.setEnabled(
-				!nameFormTxt.getText().isBlank() &&
-				!surnameFormTxt.getText().isBlank()
-			);
-			
-			renameBtn.setEnabled(
-				!nameFormTxt.getText().isBlank() &&
-				!surnameFormTxt.getText().isBlank() &&
-				!clientList.isSelectionEmpty()
-			);
-		}
-	};
-
-	private final transient KeyAdapter dayFormListener = new KeyAdapter() {
-		@Override
-		public void keyReleased(KeyEvent e) {
-			addReservationBtn.setEnabled(
-				!yearFormTxt.getText().isBlank() &&
-				!monthFormTxt.getText().isBlank() &&
-				!dayFormTxt.getText().isBlank() &&
-				!clientList.isSelectionEmpty()
-			);
-			
-			rescheduleBtn.setEnabled(
-				!yearFormTxt.getText().isBlank() &&
-				!monthFormTxt.getText().isBlank() &&
-				!dayFormTxt.getText().isBlank() &&
-				!reservationList.isSelectionEmpty()
-			);
-		}
-	};
-
-	private final transient KeyAdapter monthFormListener = new KeyAdapter() {
-		@Override
-		public void keyReleased(KeyEvent e) {
-			addReservationBtn.setEnabled(
-				!yearFormTxt.getText().isBlank() &&
-				!monthFormTxt.getText().isBlank() &&
-				!dayFormTxt.getText().isBlank() &&
-				!clientList.isSelectionEmpty()
-			);
-			
-			rescheduleBtn.setEnabled(
-				!yearFormTxt.getText().isBlank() &&
-				!monthFormTxt.getText().isBlank() &&
-				!dayFormTxt.getText().isBlank() &&
-				!reservationList.isSelectionEmpty()
-			);
-		}
-	};
-
-	private final transient KeyAdapter yearFormListener = new KeyAdapter() {
-		@Override
-		public void keyReleased(KeyEvent e) {
-			addReservationBtn.setEnabled(
-				!yearFormTxt.getText().isBlank() &&
-				!monthFormTxt.getText().isBlank() &&
-				!dayFormTxt.getText().isBlank() &&
-				!clientList.isSelectionEmpty()
-			);
-			
-			rescheduleBtn.setEnabled(
-				!yearFormTxt.getText().isBlank() &&
-				!monthFormTxt.getText().isBlank() &&
-				!dayFormTxt.getText().isBlank() &&
-				!reservationList.isSelectionEmpty()
-			);
-		}
-	};
-
-	private final transient ListSelectionListener clientListListener = e -> {
-		renameBtn.setEnabled(
-			!nameFormTxt.getText().isBlank() &&
-			!surnameFormTxt.getText().isBlank() &&
-			!clientList.isSelectionEmpty()
-		);
-		
-		removeClientBtn.setEnabled(!clientList.isSelectionEmpty());
-		
-		addReservationBtn.setEnabled(
-			!yearFormTxt.getText().isBlank() &&
-			!monthFormTxt.getText().isBlank() &&
-			!dayFormTxt.getText().isBlank() &&
-			!clientList.isSelectionEmpty()
-		);
-	};
-
-	private final transient ListSelectionListener reservationListListener = e -> {
-		rescheduleBtn.setEnabled(
-			!yearFormTxt.getText().isBlank() &&
-			!monthFormTxt.getText().isBlank() &&
-			!dayFormTxt.getText().isBlank() &&
-			!reservationList.isSelectionEmpty()
-		);
-		
-		removeReservationBtn.setEnabled(!reservationList.isSelectionEmpty());
-	};
-
-	// TODO: il reset dei campi error deve essere fatto prima della chiamata al presenter,
-	// altrimenti viene cancellato il messaggio di errore dal presenter
-	private final transient ActionListener addClientAction = e -> {
-		addClientBtn.setEnabled(false);
-		formErrorMsgLbl.setText(" ");
-		clientErrorMsgLbl.setText(" ");
-		bookingPresenter.addClient(nameFormTxt.getText(), surnameFormTxt.getText());
-	};
-
-	private final transient ActionListener renameAction = e -> {
-		renameBtn.setEnabled(false);
-		formErrorMsgLbl.setText(" ");
-		clientErrorMsgLbl.setText(" ");
-		bookingPresenter.renameClient(
-				clientList.getSelectedValue(),
-				nameFormTxt.getText(),
-				surnameFormTxt.getText());
-
-	};
-
-	private final transient ActionListener removeClientAction = e -> {
-		removeClientBtn.setEnabled(false);
-		formErrorMsgLbl.setText(" ");
-		clientErrorMsgLbl.setText(" ");
-		bookingPresenter.deleteClient(clientList.getSelectedValue());
-	};
-
-	private final transient ActionListener addReservationAction = e -> {
-		addReservationBtn.setEnabled(false);
-		formErrorMsgLbl.setText(" ");
-		reservationErrorMsgLbl.setText(" ");
-		bookingPresenter.addReservation(
-			clientList.getSelectedValue(),
-			yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
-	};
-
-	private final transient ActionListener rescheduleAction = e -> {
-		rescheduleBtn.setEnabled(false);
-		formErrorMsgLbl.setText(" ");
-		reservationErrorMsgLbl.setText(" ");
-		bookingPresenter.rescheduleReservation(
-			reservationList.getSelectedValue(),
-			yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
-	};
-
-	private final transient ActionListener removeReservationAction = e -> {
-		removeReservationBtn.setEnabled(false);
-		formErrorMsgLbl.setText(" ");
-		reservationErrorMsgLbl.setText(" ");
-		bookingPresenter.deleteReservation(reservationList.getSelectedValue());
-	};
-
 	// METHODS
+	/**
+	 * Sets the presenter that is called when a button is clicked.
+	 * 
+	 * @param bookingPresenter	the presenter of the booking application.
+	 */
 	public void setBookingPresenter(BookingPresenter bookingPresenter) {
 		this.bookingPresenter = bookingPresenter;
 	}
 
 	/**
+	 * Used for tests purpose.
+	 * 
 	 * @return the addClientBtn
 	 */
 	@Generated
@@ -246,6 +87,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	}
 
 	/**
+	 * Used for tests purpose.
+	 * 
 	 * @return the rescheduleBtn
 	 */
 	@Generated
@@ -254,6 +97,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	}
 
 	/**
+	 * Used for tests purpose.
+	 * 
 	 * @return the removeReservationBtn
 	 */
 	@Generated
@@ -262,6 +107,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	}
 
 	/**
+	 * Used for tests purpose.
+	 * 
 	 * @return the addReservationBtn
 	 */
 	@Generated
@@ -270,6 +117,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	}
 
 	/**
+	 * Used for tests purpose.
+	 * 
 	 * @return the renameBtn
 	 */
 	@Generated
@@ -278,6 +127,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	}
 
 	/**
+	 * Used for tests purpose.
+	 * 
 	 * @return the removeClientBtn
 	 */
 	@Generated
@@ -286,6 +137,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	}
 
 	/**
+	 * Used for tests purpose.
+	 * 
 	 * @return the clientListModel
 	 */
 	@Generated
@@ -294,6 +147,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	}
 
 	/**
+	 * Used for tests purpose.
+	 * 
 	 * @return the reservationListModel
 	 */
 	@Generated
@@ -302,6 +157,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	}
 
 	/**
+	 * Used for tests purpose.
+	 * 
 	 * @return the formErrorMsgLbl
 	 */
 	@Generated
@@ -310,6 +167,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	}
 
 	/**
+	 * Used for tests purpose.
+	 * 
 	 * @return the clientErrorMsgLbl
 	 */
 	@Generated
@@ -318,6 +177,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	}
 
 	/**
+	 * Used for tests purpose.
+	 * 
 	 * @return the reservationErrorMsgLbl
 	 */
 	@Generated
@@ -369,9 +230,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	public void reservationAdded(Reservation reservation) {
 		reservationListModel.addElement(reservation);
 		
-		yearFormTxt.setText("");
-		monthFormTxt.setText("");
-		dayFormTxt.setText("");
+		resetReservationErrorMsg();
+		resetDateForm();
 		addReservationBtn.setEnabled(false);
 		rescheduleBtn.setEnabled(false);
 	}
@@ -387,8 +247,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	public void clientAdded(Client client) {
 		clientListModel.addElement(client);
 		
-		nameFormTxt.setText("");
-		surnameFormTxt.setText("");
+		resetClientErrorMsg();
+		resetFullNameForm();
 		addClientBtn.setEnabled(false);
 		renameBtn.setEnabled(false);
 	}
@@ -403,6 +263,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	public void reservationRemoved(Reservation reservation) {
 		reservationListModel.removeElement(reservation);
 		
+		resetReservationErrorMsg();
 		if (reservationList.isSelectionEmpty()) {
 			rescheduleBtn.setEnabled(false);
 			removeReservationBtn.setEnabled(false);
@@ -419,6 +280,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 	public void clientRemoved(Client client) {
 		clientListModel.removeElement(client);
 		
+		resetClientErrorMsg();
 		if (clientList.isSelectionEmpty()) {
 			renameBtn.setEnabled(false);
 			removeClientBtn.setEnabled(false);
@@ -444,8 +306,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 		if (selectedIndex == clientPosition)
 			clientList.setSelectedIndex(clientPosition);
 		
-		nameFormTxt.setText("");
-		surnameFormTxt.setText("");
+		resetClientErrorMsg();
+		resetFullNameForm();
 		addClientBtn.setEnabled(false);
 		renameBtn.setEnabled(false);
 	}
@@ -468,11 +330,43 @@ public class BookingSwingView extends JFrame implements BookingView {
 		if (reservationPosition == selectedIndex)
 			reservationList.setSelectedIndex(reservationPosition);
 		
+		resetReservationErrorMsg();
+		resetDateForm();
+		addReservationBtn.setEnabled(false);
+		rescheduleBtn.setEnabled(false);
+	}
+
+	/**
+	 * Resets full-name forms.
+	 */
+	private void resetFullNameForm() {
+		nameFormTxt.setText("");
+		surnameFormTxt.setText("");
+	}
+
+	/**
+	 * Resets date forms.
+	 */
+	private void resetDateForm() {
 		yearFormTxt.setText("");
 		monthFormTxt.setText("");
 		dayFormTxt.setText("");
-		addReservationBtn.setEnabled(false);
-		rescheduleBtn.setEnabled(false);
+	}
+
+	/**
+	 * Resets client error messages.
+	 */
+	private void resetClientErrorMsg() {
+		formErrorMsgLbl.setText(" ");
+		clientErrorMsgLbl.setText(" ");
+	}
+
+	/**
+	 * Resets reservation error messages.
+	 */
+	private void resetReservationErrorMsg() {
+		formErrorMsgLbl.setText(" ");
+		reservationErrorMsgLbl.setText(" ");
 	}
 
 	/**
@@ -505,209 +399,406 @@ public class BookingSwingView extends JFrame implements BookingView {
 		formErrorMsgLbl.setText(message);
 	}
 
+	// EVENT HANDLERS
+	/**
+	 * Adapter activated on key releasing on {@code nameFormTxt} and {@code surnameFormTxt}.
+	 * This handler enables/disables:
+	 * 1) {@code addClientBtn} if full-name forms aren't blank;
+	 * 2) {@code renameBtn} if full-name forms aren't blank and a client is selected.
+	 */
+	private final transient KeyAdapter nameFormAdapter = new KeyAdapter() {
+		@Override
+		public void keyReleased(KeyEvent e) {
+			addClientBtn.setEnabled(checkAddClientBtnRequirements());
+			renameBtn.setEnabled(checkRenameBtnRequirements());
+		}
+
+		/**
+		 * Checks if {@code addClientBtn} enabling requirements are met.
+		 * 
+		 * @return	{@code true} if requirements are met; {@code false} otherwise.
+		 */
+		private boolean checkAddClientBtnRequirements() {
+			return areFullNameFormsNotBlank();
+		}
+	};
+
+	/**
+	 * Adapter activated on key releasing on {@code yearFormTxt}, {@code monthFormTxt} and
+	 * {@code surnameFormTxt}. This handler enables:
+	 * 1) {@code addReservationBtn} if date forms aren't blank and a client is selected;
+	 * 2) {@code rescheduleBtn} if date forms aren't blank and a reservation is selected.
+	 */
+	private final transient KeyAdapter dateFormAdapter = new KeyAdapter() {
+		@Override
+		public void keyReleased(KeyEvent e) {
+			addReservationBtn.setEnabled(checkAddReservationBtnRequirements());
+			rescheduleBtn.setEnabled(checkRescheduleBtnRequirements());
+		}
+	};
+
+	/**
+	 * Listener activated on selection changing on {@code clientList}.
+	 * This handler enables:
+	 * 1) {@code renameBtn} if full-name forms aren't blank and a client is selected;
+	 * 2) {@code removeClientBtn} if a client is selected;
+	 * 3) {@code addReservationBtn} if date forms aren't blank and a client is selected.
+	 */
+	private final transient ListSelectionListener clientListListener = e -> {
+		renameBtn.setEnabled(checkRenameBtnRequirements());
+		removeClientBtn.setEnabled(checkRemoveClientRequirements());
+		addReservationBtn.setEnabled(checkAddReservationBtnRequirements());
+	};
+
+	/**
+	 * Listener activated on selection changing on {@code reservationList}.
+	 * This handler enables:
+	 * 1) {@code rescheduleBtn} if date forms aren't blank and a reservation is selected;
+	 * 2) {@code removeReservationBtn} if a reservation is selected.
+	 */
+	private final transient ListSelectionListener reservationListListener = e -> {
+		rescheduleBtn.setEnabled(checkRescheduleBtnRequirements());
+		removeReservationBtn.setEnabled(checkRemoveReservationRequirements());
+	};
+
+	/**
+	 * Action activated on clicking on {@code addClientBtn}. This handler disables
+	 * {@code addClientBtn} and delegates the operation to the presenter.
+	 */
+	private final transient ActionListener addClientAction = e -> {
+		addClientBtn.setEnabled(false);
+		bookingPresenter.addClient(nameFormTxt.getText(), surnameFormTxt.getText());
+	};
+
+	/**
+	 * Action activated on clicking on {@code renameBtn}. This handler disables
+	 * {@code renameBtn} and delegates the operation to the presenter.
+	 */
+	private final transient ActionListener renameAction = e -> {
+		renameBtn.setEnabled(false);
+		bookingPresenter.renameClient(clientList.getSelectedValue(), nameFormTxt.getText(), surnameFormTxt.getText());
+	};
+
+	/**
+	 * Action activated on clicking on {@code removeClientBtn}. This handler disables
+	 * {@code removeClientBtn} and delegates the operation to the presenter.
+	 */
+	private final transient ActionListener removeClientAction = e -> {
+		removeClientBtn.setEnabled(false);
+		bookingPresenter.deleteClient(clientList.getSelectedValue());
+	};
+
+	/**
+	 * Action activated on clicking on {@code addReservationBtn}. This handler disables
+	 * {@code addReservationBtn} and delegates the operation to the presenter.
+	 */
+	private final transient ActionListener addReservationAction = e -> {
+		addReservationBtn.setEnabled(false);
+		bookingPresenter.addReservation(clientList.getSelectedValue(), getDateViaForms());
+	};
+
+	/**
+	 * Action activated on clicking on {@code rescheduleBtn}. This handler disables
+	 * {@code rescheduleBtn} and delegates the operation to the presenter.
+	 */
+	private final transient ActionListener rescheduleAction = e -> {
+		rescheduleBtn.setEnabled(false);
+		bookingPresenter.rescheduleReservation(reservationList.getSelectedValue(), getDateViaForms());
+	};
+
+	/**
+	 * Action activated on clicking on {@code removeReservationBtn}. This handler disables
+	 * {@code removeReservationBtn} and delegates the operation to the presenter.
+	 */
+	private final transient ActionListener removeReservationAction = e -> {
+		removeReservationBtn.setEnabled(false);
+		bookingPresenter.deleteReservation(reservationList.getSelectedValue());
+	};
+
+	/**
+	 * Generates a date via {@code yearFormTxt}, {@code monthFormTxt} and {@code dayFormTxt}.
+	 * 
+	 * @return	a {@code String} date in the format yyyy-mm-dd.
+	 */
+	private String getDateViaForms() {
+		return yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText();
+	}
+
+	// BUTTONS REQUIREMENTS
+	/**
+	 * Checks if {@code renameBtn} enabling requirements are met.
+	 * 
+	 * @return	{@code true} if requirements are met; {@code false} otherwise.
+	 */
+	private boolean checkRenameBtnRequirements() {
+		return areFullNameFormsNotBlank() && isClientListSelectionNotEmpty();
+	}
+
+	/**
+	 * Checks if {@code addReservationBtn} enabling requirements are met.
+	 * 
+	 * @return	{@code true} if requirements are met; {@code false} otherwise.
+	 */
+	private boolean checkAddReservationBtnRequirements() {
+		return areDateFormsNotBlank() && isClientListSelectionNotEmpty();
+	}
+
+	/**
+	 * Checks if {@code rescheduleBtn} enabling requirements are met.
+	 * 
+	 * @return	{@code true} if requirements are met; {@code false} otherwise.
+	 */
+	private boolean checkRescheduleBtnRequirements() {
+		return areDateFormsNotBlank() && isReservationListSelectionNotEmpty();
+	}
+
+	/**
+	 * Checks if {@code removeClientBtn} enabling requirements are met.
+	 * 
+	 * @return	{@code true} if requirements are met; {@code false} otherwise.
+	 */
+	private boolean checkRemoveClientRequirements() {
+		return isClientListSelectionNotEmpty();
+	}
+
+	/**
+	 * Checks if {@code removeReservationBtn} enabling requirements are met.
+	 * 
+	 * @return	{@code true} if requirements are met; {@code false} otherwise.
+	 */
+	private boolean checkRemoveReservationRequirements() {
+		return isReservationListSelectionNotEmpty();
+	}
+
+	/**
+	 * Checks if {@code nameFormTxt} and {@code surnameFormTxt} are not blank.
+	 * 
+	 * @return	{@code true} if forms are not blank; {@code false} otherwise.
+	 */
+	private boolean areFullNameFormsNotBlank() {
+		return !nameFormTxt.getText().isBlank() &&
+				!surnameFormTxt.getText().isBlank();
+	}
+
+	/**
+	 * Checks if {@code yearFormTxt}, {@code monthFormTxt} and {@code surnameFormTxt} are not blank.
+	 * 
+	 * @return	{@code true} if forms are not blank; {@code false} otherwise.
+	 */
+	private boolean areDateFormsNotBlank() {
+		return !yearFormTxt.getText().isBlank() &&
+				!monthFormTxt.getText().isBlank() &&
+				!dayFormTxt.getText().isBlank();
+	}
+
+	/**
+	 * Checks if there is a selected item in {@code clientList}.
+	 * 
+	 * @return	{@code true} if there is a selected item; {@code false} otherwise.
+	 */
+	private boolean isClientListSelectionNotEmpty() {
+		return !clientList.isSelectionEmpty();
+	}
+
+	/**
+	 * Checks if there is a selected item in {@code reservationList}.
+	 * 
+	 * @return	{@code true} if there is a selected item; {@code false} otherwise.
+	 */
+	private boolean isReservationListSelectionNotEmpty() {
+		return !reservationList.isSelectionEmpty();
+	}
+
 	/**
 	 * Create the frame.
 	 */
 	public BookingSwingView() {
 		setTitle("BookingApp");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		setContentPane(contentPane);
-		GridBagLayout gbl_contentPane = new GridBagLayout();
-		gbl_contentPane.columnWidths = new int[] {60, 40, 60, 40, 40, 40, 0, 20, 0, 20, 0};
-		gbl_contentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0};
-		gbl_contentPane.columnWeights = new double[]{1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_contentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
-		contentPane.setLayout(gbl_contentPane);
+		GridBagLayout gblContentPane = new GridBagLayout();
+		gblContentPane.columnWidths = new int[] {60, 40, 60, 40, 40, 40, 0, 20, 0, 20, 0};
+		gblContentPane.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0};
+		gblContentPane.columnWeights = new double[]{1.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 1.0, Double.MIN_VALUE};
+		gblContentPane.rowWeights = new double[]{0.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
+		contentPane.setLayout(gblContentPane);
 		
 		// First row
 		JLabel firstNameLbl = new JLabel("First Name");
 		firstNameLbl.setName("firstNameLbl");
-		GridBagConstraints gbc_firstNameLbl = new GridBagConstraints();
-		gbc_firstNameLbl.anchor = GridBagConstraints.EAST;
-		gbc_firstNameLbl.insets = new Insets(0, 0, 5, 5);
-		gbc_firstNameLbl.gridx = 0;
-		gbc_firstNameLbl.gridy = 0;
-		contentPane.add(firstNameLbl, gbc_firstNameLbl);
+		GridBagConstraints gbcFirstNameLbl = new GridBagConstraints();
+		gbcFirstNameLbl.anchor = GridBagConstraints.EAST;
+		gbcFirstNameLbl.insets = new Insets(0, 0, 5, 5);
+		gbcFirstNameLbl.gridx = 0;
+		gbcFirstNameLbl.gridy = 0;
+		contentPane.add(firstNameLbl, gbcFirstNameLbl);
 		
 		nameFormTxt = new JTextField();
-		nameFormTxt.addKeyListener(nameFormListener);
+		nameFormTxt.addKeyListener(nameFormAdapter);
 		nameFormTxt.setName("nameFormTxt");
 		nameFormTxt.setToolTipText("Names must not contain numbers (e.g. 0-9) or any type of symbol or special character (e.g. ~`! @#$%^&*()_-+={[}]|\\:;\"'<,>.?/)");
-		GridBagConstraints gbc_nameFormTxt = new GridBagConstraints();
-		gbc_nameFormTxt.fill = GridBagConstraints.HORIZONTAL;
-		gbc_nameFormTxt.insets = new Insets(0, 0, 5, 5);
-		gbc_nameFormTxt.gridx = 1;
-		gbc_nameFormTxt.gridy = 0;
-		contentPane.add(nameFormTxt, gbc_nameFormTxt);
+		GridBagConstraints gbcNameFormTxt = new GridBagConstraints();
+		gbcNameFormTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbcNameFormTxt.insets = new Insets(0, 0, 5, 5);
+		gbcNameFormTxt.gridx = 1;
+		gbcNameFormTxt.gridy = 0;
+		contentPane.add(nameFormTxt, gbcNameFormTxt);
 		nameFormTxt.setColumns(10);
 		
 		lastNameLbl = new JLabel("Last Name");
 		lastNameLbl.setVerticalAlignment(SwingConstants.BOTTOM);
 		lastNameLbl.setName("lastNameLbl");
-		GridBagConstraints gbc_lastNameLbl = new GridBagConstraints();
-		gbc_lastNameLbl.anchor = GridBagConstraints.EAST;
-		gbc_lastNameLbl.insets = new Insets(0, 0, 5, 5);
-		gbc_lastNameLbl.gridx = 2;
-		gbc_lastNameLbl.gridy = 0;
-		contentPane.add(lastNameLbl, gbc_lastNameLbl);
+		GridBagConstraints gbcLastNameLbl = new GridBagConstraints();
+		gbcLastNameLbl.anchor = GridBagConstraints.EAST;
+		gbcLastNameLbl.insets = new Insets(0, 0, 5, 5);
+		gbcLastNameLbl.gridx = 2;
+		gbcLastNameLbl.gridy = 0;
+		contentPane.add(lastNameLbl, gbcLastNameLbl);
 		
 		surnameFormTxt = new JTextField();
-		surnameFormTxt.addKeyListener(surnameFormListener);
+		surnameFormTxt.addKeyListener(nameFormAdapter);
 		surnameFormTxt.setToolTipText("Surnames must not contain numbers (e.g. 0-9) or any type of symbol or special character (e.g. ~`! @#$%^&*()_-+={[}]|\\:;\"'<,>.?/)");
 		surnameFormTxt.setName("surnameFormTxt");
-		GridBagConstraints gbc_surnameFormTxt = new GridBagConstraints();
-		gbc_surnameFormTxt.insets = new Insets(0, 0, 5, 5);
-		gbc_surnameFormTxt.fill = GridBagConstraints.HORIZONTAL;
-		gbc_surnameFormTxt.gridx = 3;
-		gbc_surnameFormTxt.gridy = 0;
-		contentPane.add(surnameFormTxt, gbc_surnameFormTxt);
+		GridBagConstraints gbcSurnameFormTxt = new GridBagConstraints();
+		gbcSurnameFormTxt.insets = new Insets(0, 0, 5, 5);
+		gbcSurnameFormTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbcSurnameFormTxt.gridx = 3;
+		gbcSurnameFormTxt.gridy = 0;
+		contentPane.add(surnameFormTxt, gbcSurnameFormTxt);
 		surnameFormTxt.setColumns(10);
 		
 		dateLbl = new JLabel("Date");
 		dateLbl.setName("dateLbl");
-		GridBagConstraints gbc_dateLbl = new GridBagConstraints();
-		gbc_dateLbl.anchor = GridBagConstraints.EAST;
-		gbc_dateLbl.insets = new Insets(0, 0, 5, 5);
-		gbc_dateLbl.gridx = 4;
-		gbc_dateLbl.gridy = 0;
-		contentPane.add(dateLbl, gbc_dateLbl);
+		GridBagConstraints gbcDateLbl = new GridBagConstraints();
+		gbcDateLbl.anchor = GridBagConstraints.EAST;
+		gbcDateLbl.insets = new Insets(0, 0, 5, 5);
+		gbcDateLbl.gridx = 4;
+		gbcDateLbl.gridy = 0;
+		contentPane.add(dateLbl, gbcDateLbl);
 		
 		yearFormTxt = new JTextField();
-		yearFormTxt.addKeyListener(yearFormListener);
-		yearFormTxt.setToolTipText("yyyy");
+		yearFormTxt.addKeyListener(dateFormAdapter);
+		yearFormTxt.setToolTipText("year");
 		yearFormTxt.setName("yearFormTxt");
-		GridBagConstraints gbc_yearFormTxt = new GridBagConstraints();
-		gbc_yearFormTxt.insets = new Insets(0, 0, 5, 5);
-		gbc_yearFormTxt.fill = GridBagConstraints.HORIZONTAL;
-		gbc_yearFormTxt.gridx = 5;
-		gbc_yearFormTxt.gridy = 0;
-		contentPane.add(yearFormTxt, gbc_yearFormTxt);
+		GridBagConstraints gbcYearFormTxt = new GridBagConstraints();
+		gbcYearFormTxt.insets = new Insets(0, 0, 5, 5);
+		gbcYearFormTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbcYearFormTxt.gridx = 5;
+		gbcYearFormTxt.gridy = 0;
+		contentPane.add(yearFormTxt, gbcYearFormTxt);
 		yearFormTxt.setColumns(10);
 		
 		dash1Lbl = new JLabel("-");
 		dash1Lbl.setName("dash1Lbl");
-		dash1Lbl.setToolTipText("");
-		GridBagConstraints gbc_dash1Lbl = new GridBagConstraints();
-		gbc_dash1Lbl.anchor = GridBagConstraints.EAST;
-		gbc_dash1Lbl.insets = new Insets(0, 0, 5, 5);
-		gbc_dash1Lbl.gridx = 6;
-		gbc_dash1Lbl.gridy = 0;
-		contentPane.add(dash1Lbl, gbc_dash1Lbl);
+		GridBagConstraints gbcDash1Lbl = new GridBagConstraints();
+		gbcDash1Lbl.anchor = GridBagConstraints.EAST;
+		gbcDash1Lbl.insets = new Insets(0, 0, 5, 5);
+		gbcDash1Lbl.gridx = 6;
+		gbcDash1Lbl.gridy = 0;
+		contentPane.add(dash1Lbl, gbcDash1Lbl);
 		
 		monthFormTxt = new JTextField();
-		monthFormTxt.addKeyListener(monthFormListener);
+		monthFormTxt.addKeyListener(dateFormAdapter);
 		monthFormTxt.setName("monthFormTxt");
-		monthFormTxt.setToolTipText("mm");
-		GridBagConstraints gbc_monthFormTxt = new GridBagConstraints();
-		gbc_monthFormTxt.insets = new Insets(0, 0, 5, 0);
-		gbc_monthFormTxt.fill = GridBagConstraints.HORIZONTAL;
-		gbc_monthFormTxt.gridx = 7;
-		gbc_monthFormTxt.gridy = 0;
-		contentPane.add(monthFormTxt, gbc_monthFormTxt);
+		monthFormTxt.setToolTipText("month");
+		GridBagConstraints gbcMonthFormTxt = new GridBagConstraints();
+		gbcMonthFormTxt.insets = new Insets(0, 0, 5, 0);
+		gbcMonthFormTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbcMonthFormTxt.gridx = 7;
+		gbcMonthFormTxt.gridy = 0;
+		contentPane.add(monthFormTxt, gbcMonthFormTxt);
 		monthFormTxt.setColumns(10);
 		
 		dash2Lbl = new JLabel("-");
 		dash2Lbl.setName("dash2Lbl");
-		GridBagConstraints gbc_dash2Lbl = new GridBagConstraints();
-		gbc_dash2Lbl.anchor = GridBagConstraints.EAST;
-		gbc_dash2Lbl.insets = new Insets(0, 0, 5, 5);
-		gbc_dash2Lbl.gridx = 8;
-		gbc_dash2Lbl.gridy = 0;
-		contentPane.add(dash2Lbl, gbc_dash2Lbl);
+		GridBagConstraints gbcDash2Lbl = new GridBagConstraints();
+		gbcDash2Lbl.anchor = GridBagConstraints.EAST;
+		gbcDash2Lbl.insets = new Insets(0, 0, 5, 5);
+		gbcDash2Lbl.gridx = 8;
+		gbcDash2Lbl.gridy = 0;
+		contentPane.add(dash2Lbl, gbcDash2Lbl);
 		
 		dayFormTxt = new JTextField();
-		dayFormTxt.addKeyListener(dayFormListener);
+		dayFormTxt.addKeyListener(dateFormAdapter);
 		dayFormTxt.setName("dayFormTxt");
-		dayFormTxt.setToolTipText("dd");
-		GridBagConstraints gbc_dayFormTxt = new GridBagConstraints();
-		gbc_dayFormTxt.insets = new Insets(0, 0, 5, 5);
-		gbc_dayFormTxt.fill = GridBagConstraints.HORIZONTAL;
-		gbc_dayFormTxt.gridx = 9;
-		gbc_dayFormTxt.gridy = 0;
-		contentPane.add(dayFormTxt, gbc_dayFormTxt);
+		dayFormTxt.setToolTipText("day");
+		GridBagConstraints gbcDayFormTxt = new GridBagConstraints();
+		gbcDayFormTxt.insets = new Insets(0, 0, 5, 5);
+		gbcDayFormTxt.fill = GridBagConstraints.HORIZONTAL;
+		gbcDayFormTxt.gridx = 9;
+		gbcDayFormTxt.gridy = 0;
+		contentPane.add(dayFormTxt, gbcDayFormTxt);
 		dayFormTxt.setColumns(10);
 		
 		// Second row
 		formErrorMsgLbl = new JLabel(" ");
 		formErrorMsgLbl.setName("formErrorMsgLbl");
-		GridBagConstraints gbc_formErrorMsgLbl = new GridBagConstraints();
-		gbc_formErrorMsgLbl.insets = new Insets(0, 0, 5, 5);
-		gbc_formErrorMsgLbl.gridwidth = 10;
-		gbc_formErrorMsgLbl.gridx = 0;
-		gbc_formErrorMsgLbl.gridy = 1;
-		contentPane.add(formErrorMsgLbl, gbc_formErrorMsgLbl);
+		GridBagConstraints gbcFormErrorMsgLbl = new GridBagConstraints();
+		gbcFormErrorMsgLbl.insets = new Insets(0, 0, 5, 5);
+		gbcFormErrorMsgLbl.gridwidth = 10;
+		gbcFormErrorMsgLbl.gridx = 0;
+		gbcFormErrorMsgLbl.gridy = 1;
+		contentPane.add(formErrorMsgLbl, gbcFormErrorMsgLbl);
 		
 		// Third row
 		addClientBtn = new JButton("Add Client");
 		addClientBtn.addActionListener(addClientAction);
 		addClientBtn.setEnabled(false);
 		addClientBtn.setName("addClientBtn");
-		addClientBtn.setToolTipText("");
-		GridBagConstraints gbc_addClientBtn = new GridBagConstraints();
-		gbc_addClientBtn.gridwidth = 2;
-		gbc_addClientBtn.insets = new Insets(0, 0, 5, 5);
-		gbc_addClientBtn.gridx = 0;
-		gbc_addClientBtn.gridy = 2;
-		contentPane.add(addClientBtn, gbc_addClientBtn);
+		GridBagConstraints gbcAddClientBtn = new GridBagConstraints();
+		gbcAddClientBtn.gridwidth = 2;
+		gbcAddClientBtn.insets = new Insets(0, 0, 5, 5);
+		gbcAddClientBtn.gridx = 0;
+		gbcAddClientBtn.gridy = 2;
+		contentPane.add(addClientBtn, gbcAddClientBtn);
 		
 		renameBtn = new JButton("Rename");
 		renameBtn.addActionListener(renameAction);
 		renameBtn.setEnabled(false);
 		renameBtn.setName("renameBtn");
-		GridBagConstraints gbc_renameBtn = new GridBagConstraints();
-		gbc_renameBtn.gridwidth = 2;
-		gbc_renameBtn.insets = new Insets(0, 0, 5, 5);
-		gbc_renameBtn.gridx = 2;
-		gbc_renameBtn.gridy = 2;
-		contentPane.add(renameBtn, gbc_renameBtn);
+		GridBagConstraints gbcRenameBtn = new GridBagConstraints();
+		gbcRenameBtn.gridwidth = 2;
+		gbcRenameBtn.insets = new Insets(0, 0, 5, 5);
+		gbcRenameBtn.gridx = 2;
+		gbcRenameBtn.gridy = 2;
+		contentPane.add(renameBtn, gbcRenameBtn);
 		
 		addReservationBtn = new JButton("Add Reservation");
 		addReservationBtn.addActionListener(addReservationAction);
 		addReservationBtn.setEnabled(false);
 		addReservationBtn.setName("addReservationBtn");
-		GridBagConstraints gbc_addReservationBtn = new GridBagConstraints();
-		gbc_addReservationBtn.gridwidth = 2;
-		gbc_addReservationBtn.insets = new Insets(0, 0, 5, 5);
-		gbc_addReservationBtn.gridx = 4;
-		gbc_addReservationBtn.gridy = 2;
-		contentPane.add(addReservationBtn, gbc_addReservationBtn);
+		GridBagConstraints gbcAddReservationBtn = new GridBagConstraints();
+		gbcAddReservationBtn.gridwidth = 2;
+		gbcAddReservationBtn.insets = new Insets(0, 0, 5, 5);
+		gbcAddReservationBtn.gridx = 4;
+		gbcAddReservationBtn.gridy = 2;
+		contentPane.add(addReservationBtn, gbcAddReservationBtn);
 		
 		rescheduleBtn = new JButton("Reschedule");
 		rescheduleBtn.addActionListener(rescheduleAction);
-		rescheduleBtn.addActionListener(e -> {/*
-			bookingPresenter.rescheduleReservation(
-					reservationListModel.get(reservationList.getSelectedIndex()),
-					yearFormTxt.getText() + "-" + monthFormTxt.getText() + "-" + dayFormTxt.getText());
-			rescheduleBtn.setEnabled(false);
-			yearFormTxt.setText("");
-			monthFormTxt.setText("");
-			dayFormTxt.setText("");
-			formErrorMsgLbl.setText(" ");
-			reservationErrorMsgLbl.setText(" ");*/
-		});
 		rescheduleBtn.setName("rescheduleBtn");
 		rescheduleBtn.setEnabled(false);
-		GridBagConstraints gbc_rescheduleBtn = new GridBagConstraints();
-		gbc_rescheduleBtn.gridwidth = 4;
-		gbc_rescheduleBtn.insets = new Insets(0, 0, 5, 0);
-		gbc_rescheduleBtn.gridx = 6;
-		gbc_rescheduleBtn.gridy = 2;
-		contentPane.add(rescheduleBtn, gbc_rescheduleBtn);
+		GridBagConstraints gbcRescheduleBtn = new GridBagConstraints();
+		gbcRescheduleBtn.gridwidth = 4;
+		gbcRescheduleBtn.insets = new Insets(0, 0, 5, 0);
+		gbcRescheduleBtn.gridx = 6;
+		gbcRescheduleBtn.gridy = 2;
+		contentPane.add(rescheduleBtn, gbcRescheduleBtn);
 		
 		// Fourth row
 		clientScrollPane = new JScrollPane();
 		clientScrollPane.setName("clientScrollPane");
-		GridBagConstraints gbc_clientScrollPane = new GridBagConstraints();
-		gbc_clientScrollPane.gridwidth = 4;
-		gbc_clientScrollPane.insets = new Insets(0, 0, 5, 5);
-		gbc_clientScrollPane.fill = GridBagConstraints.BOTH;
-		gbc_clientScrollPane.gridx = 0;
-		gbc_clientScrollPane.gridy = 3;
-		contentPane.add(clientScrollPane, gbc_clientScrollPane);
+		GridBagConstraints gbcClientScrollPane = new GridBagConstraints();
+		gbcClientScrollPane.gridwidth = 4;
+		gbcClientScrollPane.insets = new Insets(0, 0, 5, 5);
+		gbcClientScrollPane.fill = GridBagConstraints.BOTH;
+		gbcClientScrollPane.gridx = 0;
+		gbcClientScrollPane.gridy = 3;
+		contentPane.add(clientScrollPane, gbcClientScrollPane);
 		
 		clientListModel = new DefaultListModel<>();
 		clientList = new JList<>(clientListModel);
@@ -718,13 +809,13 @@ public class BookingSwingView extends JFrame implements BookingView {
 		
 		reservationScrollPane = new JScrollPane();
 		reservationScrollPane.setName("reservationScrollPane");
-		GridBagConstraints gbc_reservationScrollPane = new GridBagConstraints();
-		gbc_reservationScrollPane.gridwidth = 6;
-		gbc_reservationScrollPane.insets = new Insets(0, 0, 5, 0);
-		gbc_reservationScrollPane.fill = GridBagConstraints.BOTH;
-		gbc_reservationScrollPane.gridx = 4;
-		gbc_reservationScrollPane.gridy = 3;
-		contentPane.add(reservationScrollPane, gbc_reservationScrollPane);
+		GridBagConstraints gbcReservationScrollPane = new GridBagConstraints();
+		gbcReservationScrollPane.gridwidth = 6;
+		gbcReservationScrollPane.insets = new Insets(0, 0, 5, 0);
+		gbcReservationScrollPane.fill = GridBagConstraints.BOTH;
+		gbcReservationScrollPane.gridx = 4;
+		gbcReservationScrollPane.gridy = 3;
+		contentPane.add(reservationScrollPane, gbcReservationScrollPane);
 		
 		reservationListModel = new DefaultListModel<>();
 		reservationList = new JList<>(reservationListModel);
@@ -738,41 +829,41 @@ public class BookingSwingView extends JFrame implements BookingView {
 		removeClientBtn.addActionListener(removeClientAction);
 		removeClientBtn.setEnabled(false);
 		removeClientBtn.setName("removeClientBtn");
-		GridBagConstraints gbc_removeClientBtn = new GridBagConstraints();
-		gbc_removeClientBtn.gridwidth = 4;
-		gbc_removeClientBtn.insets = new Insets(0, 0, 5, 5);
-		gbc_removeClientBtn.gridx = 0;
-		gbc_removeClientBtn.gridy = 4;
-		contentPane.add(removeClientBtn, gbc_removeClientBtn);
+		GridBagConstraints gbcRemoveClientBtn = new GridBagConstraints();
+		gbcRemoveClientBtn.gridwidth = 4;
+		gbcRemoveClientBtn.insets = new Insets(0, 0, 5, 5);
+		gbcRemoveClientBtn.gridx = 0;
+		gbcRemoveClientBtn.gridy = 4;
+		contentPane.add(removeClientBtn, gbcRemoveClientBtn);
 		
 		removeReservationBtn = new JButton("Remove Reservation");
 		removeReservationBtn.addActionListener(removeReservationAction);
 		removeReservationBtn.setName("removeReservationBtn");
 		removeReservationBtn.setEnabled(false);
-		GridBagConstraints gbc_removeReservationBtn = new GridBagConstraints();
-		gbc_removeReservationBtn.gridwidth = 6;
-		gbc_removeReservationBtn.insets = new Insets(0, 0, 5, 0);
-		gbc_removeReservationBtn.gridx = 4;
-		gbc_removeReservationBtn.gridy = 4;
-		contentPane.add(removeReservationBtn, gbc_removeReservationBtn);
+		GridBagConstraints gbcRemoveReservationBtn = new GridBagConstraints();
+		gbcRemoveReservationBtn.gridwidth = 6;
+		gbcRemoveReservationBtn.insets = new Insets(0, 0, 5, 0);
+		gbcRemoveReservationBtn.gridx = 4;
+		gbcRemoveReservationBtn.gridy = 4;
+		contentPane.add(removeReservationBtn, gbcRemoveReservationBtn);
 		
 		// Sixth row
 		clientErrorMsgLbl = new JLabel(" ");
 		clientErrorMsgLbl.setName("clientErrorMsgLbl");
-		GridBagConstraints gbc_clientErrorMsgLbl = new GridBagConstraints();
-		gbc_clientErrorMsgLbl.gridwidth = 4;
-		gbc_clientErrorMsgLbl.insets = new Insets(0, 0, 0, 5);
-		gbc_clientErrorMsgLbl.gridx = 0;
-		gbc_clientErrorMsgLbl.gridy = 5;
-		contentPane.add(clientErrorMsgLbl, gbc_clientErrorMsgLbl);
+		GridBagConstraints gbcClientErrorMsgLbl = new GridBagConstraints();
+		gbcClientErrorMsgLbl.gridwidth = 4;
+		gbcClientErrorMsgLbl.insets = new Insets(0, 0, 0, 5);
+		gbcClientErrorMsgLbl.gridx = 0;
+		gbcClientErrorMsgLbl.gridy = 5;
+		contentPane.add(clientErrorMsgLbl, gbcClientErrorMsgLbl);
 		
 		reservationErrorMsgLbl = new JLabel(" ");
 		reservationErrorMsgLbl.setName("reservationErrorMsgLbl");
-		GridBagConstraints gbc_reservationErrorMsgLbl = new GridBagConstraints();
-		gbc_reservationErrorMsgLbl.insets = new Insets(0, 0, 0, 5);
-		gbc_reservationErrorMsgLbl.gridwidth = 6;
-		gbc_reservationErrorMsgLbl.gridx = 4;
-		gbc_reservationErrorMsgLbl.gridy = 5;
-		contentPane.add(reservationErrorMsgLbl, gbc_reservationErrorMsgLbl);
+		GridBagConstraints gbcReservationErrorMsgLbl = new GridBagConstraints();
+		gbcReservationErrorMsgLbl.insets = new Insets(0, 0, 0, 5);
+		gbcReservationErrorMsgLbl.gridwidth = 6;
+		gbcReservationErrorMsgLbl.gridx = 4;
+		gbcReservationErrorMsgLbl.gridy = 5;
+		contentPane.add(reservationErrorMsgLbl, gbcReservationErrorMsgLbl);
 	}
 }

@@ -153,19 +153,19 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			.requireEnabled()
 			.requireEditable()
 			.requireEmpty()
-			.requireToolTip("yyyy");
+			.requireToolTip("year");
 		window.label(JLabelMatcher.withName("dash2Lbl").andText("-"));
 		monthFormTxt
 			.requireEnabled()
 			.requireEditable()
 			.requireEmpty()
-			.requireToolTip("mm");
+			.requireToolTip("month");
 		window.label(JLabelMatcher.withName("dash1Lbl").andText("-"));
 		dayFormTxt
 			.requireEnabled()
 			.requireEditable()
 			.requireEmpty()
-			.requireToolTip("dd");
+			.requireToolTip("day");
 		
 		// Second row
 		formErrorMsgLbl.requireText(" ");
@@ -295,9 +295,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		@Test @GUITest
 		@DisplayName("Button is clicked")
-		public void testAddClientBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormsAndFormAndClientErrorsAndDisableIt() {
-			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
-			setTextLabel(bookingSwingView.getClientErrorMsgLbl(), CLIENTS_ERROR_MSG);
+		public void testAddClientBtnWhenItIsClickedShouldDelegateToPresenterAndDisableIt() {
 			nameFormTxt.setText(A_FIRSTNAME);
 			surnameFormTxt.setText(A_LASTNAME);
 			enableButton(bookingSwingView.getAddClientBtn());
@@ -305,8 +303,6 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			addClientBtn.click();
 			
 			addClientBtn.requireDisabled();
-			formErrorMsgLbl.requireText(" ");
-			clientErrorMsgLbl.requireText(" ");
 			verify(bookingPresenter).addClient(A_FIRSTNAME, A_LASTNAME);
 		}
 		////////////// Add Client Button
@@ -580,9 +576,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		@Test @GUITest
 		@DisplayName("Button is clicked")
-		public void testRenameBtnWhenItIsClickedShouldDelegateToPresenterResetFormsAndFormAndClientErrorsAndDisableIt() {
-			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
-			setTextLabel(bookingSwingView.getClientErrorMsgLbl(), CLIENTS_ERROR_MSG);
+		public void testRenameBtnWhenItIsClickedShouldDelegateToPresenterAndDisableIt() {
 			nameFormTxt.setText(ANOTHER_FIRSTNAME);
 			surnameFormTxt.setText(ANOTHER_LASTNAME);
 			addClientInList(A_CLIENT);
@@ -592,8 +586,6 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			renameBtn.click();
 			
 			renameBtn.requireDisabled();
-			formErrorMsgLbl.requireText(" ");
-			clientErrorMsgLbl.requireText(" ");
 			verify(bookingPresenter).renameClient(A_CLIENT, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 		}
 		////////////// Rename Button
@@ -626,9 +618,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		@Test @GUITest
 		@DisplayName("Button is clicked")
-		public void testRemoveClientBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormAndClientErrorsAndDisableIt() {
-			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
-			setTextLabel(bookingSwingView.getClientErrorMsgLbl(), CLIENTS_ERROR_MSG);
+		public void testRemoveClientBtnWhenItIsClickedShouldDelegateToPresenterAndDisableIt() {
 			addClientInList(A_CLIENT);
 			clientList.selectItem(0);
 			enableButton(bookingSwingView.getRemoveClientBtn());
@@ -636,8 +626,6 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			removeClientBtn.click();
 			
 			removeClientBtn.requireDisabled();
-			formErrorMsgLbl.requireText(" ");
-			clientErrorMsgLbl.requireText(" ");
 			verify(bookingPresenter).deleteClient(A_CLIENT);
 		}
 		////////////// Remove Client Button
@@ -1286,9 +1274,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		@Test @GUITest
 		@DisplayName("Button is clicked")
-		public void testAddReservationBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormsAndFormAndReservationErrorsAndDisableIt() {
-			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
-			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(), RESERVATIONS_ERROR_MSG);
+		public void testAddReservationBtnWhenItIsClickedShouldDelegateToPresenterAndDisableIt() {
 			yearFormTxt.setText(A_YEAR);
 			monthFormTxt.setText(A_MONTH);
 			dayFormTxt.setText(A_DAY);
@@ -1299,8 +1285,6 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			addReservationBtn.click();
 			
 			addReservationBtn.requireDisabled();
-			formErrorMsgLbl.requireText(" ");
-			reservationErrorMsgLbl.requireText(" ");
 			verify(bookingPresenter).addReservation(A_CLIENT, A_DATE);
 		}
 		////////////// Add Reservation Button
@@ -1949,9 +1933,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		@Test @GUITest
 		@DisplayName("Button is clicked")
-		public void testRescheduleBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormsAndFormAndReservationErrorsAndDisableIt() {
-			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
-			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(), RESERVATIONS_ERROR_MSG);
+		public void testRescheduleBtnWhenItIsClickedShouldDelegateToPresenterAndDisableIt() {
 			yearFormTxt.setText(ANOTHER_YEAR);
 			monthFormTxt.setText(ANOTHER_MONTH);
 			dayFormTxt.setText(ANOTHER_DAY);
@@ -1962,8 +1944,6 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			rescheduleBtn.click();
 			
 			rescheduleBtn.requireDisabled();
-			formErrorMsgLbl.requireText(" ");
-			reservationErrorMsgLbl.requireText(" ");
 			verify(bookingPresenter).rescheduleReservation(A_RESERVATION, ANOTHER_DATE);
 		}
 		////////////// Reschedule Reservation Button
@@ -1995,9 +1975,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		@Test @GUITest
 		@DisplayName("Button is clicked")
-		public void testRemoveReservationBtnWhenItIsClickedShouldDelegateToPresenterAndResetFormAndReservationErrorsAndDisableIt() {
-			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
-			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(), RESERVATIONS_ERROR_MSG);
+		public void testRemoveReservationBtnWhenItIsClickedShouldDelegateToPresenterAndDisableIt() {
 			addReservationInList(A_RESERVATION);
 			reservationList.selectItem(0);
 			enableButton(bookingSwingView.getRemoveReservationBtn());
@@ -2005,15 +1983,9 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			removeReservationBtn.click();
 			
 			removeReservationBtn.requireDisabled();
-			formErrorMsgLbl.requireText(" ");
-			reservationErrorMsgLbl.requireText(" ");
 			verify(bookingPresenter).deleteReservation(A_RESERVATION);
 		}
 		////////////// Remove Reservation Button
-
-	private void setTextLabel(JLabel label, String text) {
-		GuiActionRunner.execute(() -> label.setText(text));
-	}
 	////////////// Tests on controls
 
 
@@ -2156,7 +2128,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 
 		@Test @GUITest
-		@DisplayName("Not empty forms and button enabled")
+		@DisplayName("Not empty forms and buttons enabled")
 		public void testReservationAddedWhenReservationFormsAreNotEmptyAndRelatedButtonsAreEnabledShouldResetFormsAndDisableButtons() {
 			yearFormTxt.setText(A_YEAR);
 			monthFormTxt.setText(A_MONTH);
@@ -2171,6 +2143,18 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			dayFormTxt.requireEmpty();
 			addReservationBtn.requireDisabled();
 			rescheduleBtn.requireDisabled();
+		}
+
+		@Test @GUITest
+		@DisplayName("Error messages")
+		public void testReservationAddedWhenThereAreFormAndReservationErrorMessagesShouldResetErrors() {
+			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(), RESERVATIONS_ERROR_MSG);
+			
+			GuiActionRunner.execute(() -> bookingSwingView.reservationAdded(A_RESERVATION));
+			
+			formErrorMsgLbl.requireText(" ");
+			reservationErrorMsgLbl.requireText(" ");
 		}
 		////////////// Tests for 'reservationAdded'
 
@@ -2204,7 +2188,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 
 		@Test @GUITest
-		@DisplayName("Not empty forms and button enabled")
+		@DisplayName("Not empty forms and buttons enabled")
 		public void testClientAddedWhenClientFormsAreNotEmptyAndRelatedButtonsAreEnabledShouldResetFormsAndDisableButtons() {
 			nameFormTxt.setText(A_FIRSTNAME);
 			surnameFormTxt.setText(A_LASTNAME);
@@ -2217,6 +2201,18 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			surnameFormTxt.requireEmpty();
 			addClientBtn.requireDisabled();
 			renameBtn.requireDisabled();
+		}
+
+		@Test @GUITest
+		@DisplayName("Error messages")
+		public void testClientAddedWhenThereAreFormAndClientErrorMessagesShouldResetErrors() {
+			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getClientErrorMsgLbl(), CLIENTS_ERROR_MSG);
+			
+			GuiActionRunner.execute(() -> bookingSwingView.clientAdded(A_CLIENT));
+			
+			formErrorMsgLbl.requireText(" ");
+			clientErrorMsgLbl.requireText(" ");
 		}
 		////////////// Tests for 'clientAdded'
 
@@ -2282,6 +2278,18 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			assertThat(selectedReservations[0]).isEqualTo(ANOTHER_RESERVATION.toString());
 			rescheduleBtn.requireEnabled();
 			removeReservationBtn.requireEnabled();
+		}
+
+		@Test @GUITest
+		@DisplayName("Error messages")
+		public void testReservationRemovedWhenThereAreFormAndReservationErrorMessagesShouldResetErrors() {
+			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(), RESERVATIONS_ERROR_MSG);
+			
+			GuiActionRunner.execute(() -> bookingSwingView.reservationRemoved(A_RESERVATION));
+			
+			formErrorMsgLbl.requireText(" ");
+			reservationErrorMsgLbl.requireText(" ");
 		}
 		////////////// Tests for 'reservationRemoved'
 
@@ -2354,6 +2362,18 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			removeClientBtn.requireEnabled();
 			addReservationBtn.requireEnabled();
 		}
+
+		@Test @GUITest
+		@DisplayName("Error messages")
+		public void testClientRemovedWhenThereAreFormAndClientErrorMessagesShouldResetErrors() {
+			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getClientErrorMsgLbl(), CLIENTS_ERROR_MSG);
+			
+			GuiActionRunner.execute(() -> bookingSwingView.clientRemoved(A_CLIENT));
+			
+			formErrorMsgLbl.requireText(" ");
+			clientErrorMsgLbl.requireText(" ");
+		}
 		////////////// Tests for 'clientRemoved'
 
 
@@ -2424,9 +2444,10 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 
 		@Test @GUITest
-		@DisplayName("Not empty forms and button enabled")
+		@DisplayName("Not empty forms and buttons enabled")
 		public void testClientRenamedWhenClientFormsAreNotEmptyAndRelatedButtonsAreEnabledShouldResetFormsAndDisableButtons() {
 			addClientInList(A_CLIENT);
+			
 			nameFormTxt.setText(ANOTHER_FIRSTNAME);
 			surnameFormTxt.setText(ANOTHER_LASTNAME);
 			enableButton(bookingSwingView.getAddClientBtn());
@@ -2438,6 +2459,20 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			surnameFormTxt.requireEmpty();
 			addClientBtn.requireDisabled();
 			renameBtn.requireDisabled();
+		}
+
+		@Test @GUITest
+		@DisplayName("Error messages")
+		public void testClientRenamedWhenThereAreFormAndClientErrorMessagesShouldResetErrors() {
+			addClientInList(A_CLIENT);
+			
+			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getClientErrorMsgLbl(), CLIENTS_ERROR_MSG);
+			
+			GuiActionRunner.execute(() -> bookingSwingView.clientRenamed(A_CLIENT, ANOTHER_CLIENT));
+			
+			formErrorMsgLbl.requireText(" ");
+			clientErrorMsgLbl.requireText(" ");
 		}
 		////////////// Tests for 'clientRenamed'
 
@@ -2516,6 +2551,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		@DisplayName("Not empty forms and button enabled")
 		public void testReservationRescheduledWhenReservationFormsAreNotEmptyAndRelatedButtonsAreEnabledShouldResetFormsAndDisableButtons() {
 			addReservationInList(A_RESERVATION);
+			
 			yearFormTxt.setText(A_YEAR);
 			monthFormTxt.setText(A_MONTH);
 			dayFormTxt.setText(A_DAY);
@@ -2530,6 +2566,21 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			dayFormTxt.requireEmpty();
 			addReservationBtn.requireDisabled();
 			rescheduleBtn.requireDisabled();
+		}
+
+		@Test @GUITest
+		@DisplayName("Error messages")
+		public void testReservationRescheduledWhenThereAreFormAndReservationErrorMessagesShouldResetErrors() {
+			addReservationInList(A_RESERVATION);
+			
+			setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
+			setTextLabel(bookingSwingView.getReservationErrorMsgLbl(), RESERVATIONS_ERROR_MSG);
+			
+			GuiActionRunner.execute(() -> bookingSwingView.reservationRescheduled(
+					A_RESERVATION, ANOTHER_RESERVATION));
+			
+			formErrorMsgLbl.requireText(" ");
+			reservationErrorMsgLbl.requireText(" ");
 		}
 		////////////// Tests for 'reservationRescheduled'
 
@@ -2560,6 +2611,10 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			formErrorMsgLbl.requireText(FORMS_ERROR_MSG);
 		}
 		///////////// Tests for error viewers
+
+		private void setTextLabel(JLabel label, String text) {
+			GuiActionRunner.execute(() -> label.setText(text));
+		}
 	////////////// Tests on methods
 
 	private void enableButton(JButton button) {

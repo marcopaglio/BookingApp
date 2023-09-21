@@ -86,22 +86,13 @@
           <groupId>org.pitest</groupId>
           <artifactId>pitest-maven</artifactId>
           <configuration>
-            <!--<features>
-               PIT starts child process in headless mode: this prevent from running
-              unit tests that use Swing/AWT.
-              The following feauture disables auto adding of the jvm arg.
-              Source: https://github.com/hcoles/pitest/issues/1033 
-              <feature>-macos_focus</feature>
-            </features>-->
             <targetClasses>
               <!-- HERE CLASSES TO MUTATE -->
               <targetClasse>io.github.marcopaglio.booking.presenter.served.*</targetClasse>
-              <!--<targetClasse>io.github.marcopaglio.booking.view.swing.*</targetClasse>-->
             </targetClasses>
             <targetTests>
               <!-- HERE TESTS TO KILL MUTANS -->
               <targetTest>io.github.marcopaglio.booking.presenter.served.*</targetTest>
-              <!--<targetTest>io.github.marcopaglio.booking.view.swing.*</targetTest>-->
             </targetTests>
           </configuration>
         </plugin>
