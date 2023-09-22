@@ -71,7 +71,7 @@ jobs:
 
     - name: Run Mutation Testing
       id: pitest-report
-      run: ../mvnw verify -Ppitest
+      run: xvfb-run ../mvnw verify -Ppitest
       working-directory: ${{ env.workdir }}
 
     - name: Archive Pitest Report
