@@ -76,12 +76,12 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 	private JListFixture clientList;
 	private JListFixture reservationList;
 
-	private AutoCloseable closeable;
-
 	@Mock
 	private BookingPresenter bookingPresenter;
 
 	private BookingSwingView bookingSwingView;
+
+	private AutoCloseable closeable;
 
 	@Override
 	protected void onSetUp() throws Exception {

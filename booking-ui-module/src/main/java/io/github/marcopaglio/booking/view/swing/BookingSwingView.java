@@ -28,6 +28,7 @@ import javax.swing.WindowConstants;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionListener;
+import java.awt.Color;
 
 /**
  * A concrete implementation of the view for the booking application using Swing.
@@ -707,6 +708,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		
 		// Second row
 		formErrorMsgLbl = new JLabel(" ");
+		formErrorMsgLbl.setForeground(new Color(255, 0, 0));
 		formErrorMsgLbl.setName("formErrorMsgLbl");
 		GridBagConstraints gbcFormErrorMsgLbl = new GridBagConstraints();
 		gbcFormErrorMsgLbl.insets = new Insets(0, 0, 5, 5);
@@ -819,6 +821,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		contentPane.add(removeReservationBtn, gbcRemoveReservationBtn);
 		
 		operationErrorMsgLbl = new JLabel(" ");
+		operationErrorMsgLbl.setForeground(new Color(255, 0, 0));
 		operationErrorMsgLbl.setName("operationErrorMsgLbl");
 		GridBagConstraints gbcReservationErrorMsgLbl = new GridBagConstraints();
 		gbcReservationErrorMsgLbl.insets = new Insets(0, 0, 0, 5);
