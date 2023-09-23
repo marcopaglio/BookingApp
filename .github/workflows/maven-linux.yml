@@ -36,7 +36,7 @@ jobs:
         restore-keys: ${{ runner.os }}-m2-
 
     - name: Build with Maven Wrapper and SonarCloud
-      run: ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER
+      run: xvfb-run ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Ppitest -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER
       working-directory: ${{ env.workdir }}
       env:
         ADDITIONAL_COVERALLS_ARGS: -DrepoToken=${{ secrets.COVERALLS_TOKEN }}
@@ -60,13 +60,23 @@ jobs:
         if-no-files-found: error
         retention-days: 30
 
-    - name: Run Mutation Testing
+    - name: Archive failed GUI tests screenshots
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: failed-gui-tests-screenshots
+        path: '**/failed-gui-tests/'
+        if-no-files-found: ignore
+        retention-days: 30
+
+    - name: Generate Pitest Report
       id: pitest-report
-      run: ../mvnw verify -Ppitest
+      if: ${{ failure() }}
+      run: ../mvnw org.pitest:pitest-maven:report-aggregate-module
       working-directory: ${{ env.workdir }}
 
     - name: Archive Pitest Report
-      if: ${{ failure() && steps.pitest-report.conclusion == 'failure' }}
+      if: ${{ failure() && steps.pitest-report.outcome == 'success' }}
       uses: actions/upload-artifact@v3
       with:
         name: pitest-report-jdk-11

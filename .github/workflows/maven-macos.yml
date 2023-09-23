@@ -49,3 +49,12 @@ jobs:
         path: ${{ env.workdir }}/target/site/
         if-no-files-found: error
         retention-days: 30
+
+    - name: Archive failed GUI tests screenshots
+      if: ${{ failure() }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: failed-gui-tests-screenshots
+        path: '**/failed-gui-tests/'
+        if-no-files-found: ignore
+        retention-days: 30

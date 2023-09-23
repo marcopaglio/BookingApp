@@ -55,35 +55,28 @@ public interface BookingView {
 	/**
 	 * Displays the changes of the client just renamed on the user interface.
 	 * 
-	 * @param renamedClient	the {@code Client} to modify on the view.
+	 * @param oldClient		the {@code Client} to replace from the view.
+	 * @param renamedClient	the {@code Client} that replaces the old one.
 	 */
-	public void clientRenamed(Client renamedClient);
+	public void clientRenamed(Client oldClient, Client renamedClient);
 
 	/**
 	 * Displays the changes of the reservation just rescheduled on the user interface.
 	 * 
-	 * @param rescheduleReservation	the {@code Reservation} to modify on the view.
+	 * @param oldReservation			the {@code Reservation} to replace from the view.
+	 * @param rescheduledReservation	the {@code Reservation} that replaces the old one.
 	 */
-	public void reservationRescheduled(Reservation rescheduleReservation);
+	public void reservationRescheduled(Reservation oldReservation, Reservation rescheduledReservation);
 
-	// I SEGUENTI METODI NON SONO UNIFICABILI IN showError PERCHé MOSTRERANNO IL MESSAGGIO
-	// DI ERRORE IN POSIZIONI DIFFERENTI DELLA VISTA
 	/**
-	 * Displays an error message that involves reservation objects.
+	 * Displays an error message that involves operation results.
 	 * 
 	 * @param message	the message to show.
 	 */
-	public void showReservationError(String message);
+	public void showOperationError(String message);
 
 	/**
-	 * Displays an error message that involves client objects.
-	 * 
-	 * @param message	the message to show.
-	 */
-	public void showClientError(String message);
-
-	/**
-	 * Displays an error message that involves form inputs.
+	 * Displays an error message that involves input forms.
 	 * 
 	 * @param message	the message to show.
 	 */

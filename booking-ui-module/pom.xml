@@ -51,6 +51,18 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-swing-junit</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-junit-jupiter</artifactId>
       <!-- version taken from the parent -->
@@ -105,6 +117,12 @@
         <sonar.java.libraries>
           ${project.build.directory}/dependency
         </sonar.java.libraries>
+        
+        <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
+        <!-- Rule: "Tests should include assertions"  -->
+        <!-- SonarQube does not know that AssertJ Swing methods effectively assert something -->
+        <sonar.issue.ignore.multicriteria.e1.ruleKey>java:S2699</sonar.issue.ignore.multicriteria.e1.ruleKey>
+        <sonar.issue.ignore.multicriteria.e1.resourceKey>**/*Swing*Test.java</sonar.issue.ignore.multicriteria.e1.resourceKey>
       </properties>
     </profile>
   </profiles>

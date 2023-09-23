@@ -24,6 +24,7 @@
     <!-- VERSIONS FOR DEPENDENCIES -->
     <junit.version>5.9.2</junit.version>
     <assertj.version>3.24.2</assertj.version>
+    <assertj.swing.version>3.17.1</assertj.swing.version>
     <mockito.version>5.1.1</mockito.version>
     <testcontainers.version>1.18.3</testcontainers.version>
     <logback.version>1.2.12</logback.version>
@@ -85,6 +86,11 @@
         <version>${mockito.version}</version>
         <scope>import</scope>
         <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-swing-junit</artifactId>
+        <version>${assertj.swing.version}</version>
       </dependency>
       <dependency>
         <groupId>org.testcontainers</groupId>
@@ -183,6 +189,9 @@
             </mutators>
             <mutationThreshold>100</mutationThreshold>
             <timeoutConstant>5000</timeoutConstant>
+            <avoidCallsTo>
+              <avoidCallsTo>org.apache.logging.log4j</avoidCallsTo>
+            </avoidCallsTo>
             <exportLineCoverage>true</exportLineCoverage>
             <outputFormats>
               <outputFormat>HTML</outputFormat>
