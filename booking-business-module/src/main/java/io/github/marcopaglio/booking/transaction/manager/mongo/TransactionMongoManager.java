@@ -42,41 +42,22 @@ public class TransactionMongoManager extends TransactionManager {
 	private MongoClient mongoClient;
 
 	/**
-	 * Used for creation of {@code ClientSession} instances.
-	 */
-	private TransactionHandlerFactory transactionHandlerFactory;
-
-	/**
-	 * Used for creation of {@code ClientMongoRepository} instances.
-	 */
-	private ClientRepositoryFactory clientRepositoryFactory;
-
-	/**
-	 * Used for creation of {@code ReservationMongoRepository} instances.
-	 */
-	private ReservationRepositoryFactory reservationRepositoryFactory;
-
-	/**
 	 * Constructs a manager for applying code that uses entity repositories 
 	 * using MongoDB transactions.
 	 * 
 	 * @param mongoClient					the client connected to the MongoDB database.
-	 * @param transactionHandlerFactory		the factory for create instances
-	 * 										of {@code ClientSession}.
-	 * @param clientRepositoryFactory		the factory to create instances
-	 * 										of {@code ClientMongoRepository}.
-	 * @param reservationRepositoryFactory	the factory to create instances
-	 * 										of {@code ReservationMongoRepository}.
+	 * @param transactionHandlerFactory		the factory to create {@code ClientSession} instances.
+	 * @param clientRepositoryFactory		the factory to create
+	 * 										{@code ClientMongoRepository} instances.
+	 * @param reservationRepositoryFactory	the factory to create
+	 * 										{@code ReservationMongoRepository} instances.
 	 */
 	public TransactionMongoManager(MongoClient mongoClient,
 			TransactionHandlerFactory transactionHandlerFactory,
 			ClientRepositoryFactory clientRepositoryFactory,
 			ReservationRepositoryFactory reservationRepositoryFactory) {
-		super();
+		super(transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
 		this.mongoClient = mongoClient;
-		this.transactionHandlerFactory = transactionHandlerFactory;
-		this.clientRepositoryFactory = clientRepositoryFactory;
-		this.reservationRepositoryFactory = reservationRepositoryFactory;
 	}
 
 	/**

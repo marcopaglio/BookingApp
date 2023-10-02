@@ -27,42 +27,23 @@ public class TransactionPostgresManager extends TransactionManager {
 	private EntityManagerFactory emf;
 
 	/**
-	 * Used for creation of {@code EntityManager} instances.
-	 */
-	private TransactionHandlerFactory transactionHandlerFactory;
-
-	/**
-	 * Used for creation of {@code ClientPostgresRepository} instances.
-	 */
-	private ClientRepositoryFactory clientRepositoryFactory;
-
-	/**
-	 * Used for creation of {@code ReservationPostgresRepository} instances.
-	 */
-	private ReservationRepositoryFactory reservationRepositoryFactory;
-
-	/**
 	 * Constructs a manager for applying code that uses entity repositories 
 	 * using PostgreSQL transactions.
 	 * 
 	 * @param emf							the entity manager factory used to interact
 	 * 										with the persistence provider.
-	 * @param transactionHandlerFactory		the factory for create instances
-	 * 										of {@code EntityManager}.
-	 * @param clientRepositoryFactory		the factory to create instances
-	 * 										of {@code ClientPostgresRepository}.
-	 * @param reservationRepositoryFactory	the factory to create instances
-	 * 										of {@code ReservationPostgresRepository}.
+	 * @param transactionHandlerFactory		the factory to create {@code EntityManager} instances.
+	 * @param clientRepositoryFactory		the factory to create
+	 * 										{@code ClientPostgresRepository} instances.
+	 * @param reservationRepositoryFactory	the factory to create
+	 * 										{@code ReservationPostgresRepository} instances.
 	 */
 	public TransactionPostgresManager(EntityManagerFactory emf,
 			TransactionHandlerFactory transactionHandlerFactory,
 			ClientRepositoryFactory clientRepositoryFactory,
 			ReservationRepositoryFactory reservationRepositoryFactory) {
-		super();
+		super(transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
 		this.emf = emf;
-		this.transactionHandlerFactory = transactionHandlerFactory;
-		this.clientRepositoryFactory = clientRepositoryFactory;
-		this.reservationRepositoryFactory = reservationRepositoryFactory;
 	}
 
 	/**
