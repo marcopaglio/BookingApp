@@ -423,14 +423,14 @@ class TransactionalBookingServiceTest {
 					.thenAnswer(
 						answer((ReservationTransactionCode<?> code) -> code.apply(reservationRepository)));
 			}
-	
+
 			@Nested
 			@DisplayName("Tests for 'findAllReservations'")
 			class FindAllReservationsTest {
-	
+
 				@Test
 				@DisplayName("No reservations to retrieve")
-				void testFindAllReservationsWhenThereAreNotReservationsToRetrieveShouldReturnEmptyList() {
+				void testFindAllReservationsWhenThereAreNoReservationsToRetrieveShouldReturnEmptyList() {
 					// default stubbing for reservationRepository.findAll()
 					
 					assertThat(transactionalBookingService.findAllReservations())
@@ -444,7 +444,7 @@ class TransactionalBookingServiceTest {
 					
 					verifyNoMoreInteractions(transactionManager, reservationRepository);
 				}
-	
+
 				@Test
 				@DisplayName("Several reservations to retrieve")
 				void testFindAllReservationsWhenThereAreSeveralReservationsToRetrieveShouldReturnReservationsAsList() {
@@ -469,7 +469,7 @@ class TransactionalBookingServiceTest {
 			@Nested
 			@DisplayName("Tests for 'findReservation'")
 			class FindReservationTest {
-	
+
 				@DisplayName("Reservation exists")
 				@Test
 				void testFindReservationWhenReservationExistsShouldReturnTheReservation() {
@@ -511,7 +511,7 @@ class TransactionalBookingServiceTest {
 			@Nested
 			@DisplayName("Tests for 'findReservationOn'")
 			class FindReservationOnTest {
-	
+
 				@DisplayName("Reservation exists")
 				@Test
 				void testFindReservationOnWhenReservationExistsShouldReturnTheReservation() {
