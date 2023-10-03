@@ -9,6 +9,10 @@ import com.mongodb.client.MongoCollection;
  * @param <T>	the entity type managed by the repository.
  */
 public abstract class MongoRepository<T> {
+	/**
+	 * Name of the database in which the repository works.
+	 */
+	public static final String BOOKING_DB_NAME = "booking_db";
 
 	/**
 	 * Collection of entities of type T used by the repository layer.

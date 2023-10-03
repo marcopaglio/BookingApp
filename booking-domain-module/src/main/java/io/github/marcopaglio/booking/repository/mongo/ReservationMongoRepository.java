@@ -27,6 +27,7 @@ import io.github.marcopaglio.booking.repository.ReservationRepository;
 import static io.github.marcopaglio.booking.model.BaseEntity.ID_DB;
 import static io.github.marcopaglio.booking.model.Reservation.DATE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.CLIENTID_DB;
+import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
 
 /**
  * Implementation of repository layer through MongoDB for Reservation entities of the booking application.
@@ -38,16 +39,6 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	private static final Logger LOGGER = LogManager.getLogger(ReservationMongoRepository.class);
 
 	/**
-	 * Name of the database in which the repository works.
-	 */
-	public static final String BOOKING_DB_NAME = "booking_db";
-
-	/**
-	 * Name of the collection managed by the repository.
-	 */
-	public static final String RESERVATION_COLLECTION_NAME = "booking_reservation";
-
-	/**
 	 * Constructs a repository layer for Reservation entities using MongoDB database. 
 	 * The construction generates and configures a collection for using by the repository.
 	 * 
@@ -57,7 +48,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	public ReservationMongoRepository(MongoClient client, ClientSession session) {
 		super(client
 				.getDatabase(BOOKING_DB_NAME)
-				.getCollection(RESERVATION_COLLECTION_NAME, Reservation.class),
+				.getCollection(RESERVATION_TABLE_DB, Reservation.class),
 				session);
 		
 		// collection configuration
