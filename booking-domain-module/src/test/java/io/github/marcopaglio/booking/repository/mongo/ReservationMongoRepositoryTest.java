@@ -1,7 +1,7 @@
 package io.github.marcopaglio.booking.repository.mongo;
 
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
-import static io.github.marcopaglio.booking.repository.mongo.ReservationMongoRepository.BOOKING_DB_NAME;
+import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOOKING_DB_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
