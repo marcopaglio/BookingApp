@@ -94,6 +94,9 @@
               <!-- HERE TESTS TO KILL MUTANS -->
               <targetTest>io.github.marcopaglio.booking.presenter.served.*</targetTest>
             </targetTests>
+            <excludedTestClasses>
+              <excludedTestClass>**.*IT</excludedTestClass>
+            </excludedTestClasses>
           </configuration>
         </plugin>
       </plugins>

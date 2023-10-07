@@ -115,6 +115,9 @@
               <targetTest>io.github.marcopaglio.booking.transaction.manager.mongo.*</targetTest>
               <targetTest>io.github.marcopaglio.booking.transaction.manager.postgres.*</targetTest>
             </targetTests>
+            <excludedTestClasses>
+              <excludedTestClass>**.*IT</excludedTestClass>
+            </excludedTestClasses>
           </configuration>
         </plugin>
       </plugins>
