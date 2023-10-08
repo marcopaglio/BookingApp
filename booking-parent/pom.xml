@@ -140,6 +140,15 @@
           <version>${maven.jar.version}</version>
         </plugin>
         <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <!-- version taken from the bom -->
+          <configuration>
+			  <excludes>
+				  <exclude>**.*IT.java</exclude>
+			  </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
           <artifactId>maven-failsafe-plugin</artifactId>
           <!-- version taken from the bom -->
           <configuration>
