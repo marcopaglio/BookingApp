@@ -29,12 +29,13 @@ jobs:
         restore-keys:  ${{ runner.os }}-m2-
 
     - name: Build with Maven Wrapper
+      id: maven-build
       run: ../mvnw.cmd install -Pskip-testcontainers
       working-directory:  ${{ env.workdir }}
 
     - name: Generate JUnit Report
       id: test-report
-      if: ${{ failure() }}
+      if: ${{ failure() && steps.maven-build.conclusion != 'skipped' }}
       run: ../mvnw.cmd surefire-report:report-only surefire-report:failsafe-report-only site:site -DgenerateReports=false -Daggregate=true
       working-directory:  ${{ env.workdir }}
 
@@ -48,7 +49,7 @@ jobs:
         retention-days: 30
 
     - name: Archive failed GUI tests screenshots
-      if: ${{ failure() }}
+      if: ${{ failure() && steps.maven-build.conclusion != 'skipped' }}
       uses: actions/upload-artifact@v3
       with:
         name: failed-gui-tests-screenshots
