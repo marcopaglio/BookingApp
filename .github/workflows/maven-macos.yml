@@ -38,7 +38,7 @@ jobs:
     - name: Generate JUnit Report
       id: test-report
       if: ${{ failure() }}
-      run: ../mvnw surefire-report:report-only site:site -DgenerateReports=false -Daggregate=true
+      run: ../mvnw surefire-report:report-only surefire-report:failsafe-report-only site:site -DgenerateReports=false -Daggregate=true
       working-directory: ${{ env.workdir }}
 
     - name: Archive JUnit Report

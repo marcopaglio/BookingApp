@@ -94,9 +94,6 @@
               <!-- HERE TESTS TO KILL MUTANS -->
               <targetTest>io.github.marcopaglio.booking.presenter.served.*</targetTest>
             </targetTests>
-            <excludedTestClasses>
-              <excludedTestClass>**.*IT</excludedTestClass>
-            </excludedTestClasses>
           </configuration>
         </plugin>
       </plugins>
@@ -110,7 +107,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <!-- version taken from the parent -->
+        <!-- version taken from the bom -->
       </plugin>
       <plugin>
         <groupId>io.fabric8</groupId>
@@ -127,16 +124,6 @@
         <sonar.coverage.exclusions>
           <!-- HERE SOME EXCLUSIONS -->
         </sonar.coverage.exclusions>
-        <sonar.junit.reportPaths>
-          ${project.build.directory}/surefire-reports
-          <!-- HERE INTEGRATION TEST REPORT PATH -->
-        </sonar.junit.reportPaths>
-        <sonar.coverage.jacoco.xmlReportPaths>
-          ${project.build.directory}/site/jacoco/jacoco.xml
-        </sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.java.libraries>
-          ${project.build.directory}/dependency
-        </sonar.java.libraries>
         
         <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
         <!-- Rule: "Tests should include assertions"  -->

@@ -22,6 +22,8 @@
     <maven.compiler.target>11</maven.compiler.target>
     <mongo.mapped.port>27017</mongo.mapped.port>
     <postgres.mapped.port>5432</postgres.mapped.port>
+    <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
+    <postgres.database.name>IntegrationTest_db</postgres.database.name>
 
     <!-- VERSIONS FOR DEPENDENCIES -->
     <junit.version>5.9.2</junit.version>
@@ -37,7 +39,6 @@
     <maven.compiler.version>3.11.0</maven.compiler.version>
     <maven.resources.version>3.3.0</maven.resources.version>
     <maven.jar.version>3.3.0</maven.jar.version>
-    <maven.failsafe.version>3.1.2</maven.failsafe.version>
 
     <!-- VERSIONS FOR OTHER PLUGINS -->
     <jacoco.version>0.8.8</jacoco.version>
@@ -140,10 +141,12 @@
         </plugin>
         <plugin>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>${maven.failsafe.version}</version>
+          <!-- version taken from the bom -->
           <configuration>
             <systemPropertyVariables>
               <mongo.connectionString>mongodb://localhost:${mongo.mapped.port}</mongo.connectionString>
+              <postgres.port>${postgres.mapped.port}</postgres.port>
+              <postgres.name>${postgres.database.name}</postgres.name>
             </systemPropertyVariables>
           </configuration>
           <executions>
@@ -214,6 +217,9 @@
             <avoidCallsTo>
               <avoidCallsTo>org.apache.logging.log4j</avoidCallsTo>
             </avoidCallsTo>
+            <excludedTestClasses>
+              <excludedTestClass>**.*IT</excludedTestClass>
+            </excludedTestClasses>
             <exportLineCoverage>true</exportLineCoverage>
             <outputFormats>
               <outputFormat>HTML</outputFormat>
@@ -265,11 +271,12 @@
                 <name>mongo:6.0.7</name>
                 <alias>mongo</alias>
                 <run>
-                  <containerNamePattern>%a-${mongo.mapped.port}</containerNamePattern> <!-- %a = <alias>'s value-->
+                  <!-- %a = <alias>'s value-->
+                  <containerNamePattern>%a-${mongo.mapped.port}</containerNamePattern>
                   <ports>
                     <port>${mongo.mapped.port}:27017</port>
                   </ports>
-                  <cmd>mongod --replSet rs0</cmd>
+                  <cmd>mongod --replSet ${mongo.replicaSet.name}</cmd>
                   <wait>
                     <http>
                       <url>http://localhost:${mongo.mapped.port}</url>
@@ -278,7 +285,7 @@
                     </http>
                     <time>10000</time>
                     <exec>
-                      <postStart>mongosh --eval "rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:${mongo.mapped.port}'}]})"</postStart>
+                      <postStart>mongosh --eval "rs.initiate({_id:'${mongo.replicaSet.name}',members:[{_id:0,host:'localhost:${mongo.mapped.port}'}]})"</postStart>
                     </exec>
                   </wait>
                 </run>
@@ -287,12 +294,13 @@
                 <name>postgres:15.2</name>
                 <alias>postgres</alias>
                 <run>
+                  <!-- %a = <alias>'s value-->
                   <containerNamePattern>%a-${postgres.mapped.port}</containerNamePattern> <!-- %a = <alias>'s value-->
                   <ports>
                     <port>${postgres.mapped.port}:5432</port>
                   </ports>
                   <env>
-                    <POSTGRES_DB>IntegrationTest_db</POSTGRES_DB>
+                    <POSTGRES_DB>${postgres.database.name}</POSTGRES_DB>
                     <POSTGRES_USER>postgres-it</POSTGRES_USER>
                     <POSTGRES_PASSWORD>postgres-it</POSTGRES_PASSWORD>
                   </env>
@@ -369,6 +377,18 @@
 
     <profile>
       <id>sonar</id>
+      <properties>
+        <sonar.junit.reportPaths>
+          ${project.build.directory}/surefire-reports,
+          ${project.build.directory}/failsafe-reports
+        </sonar.junit.reportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>
+          ${project.build.directory}/site/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.java.libraries>
+          ${project.build.directory}/dependency
+        </sonar.java.libraries>
+      </properties>
       <build>
         <plugins>
           <plugin>
