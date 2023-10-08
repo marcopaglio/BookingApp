@@ -274,7 +274,7 @@
                   <!-- %a = <alias>'s value-->
                   <containerNamePattern>%a-${mongo.mapped.port}</containerNamePattern>
                   <ports>
-                    <port>${mongo.mapped.port}:27017</port>
+                    <port>mongo.mapped.port:27017</port>
                   </ports>
                   <cmd>mongod --replSet ${mongo.replicaSet.name}</cmd>
                   <wait>
@@ -297,7 +297,7 @@
                   <!-- %a = <alias>'s value-->
                   <containerNamePattern>%a-${postgres.mapped.port}</containerNamePattern> <!-- %a = <alias>'s value-->
                   <ports>
-                    <port>${postgres.mapped.port}:5432</port>
+                    <port>postgres.mapped.port:5432</port>
                   </ports>
                   <env>
                     <POSTGRES_DB>${postgres.database.name}</POSTGRES_DB>
