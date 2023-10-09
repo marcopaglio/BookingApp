@@ -117,11 +117,11 @@ class TransactionalMongoBookingServiceIT {
 
 	@Nested
 	@DisplayName("Methods using only ClientMongoRepository")
-	class ClientMongoRepositoryTest {
+	class ClientMongoRepositoryIT {
 
 		@Nested
 		@DisplayName("Tests for 'findAllClients'")
-		class FindAllClientsTest {
+		class FindAllClientsIT {
 
 			@Test
 			@DisplayName("No clients to retrieve")
@@ -158,11 +158,11 @@ class TransactionalMongoBookingServiceIT {
 
 	@Nested
 	@DisplayName("Methods using only ReservationMongoRepository")
-	class ReservationMongoRepositoryTest {
+	class ReservationMongoRepositoryIT {
 
 		@Nested
 		@DisplayName("Tests for 'findAllReservations'")
-		class FindAllReservationsTest {
+		class FindAllReservationsIT {
 
 			@Test
 			@DisplayName("No reservations to retrieve")

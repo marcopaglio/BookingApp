@@ -73,7 +73,7 @@ class TransactionalPostgresBookingServiceIT {
 
 	@Nested
 	@DisplayName("Methods using only ClientPostgresRepository")
-	class ClientPostgresRepositoryTest {
+	class ClientPostgresRepositoryIT {
 
 		@BeforeEach
 		void setupDatabase() throws Exception {
@@ -89,7 +89,7 @@ class TransactionalPostgresBookingServiceIT {
 
 		@Nested
 		@DisplayName("Tests for 'findAllClients'")
-		class FindAllClientsTest {
+		class FindAllClientsIT {
 
 			@Test
 			@DisplayName("No clients to retrieve")
@@ -129,7 +129,7 @@ class TransactionalPostgresBookingServiceIT {
 
 	@Nested
 	@DisplayName("Methods using only ReservationPostgresRepository")
-	class ReservationPostgresRepositoryTest {
+	class ReservationPostgresRepositoryIT {
 
 		@BeforeEach
 		void setupDatabase() throws Exception {
@@ -145,7 +145,7 @@ class TransactionalPostgresBookingServiceIT {
 
 		@Nested
 		@DisplayName("Tests for 'findAllReservations'")
-		class FindAllReservationsTest {
+		class FindAllReservationsIT {
 
 			@Test
 			@DisplayName("No reservations to retrieve")
