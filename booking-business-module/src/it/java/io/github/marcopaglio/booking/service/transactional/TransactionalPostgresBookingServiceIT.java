@@ -239,13 +239,6 @@ class TransactionalPostgresBookingServiceIT {
 				assertThat(readAllClientsFromDatabase()).isEmpty();
 			}
 		}
-
-		private List<Client> readAllClientsFromDatabase() {
-			EntityManager em = emf.createEntityManager();
-			List<Client> clientsInDB = em.createQuery("SELECT c FROM Client c", Client.class).getResultList();
-			em.close();
-			return clientsInDB;
-		}
 	}
 
 	@Nested
@@ -372,6 +365,59 @@ class TransactionalPostgresBookingServiceIT {
 				assertThat(readAllReservationsFromDatabase()).isEmpty();
 			}
 		}
+
+		@Nested
+		@DisplayName("Integration tests for 'removeReservation'")
+		class RemoveReservationIT {
+
+			@Test
+			@DisplayName("Reservation exists")
+			void testRemoveReservationWhenReservationExistsShouldRemove() {
+				addTestReservationToDatabase(reservation);
+				addTestReservationToDatabase(another_reservation);
+				
+				service.removeReservation(reservation.getId());
+				
+				assertThat(readAllReservationsFromDatabase())
+					.doesNotContain(reservation)
+					.containsExactly(another_reservation);
+			}
+
+			@Test
+			@DisplayName("Reservation doesn't exist")
+			void testRemoveReservationWhenReservationDoesNotExistShouldThrow() {
+				UUID notPresentId = UUID.fromString("e54a2fbd-85bc-4493-b540-5630d3e501ad");
+				assertThatThrownBy(() -> service.removeReservation(notPresentId))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
+			}
+		}
+
+		@Nested
+		@DisplayName("Integration tests for 'removeReservationOn'")
+		class RemoveReservationOnIT {
+
+			@Test
+			@DisplayName("Reservation exists")
+			void testRemoveReservationOnWhenReservationExistsShouldRemove() {
+				addTestReservationToDatabase(reservation);
+				addTestReservationToDatabase(another_reservation);
+				
+				service.removeReservationOn(A_LOCALDATE);
+				
+				assertThat(readAllReservationsFromDatabase())
+					.doesNotContain(reservation)
+					.containsExactly(another_reservation);
+			}
+
+			@Test
+			@DisplayName("Reservation doesn't exist")
+			void testRemoveReservationOnWhenReservationDoesNotExistShouldThrow() {
+				assertThatThrownBy(() -> service.removeReservationOn(A_LOCALDATE))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
+			}
+		}
 	}
 
 	@Nested
@@ -429,6 +475,79 @@ class TransactionalPostgresBookingServiceIT {
 				assertThat(reservationsInDB.get(0).getId()).isEqualTo(existingId);
 			}
 		}
+
+		@Nested
+		@DisplayName("Integration tests for 'removeClient'")
+		class RemoveClientIT {
+
+			@Test
+			@DisplayName("Client exists with existing reservation")
+			void testRemoveClientWhenClientExistsWithAnExistingReservationShouldRemove() {
+				addTestClientToDatabase(client);
+				UUID client_id = client.getId();
+				reservation.setClientId(client_id);
+				addTestReservationToDatabase(reservation);
+				addTestClientToDatabase(another_client);
+				another_reservation.setClientId(another_client.getId());
+				addTestReservationToDatabase(another_reservation);
+				
+				service.removeClient(client_id);
+				
+				assertThat(readAllReservationsFromDatabase())
+					.filteredOn((r) -> r.getClientId() == client_id).isEmpty();
+				assertThat(readAllClientsFromDatabase())
+					.doesNotContain(client)
+					.containsExactly(another_client);
+			}
+
+			@Test
+			@DisplayName("Client doesn't exist")
+			void testRemoveClientWhenClientDoesNotExistShouldThrow() {
+				assertThatThrownBy(() -> service.removeClient(A_CLIENT_UUID))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
+			}
+		}
+
+		@Nested
+		@DisplayName("Integration tests for 'removeClientNamed'")
+		class RemoveClientNamedIT {
+
+			@Test
+			@DisplayName("Client exists with existing reservation")
+			void testRemoveClientNamedWhenClientExistsWithAnExistingReservationShouldRemove() {
+				addTestClientToDatabase(client);
+				UUID client_id = client.getId();
+				reservation.setClientId(client_id);
+				addTestReservationToDatabase(reservation);
+				addTestClientToDatabase(another_client);
+				another_reservation.setClientId(another_client.getId());
+				addTestReservationToDatabase(another_reservation);
+				
+				service.removeClientNamed(A_FIRSTNAME, A_LASTNAME);
+				
+				assertThat(readAllReservationsFromDatabase())
+					.filteredOn((r) -> r.getClientId() == client_id).isEmpty();
+				assertThat(readAllClientsFromDatabase())
+					.doesNotContain(client)
+					.containsExactly(another_client);
+			}
+
+			@Test
+			@DisplayName("Client doesn't exist")
+			void testRemoveClientNamedWhenClientDoesNotExistShouldThrow() {
+				assertThatThrownBy(() -> service.removeClientNamed(A_FIRSTNAME, A_LASTNAME))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
+			}
+		}
+	}
+
+	private List<Client> readAllClientsFromDatabase() {
+		EntityManager em = emf.createEntityManager();
+		List<Client> clientsInDB = em.createQuery("SELECT c FROM Client c", Client.class).getResultList();
+		em.close();
+		return clientsInDB;
 	}
 
 	private List<Reservation> readAllReservationsFromDatabase() {
