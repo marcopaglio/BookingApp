@@ -671,7 +671,7 @@ class TransactionalBookingServiceTest {
 
 				@Test
 				@DisplayName("A same date reservation already exists")
-				void testRescheduleReservationWhenThereIsAlreadyAReservationInTheSameNewDateShouldRescheduleAndReturn() {
+				void testRescheduleReservationWhenThereIsAlreadyAReservationInTheSameNewDateShouldNotRescheduleAndThrow() {
 					Reservation spiedReservation = spy(A_RESERVATION);
 					Reservation anotherReservation = new Reservation(
 							ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
