@@ -225,12 +225,60 @@ class TransactionalMongoBookingServiceIT {
 				assertThat(clientsInDB).containsExactly(existingClient);
 				assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
 			}
+		}
 
-			private List<Client> readAllClientsFromDatabase() {
-				return StreamSupport
-						.stream(clientCollection.find().spliterator(), false)
-						.collect(Collectors.toList());
+		@Nested
+		@DisplayName("Integration tests for 'renameClient'")
+		class RenameClientIT {
+
+			@Test
+			@DisplayName("A same name client doesn't exist")
+			void testRenameClientWhenThereIsNoClientWithSameNewNamesShouldRenameAndReturnWithSameId() {
+				Client renamedClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+				addTestClientToDatabase(client, A_CLIENT_UUID);
+				
+				Client renamedClientInDB = service
+						.renameClient(A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+				assertThat(renamedClientInDB).isEqualTo(renamedClient);
+				assertThat(renamedClientInDB.getId()).isEqualTo(A_CLIENT_UUID);
+				
+				assertThat(readAllClientsFromDatabase())
+					.doesNotContain(client)
+					.containsExactly(renamedClient);
 			}
+
+			@Test
+			@DisplayName("A same name client already exists")
+			void testRenameClientWhenThereIsAlreadyAClientWithSameNewNamesShouldNotRenameAndThrow() {
+				addTestClientToDatabase(client, A_CLIENT_UUID);
+				addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
+				
+				assertThatThrownBy(() -> service.renameClient(
+						A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
+					.isInstanceOf(InstanceAlreadyExistsException.class)
+					.hasMessage(CLIENT_ALREADY_EXISTS_ERROR_MSG);
+				
+				assertThat(readAllClientsFromDatabase())
+					.containsExactlyInAnyOrder(client, another_client)
+					.filteredOn((c) -> c.getId().equals(A_CLIENT_UUID)).containsOnly(client);
+			}
+
+			@Test
+			@DisplayName("Client to rename doesn't exist")
+			void testRenameClientWhenClientToRenameDoesNotExistShouldThrow() {
+				assertThatThrownBy(() -> service.renameClient(
+						A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
+				
+				assertThat(readAllClientsFromDatabase()).isEmpty();
+			}
+		}
+
+		private List<Client> readAllClientsFromDatabase() {
+			return StreamSupport
+					.stream(clientCollection.find().spliterator(), false)
+					.collect(Collectors.toList());
 		}
 	}
 
@@ -306,6 +354,54 @@ class TransactionalMongoBookingServiceIT {
 					.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
 			}
 		}
+
+		@Nested
+		@DisplayName("Integration tests for 'rescheduleReservation'")
+		class RescheduleReservationIT {
+
+			@Test
+			@DisplayName("A same date reservation doesn't exist")
+			void testRescheduleReservationWhenThereIsNoReservationInTheSameNewDateShouldRescheduleAndReturnWithSameId() {
+				Reservation rescheduledReservation = new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE);
+				addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+				
+				Reservation rescheduledReservationInDB =
+						service.rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE);
+				assertThat(rescheduledReservationInDB).isEqualTo(rescheduledReservation);
+				assertThat(rescheduledReservationInDB.getId()).isEqualTo(A_RESERVATION_UUID);
+				
+				assertThat(readAllReservationsFromDatabase())
+					.doesNotContain(reservation)
+					.containsExactly(rescheduledReservation);
+			}
+
+			@Test
+			@DisplayName("A same date reservation already exists")
+			void testRescheduleReservationWhenThereIsAlreadyAReservationInTheSameNewDateShouldNotRescheduleAndThrow() {
+				addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+				addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+				
+				assertThatThrownBy(
+						() -> service.rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE))
+					.isInstanceOf(InstanceAlreadyExistsException.class)
+					.hasMessage(RESERVATION_ALREADY_EXISTS_ERROR_MSG);
+				
+				assertThat(readAllReservationsFromDatabase())
+					.containsExactlyInAnyOrder(reservation, another_reservation)
+					.filteredOn((r) -> r.getId().equals(A_RESERVATION_UUID)).containsOnly(reservation);
+			}
+
+			@Test
+			@DisplayName("Reservation to reschedule doesn't exist")
+			void testRescheduleReservationWhenReservationToRescheduleDoesNotExistShouldThrow() {
+				assertThatThrownBy(
+						() -> service.rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
+				
+				assertThat(readAllReservationsFromDatabase()).isEmpty();
+			}
+		}
 	}
 
 	@Nested
@@ -321,7 +417,7 @@ class TransactionalMongoBookingServiceIT {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'insertNewReservation'")
+		@DisplayName("Integration tests for 'insertNewReservation'")
 		class InsertNewReservationIT {
 
 			@DisplayName("Reservation is new and client exists")
@@ -360,13 +456,13 @@ class TransactionalMongoBookingServiceIT {
 				assertThat(reservationsInDB).containsExactly(reservation);
 				assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
 			}
-
-			private List<Reservation> readAllReservationsFromDatabase() {
-				return StreamSupport
-						.stream(reservationCollection.find().spliterator(), false)
-						.collect(Collectors.toList());
-			}
 		}
+	}
+
+	private List<Reservation> readAllReservationsFromDatabase() {
+		return StreamSupport
+				.stream(reservationCollection.find().spliterator(), false)
+				.collect(Collectors.toList());
 	}
 
 	public void addTestClientToDatabase(Client client, UUID id) {
