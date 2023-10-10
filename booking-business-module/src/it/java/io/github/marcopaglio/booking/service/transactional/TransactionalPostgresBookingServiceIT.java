@@ -32,9 +32,9 @@ class TransactionalPostgresBookingServiceIT {
 	private static final String ANOTHER_LASTNAME = "De Lucia";
 	private static final String ANOTHER_FIRSTNAME = "Maria";
 
-	private static final UUID A_CLIENT_UUID = UUID.fromString("bc49bffa-0766-4e5d-90af-d8a6ef516df4");
+	private static final UUID A_CLIENT_UUID = UUID.fromString("78bce42b-1d28-4c37-b0a2-3287d6a829ca");
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2023-04-24");
-	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("c01a64c2-73e6-4b70-808f-00f9bd82571d");
+	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("864f7928-049b-4c2a-bd87-9e52ca16afc5");
 	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse("2023-09-05");
 
 	private Client client, another_client;
@@ -63,6 +63,13 @@ class TransactionalPostgresBookingServiceIT {
 
 	@BeforeEach
 	void setUp() throws Exception {
+		EntityManager em = emf.createEntityManager();
+		// make sure we always start with a clean database
+		em.getTransaction().begin();
+		em.createNativeQuery("TRUNCATE TABLE " + CLIENT_TABLE_DB + "," + RESERVATION_TABLE_DB).executeUpdate();
+		em.getTransaction().commit();
+		em.close();
+		
 		service = new TransactionalBookingService(transactionManager);
 	}
 
@@ -76,15 +83,9 @@ class TransactionalPostgresBookingServiceIT {
 	class ClientPostgresRepositoryIT {
 
 		@BeforeEach
-		void setupDatabase() throws Exception {
-			EntityManager em = emf.createEntityManager();
-			
-			// make sure we always start with a clean database
-			em.getTransaction().begin();
-			em.createNativeQuery("TRUNCATE TABLE " + CLIENT_TABLE_DB).executeUpdate();
-			em.getTransaction().commit();
-			
-			em.close();
+		void initClients() throws Exception {
+			client = new Client(A_FIRSTNAME, A_LASTNAME);
+			another_client = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 		}
 
 		@Nested
@@ -100,28 +101,18 @@ class TransactionalPostgresBookingServiceIT {
 			@Test
 			@DisplayName("Several clients to retrieve")
 			void testFindAllClientsWhenThereAreSeveralClientsToRetrieveShouldReturnClientsAsList() {
-				populateClientDatabase();
+				addTestClientToDatabase(client);
+				addTestClientToDatabase(another_client);
 				
 				assertThat(service.findAllClients())
 					.isEqualTo(Arrays.asList(client, another_client));
 			}
 		}
 
-		private void populateClientDatabase() {
-			initClients();
-			saveClients();
-		}
-
-		private void initClients() {
-			client = new Client(A_FIRSTNAME, A_LASTNAME);
-			another_client = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
-		}
-
-		private void saveClients() {
+		private void addTestClientToDatabase(Client client) {
 			EntityManager em = emf.createEntityManager();
 			em.getTransaction().begin();
 			em.persist(client);
-			em.persist(another_client);
 			em.getTransaction().commit();
 			em.close();
 		}
@@ -132,15 +123,9 @@ class TransactionalPostgresBookingServiceIT {
 	class ReservationPostgresRepositoryIT {
 
 		@BeforeEach
-		void setupDatabase() throws Exception {
-			EntityManager em = emf.createEntityManager();
-			
-			// make sure we always start with a clean database
-			em.getTransaction().begin();
-			em.createNativeQuery("TRUNCATE TABLE " + RESERVATION_TABLE_DB).executeUpdate();
-			em.getTransaction().commit();
-			
-			em.close();
+		void initReservations() throws Exception {
+			reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+			another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
 		}
 
 		@Nested
@@ -150,37 +135,24 @@ class TransactionalPostgresBookingServiceIT {
 			@Test
 			@DisplayName("No reservations to retrieve")
 			void testFindAllReservationsWhenThereAreNoReservationsToRetrieveShouldReturnEmptyList() {
-				System.out.println(UUID.randomUUID());
-				System.out.println(UUID.randomUUID());
-				
 				assertThat(service.findAllReservations()).isEmpty();
 			}
 
 			@Test
 			@DisplayName("Several reservations to retrieve")
 			void testFindAllReservationsWhenThereAreSeveralReservationsToRetrieveShouldReturnReservationAsList() {
-				populateReservationDatabase();
+				addTestReservationToDatabase(reservation);
+				addTestReservationToDatabase(another_reservation);
 				
 				assertThat(service.findAllReservations())
 					.isEqualTo(Arrays.asList(reservation, another_reservation));
 			}
 		}
 
-		private void populateReservationDatabase() {
-			initReservations();
-			saveReservations();
-		}
-
-		private void initReservations() {
-			reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
-			another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
-		}
-
-		private void saveReservations() {
+		private void addTestReservationToDatabase(Reservation reservation) {
 			EntityManager em = emf.createEntityManager();
 			em.getTransaction().begin();
 			em.persist(reservation);
-			em.persist(another_reservation);
 			em.getTransaction().commit();
 			em.close();
 		}

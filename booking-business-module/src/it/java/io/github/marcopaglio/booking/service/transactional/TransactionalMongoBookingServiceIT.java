@@ -46,12 +46,12 @@ class TransactionalMongoBookingServiceIT {
 	private static final String ANOTHER_LASTNAME = "De Lucia";
 	private static final String ANOTHER_FIRSTNAME = "Maria";
 
-	private static final UUID A_CLIENT_UUID = UUID.fromString("3ae9a113-9adc-41f8-b034-f5ddc0006d50");
+	private static final UUID A_CLIENT_UUID = UUID.fromString("03ee257d-f06d-47e9-8ef0-78b18ee03fe9");
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2023-04-24");
-	private static final UUID A_RESERVATION_UUID = UUID.fromString("232d9575-4ef7-461d-b489-dfdfe7a6c315");
-	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("9ad2c2c0-9b55-4fe3-8404-74ab2869fc61");
+	private static final UUID A_RESERVATION_UUID = UUID.fromString("a2014dc9-7f77-4aa2-a3ce-0559736a7670");
+	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("7b565e00-59cd-4de8-b70a-a08842317d5b");
 	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse("2023-09-05");
-	private static final UUID ANOTHER_RESERVATION_UUID = UUID.fromString("5b8250e6-478f-4001-8870-09aae2995752");
+	private static final UUID ANOTHER_RESERVATION_UUID = UUID.fromString("f9e3dd0c-c3ff-4d4f-a3d1-108fcb3a697d");
 
 	private Client client, another_client;
 	private Reservation reservation, another_reservation;
@@ -119,6 +119,12 @@ class TransactionalMongoBookingServiceIT {
 	@DisplayName("Methods using only ClientMongoRepository")
 	class ClientMongoRepositoryIT {
 
+		@BeforeEach
+		void initClients() throws Exception {
+			client = new Client(A_FIRSTNAME, A_LASTNAME);
+			another_client = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+		}
+
 		@Nested
 		@DisplayName("Tests for 'findAllClients'")
 		class FindAllClientsIT {
@@ -132,33 +138,28 @@ class TransactionalMongoBookingServiceIT {
 			@Test
 			@DisplayName("Several clients to retrieve")
 			void testFindAllClientsWhenThereAreSeveralClientsToRetrieveShouldReturnClientsAsList() {
-				populateClientDatabase();
+				addTestClientToDatabase(client, A_CLIENT_UUID);
+				addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
 				
 				assertThat(service.findAllClients()).isEqualTo(Arrays.asList(client, another_client));
 			}
 		}
-
-		private void populateClientDatabase() {
-			initClients();
-			saveClients();
-		}
-
-		private void initClients() {
-			client = new Client(A_FIRSTNAME, A_LASTNAME);
-			another_client = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
-		}
 	
-		public void saveClients() {
-			client.setId(A_CLIENT_UUID);
+		public void addTestClientToDatabase(Client client, UUID id) {
+			client.setId(id);
 			clientCollection.insertOne(client);
-			another_client.setId(ANOTHER_CLIENT_UUID);
-			clientCollection.insertOne(another_client);
 		}
 	}
 
 	@Nested
 	@DisplayName("Methods using only ReservationMongoRepository")
 	class ReservationMongoRepositoryIT {
+
+		@BeforeEach
+		void initReservations() throws Exception {
+			reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+			another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
+		}
 
 		@Nested
 		@DisplayName("Tests for 'findAllReservations'")
@@ -173,28 +174,17 @@ class TransactionalMongoBookingServiceIT {
 			@Test
 			@DisplayName("Several reservations to retrieve")
 			void testFindAllReservationsWhenThereAreSeveralReservationsToRetrieveShouldReturnReservationAsList() {
-				populateReservationDatabase();
+				addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+				addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
 				
 				assertThat(service.findAllReservations())
 					.isEqualTo(Arrays.asList(reservation, another_reservation));
 			}
 		}
-
-		private void populateReservationDatabase() {
-			initReservations();
-			saveReservations();
-		}
-
-		private void initReservations() {
-			reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
-			another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
-		}
 	
-		public void saveReservations() {
-			reservation.setId(A_RESERVATION_UUID);
+		public void addTestReservationToDatabase(Reservation reservation, UUID id) {
+			reservation.setId(id);
 			reservationCollection.insertOne(reservation);
-			another_reservation.setId(ANOTHER_RESERVATION_UUID);
-			reservationCollection.insertOne(another_reservation);
 		}
 	}
 
