@@ -2,7 +2,10 @@ package io.github.marcopaglio.booking.service.transactional;
 
 import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
+import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_NOT_FOUND_ERROR_MSG;
+import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_NOT_FOUND_ERROR_MSG;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -15,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.factory.ClientRepositoryFactory;
@@ -109,6 +113,48 @@ class TransactionalPostgresBookingServiceIT {
 			}
 		}
 
+		@Nested
+		@DisplayName("Tests for 'findClient'")
+		class FindClientIT {
+
+			@Test
+			@DisplayName("Client exists")
+			void testFindClientWhenClientExistsShouldReturnTheClient() {
+				addTestClientToDatabase(client);
+				
+				assertThat(service.findClient(client.getId())).isEqualTo(client);
+			}
+
+			@Test
+			@DisplayName("Client doesn't exist")
+			void testFindClientWhenClientDoesNotExistShouldThrow() {
+				assertThatThrownBy(() -> service.findClient(A_CLIENT_UUID))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
+			}
+		}
+
+		@Nested
+		@DisplayName("Tests for 'findClientNamed'")
+		class FindClientNamedIT {
+
+			@Test
+			@DisplayName("Client exists")
+			void testFindClientNamedWhenClientExistsShouldReturnTheClient() {
+				addTestClientToDatabase(client);
+				
+				assertThat(service.findClientNamed(A_FIRSTNAME, A_LASTNAME)).isEqualTo(client);
+			}
+
+			@Test
+			@DisplayName("Client doesn't exist")
+			void testFindClientNamedWhenClientDoesNotExistShouldThrow() {
+				assertThatThrownBy(() -> service.findClientNamed(A_FIRSTNAME, A_LASTNAME))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
+			}
+		}
+
 		private void addTestClientToDatabase(Client client) {
 			EntityManager em = emf.createEntityManager();
 			em.getTransaction().begin();
@@ -146,6 +192,49 @@ class TransactionalPostgresBookingServiceIT {
 				
 				assertThat(service.findAllReservations())
 					.isEqualTo(Arrays.asList(reservation, another_reservation));
+			}
+		}
+
+		@Nested
+		@DisplayName("Tests for 'findReservation'")
+		class FindReservationIT {
+
+			@DisplayName("Reservation exists")
+			@Test
+			void testFindReservationWhenReservationExistsShouldReturnTheReservation() {
+				addTestReservationToDatabase(reservation);
+				
+				assertThat(service.findReservation(reservation.getId())).isEqualTo(reservation);
+			}
+
+			@Test
+			@DisplayName("Reservation doesn't exist")
+			void testFindReservationWhenReservationDoesNotExistShouldThrow() {
+				UUID notPresentId = UUID.randomUUID();
+				assertThatThrownBy(() -> service.findReservation(notPresentId))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
+			}
+		}
+
+		@Nested
+		@DisplayName("Tests for 'findReservationOn'")
+		class FindReservationOnIT {
+
+			@DisplayName("Reservation exists")
+			@Test
+			void testFindReservationOnWhenReservationExistsShouldReturnTheReservation() {
+				addTestReservationToDatabase(reservation);
+				
+				assertThat(service.findReservationOn(A_LOCALDATE)).isEqualTo(reservation);
+			}
+
+			@Test
+			@DisplayName("Reservation doesn't exist")
+			void testFindReservationOnWhenReservationDoesNotExistShouldThrow() {
+				assertThatThrownBy(() -> service.findReservationOn(A_LOCALDATE))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
 			}
 		}
 

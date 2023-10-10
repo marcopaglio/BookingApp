@@ -2,9 +2,12 @@ package io.github.marcopaglio.booking.service.transactional;
 
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOOKING_DB_NAME;
+import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_NOT_FOUND_ERROR_MSG;
+import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_NOT_FOUND_ERROR_MSG;
 import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.bson.UuidRepresentation.STANDARD;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
@@ -32,6 +35,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.factory.ClientRepositoryFactory;
@@ -144,6 +148,48 @@ class TransactionalMongoBookingServiceIT {
 				assertThat(service.findAllClients()).isEqualTo(Arrays.asList(client, another_client));
 			}
 		}
+
+		@Nested
+		@DisplayName("Tests for 'findClient'")
+		class FindClientIT {
+
+			@Test
+			@DisplayName("Client exists")
+			void testFindClientWhenClientExistsShouldReturnTheClient() {
+				addTestClientToDatabase(client, A_CLIENT_UUID);
+				
+				assertThat(service.findClient(A_CLIENT_UUID)).isEqualTo(client);
+			}
+
+			@Test
+			@DisplayName("Client doesn't exist")
+			void testFindClientWhenClientDoesNotExistShouldThrow() {
+				assertThatThrownBy(() -> service.findClient(A_CLIENT_UUID))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
+			}
+		}
+
+		@Nested
+		@DisplayName("Tests for 'findClientNamed'")
+		class FindClientNamedIT {
+
+			@Test
+			@DisplayName("Client exists")
+			void testFindClientNamedWhenClientExistsShouldReturnTheClient() {
+				addTestClientToDatabase(client, A_CLIENT_UUID);
+				
+				assertThat(service.findClientNamed(A_FIRSTNAME, A_LASTNAME)).isEqualTo(client);
+			}
+
+			@Test
+			@DisplayName("Client doesn't exist")
+			void testFindClientNamedWhenClientDoesNotExistShouldThrow() {
+				assertThatThrownBy(() -> service.findClientNamed(A_FIRSTNAME, A_LASTNAME))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
+			}
+		}
 	
 		public void addTestClientToDatabase(Client client, UUID id) {
 			client.setId(id);
@@ -179,6 +225,48 @@ class TransactionalMongoBookingServiceIT {
 				
 				assertThat(service.findAllReservations())
 					.isEqualTo(Arrays.asList(reservation, another_reservation));
+			}
+		}
+
+		@Nested
+		@DisplayName("Tests for 'findReservation'")
+		class FindReservationIT {
+
+			@DisplayName("Reservation exists")
+			@Test
+			void testFindReservationWhenReservationExistsShouldReturnTheReservation() {
+				addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+				
+				assertThat(service.findReservation(A_RESERVATION_UUID)).isEqualTo(reservation);
+			}
+
+			@Test
+			@DisplayName("Reservation doesn't exist")
+			void testFindReservationWhenReservationDoesNotExistShouldThrow() {
+				assertThatThrownBy(() -> service.findReservation(A_RESERVATION_UUID))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
+			}
+		}
+
+		@Nested
+		@DisplayName("Tests for 'findReservationOn'")
+		class FindReservationOnIT {
+
+			@DisplayName("Reservation exists")
+			@Test
+			void testFindReservationOnWhenReservationExistsShouldReturnTheReservation() {
+				addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+				
+				assertThat(service.findReservationOn(A_LOCALDATE)).isEqualTo(reservation);
+			}
+
+			@Test
+			@DisplayName("Reservation doesn't exist")
+			void testFindReservationOnWhenReservationDoesNotExistShouldThrow() {
+				assertThatThrownBy(() -> service.findReservationOn(A_LOCALDATE))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
 			}
 		}
 	
