@@ -20,9 +20,13 @@
     <!-- PROJECT PROPERTIES -->
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
+    
+    <!-- MONGODB PROPERTIES -->
     <mongo.mapped.port>27017</mongo.mapped.port>
-    <postgres.mapped.port>5432</postgres.mapped.port>
     <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
+    
+    <!-- POSTGRESQL PROPERTIES -->
+    <postgres.mapped.port>5432</postgres.mapped.port>
     <postgres.database.name>IntegrationTest_db</postgres.database.name>
 
     <!-- VERSIONS FOR DEPENDENCIES -->
@@ -266,13 +270,12 @@
           <artifactId>docker-maven-plugin</artifactId>
           <version>${docker.version}</version>
           <configuration>
+            <containerNamePattern>%a</containerNamePattern> <!-- %a = <alias>'s value-->
             <images>
               <image>
                 <name>mongo:6.0.7</name>
                 <alias>mongo</alias>
                 <run>
-                  <!-- %a = <alias>'s value-->
-                  <containerNamePattern>%a-${mongo.mapped.port}</containerNamePattern>
                   <ports>
                     <port>mongo.mapped.port:27017</port>
                   </ports>
@@ -294,8 +297,6 @@
                 <name>postgres:15.2</name>
                 <alias>postgres</alias>
                 <run>
-                  <!-- %a = <alias>'s value-->
-                  <containerNamePattern>%a-${postgres.mapped.port}</containerNamePattern> <!-- %a = <alias>'s value-->
                   <ports>
                     <port>postgres.mapped.port:5432</port>
                   </ports>
