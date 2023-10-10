@@ -2,13 +2,16 @@ package io.github.marcopaglio.booking.service.transactional;
 
 import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
+import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_ALREADY_EXISTS_ERROR_MSG;
 import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_NOT_FOUND_ERROR_MSG;
+import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_ALREADY_EXISTS_ERROR_MSG;
 import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_NOT_FOUND_ERROR_MSG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterAll;
@@ -18,6 +21,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
@@ -93,7 +97,7 @@ class TransactionalPostgresBookingServiceIT {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'findAllClients'")
+		@DisplayName("Integration tests for 'findAllClients'")
 		class FindAllClientsIT {
 
 			@Test
@@ -114,7 +118,7 @@ class TransactionalPostgresBookingServiceIT {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'findClient'")
+		@DisplayName("Integration tests for 'findClient'")
 		class FindClientIT {
 
 			@Test
@@ -135,7 +139,7 @@ class TransactionalPostgresBookingServiceIT {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'findClientNamed'")
+		@DisplayName("Integration tests for 'findClientNamed'")
 		class FindClientNamedIT {
 
 			@Test
@@ -155,12 +159,42 @@ class TransactionalPostgresBookingServiceIT {
 			}
 		}
 
-		private void addTestClientToDatabase(Client client) {
-			EntityManager em = emf.createEntityManager();
-			em.getTransaction().begin();
-			em.persist(client);
-			em.getTransaction().commit();
-			em.close();
+		@Nested
+		@DisplayName("Integration tests for 'insertNewClient'")
+		class InsertNewClientIT {
+
+			@Test
+			@DisplayName("Client is new")
+			void testInsertNewClientWhenClientDoesNotAlreadyExistShouldInsertAndReturnWithId() {
+				Client clientInDB = service.insertNewClient(client);
+				
+				assertThat(clientInDB).isEqualTo(client);
+				assertThat(clientInDB.getId()).isNotNull();
+				assertThat(readAllClientsFromDatabase()).containsExactly(client);
+			}
+
+			@Test
+			@DisplayName("Client already exists")
+			void testInsertNewClientWhenClientAlreadyExistsShouldNotInsertAndThrow() {
+				Client existingClient = new Client(A_FIRSTNAME, A_LASTNAME);
+				addTestClientToDatabase(existingClient);
+				UUID existingId = existingClient.getId();
+				
+				assertThatThrownBy(() -> service.insertNewClient(client))
+					.isInstanceOf(InstanceAlreadyExistsException.class)
+					.hasMessage(CLIENT_ALREADY_EXISTS_ERROR_MSG);
+				
+				List<Client> clientsInDB = readAllClientsFromDatabase();
+				assertThat(clientsInDB).containsExactly(existingClient);
+				assertThat(clientsInDB.get(0).getId()).isEqualTo(existingId);
+			}
+
+			private List<Client> readAllClientsFromDatabase() {
+				EntityManager em = emf.createEntityManager();
+				List<Client> clientsInDB = em.createQuery("SELECT c FROM Client c", Client.class).getResultList();
+				em.close();
+				return clientsInDB;
+			}
 		}
 	}
 
@@ -175,7 +209,7 @@ class TransactionalPostgresBookingServiceIT {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'findAllReservations'")
+		@DisplayName("Integration tests for 'findAllReservations'")
 		class FindAllReservationsIT {
 
 			@Test
@@ -196,7 +230,7 @@ class TransactionalPostgresBookingServiceIT {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'findReservation'")
+		@DisplayName("Integration tests for 'findReservation'")
 		class FindReservationIT {
 
 			@DisplayName("Reservation exists")
@@ -218,7 +252,7 @@ class TransactionalPostgresBookingServiceIT {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'findReservationOn'")
+		@DisplayName("Integration tests for 'findReservationOn'")
 		class FindReservationOnIT {
 
 			@DisplayName("Reservation exists")
@@ -237,13 +271,85 @@ class TransactionalPostgresBookingServiceIT {
 					.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
 			}
 		}
+	}
 
-		private void addTestReservationToDatabase(Reservation reservation) {
-			EntityManager em = emf.createEntityManager();
-			em.getTransaction().begin();
-			em.persist(reservation);
-			em.getTransaction().commit();
-			em.close();
+	@Nested
+	@DisplayName("Methods using both repositories")
+	class BothRepositoriesIT {
+
+		@BeforeEach
+		void initEntities() throws Exception {
+			client = new Client(A_FIRSTNAME, A_LASTNAME);
+			another_client = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+			reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+			another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
 		}
+
+		@Nested
+		@DisplayName("Tests for 'insertNewReservation'")
+		class InsertNewReservationIT {
+
+			@DisplayName("Reservation is new and client exists")
+			@Test
+			void testInsertNewReservationWhenReservationIsNewAndAssociatedClientExistsShouldInsertAndReturnWithId() {
+				addTestClientToDatabase(client);
+				reservation.setClientId(client.getId());
+				
+				Reservation reservationInDB = service.insertNewReservation(reservation);
+				
+				assertThat(reservationInDB).isEqualTo(reservation);
+				assertThat(reservationInDB.getId()).isNotNull();
+				assertThat(readAllReservationsFromDatabase()).containsExactly(reservationInDB);
+			}
+
+			@Test
+			@DisplayName("Reservation is new and client doesn't exist")
+			void testInsertNewReservationWhenReservationIsNewAndAssociatedClientDoesNotExistShouldNotInsertAndThrow() {
+				assertThatThrownBy(() -> service.insertNewReservation(reservation))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
+				
+				assertThat(readAllReservationsFromDatabase()).isEmpty();
+			}
+
+			@Test
+			@DisplayName("Reservation already exists")
+			void testInsertNewReservationWhenReservationAlreadyExistsShouldNotInsertAndThrow() {
+				Reservation existingReservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+				addTestReservationToDatabase(existingReservation);
+				UUID existingId = existingReservation.getId();
+				
+				assertThatThrownBy(() -> service.insertNewReservation(reservation))
+					.isInstanceOf(InstanceAlreadyExistsException.class)
+					.hasMessage(RESERVATION_ALREADY_EXISTS_ERROR_MSG);
+				
+				List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
+				assertThat(reservationsInDB).containsExactly(existingReservation);
+				assertThat(reservationsInDB.get(0).getId()).isEqualTo(existingId);
+			}
+
+			private List<Reservation> readAllReservationsFromDatabase() {
+				EntityManager em = emf.createEntityManager();
+				List<Reservation> reservationsInDB = em.createQuery("SELECT r FROM Reservation r", Reservation.class).getResultList();
+				em.close();
+				return reservationsInDB;
+			}
+		}
+	}
+
+	private void addTestClientToDatabase(Client client) {
+		EntityManager em = emf.createEntityManager();
+		em.getTransaction().begin();
+		em.persist(client);
+		em.getTransaction().commit();
+		em.close();
+	}
+
+	private void addTestReservationToDatabase(Reservation reservation) {
+		EntityManager em = emf.createEntityManager();
+		em.getTransaction().begin();
+		em.persist(reservation);
+		em.getTransaction().commit();
+		em.close();
 	}
 }

@@ -2,7 +2,9 @@ package io.github.marcopaglio.booking.service.transactional;
 
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOOKING_DB_NAME;
+import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_ALREADY_EXISTS_ERROR_MSG;
 import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_NOT_FOUND_ERROR_MSG;
+import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_ALREADY_EXISTS_ERROR_MSG;
 import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_NOT_FOUND_ERROR_MSG;
 import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
@@ -16,7 +18,10 @@ import static org.bson.codecs.pojo.Conventions.USE_GETTERS_FOR_SETTERS;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -35,6 +40,7 @@ import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+import io.github.marcopaglio.booking.exception.InstanceAlreadyExistsException;
 import io.github.marcopaglio.booking.exception.InstanceNotFoundException;
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
@@ -130,7 +136,7 @@ class TransactionalMongoBookingServiceIT {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'findAllClients'")
+		@DisplayName("Integration tests for 'findAllClients'")
 		class FindAllClientsIT {
 
 			@Test
@@ -150,7 +156,7 @@ class TransactionalMongoBookingServiceIT {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'findClient'")
+		@DisplayName("Integration tests for 'findClient'")
 		class FindClientIT {
 
 			@Test
@@ -171,7 +177,7 @@ class TransactionalMongoBookingServiceIT {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'findClientNamed'")
+		@DisplayName("Integration tests for 'findClientNamed'")
 		class FindClientNamedIT {
 
 			@Test
@@ -190,10 +196,41 @@ class TransactionalMongoBookingServiceIT {
 					.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
 			}
 		}
-	
-		public void addTestClientToDatabase(Client client, UUID id) {
-			client.setId(id);
-			clientCollection.insertOne(client);
+
+		@Nested
+		@DisplayName("Integration tests for 'insertNewClient'")
+		class InsertNewClientIT {
+
+			@Test
+			@DisplayName("Client is new")
+			void testInsertNewClientWhenClientDoesNotAlreadyExistShouldInsertAndReturnWithId() {
+				Client clientInDB = service.insertNewClient(client);
+				
+				assertThat(clientInDB).isEqualTo(client);
+				assertThat(clientInDB.getId()).isNotNull();
+				assertThat(readAllClientsFromDatabase()).containsExactly(client);
+			}
+
+			@Test
+			@DisplayName("Client already exists")
+			void testInsertNewClientWhenClientAlreadyExistsShouldNotInsertAndThrow() {
+				Client existingClient = new Client(A_FIRSTNAME, A_LASTNAME);
+				addTestClientToDatabase(existingClient, A_CLIENT_UUID);
+				
+				assertThatThrownBy(() -> service.insertNewClient(client))
+					.isInstanceOf(InstanceAlreadyExistsException.class)
+					.hasMessage(CLIENT_ALREADY_EXISTS_ERROR_MSG);
+				
+				List<Client> clientsInDB = readAllClientsFromDatabase();
+				assertThat(clientsInDB).containsExactly(existingClient);
+				assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
+			}
+
+			private List<Client> readAllClientsFromDatabase() {
+				return StreamSupport
+						.stream(clientCollection.find().spliterator(), false)
+						.collect(Collectors.toList());
+			}
 		}
 	}
 
@@ -208,7 +245,7 @@ class TransactionalMongoBookingServiceIT {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'findAllReservations'")
+		@DisplayName("Integration tests for 'findAllReservations'")
 		class FindAllReservationsIT {
 
 			@Test
@@ -229,7 +266,7 @@ class TransactionalMongoBookingServiceIT {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'findReservation'")
+		@DisplayName("Integration tests for 'findReservation'")
 		class FindReservationIT {
 
 			@DisplayName("Reservation exists")
@@ -250,7 +287,7 @@ class TransactionalMongoBookingServiceIT {
 		}
 
 		@Nested
-		@DisplayName("Tests for 'findReservationOn'")
+		@DisplayName("Integration tests for 'findReservationOn'")
 		class FindReservationOnIT {
 
 			@DisplayName("Reservation exists")
@@ -269,11 +306,76 @@ class TransactionalMongoBookingServiceIT {
 					.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
 			}
 		}
-	
-		public void addTestReservationToDatabase(Reservation reservation, UUID id) {
-			reservation.setId(id);
-			reservationCollection.insertOne(reservation);
+	}
+
+	@Nested
+	@DisplayName("Methods using both repositories")
+	class BothRepositoriesIT {
+
+		@BeforeEach
+		void initEntities() throws Exception {
+			client = new Client(A_FIRSTNAME, A_LASTNAME);
+			another_client = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+			reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+			another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
+		}
+
+		@Nested
+		@DisplayName("Tests for 'insertNewReservation'")
+		class InsertNewReservationIT {
+
+			@DisplayName("Reservation is new and client exists")
+			@Test
+			void testInsertNewReservationWhenReservationIsNewAndAssociatedClientExistsShouldInsertAndReturnWithId() {
+				addTestClientToDatabase(client, A_CLIENT_UUID);
+				
+				Reservation reservationInDB = service.insertNewReservation(reservation);
+				
+				assertThat(reservationInDB).isEqualTo(reservation);
+				assertThat(reservationInDB.getId()).isNotNull();
+				assertThat(readAllReservationsFromDatabase()).containsExactly(reservationInDB);
+			}
+
+			@Test
+			@DisplayName("Reservation is new and client doesn't exist")
+			void testInsertNewReservationWhenReservationIsNewAndAssociatedClientDoesNotExistShouldNotInsertAndThrow() {
+				assertThatThrownBy(() -> service.insertNewReservation(reservation))
+					.isInstanceOf(InstanceNotFoundException.class)
+					.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
+				
+				assertThat(readAllReservationsFromDatabase()).isEmpty();
+			}
+
+			@Test
+			@DisplayName("Reservation already exists")
+			void testInsertNewReservationWhenReservationAlreadyExistsShouldNotInsertAndThrow() {
+				Reservation existingReservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+				addTestReservationToDatabase(existingReservation, A_RESERVATION_UUID);
+				
+				assertThatThrownBy(() -> service.insertNewReservation(reservation))
+					.isInstanceOf(InstanceAlreadyExistsException.class)
+					.hasMessage(RESERVATION_ALREADY_EXISTS_ERROR_MSG);
+				
+				List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
+				assertThat(reservationsInDB).containsExactly(reservation);
+				assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
+			}
+
+			private List<Reservation> readAllReservationsFromDatabase() {
+				return StreamSupport
+						.stream(reservationCollection.find().spliterator(), false)
+						.collect(Collectors.toList());
+			}
 		}
 	}
 
+	public void addTestClientToDatabase(Client client, UUID id) {
+		client.setId(id);
+		clientCollection.insertOne(client);
+	}
+
+	public void addTestReservationToDatabase(Reservation reservation, UUID id) {
+		reservation.setId(id);
+		reservationCollection.insertOne(reservation);
+	}
 }
