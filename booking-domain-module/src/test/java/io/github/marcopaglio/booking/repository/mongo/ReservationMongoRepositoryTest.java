@@ -172,7 +172,7 @@ class ReservationMongoRepositoryTest {
 		private Reservation another_reservation;
 
 		@BeforeEach
-		void resetReservationId() throws Exception {
+		void initReservations() throws Exception {
 			reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 			another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
 		}

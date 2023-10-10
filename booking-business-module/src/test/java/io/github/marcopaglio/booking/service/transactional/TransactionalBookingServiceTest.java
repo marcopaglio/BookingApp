@@ -1005,8 +1005,8 @@ class TransactionalBookingServiceTest {
 			@DisplayName("Tests for 'insertNewReservation'")
 			class InsertNewReservationTest {
 
-				@DisplayName("Reservation is new and client exists")
 				@Test
+				@DisplayName("Reservation is new and client exists")
 				void testInsertNewReservationWhenReservationIsNewAndAssociatedClientExistsShouldInsertAndReturn() {
 					// default stubbing for reservationRepository.findByDate(date)
 					when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.of(A_CLIENT));
