@@ -49,7 +49,7 @@ import io.github.marcopaglio.booking.repository.factory.ReservationRepositoryFac
 import io.github.marcopaglio.booking.transaction.handler.factory.TransactionHandlerFactory;
 import io.github.marcopaglio.booking.transaction.manager.mongo.TransactionMongoManager;
 
-@DisplayName("Integration tests of TransactionalBookingService and MongoDB")
+@DisplayName("Integration tests for TransactionalBookingService and MongoDB")
 class TransactionalMongoBookingServiceIT {
 	private static final String A_LASTNAME = "Rossi";
 	private static final String A_FIRSTNAME = "Mario";

@@ -33,7 +33,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
-@DisplayName("Integration tests of TransactionalBookingService and PostgreSQL")
+@DisplayName("Integration tests for TransactionalBookingService and PostgreSQL")
 class TransactionalPostgresBookingServiceIT {
 	private static final String A_LASTNAME = "Rossi";
 	private static final String A_FIRSTNAME = "Mario";
