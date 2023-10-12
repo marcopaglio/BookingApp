@@ -470,8 +470,8 @@ class TransactionalBookingServiceTest {
 			@DisplayName("Tests for 'findReservation'")
 			class FindReservationTest {
 
-				@DisplayName("Reservation exists")
 				@Test
+				@DisplayName("Reservation exists")
 				void testFindReservationWhenReservationExistsShouldReturnTheReservation() {
 					when(reservationRepository.findById(A_RESERVATION_UUID))
 						.thenReturn(Optional.of(A_RESERVATION));
@@ -512,8 +512,8 @@ class TransactionalBookingServiceTest {
 			@DisplayName("Tests for 'findReservationOn'")
 			class FindReservationOnTest {
 
-				@DisplayName("Reservation exists")
 				@Test
+				@DisplayName("Reservation exists")
 				void testFindReservationOnWhenReservationExistsShouldReturnTheReservation() {
 					when(reservationRepository.findByDate(A_LOCALDATE))
 						.thenReturn(Optional.of(A_RESERVATION));
