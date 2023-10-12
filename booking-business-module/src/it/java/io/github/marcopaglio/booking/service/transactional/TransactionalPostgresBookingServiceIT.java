@@ -45,40 +45,41 @@ class TransactionalPostgresBookingServiceIT {
 	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("864f7928-049b-4c2a-bd87-9e52ca16afc5");
 	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse("2023-09-05");
 
-	private Client client, another_client;
-	private Reservation reservation, another_reservation;
-
 	private static EntityManagerFactory emf;
-	private static TransactionHandlerFactory transactionHandlerFactory;
-	private static ClientRepositoryFactory clientRepositoryFactory;
-	private static ReservationRepositoryFactory reservationRepositoryFactory;
-	private static TransactionPostgresManager transactionManager;
+
+	private TransactionHandlerFactory transactionHandlerFactory;
+	private ClientRepositoryFactory clientRepositoryFactory;
+	private ReservationRepositoryFactory reservationRepositoryFactory;
+	private TransactionPostgresManager transactionManager;
 
 	private TransactionalBookingService service;
 
+	private Client client, another_client;
+	private Reservation reservation, another_reservation;
+
 	@BeforeAll
-	static void setupCollaborators() throws Exception {
+	static void setupEmf() throws Exception {
 		System.setProperty("db.port", System.getProperty("postgres.port", "5432"));
 		System.setProperty("db.name", System.getProperty("postgres.name", "IntegrationTest_db"));
 		emf = Persistence.createEntityManagerFactory("postgres-it");
-		
+	}
+
+	@BeforeEach
+	void setUp() throws Exception {
 		transactionHandlerFactory = new TransactionHandlerFactory();
 		clientRepositoryFactory = new ClientRepositoryFactory();
 		reservationRepositoryFactory = new ReservationRepositoryFactory();
 		transactionManager = new TransactionPostgresManager(emf, transactionHandlerFactory,
 				clientRepositoryFactory, reservationRepositoryFactory);
-	}
-
-	@BeforeEach
-	void setUp() throws Exception {
-		EntityManager em = emf.createEntityManager();
+		
+		service = new TransactionalBookingService(transactionManager);
+		
 		// make sure we always start with a clean database
+		EntityManager em = emf.createEntityManager();
 		em.getTransaction().begin();
 		em.createNativeQuery("TRUNCATE TABLE " + CLIENT_TABLE_DB + "," + RESERVATION_TABLE_DB).executeUpdate();
 		em.getTransaction().commit();
 		em.close();
-		
-		service = new TransactionalBookingService(transactionManager);
 	}
 
 	@AfterAll

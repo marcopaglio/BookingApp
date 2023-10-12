@@ -63,33 +63,27 @@ class TransactionalMongoBookingServiceIT {
 	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse("2023-09-05");
 	private static final UUID ANOTHER_RESERVATION_UUID = UUID.fromString("f9e3dd0c-c3ff-4d4f-a3d1-108fcb3a697d");
 
-	private Client client, another_client;
-	private Reservation reservation, another_reservation;
-
 	private static MongoClient mongoClient;
 	private static MongoDatabase database;
 	private static MongoCollection<Client> clientCollection;
 	private static MongoCollection<Reservation> reservationCollection;
 
-	private static TransactionHandlerFactory transactionHandlerFactory;
-	private static ClientRepositoryFactory clientRepositoryFactory;
-	private static ReservationRepositoryFactory reservationRepositoryFactory;
-	private static TransactionMongoManager transactionManager;
+	private TransactionMongoManager transactionManager;
+	private TransactionHandlerFactory transactionHandlerFactory;
+	private ClientRepositoryFactory clientRepositoryFactory;
+	private ReservationRepositoryFactory reservationRepositoryFactory;
 
 	private TransactionalBookingService service;
 
+	private Client client, another_client;
+	private Reservation reservation, another_reservation;
+
 	@BeforeAll
-	static void setupCollaborators() throws Exception {
+	static void setupClient() throws Exception {
 		mongoClient = getClient(System.getProperty("mongo.connectionString", "mongodb://localhost:27017"));
 		database = mongoClient.getDatabase(BOOKING_DB_NAME);
 		clientCollection = database.getCollection(CLIENT_TABLE_DB, Client.class);
 		reservationCollection = database.getCollection(RESERVATION_TABLE_DB, Reservation.class);
-		
-		transactionHandlerFactory = new TransactionHandlerFactory();
-		clientRepositoryFactory = new ClientRepositoryFactory();
-		reservationRepositoryFactory = new ReservationRepositoryFactory();
-		transactionManager = new TransactionMongoManager(mongoClient, transactionHandlerFactory,
-				clientRepositoryFactory, reservationRepositoryFactory);
 	}
 
 	private static MongoClient getClient(String connectionString) {
@@ -115,9 +109,16 @@ class TransactionalMongoBookingServiceIT {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		database.drop();
+		transactionHandlerFactory = new TransactionHandlerFactory();
+		clientRepositoryFactory = new ClientRepositoryFactory();
+		reservationRepositoryFactory = new ReservationRepositoryFactory();
+		transactionManager = new TransactionMongoManager(mongoClient, transactionHandlerFactory,
+				clientRepositoryFactory, reservationRepositoryFactory);
 		
 		service = new TransactionalBookingService(transactionManager);
+		
+		// make sure we always start with a clean database
+		database.drop();
 	}
 
 	@AfterAll
