@@ -4,6 +4,7 @@ import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
 import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOOKING_DB_NAME;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.bson.UuidRepresentation.STANDARD;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
@@ -14,7 +15,10 @@ import static org.mockito.Mockito.verify;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -51,14 +55,16 @@ import io.github.marcopaglio.booking.view.BookingView;
 class ServedMongoBookingPresenterIT {
 	private static final String A_LASTNAME = "Rossi";
 	private static final String A_FIRSTNAME = "Mario";
+	private static final UUID A_CLIENT_UUID = UUID.fromString("03ee257d-f06d-47e9-8ef0-78b18ee03fe9");
 	private static final String ANOTHER_LASTNAME = "De Lucia";
 	private static final String ANOTHER_FIRSTNAME = "Maria";
-
-	private static final UUID A_CLIENT_UUID = UUID.fromString("03ee257d-f06d-47e9-8ef0-78b18ee03fe9");
-	private static final LocalDate A_LOCALDATE = LocalDate.parse("2023-04-24");
-	private static final UUID A_RESERVATION_UUID = UUID.fromString("a2014dc9-7f77-4aa2-a3ce-0559736a7670");
 	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("7b565e00-59cd-4de8-b70a-a08842317d5b");
-	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse("2023-09-05");
+
+	private static final String A_DATE = "2023-04-24";
+	private static final LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
+	private static final UUID A_RESERVATION_UUID = UUID.fromString("a2014dc9-7f77-4aa2-a3ce-0559736a7670");
+	private static final String ANOTHER_DATE = "2023-09-05";
+	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse(ANOTHER_DATE);
 	private static final UUID ANOTHER_RESERVATION_UUID = UUID.fromString("f9e3dd0c-c3ff-4d4f-a3d1-108fcb3a697d");
 
 	private static MongoClient mongoClient;
@@ -197,6 +203,215 @@ class ServedMongoBookingPresenterIT {
 			
 			verify(view).showAllReservations(Arrays.asList(reservation, another_reservation));
 		}
+	}
+
+	@Nested
+	@DisplayName("Integration tests for 'deleteClient'")
+	class DeleteClientIT {
+
+		@Test
+		@DisplayName("Client is in repository")
+		void testDeleteClientWhenClientIsInRepositoryShouldRemoveAndNotifyView() {
+			addTestClientToDatabase(client, A_CLIENT_UUID);
+			addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
+			
+			presenter.deleteClient(client);
+			
+			verify(view).clientRemoved(client);
+			assertThat(readAllClientsFromDatabase())
+				.doesNotContain(client)
+				.containsExactly(another_client);
+		}
+
+		@Test
+		@DisplayName("Client is not in repository")
+		void testDeleteClientWhenClientIsNotInRepositoryShouldShowErrorAndUpdateView() {
+			client.setId(A_CLIENT_UUID);
+			
+			presenter.deleteClient(client);
+			
+			verify(view).showOperationError(client.toString() + " no longer exists.");
+			verify(view).showAllReservations(Collections.emptyList());
+			verify(view).showAllClients(Collections.emptyList());
+		}
+	}
+
+	@Nested
+	@DisplayName("Integration tests for 'deleteReservation'")
+	class DeleteReservationIT {
+
+		@Test
+		@DisplayName("Reservation is in repository")
+		void testDeleteReservationWhenReservationIsInRepositoryShouldRemoveAndNotifyView() {
+			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+			addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+			
+			presenter.deleteReservation(reservation);
+			
+			verify(view).reservationRemoved(reservation);
+			
+			assertThat(readAllReservationsFromDatabase())
+				.doesNotContain(reservation)
+				.containsExactly(another_reservation);
+		}
+
+		@Test
+		@DisplayName("Reservation is not in repository")
+		void testDeleteReservationWhenReservationIsNotInRepositoryShouldShowErrorAndUpdateView() {
+			reservation.setId(A_RESERVATION_UUID);
+			
+			presenter.deleteReservation(reservation);
+			
+			verify(view).showOperationError(reservation.toString() + " no longer exists.");
+			verify(view).showAllReservations(Collections.emptyList());
+			verify(view).showAllClients(Collections.emptyList());
+		}
+	}
+
+	@Nested
+	@DisplayName("Integration tests for 'addClient'")
+	class AddClientIT {
+
+		@Test
+		@DisplayName("Client is new")
+		void testAddClientWhenClientIsNewShouldInsertAndNotifyView() {
+			presenter.addClient(A_FIRSTNAME, A_LASTNAME);
+			
+			verify(view).clientAdded(client);
+			
+			assertThat(readAllClientsFromDatabase()).containsExactly(client);
+		}
+
+		@Test
+		@DisplayName("Client is not new")
+		void testAddClientWhenClientIsNotNewShouldShowErrorAndUpdateView() {
+			addTestClientToDatabase(client, A_CLIENT_UUID);
+			
+			presenter.addClient(A_FIRSTNAME, A_LASTNAME);
+			
+			verify(view).showOperationError("A client named " + A_FIRSTNAME
+					+ " " + A_LASTNAME + " has already been made.");
+			verify(view).showAllReservations(Collections.emptyList());
+			verify(view).showAllClients(Arrays.asList(client));
+		}
+	}
+
+	@Nested
+	@DisplayName("Integration tests for 'addReservation'")
+	class AddReservationIT {
+
+		@Test
+		@DisplayName("Reservation is new")
+		void testAddReservationWhenReservationIsNewShouldInsertAndNotifyView() {
+			addTestClientToDatabase(client, A_CLIENT_UUID);
+			
+			presenter.addReservation(client, A_DATE);
+			
+			verify(view).reservationAdded(reservation);
+			
+			assertThat(readAllReservationsFromDatabase()).containsExactly(reservation);
+		}
+
+		@Test
+		@DisplayName("Reservation is not new")
+		void testAddReservationWhenReservationIsNotNewShouldShowErrorAndUpdateView() {
+			addTestClientToDatabase(client, A_CLIENT_UUID);
+			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+			
+			presenter.addReservation(client, A_DATE);
+			
+			verify(view).showOperationError(
+					"A reservation on " + A_DATE + " has already been made.");
+			verify(view).showAllReservations(Arrays.asList(reservation));
+			verify(view).showAllClients(Arrays.asList(client));
+		}
+	}
+
+	@Nested
+	@DisplayName("Integration tests for 'renameClient'")
+	class RenameClientIT {
+
+		@Test
+		@DisplayName("Renamed client is new")
+		void testRenameClientWhenRenamedClientIsNewShouldRenameAndNotifyView() {
+			addTestClientToDatabase(client, A_CLIENT_UUID);
+			Client renamedClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+			renamedClient.setId(A_CLIENT_UUID);
+			
+			presenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+			
+			verify(view).clientRenamed(client, renamedClient);
+			
+			assertThat(readAllClientsFromDatabase())
+				.contains(renamedClient)
+				.doesNotContain(client);
+		}
+
+		@Test
+		@DisplayName("Renamed client is not new")
+		void testRenameClientWhenRenamedClientIsNotNewShouldShowErrorAndUpdateView() {
+			addTestClientToDatabase(client, A_CLIENT_UUID);
+			addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
+			Client renamedClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+			renamedClient.setId(A_CLIENT_UUID);
+			
+			presenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+			
+			verify(view).showOperationError("A client named " + ANOTHER_FIRSTNAME
+					+ " " + ANOTHER_LASTNAME + " has already been made.");
+			verify(view).showAllReservations(Collections.emptyList());
+			verify(view).showAllClients(Arrays.asList(client, another_client));
+		}
+	}
+
+	@Nested
+	@DisplayName("Integration tests for 'rescheduleReservation'")
+	class RescheduleReservationIT {
+
+		@Test
+		@DisplayName("Rescheduled reservation is new")
+		void testRescheduleReservationWhenRescheduledReservationIsNewShouldRescheduleAndNotifyView() {
+			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+			Reservation rescheduledReservation = new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE);
+			rescheduledReservation.setId(A_RESERVATION_UUID);
+			
+			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
+			
+			verify(view).reservationRescheduled(reservation, rescheduledReservation);
+			
+			assertThat(readAllReservationsFromDatabase())
+				.contains(rescheduledReservation)
+				.doesNotContain(reservation);
+		}
+
+		@Test
+		@DisplayName("Rescheduled reservation is not new")
+		void testRescheduleReservationWhenRescheduledReservationIsNotNewShouldShowErrorAndUpdateView() {
+			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+			addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+			Reservation rescheduledReservation = new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE);
+			rescheduledReservation.setId(A_RESERVATION_UUID);
+			
+			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
+			
+			verify(view).showOperationError(
+					"A reservation on " + ANOTHER_DATE + " has already been made.");
+			// updateAll
+			verify(view).showAllReservations(Arrays.asList(reservation, another_reservation));
+			verify(view).showAllClients(Collections.emptyList());
+		}
+	}
+
+	private List<Client> readAllClientsFromDatabase() {
+		return StreamSupport
+				.stream(clientCollection.find().spliterator(), false)
+				.collect(Collectors.toList());
+	}
+
+	private List<Reservation> readAllReservationsFromDatabase() {
+		return StreamSupport
+				.stream(reservationCollection.find().spliterator(), false)
+				.collect(Collectors.toList());
 	}
 
 	public void addTestClientToDatabase(Client client, UUID id) {
