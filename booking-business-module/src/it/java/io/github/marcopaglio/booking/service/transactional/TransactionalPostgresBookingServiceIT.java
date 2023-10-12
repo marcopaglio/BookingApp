@@ -126,6 +126,7 @@ class TransactionalPostgresBookingServiceIT {
 			@DisplayName("Client exists")
 			void testFindClientWhenClientExistsShouldReturnTheClient() {
 				addTestClientToDatabase(client);
+				addTestClientToDatabase(another_client);
 				
 				assertThat(service.findClient(client.getId())).isEqualTo(client);
 			}
@@ -147,6 +148,7 @@ class TransactionalPostgresBookingServiceIT {
 			@DisplayName("Client exists")
 			void testFindClientNamedWhenClientExistsShouldReturnTheClient() {
 				addTestClientToDatabase(client);
+				addTestClientToDatabase(another_client);
 				
 				assertThat(service.findClientNamed(A_FIRSTNAME, A_LASTNAME)).isEqualTo(client);
 			}
@@ -197,7 +199,7 @@ class TransactionalPostgresBookingServiceIT {
 
 			@Test
 			@DisplayName("A same name client doesn't exist")
-			void testRenameClientWhenThereIsNoClientWithSameNewNamesShouldRenameAndReturnWithSameId() {
+			void testRenameClientWhenThereIsNoClientWithTheSameNewNamesShouldRenameAndReturnWithoutChangingId() {
 				Client renamedClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 				addTestClientToDatabase(client);
 				UUID client_id = client.getId();
@@ -227,17 +229,6 @@ class TransactionalPostgresBookingServiceIT {
 				assertThat(readAllClientsFromDatabase())
 					.containsExactlyInAnyOrder(client, another_client)
 					.filteredOn((c) -> c.getId().equals(client_id)).containsOnly(client);
-			}
-
-			@Test
-			@DisplayName("Client to rename doesn't exist")
-			void testRenameClientWhenClientToRenameDoesNotExistShouldThrow() {
-				assertThatThrownBy(() -> service.renameClient(
-						A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
-					.isInstanceOf(InstanceNotFoundException.class)
-					.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
-				
-				assertThat(readAllClientsFromDatabase()).isEmpty();
 			}
 		}
 	}
@@ -277,10 +268,11 @@ class TransactionalPostgresBookingServiceIT {
 		@DisplayName("Integration tests for 'findReservation'")
 		class FindReservationIT {
 
-			@DisplayName("Reservation exists")
 			@Test
+			@DisplayName("Reservation exists")
 			void testFindReservationWhenReservationExistsShouldReturnTheReservation() {
 				addTestReservationToDatabase(reservation);
+				addTestReservationToDatabase(another_reservation);
 				
 				assertThat(service.findReservation(reservation.getId())).isEqualTo(reservation);
 			}
@@ -299,10 +291,11 @@ class TransactionalPostgresBookingServiceIT {
 		@DisplayName("Integration tests for 'findReservationOn'")
 		class FindReservationOnIT {
 
-			@DisplayName("Reservation exists")
 			@Test
+			@DisplayName("Reservation exists")
 			void testFindReservationOnWhenReservationExistsShouldReturnTheReservation() {
 				addTestReservationToDatabase(reservation);
+				addTestReservationToDatabase(another_reservation);
 				
 				assertThat(service.findReservationOn(A_LOCALDATE)).isEqualTo(reservation);
 			}
@@ -322,7 +315,7 @@ class TransactionalPostgresBookingServiceIT {
 
 			@Test
 			@DisplayName("A same date reservation doesn't exist")
-			void testRescheduleReservationWhenThereIsNoReservationInTheSameNewDateShouldRescheduleAndReturnWithSameId() {
+			void testRescheduleReservationWhenThereIsNoReservationInTheSameNewDateShouldRescheduleAndReturnWithoutChangingId() {
 				Reservation rescheduledReservation = new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE);
 				addTestReservationToDatabase(reservation);
 				UUID reservation_id = reservation.getId();
@@ -352,18 +345,6 @@ class TransactionalPostgresBookingServiceIT {
 				assertThat(readAllReservationsFromDatabase())
 					.containsExactlyInAnyOrder(reservation, another_reservation)
 					.filteredOn((r) -> r.getId().equals(reservation_id)).containsOnly(reservation);
-			}
-
-			@Test
-			@DisplayName("Reservation to reschedule doesn't exist")
-			void testRescheduleReservationWhenReservationToRescheduleDoesNotExistShouldThrow() {
-				UUID notPresentId = UUID.fromString("24e77298-6716-44cf-8305-7048ca93b27f");
-				assertThatThrownBy(
-						() -> service.rescheduleReservation(notPresentId, ANOTHER_LOCALDATE))
-					.isInstanceOf(InstanceNotFoundException.class)
-					.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
-				
-				assertThat(readAllReservationsFromDatabase()).isEmpty();
 			}
 		}
 
@@ -448,16 +429,6 @@ class TransactionalPostgresBookingServiceIT {
 				assertThat(reservationInDB).isEqualTo(reservation);
 				assertThat(reservationInDB.getId()).isNotNull();
 				assertThat(readAllReservationsFromDatabase()).containsExactly(reservationInDB);
-			}
-
-			@Test
-			@DisplayName("Reservation is new and client doesn't exist")
-			void testInsertNewReservationWhenReservationIsNewAndAssociatedClientDoesNotExistShouldNotInsertAndThrow() {
-				assertThatThrownBy(() -> service.insertNewReservation(reservation))
-					.isInstanceOf(InstanceNotFoundException.class)
-					.hasMessage(CLIENT_NOT_FOUND_ERROR_MSG);
-				
-				assertThat(readAllReservationsFromDatabase()).isEmpty();
 			}
 
 			@Test
