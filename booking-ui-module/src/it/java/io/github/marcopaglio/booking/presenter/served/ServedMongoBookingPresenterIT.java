@@ -11,6 +11,7 @@ import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static org.bson.codecs.pojo.Conventions.ANNOTATION_CONVENTION;
 import static org.bson.codecs.pojo.Conventions.USE_GETTERS_FOR_SETTERS;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -47,8 +48,8 @@ import io.github.marcopaglio.booking.repository.factory.ReservationRepositoryFac
 import io.github.marcopaglio.booking.service.transactional.TransactionalBookingService;
 import io.github.marcopaglio.booking.transaction.handler.factory.TransactionHandlerFactory;
 import io.github.marcopaglio.booking.transaction.manager.mongo.TransactionMongoManager;
-import io.github.marcopaglio.booking.validator.restricted.RestrictedClientValidator;
-import io.github.marcopaglio.booking.validator.restricted.RestrictedReservationValidator;
+import io.github.marcopaglio.booking.validator.ClientValidator;
+import io.github.marcopaglio.booking.validator.ReservationValidator;
 import io.github.marcopaglio.booking.view.BookingView;
 
 @DisplayName("Integration tests for ServedBookingPresenter and MongoDB")
@@ -79,11 +80,15 @@ class ServedMongoBookingPresenterIT {
 	private ReservationRepositoryFactory reservationRepositoryFactory;
 
 	private TransactionalBookingService transactionalBookingService;
-	private RestrictedClientValidator restrictedClientValidator;
-	private RestrictedReservationValidator restrictedReservationValidator;
 
 	@Mock
 	private BookingView view;
+
+	@Mock
+	private ClientValidator clientValidator;
+
+	@Mock
+	private ReservationValidator reservationValidator;
 
 	private ServedBookingPresenter presenter;
 
@@ -132,11 +137,9 @@ class ServedMongoBookingPresenterIT {
 				clientRepositoryFactory, reservationRepositoryFactory);
 		
 		transactionalBookingService = new TransactionalBookingService(transactionMongoManager);
-		restrictedClientValidator = new RestrictedClientValidator();
-		restrictedReservationValidator = new RestrictedReservationValidator();
 		
 		presenter = new ServedBookingPresenter(view, transactionalBookingService,
-				restrictedClientValidator, restrictedReservationValidator);
+				clientValidator, reservationValidator);
 		
 		// make sure we always start with a clean database
 		database.drop();
@@ -272,11 +275,19 @@ class ServedMongoBookingPresenterIT {
 	@DisplayName("Integration tests for 'addClient'")
 	class AddClientIT {
 
+		@BeforeEach
+		void stubbingValidator() throws Exception {
+			when(clientValidator.validateFirstName(A_FIRSTNAME)).thenReturn(A_FIRSTNAME);
+			when(clientValidator.validateLastName(A_LASTNAME)).thenReturn(A_LASTNAME);
+		}
+
 		@Test
 		@DisplayName("Client is new")
-		void testAddClientWhenClientIsNewShouldInsertAndNotifyView() {
+		void testAddClientWhenClientIsNewShouldValidateItAndInsertAndNotifyView() {
 			presenter.addClient(A_FIRSTNAME, A_LASTNAME);
 			
+			verify(clientValidator).validateFirstName(A_FIRSTNAME);
+			verify(clientValidator).validateLastName(A_LASTNAME);
 			verify(view).clientAdded(client);
 			
 			assertThat(readAllClientsFromDatabase()).containsExactly(client);
@@ -300,13 +311,22 @@ class ServedMongoBookingPresenterIT {
 	@DisplayName("Integration tests for 'addReservation'")
 	class AddReservationIT {
 
+		@BeforeEach
+		void stubbingValidator() throws Exception {
+			when(reservationValidator.validateClientId(A_CLIENT_UUID))
+				.thenReturn(A_CLIENT_UUID);
+			when(reservationValidator.validateDate(A_DATE)).thenReturn(A_LOCALDATE);
+		}
+
 		@Test
 		@DisplayName("Reservation is new")
-		void testAddReservationWhenReservationIsNewShouldInsertAndNotifyView() {
+		void testAddReservationWhenReservationIsNewShouldValidateItAndInsertAndNotifyView() {
 			addTestClientToDatabase(client, A_CLIENT_UUID);
 			
 			presenter.addReservation(client, A_DATE);
 			
+			verify(reservationValidator).validateClientId(A_CLIENT_UUID);
+			verify(reservationValidator).validateDate(A_DATE);
 			verify(view).reservationAdded(reservation);
 			
 			assertThat(readAllReservationsFromDatabase()).containsExactly(reservation);
@@ -331,15 +351,25 @@ class ServedMongoBookingPresenterIT {
 	@DisplayName("Integration tests for 'renameClient'")
 	class RenameClientIT {
 
+		@BeforeEach
+		void stubbingValidator() throws Exception {
+			when(clientValidator.validateFirstName(ANOTHER_FIRSTNAME))
+				.thenReturn(ANOTHER_FIRSTNAME);
+			when(clientValidator.validateLastName(ANOTHER_LASTNAME))
+				.thenReturn(ANOTHER_LASTNAME);
+		}
+
 		@Test
 		@DisplayName("Renamed client is new")
-		void testRenameClientWhenRenamedClientIsNewShouldRenameAndNotifyView() {
+		void testRenameClientWhenRenamedClientIsNewShouldValidateItAndRenameAndNotifyView() {
 			addTestClientToDatabase(client, A_CLIENT_UUID);
 			Client renamedClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			renamedClient.setId(A_CLIENT_UUID);
 			
 			presenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
+			verify(clientValidator).validateFirstName(ANOTHER_FIRSTNAME);
+			verify(clientValidator).validateLastName(ANOTHER_LASTNAME);
 			verify(view).clientRenamed(client, renamedClient);
 			
 			assertThat(readAllClientsFromDatabase())
@@ -368,15 +398,22 @@ class ServedMongoBookingPresenterIT {
 	@DisplayName("Integration tests for 'rescheduleReservation'")
 	class RescheduleReservationIT {
 
+		@BeforeEach
+		void stubbingValidator() throws Exception {
+			when(reservationValidator.validateDate(ANOTHER_DATE))
+				.thenReturn(ANOTHER_LOCALDATE);
+		}
+
 		@Test
 		@DisplayName("Rescheduled reservation is new")
-		void testRescheduleReservationWhenRescheduledReservationIsNewShouldRescheduleAndNotifyView() {
+		void testRescheduleReservationWhenRescheduledReservationIsNewShouldValidateItAndRescheduleAndNotifyView() {
 			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
 			Reservation rescheduledReservation = new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE);
 			rescheduledReservation.setId(A_RESERVATION_UUID);
 			
 			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
+			verify(reservationValidator).validateDate(ANOTHER_DATE);
 			verify(view).reservationRescheduled(reservation, rescheduledReservation);
 			
 			assertThat(readAllReservationsFromDatabase())
