@@ -22,7 +22,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
@@ -567,7 +566,6 @@ class ServedBookingPresenterTest {
 
 			@Test
 			@DisplayName("Date is not valid")
-			@ValueSource(strings = {"2O23-O4-24", "24-04-2023", "2022-13-12", "2022-08-32"})
 			void testAddReservationWhenDateIsNotValidShouldShowErrorAndNotInsert() {
 				when(reservationValidator.validateDate(A_DATE))
 					.thenThrow(illegalArgumentException);
@@ -768,8 +766,8 @@ class ServedBookingPresenterTest {
 					new IllegalArgumentException();
 
 			@Test
-			@DisplayName("Name is not valid")
-			void testRenameClientWhenNameIsNotValidShouldShowErrorAndNotRename() {
+			@DisplayName("New name is not valid")
+			void testRenameClientWhenNewNameIsNotValidShouldShowErrorAndNotRename() {
 				when(clientValidator.validateFirstName(newFirstName))
 					.thenThrow(illegalArgumentException);
 				
@@ -783,8 +781,8 @@ class ServedBookingPresenterTest {
 			}
 
 			@Test
-			@DisplayName("Surname is not valid")
-			void testRenameClientWhenSurnameIsNotValidShouldShowErrorAndNotRename() {
+			@DisplayName("New surname is not valid")
+			void testRenameClientWhenNewSurnameIsNotValidShouldShowErrorAndNotRename() {
 				when(clientValidator.validateLastName(newLastName))
 					.thenThrow(illegalArgumentException);
 				
@@ -930,8 +928,8 @@ class ServedBookingPresenterTest {
 		}
 
 		@Test
-		@DisplayName("Date is not valid")
-		void testRescheduleReservationWhenDateIsNotValidShouldShowErrorAndNotReschedule() {
+		@DisplayName("New date is not valid")
+		void testRescheduleReservationWhenNewDateIsNotValidShouldShowErrorAndNotReschedule() {
 			when(reservationValidator.validateDate(newDate))
 				.thenThrow(new IllegalArgumentException());
 			
