@@ -177,10 +177,15 @@ class ServedPostgresBookingPresenterIT {
 		@DisplayName("Client is in repository")
 		void testDeleteClientWhenClientIsInRepositoryShouldRemoveAndNotifyView() {
 			addTestClientToDatabase(client);
+			reservation.setClientId(client.getId());
+			addTestReservationToDatabase(reservation);
 			addTestClientToDatabase(another_client);
+			another_reservation.setClientId(another_client.getId());
+			addTestReservationToDatabase(another_reservation);
 			
 			presenter.deleteClient(client);
 			
+			verify(view).showAllReservations(Arrays.asList(another_reservation));
 			verify(view).clientRemoved(client);
 			assertThat(readAllClientsFromDatabase())
 				.doesNotContain(client)

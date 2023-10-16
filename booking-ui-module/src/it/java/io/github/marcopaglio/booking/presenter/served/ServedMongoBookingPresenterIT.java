@@ -216,10 +216,13 @@ class ServedMongoBookingPresenterIT {
 		@DisplayName("Client is in repository")
 		void testDeleteClientWhenClientIsInRepositoryShouldRemoveAndNotifyView() {
 			addTestClientToDatabase(client, A_CLIENT_UUID);
+			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
 			addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
+			addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
 			
 			presenter.deleteClient(client);
 			
+			verify(view).showAllReservations(Arrays.asList(another_reservation));
 			verify(view).clientRemoved(client);
 			assertThat(readAllClientsFromDatabase())
 				.doesNotContain(client)

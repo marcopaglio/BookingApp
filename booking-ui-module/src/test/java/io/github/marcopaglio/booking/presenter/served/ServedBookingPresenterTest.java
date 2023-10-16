@@ -199,6 +199,8 @@ class ServedBookingPresenterTest {
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
 			inOrder.verify(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
+			inOrder.verify(bookingService).findAllReservations();
+			inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
 			inOrder.verify(view).clientRemoved(A_CLIENT);
 			
 			verifyNoMoreInteractions(bookingService, view);

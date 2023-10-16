@@ -117,8 +117,9 @@ public class ServedBookingPresenter implements BookingPresenter {
 		} else {
 			try {
 				bookingService.removeClientNamed(client.getFirstName(), client.getLastName());
+				allReservations();
 				view.clientRemoved(client);
-				LOGGER.info(() -> String.format("%s has been deleted with success.", client.toString()));
+				LOGGER.info(() -> String.format("%s and all his reservations have been deleted with success.", client.toString()));
 			} catch (InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
 				view.showOperationError(instanceNotFoundErrorMsg(client.toString()));
