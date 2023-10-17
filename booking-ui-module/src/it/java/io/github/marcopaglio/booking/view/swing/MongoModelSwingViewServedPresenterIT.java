@@ -69,14 +69,12 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	private static final String A_YEAR = "2022";
 	private static final String A_MONTH = "04";
 	private static final String A_DAY = "24";
-	private static final String A_DATE = A_YEAR + "-" + A_MONTH + "-" + A_DAY;
-	private static final LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
+	private static final LocalDate A_LOCALDATE = LocalDate.parse(A_YEAR + "-" + A_MONTH + "-" + A_DAY);
 	private static final UUID A_RESERVATION_UUID = UUID.fromString("92403799-acf3-45c9-896e-ef57b1f3be3b");
 	private static final String ANOTHER_YEAR = "2023";
 	private static final String ANOTHER_MONTH = "09";
 	private static final String ANOTHER_DAY = "05";
-	private static final String ANOTHER_DATE = ANOTHER_YEAR + "-" + ANOTHER_MONTH + "-" + ANOTHER_DAY;
-	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse(ANOTHER_DATE);
+	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse(ANOTHER_YEAR + "-" + ANOTHER_MONTH + "-" + ANOTHER_DAY);
 	private static final UUID ANOTHER_RESERVATION_UUID = UUID.fromString("547b1ffc-0015-4ad8-a789-17528afd397a");
 
 	private static MongoClient mongoClient;
@@ -234,7 +232,9 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	@Test
 	@DisplayName("Name is not valid")
 	public void testAddClientBtnWhenNameIsNotValidShouldNotInsert() {
-		nameFormTxt.setText("!!!!!");
+		String invalidFirstName = "!!!!!";
+		
+		nameFormTxt.setText(invalidFirstName);
 		surnameFormTxt.setText(A_LASTNAME);
 		enableButton(bookingSwingView.getAddClientBtn());
 		
@@ -246,8 +246,10 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	@Test
 	@DisplayName("Surname is not valid")
 	public void testAddClientWhenSurnameIsNotValidShouldShowErrorAndNotInsert() {
+		String invalidLastName = "D3 Lucia";
+		
 		nameFormTxt.setText(A_FIRSTNAME);
-		surnameFormTxt.setText("D3 Lucia");
+		surnameFormTxt.setText(invalidLastName);
 		enableButton(bookingSwingView.getAddClientBtn());
 		
 		addClientBtn.click();
@@ -272,9 +274,7 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		renameBtn.click();
 		
 		List<Client> clientsInDB = readAllClientsFromDatabase();
-		assertThat(clientsInDB)
-			.doesNotContain(client)
-			.hasSize(1);
+		assertThat(clientsInDB).doesNotContain(client).hasSize(1);
 		Client clientInDB = clientsInDB.get(0);
 		assertThat(clientInDB.getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
 		assertThat(clientInDB.getLastName()).isEqualTo(ANOTHER_LASTNAME);
@@ -297,15 +297,16 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		
 		assertThat(readAllClientsFromDatabase())
 			.containsExactlyInAnyOrder(client, another_client)
-			.filteredOn((c) -> c.getId().equals(A_CLIENT_UUID)).containsOnly(client);
+			.filteredOn(c -> c.getId().equals(A_CLIENT_UUID)).containsOnly(client);
 	}
 
 	@Test
 	@DisplayName("Name is not valid")
 	public void testRenameBtnWhenNameIsNotValidShouldNotRename() {
 		addTestClientToDatabase(client, A_CLIENT_UUID);
+		String invalidNewFirstName = "M@ria";
 		
-		nameFormTxt.setText("M@ria");
+		nameFormTxt.setText(invalidNewFirstName);
 		surnameFormTxt.setText(ANOTHER_LASTNAME);
 		addClientInList(client);
 		clientList.selectItem(0);
@@ -320,9 +321,10 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	@DisplayName("Surname is not valid")
 	public void testRenameBtnWhenSurnameIsNotValidShouldNotRename() {
 		addTestClientToDatabase(client, A_CLIENT_UUID);
+		String invalidNewLastName = "?????";
 		
 		nameFormTxt.setText(ANOTHER_FIRSTNAME);
-		surnameFormTxt.setText("?????");
+		surnameFormTxt.setText(invalidNewLastName);
 		addClientInList(client);
 		clientList.selectItem(0);
 		enableButton(bookingSwingView.getRenameBtn());
@@ -340,8 +342,6 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	public void testRemoveClientBtnWhenClientExistsWithAnExistingReservationShouldRemove() {
 		addTestClientToDatabase(client, A_CLIENT_UUID);
 		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-		addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
-		addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
 		
 		addClientInList(client);
 		clientList.selectItem(0);
@@ -349,14 +349,14 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		
 		removeClientBtn.click();
 		
-		assertThat(readAllReservationsFromDatabase())
-			.filteredOn((r) -> r.getClientId() == A_CLIENT_UUID).isEmpty();
 		assertThat(readAllClientsFromDatabase()).doesNotContain(client);
+		assertThat(readAllReservationsFromDatabase())
+			.filteredOn(r -> r.getClientId().equals(A_CLIENT_UUID)).isEmpty();
 	}
 
 	@Test
 	@DisplayName("Client doesn't exist")
-	public void testRemoveClientBtnWhenClientDoesNotExistShouldChangeNothing() {
+	public void testRemoveClientBtnWhenClientDoesNotExistShouldNotRemoveAnything() {
 		client.setId(A_CLIENT_UUID);
 		addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
 		addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
@@ -376,7 +376,7 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	////////////// Integration tests for 'AddReservationBtn'
 	@Test
 	@DisplayName("Reservation is new and client exists")
-	public void testAddReservationBtnWhenReservationIsNewAndAssociatedClientExistsShouldInsertAndReturnWithId() {
+	public void testAddReservationBtnWhenReservationIsNewAndAssociatedClientExistsShouldInsert() {
 		addTestClientToDatabase(client, A_CLIENT_UUID);
 		
 		yearFormTxt.setText(A_YEAR);
@@ -415,10 +415,11 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	@DisplayName("Date is not valid")
 	public void testAddReservationWhenDateIsNotValidShouldNotInsert() {
 		addTestClientToDatabase(client, A_CLIENT_UUID);
+		String invalidDay = "32";
 		
 		yearFormTxt.setText(A_YEAR);
 		monthFormTxt.setText(A_MONTH);
-		dayFormTxt.setText("32");
+		dayFormTxt.setText(invalidDay);
 		addClientInList(client);
 		clientList.selectItem(0);
 		enableButton(bookingSwingView.getAddReservationBtn());
@@ -446,9 +447,7 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		rescheduleBtn.click();
 		
 		List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-		assertThat(reservationsInDB)
-			.doesNotContain(reservation)
-			.hasSize(1);
+		assertThat(reservationsInDB).doesNotContain(reservation).hasSize(1);
 		Reservation reservationInDB = reservationsInDB.get(0);
 		assertThat(reservationInDB.getDate()).isEqualTo(ANOTHER_LOCALDATE);
 		assertThat(reservationInDB.getId()).isEqualTo(A_RESERVATION_UUID);
@@ -471,17 +470,18 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		
 		assertThat(readAllReservationsFromDatabase())
 			.containsExactlyInAnyOrder(reservation, another_reservation)
-			.filteredOn((r) -> r.getId().equals(A_RESERVATION_UUID)).containsOnly(reservation);
+			.filteredOn(r -> r.getId().equals(A_RESERVATION_UUID)).containsOnly(reservation);
 	}
 
 	@Test
 	@DisplayName("New date is not valid")
 	public void testRescheduleBtnWhenNewDateIsNotValidShouldNotReschedule() {
 		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+		String invalidNewMonth = "0J";
 		
-		yearFormTxt.setText("2.23");
-		monthFormTxt.setText("0J");
-		dayFormTxt.setText("32");
+		yearFormTxt.setText(ANOTHER_YEAR);
+		monthFormTxt.setText(invalidNewMonth);
+		dayFormTxt.setText(ANOTHER_DAY);
 		addReservationInList(reservation);
 		reservationList.selectItem(0);
 		enableButton(bookingSwingView.getRescheduleBtn());
@@ -498,7 +498,6 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	@DisplayName("Reservation exists")
 	public void testRemoveReservationBtnWhenReservationExistsShouldRemove() {
 		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
-		addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
 		
 		addReservationInList(reservation);
 		reservationList.selectItem(0);
@@ -511,7 +510,8 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 
 	@Test
 	@DisplayName("Reservation doesn't exist")
-	public void testRemoveReservationBtnWhenReservationDoesNotExistShouldChangeNothing() {
+	public void testRemoveReservationBtnWhenReservationDoesNotExistShouldNotRemoveAnything() {
+		reservation.setId(A_RESERVATION_UUID);
 		addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
 		
 		addReservationInList(reservation);
