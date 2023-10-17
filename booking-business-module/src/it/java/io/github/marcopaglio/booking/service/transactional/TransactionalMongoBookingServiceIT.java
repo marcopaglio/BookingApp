@@ -263,7 +263,7 @@ class TransactionalMongoBookingServiceIT {
 				
 				assertThat(readAllClientsFromDatabase())
 					.containsExactlyInAnyOrder(client, another_client)
-					.filteredOn((c) -> c.getId().equals(A_CLIENT_UUID)).containsOnly(client);
+					.filteredOn(c -> c.getId().equals(A_CLIENT_UUID)).containsOnly(client);
 			}
 		}
 	}
@@ -376,7 +376,7 @@ class TransactionalMongoBookingServiceIT {
 				
 				assertThat(readAllReservationsFromDatabase())
 					.containsExactlyInAnyOrder(reservation, another_reservation)
-					.filteredOn((r) -> r.getId().equals(A_RESERVATION_UUID)).containsOnly(reservation);
+					.filteredOn(r -> r.getId().equals(A_RESERVATION_UUID)).containsOnly(reservation);
 			}
 		}
 
@@ -492,7 +492,7 @@ class TransactionalMongoBookingServiceIT {
 				service.removeClient(A_CLIENT_UUID);
 				
 				assertThat(readAllReservationsFromDatabase())
-					.filteredOn((r) -> r.getClientId() == A_CLIENT_UUID).isEmpty();
+					.filteredOn(r -> r.getClientId().equals(A_CLIENT_UUID)).isEmpty();
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(another_client);
@@ -522,7 +522,7 @@ class TransactionalMongoBookingServiceIT {
 				service.removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 				
 				assertThat(readAllReservationsFromDatabase())
-					.filteredOn((r) -> r.getClientId() == A_CLIENT_UUID).isEmpty();
+					.filteredOn(r -> r.getClientId().equals(A_CLIENT_UUID)).isEmpty();
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(another_client);

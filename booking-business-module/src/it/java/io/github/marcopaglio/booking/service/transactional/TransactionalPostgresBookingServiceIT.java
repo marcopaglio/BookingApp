@@ -228,7 +228,7 @@ class TransactionalPostgresBookingServiceIT {
 				
 				assertThat(readAllClientsFromDatabase())
 					.containsExactlyInAnyOrder(client, another_client)
-					.filteredOn((c) -> c.getId().equals(client_id)).containsOnly(client);
+					.filteredOn(c -> c.getId().equals(client_id)).containsOnly(client);
 			}
 		}
 	}
@@ -344,7 +344,7 @@ class TransactionalPostgresBookingServiceIT {
 				
 				assertThat(readAllReservationsFromDatabase())
 					.containsExactlyInAnyOrder(reservation, another_reservation)
-					.filteredOn((r) -> r.getId().equals(reservation_id)).containsOnly(reservation);
+					.filteredOn(r -> r.getId().equals(reservation_id)).containsOnly(reservation);
 			}
 		}
 
@@ -466,7 +466,7 @@ class TransactionalPostgresBookingServiceIT {
 				service.removeClient(client_id);
 				
 				assertThat(readAllReservationsFromDatabase())
-					.filteredOn((r) -> r.getClientId() == client_id).isEmpty();
+					.filteredOn(r -> r.getClientId().equals(client_id)).isEmpty();
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(another_client);
@@ -499,7 +499,7 @@ class TransactionalPostgresBookingServiceIT {
 				service.removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 				
 				assertThat(readAllReservationsFromDatabase())
-					.filteredOn((r) -> r.getClientId() == client_id).isEmpty();
+					.filteredOn(r -> r.getClientId().equals(client_id)).isEmpty();
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(another_client);
