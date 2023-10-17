@@ -5,6 +5,7 @@ import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
 import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOOKING_DB_NAME;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +25,6 @@ import org.assertj.swing.core.matcher.JButtonMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JButtonFixture;
-import org.assertj.swing.fixture.JLabelFixture;
 import org.assertj.swing.fixture.JListFixture;
 import org.assertj.swing.fixture.JTextComponentFixture;
 import org.assertj.swing.junit.runner.GUITestRunner;
@@ -61,10 +61,23 @@ import io.github.marcopaglio.booking.validator.restricted.RestrictedReservationV
 public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestCase {
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
-	private static final UUID A_CLIENT_UUID = UUID.fromString("9686dee5-1675-48ee-b5c3-81f164a9cf04");
+	private static final UUID A_CLIENT_UUID = UUID.fromString("4ed2e7a3-fa50-4889-bfe4-b833ddfc4f0b");
 	private static final String ANOTHER_FIRSTNAME = "Maria";
 	private static final String ANOTHER_LASTNAME = "De Lucia";
-	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("7b565e00-59cd-4de8-b70a-a08842317d5b");
+	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("4e506279-a3f3-4808-abb3-d055a09af078");
+
+	private static final String A_YEAR = "2022";
+	private static final String A_MONTH = "04";
+	private static final String A_DAY = "24";
+	private static final String A_DATE = A_YEAR + "-" + A_MONTH + "-" + A_DAY;
+	private static final LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
+	private static final UUID A_RESERVATION_UUID = UUID.fromString("92403799-acf3-45c9-896e-ef57b1f3be3b");
+	private static final String ANOTHER_YEAR = "2023";
+	private static final String ANOTHER_MONTH = "09";
+	private static final String ANOTHER_DAY = "05";
+	private static final String ANOTHER_DATE = ANOTHER_YEAR + "-" + ANOTHER_MONTH + "-" + ANOTHER_DAY;
+	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse(ANOTHER_DATE);
+	private static final UUID ANOTHER_RESERVATION_UUID = UUID.fromString("547b1ffc-0015-4ad8-a789-17528afd397a");
 
 	private static MongoClient mongoClient;
 	private static MongoDatabase database;
@@ -90,8 +103,6 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	private JTextComponentFixture yearFormTxt;
 	private JTextComponentFixture monthFormTxt;
 	private JTextComponentFixture dayFormTxt;
-	private JLabelFixture formErrorMsgLbl;
-	private JLabelFixture operationErrorMsgLbl;
 	private JButtonFixture addReservationBtn;
 	private JButtonFixture addClientBtn;
 	private JButtonFixture renameBtn;
@@ -102,6 +113,7 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	private JListFixture reservationList;
 
 	private Client client, another_client;
+	private Reservation reservation, another_reservation;
 
 	@BeforeClass
 	public static void setupClient() throws Exception {
@@ -166,10 +178,6 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		monthFormTxt = window.textBox("monthFormTxt");
 		dayFormTxt = window.textBox("dayFormTxt");
 		
-		// error labels
-		formErrorMsgLbl = window.label("formErrorMsgLbl");
-		operationErrorMsgLbl = window.label("operationErrorMsgLbl");
-		
 		// buttons
 		addReservationBtn = window.button(JButtonMatcher.withText("Add Reservation"));
 		addClientBtn = window.button(JButtonMatcher.withText("Add Client"));
@@ -185,8 +193,8 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		// entities
 		client = new Client(A_FIRSTNAME, A_LASTNAME);
 		another_client = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
-		//reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
-		//reservation.setId(A_RESERVATION_UUID);
+		reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
+		another_reservation = new Reservation(ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
 	}
 
 	@AfterClass
@@ -324,6 +332,197 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		assertThat(readAllClientsFromDatabase()).containsExactly(client);
 	}
 	////////////// Integration tests for 'RenameBtn'
+
+
+	////////////// Integration tests for 'RemoveClientBtn'
+	@Test
+	@DisplayName("Client exists with existing reservation")
+	public void testRemoveClientBtnWhenClientExistsWithAnExistingReservationShouldRemove() {
+		addTestClientToDatabase(client, A_CLIENT_UUID);
+		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+		addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
+		addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+		
+		addClientInList(client);
+		clientList.selectItem(0);
+		enableButton(bookingSwingView.getRemoveClientBtn());
+		
+		removeClientBtn.click();
+		
+		assertThat(readAllReservationsFromDatabase())
+			.filteredOn((r) -> r.getClientId() == A_CLIENT_UUID).isEmpty();
+		assertThat(readAllClientsFromDatabase()).doesNotContain(client);
+	}
+
+	@Test
+	@DisplayName("Client doesn't exist")
+	public void testRemoveClientBtnWhenClientDoesNotExistShouldChangeNothing() {
+		client.setId(A_CLIENT_UUID);
+		addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
+		addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+		
+		addClientInList(client);
+		clientList.selectItem(0);
+		enableButton(bookingSwingView.getRemoveClientBtn());
+		
+		removeClientBtn.click();
+		
+		assertThat(readAllReservationsFromDatabase()).containsExactly(another_reservation);
+		assertThat(readAllClientsFromDatabase()).containsExactly(another_client);
+	}
+	////////////// Integration tests for 'RemoveClientBtn'
+
+
+	////////////// Integration tests for 'AddReservationBtn'
+	@Test
+	@DisplayName("Reservation is new and client exists")
+	public void testAddReservationBtnWhenReservationIsNewAndAssociatedClientExistsShouldInsertAndReturnWithId() {
+		addTestClientToDatabase(client, A_CLIENT_UUID);
+		
+		yearFormTxt.setText(A_YEAR);
+		monthFormTxt.setText(A_MONTH);
+		dayFormTxt.setText(A_DAY);
+		addClientInList(client);
+		clientList.selectItem(0);
+		enableButton(bookingSwingView.getAddReservationBtn());
+		
+		addReservationBtn.click();
+		
+		assertThat(readAllReservationsFromDatabase()).containsExactly(reservation);
+	}
+
+	@Test
+	@DisplayName("Reservation already exists")
+	public void testAddReservationBtnWhenReservationAlreadyExistsShouldNotInsert() {
+		addTestClientToDatabase(client, A_CLIENT_UUID);
+		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+		
+		yearFormTxt.setText(A_YEAR);
+		monthFormTxt.setText(A_MONTH);
+		dayFormTxt.setText(A_DAY);
+		addClientInList(client);
+		clientList.selectItem(0);
+		enableButton(bookingSwingView.getAddReservationBtn());
+		
+		addReservationBtn.click();
+		
+		List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
+		assertThat(reservationsInDB).containsExactly(reservation);
+		assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
+	}
+
+	@Test
+	@DisplayName("Date is not valid")
+	public void testAddReservationWhenDateIsNotValidShouldNotInsert() {
+		addTestClientToDatabase(client, A_CLIENT_UUID);
+		
+		yearFormTxt.setText(A_YEAR);
+		monthFormTxt.setText(A_MONTH);
+		dayFormTxt.setText("32");
+		addClientInList(client);
+		clientList.selectItem(0);
+		enableButton(bookingSwingView.getAddReservationBtn());
+		
+		addReservationBtn.click();
+		
+		assertThat(readAllReservationsFromDatabase()).isEmpty();
+	}
+	////////////// Integration tests for 'AddReservationBtn'
+
+
+	////////////// Integration tests for 'RescheduleBtn'
+	@Test
+	@DisplayName("A same date reservation doesn't exist")
+	public void testRescheduleBtnWhenThereIsNoReservationInTheSameNewDateShouldRescheduleWithoutChangingId() {
+		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+		
+		yearFormTxt.setText(ANOTHER_YEAR);
+		monthFormTxt.setText(ANOTHER_MONTH);
+		dayFormTxt.setText(ANOTHER_DAY);
+		addReservationInList(reservation);
+		reservationList.selectItem(0);
+		enableButton(bookingSwingView.getRescheduleBtn());
+		
+		rescheduleBtn.click();
+		
+		List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
+		assertThat(reservationsInDB)
+			.doesNotContain(reservation)
+			.hasSize(1);
+		Reservation reservationInDB = reservationsInDB.get(0);
+		assertThat(reservationInDB.getDate()).isEqualTo(ANOTHER_LOCALDATE);
+		assertThat(reservationInDB.getId()).isEqualTo(A_RESERVATION_UUID);
+	}
+
+	@Test
+	@DisplayName("A same date reservation already exists")
+	public void testRescheduleBtnWhenThereIsAlreadyAReservationInTheSameNewDateShouldNotReschedule() {
+		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+		addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+		
+		yearFormTxt.setText(ANOTHER_YEAR);
+		monthFormTxt.setText(ANOTHER_MONTH);
+		dayFormTxt.setText(ANOTHER_DAY);
+		addReservationInList(reservation);
+		reservationList.selectItem(0);
+		enableButton(bookingSwingView.getRescheduleBtn());
+		
+		rescheduleBtn.click();
+		
+		assertThat(readAllReservationsFromDatabase())
+			.containsExactlyInAnyOrder(reservation, another_reservation)
+			.filteredOn((r) -> r.getId().equals(A_RESERVATION_UUID)).containsOnly(reservation);
+	}
+
+	@Test
+	@DisplayName("New date is not valid")
+	public void testRescheduleBtnWhenNewDateIsNotValidShouldNotReschedule() {
+		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+		
+		yearFormTxt.setText("2.23");
+		monthFormTxt.setText("0J");
+		dayFormTxt.setText("32");
+		addReservationInList(reservation);
+		reservationList.selectItem(0);
+		enableButton(bookingSwingView.getRescheduleBtn());
+		
+		rescheduleBtn.click();
+		
+		assertThat(readAllReservationsFromDatabase()).containsExactly(reservation);
+	}
+	////////////// Integration tests for 'RescheduleBtn'
+
+
+	////////////// Integration tests for 'RemoveReservationBtn'
+	@Test
+	@DisplayName("Reservation exists")
+	public void testRemoveReservationBtnWhenReservationExistsShouldRemove() {
+		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+		addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+		
+		addReservationInList(reservation);
+		reservationList.selectItem(0);
+		enableButton(bookingSwingView.getRemoveReservationBtn());
+		
+		removeReservationBtn.click();
+		
+		assertThat(readAllReservationsFromDatabase()).doesNotContain(reservation);
+	}
+
+	@Test
+	@DisplayName("Reservation doesn't exist")
+	public void testRemoveReservationBtnWhenReservationDoesNotExistShouldChangeNothing() {
+		addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
+		
+		addReservationInList(reservation);
+		reservationList.selectItem(0);
+		enableButton(bookingSwingView.getRemoveReservationBtn());
+		
+		removeReservationBtn.click();
+		
+		assertThat(readAllReservationsFromDatabase()).containsExactly(another_reservation);
+	}
+	////////////// Integration tests for 'RemoveReservationBtn'
 
 
 	private void enableButton(JButton button) {
