@@ -20,6 +20,8 @@ import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 import static org.bson.codecs.pojo.Conventions.ANNOTATION_CONVENTION;
 import static org.bson.codecs.pojo.Conventions.USE_GETTERS_FOR_SETTERS;
+import static org.assertj.swing.timing.Pause.pause;
+import static org.assertj.swing.timing.Timeout.timeout;
 
 import org.assertj.swing.core.matcher.JButtonMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
@@ -29,6 +31,7 @@ import org.assertj.swing.fixture.JListFixture;
 import org.assertj.swing.fixture.JTextComponentFixture;
 import org.assertj.swing.junit.runner.GUITestRunner;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
+import org.assertj.swing.timing.Condition;
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
@@ -59,6 +62,8 @@ import io.github.marcopaglio.booking.validator.restricted.RestrictedReservationV
 @DisplayName("Integration tests for BookingSwingView, ServedBookingPresenter and MongoDB")
 @RunWith(GUITestRunner.class)
 public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestCase {
+	private static final long TIMEOUT = 5000;
+
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
 	private static final UUID A_CLIENT_UUID = UUID.fromString("4ed2e7a3-fa50-4889-bfe4-b833ddfc4f0b");
@@ -199,6 +204,15 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		
 		addClientBtn.click();
 		
+		pause(
+			new Condition("Client list to contain clients") {
+				@Override
+				public boolean test() {
+					return clientList.contents().length != 0;
+				}
+			}
+		, timeout(TIMEOUT));
+		
 		assertThat(readAllClientsFromDatabase()).containsExactly(client);
 	}
 
@@ -216,6 +230,16 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		enableButton(bookingSwingView.getRenameBtn());
 		
 		renameBtn.click();
+		
+		pause(
+			new Condition("Name forms to be reset") {
+				@Override
+				public boolean test() {
+					return nameFormTxt.text().isEmpty() && 
+							surnameFormTxt.text().isEmpty();
+				}
+			}
+		, timeout(TIMEOUT));
 		
 		List<Client> clientsInDB = readAllClientsFromDatabase();
 		assertThat(clientsInDB).doesNotContain(client).hasSize(1);
@@ -237,6 +261,15 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		
 		removeClientBtn.click();
 		
+		pause(
+			new Condition("Client list to contain nothing") {
+				@Override
+				public boolean test() {
+					return clientList.contents().length == 0;
+				}
+			}
+		, timeout(TIMEOUT));
+		
 		assertThat(readAllClientsFromDatabase()).doesNotContain(client);
 		assertThat(readAllReservationsFromDatabase())
 			.filteredOn(r -> r.getClientId().equals(A_CLIENT_UUID)).isEmpty();
@@ -255,6 +288,15 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		enableButton(bookingSwingView.getAddReservationBtn());
 		
 		addReservationBtn.click();
+		
+		pause(
+			new Condition("Reservation list to contain reservations") {
+				@Override
+				public boolean test() {
+					return reservationList.contents().length != 0;
+				}
+			}
+		, timeout(TIMEOUT));
 		
 		assertThat(readAllReservationsFromDatabase()).containsExactly(reservation);
 	}
@@ -276,6 +318,17 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		
 		rescheduleBtn.click();
 		
+		pause(
+			new Condition("Date forms to be reset") {
+				@Override
+				public boolean test() {
+					return yearFormTxt.text().isEmpty() && 
+							monthFormTxt.text().isEmpty() && 
+							dayFormTxt.text().isEmpty();
+				}
+			}
+		, timeout(TIMEOUT));
+		
 		List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
 		assertThat(reservationsInDB).doesNotContain(reservation).hasSize(1);
 		Reservation reservationInDB = reservationsInDB.get(0);
@@ -294,6 +347,15 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		enableButton(bookingSwingView.getRemoveReservationBtn());
 		
 		removeReservationBtn.click();
+		
+		pause(
+			new Condition("Reservation list to contain nothing") {
+				@Override
+				public boolean test() {
+					return reservationList.contents().length == 0;
+				}
+			}
+		, timeout(TIMEOUT));
 		
 		assertThat(readAllReservationsFromDatabase()).doesNotContain(reservation);
 	}

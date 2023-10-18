@@ -111,7 +111,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	public void testAllClientsWhenThereAreNoClientsInRepositoryShouldShowNothingInClientList() {
 		// default stubbing for bookingService.findAllClients()
 		
-		GuiActionRunner.execute(() -> servedBookingPresenter.allClients());
+		servedBookingPresenter.allClients();
 		
 		verify(bookingService).findAllClients();
 		assertThat(clientList.contents()).isEmpty();
@@ -125,7 +125,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(bookingService.findAllClients())
 			.thenReturn(Arrays.asList(client, anotherClient));
 		
-		GuiActionRunner.execute(() -> servedBookingPresenter.allClients());
+		servedBookingPresenter.allClients();
 		
 		verify(bookingService).findAllClients();
 		assertThat(clientList.contents())
@@ -140,7 +140,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	public void testAllReservationsWhenThereAreNoReservationsInRepositoryShouldShowNothingInReservationList() {
 		// default stubbing for bookingService.findAllReservations()
 		
-		GuiActionRunner.execute(() -> servedBookingPresenter.allReservations());
+		servedBookingPresenter.allReservations();
 		
 		verify(bookingService).findAllReservations();
 		assertThat(reservationList.contents()).isEmpty();
@@ -154,7 +154,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(bookingService.findAllReservations())
 			.thenReturn(Arrays.asList(reservation, anotherReservation));
 		
-		GuiActionRunner.execute(() -> servedBookingPresenter.allReservations());
+		servedBookingPresenter.allReservations();
 		
 		verify(bookingService).findAllReservations();
 		assertThat(reservationList.contents()).containsExactlyInAnyOrder(
@@ -170,7 +170,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		addClientInList(client);
 		addReservationInList(reservation);
 		
-		GuiActionRunner.execute(() -> servedBookingPresenter.deleteClient(client));
+		servedBookingPresenter.deleteClient(client);
 		
 		verify(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 		assertThat(reservationList.contents())
@@ -189,7 +189,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		doThrow(new InstanceNotFoundException())
 			.when(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 		
-		GuiActionRunner.execute(() -> servedBookingPresenter.deleteClient(client));
+		servedBookingPresenter.deleteClient(client);
 		
 		operationErrorMsgLbl.requireText(client.toString() + " no longer exists.");
 		assertThat(clientList.contents()).isEmpty();
@@ -203,8 +203,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	public void testDeleteReservationWhenReservationIsInRepositoryShouldDelegateToServiceAndUpdateReservationList() {
 		addReservationInList(reservation);
 		
-		GuiActionRunner.execute(
-				() -> servedBookingPresenter.deleteReservation(reservation));
+		servedBookingPresenter.deleteReservation(reservation);
 		
 		verify(bookingService).removeReservationOn(A_LOCALDATE);
 		assertThat(reservationList.contents())
@@ -220,8 +219,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		doThrow(new InstanceNotFoundException())
 			.when(bookingService).removeReservationOn(A_LOCALDATE);
 		
-		GuiActionRunner.execute(
-				() -> servedBookingPresenter.deleteReservation(reservation));
+		servedBookingPresenter.deleteReservation(reservation);
 		
 		operationErrorMsgLbl.requireText(reservation.toString() + " no longer exists.");
 		assertThat(reservationList.contents()).isEmpty();
@@ -237,8 +235,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(clientValidator.validateLastName(A_LASTNAME)).thenReturn(A_LASTNAME);
 		when(bookingService.insertNewClient(client)).thenReturn(client);
 		
-		GuiActionRunner.execute(
-				() -> servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME));
+		servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME);
 		
 		verify(clientValidator).validateFirstName(A_FIRSTNAME);
 		verify(clientValidator).validateLastName(A_LASTNAME);
@@ -255,8 +252,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			.thenThrow(new InstanceAlreadyExistsException());
 		when(bookingService.findAllClients()).thenReturn(Arrays.asList(client));
 		
-		GuiActionRunner.execute(
-				() -> servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME));
+		servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME);
 		
 		operationErrorMsgLbl.requireText("A client named " + A_FIRSTNAME
 				+ " " + A_LASTNAME + " has already been made.");
@@ -269,8 +265,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(clientValidator.validateFirstName(A_FIRSTNAME))
 			.thenThrow(new IllegalArgumentException());
 		
-		GuiActionRunner.execute(
-				() -> servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME));
+		servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME);
 		
 		formErrorMsgLbl.requireText("Client's name is not valid.");
 	}
@@ -281,8 +276,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(clientValidator.validateLastName(A_LASTNAME))
 			.thenThrow(new IllegalArgumentException());
 		
-		GuiActionRunner.execute(
-				() -> servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME));
+		servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME);
 		
 		formErrorMsgLbl.requireText("Client's surname is not valid.");
 	}
@@ -297,8 +291,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(reservationValidator.validateDate(A_DATE)).thenReturn(A_LOCALDATE);
 		when(bookingService.insertNewReservation(reservation)).thenReturn(reservation);
 		
-		GuiActionRunner.execute(
-				() -> servedBookingPresenter.addReservation(client, A_DATE));
+		servedBookingPresenter.addReservation(client, A_DATE);
 		
 		verify(reservationValidator).validateClientId(A_CLIENT_UUID);
 		verify(reservationValidator).validateDate(A_DATE);
@@ -316,8 +309,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(bookingService.findAllReservations())
 			.thenReturn(Arrays.asList(reservation));
 		
-		GuiActionRunner.execute(
-				() -> servedBookingPresenter.addReservation(client, A_DATE));
+		servedBookingPresenter.addReservation(client, A_DATE);
 		
 		operationErrorMsgLbl.requireText(
 				"A reservation on " + A_DATE + " has already been made.");
@@ -330,8 +322,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(reservationValidator.validateClientId(A_CLIENT_UUID))
 			.thenThrow(new IllegalArgumentException());
 		
-		GuiActionRunner.execute(
-				() -> servedBookingPresenter.addReservation(client, A_DATE));
+		servedBookingPresenter.addReservation(client, A_DATE);
 		
 		formErrorMsgLbl.requireText(
 				"Client's identifier associated with reservation is not valid.");
@@ -343,8 +334,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(reservationValidator.validateDate(A_DATE))
 			.thenThrow(new IllegalArgumentException());
 		
-		GuiActionRunner.execute(
-				() -> servedBookingPresenter.addReservation(client, A_DATE));
+		servedBookingPresenter.addReservation(client, A_DATE);
 		
 		formErrorMsgLbl.requireText("Reservation's date is not valid.");
 	}
@@ -363,8 +353,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(bookingService.renameClient(A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
 			.thenReturn(renamedClient);
 		
-		GuiActionRunner.execute(() -> servedBookingPresenter
-				.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME));
+		servedBookingPresenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 		
 		verify(clientValidator).validateFirstName(ANOTHER_FIRSTNAME);
 		verify(clientValidator).validateLastName(ANOTHER_LASTNAME);
@@ -387,8 +376,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(bookingService.findAllClients())
 			.thenReturn(Arrays.asList(client, hiddenClient));
 		
-		GuiActionRunner.execute(() -> servedBookingPresenter
-				.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME));
+		servedBookingPresenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 		
 		operationErrorMsgLbl.requireText("A client named " + ANOTHER_FIRSTNAME
 				+ " " + ANOTHER_LASTNAME + " has already been made.");
@@ -402,8 +390,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(clientValidator.validateFirstName(ANOTHER_FIRSTNAME))
 			.thenThrow(new IllegalArgumentException());
 		
-		GuiActionRunner.execute(() -> servedBookingPresenter
-				.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME));
+		servedBookingPresenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 		
 		formErrorMsgLbl.requireText("Client's name is not valid.");
 	}
@@ -414,8 +401,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(clientValidator.validateLastName(ANOTHER_LASTNAME))
 			.thenThrow(new IllegalArgumentException());
 		
-		GuiActionRunner.execute(() -> servedBookingPresenter
-				.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME));
+		servedBookingPresenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 		
 		formErrorMsgLbl.requireText("Client's surname is not valid.");
 	}
@@ -433,8 +419,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(bookingService.rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE))
 			.thenReturn(rescheduledReservation);
 		
-		GuiActionRunner.execute(() -> servedBookingPresenter
-				.rescheduleReservation(reservation, ANOTHER_DATE));
+		servedBookingPresenter.rescheduleReservation(reservation, ANOTHER_DATE);
 		
 		verify(reservationValidator).validateDate(ANOTHER_DATE);
 		verify(bookingService).rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE);
@@ -456,8 +441,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(bookingService.findAllReservations())
 			.thenReturn(Arrays.asList(reservation, hiddenReservation));
 		
-		GuiActionRunner.execute(() -> servedBookingPresenter
-				.rescheduleReservation(reservation, ANOTHER_DATE));
+		servedBookingPresenter.rescheduleReservation(reservation, ANOTHER_DATE);
 		
 		operationErrorMsgLbl.requireText(
 				"A reservation on " + ANOTHER_LOCALDATE + " has already been made.");
@@ -471,8 +455,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(reservationValidator.validateDate(ANOTHER_DATE))
 			.thenThrow(new IllegalArgumentException());
 		
-		GuiActionRunner.execute(() -> servedBookingPresenter
-				.rescheduleReservation(reservation, ANOTHER_DATE));
+		servedBookingPresenter.rescheduleReservation(reservation, ANOTHER_DATE);
 		
 		formErrorMsgLbl.requireText("Reservation's date is not valid.");
 	}
