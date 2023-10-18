@@ -35,8 +35,6 @@ import java.awt.Color;
  * A concrete implementation of the view for the booking application using Swing.
  */
 public class BookingSwingView extends JFrame implements BookingView {
-	private static final int TIMEOUT = 4000;
-
 	private static final long serialVersionUID = 1L;
 
 	private JPanel contentPane;
@@ -458,16 +456,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	private final transient ActionListener addClientAction = e -> {
 		addClientBtn.setEnabled(false);
-		new Thread(() -> {
-			try {
-				Thread.sleep(TIMEOUT);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			bookingPresenter.addClient(nameFormTxt.getText(), surnameFormTxt.getText());
-		}
-				
+		new Thread(() -> bookingPresenter
+				.addClient(nameFormTxt.getText(), surnameFormTxt.getText())
 		).start();
 		
 	};
@@ -478,16 +468,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	private final transient ActionListener renameAction = e -> {
 		renameBtn.setEnabled(false);
-		new Thread(() -> {
-			try {
-				Thread.sleep(TIMEOUT);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			bookingPresenter.renameClient(
-				clientList.getSelectedValue(), nameFormTxt.getText(), surnameFormTxt.getText());
-		}
+		new Thread(() -> bookingPresenter.renameClient(
+				clientList.getSelectedValue(), nameFormTxt.getText(), surnameFormTxt.getText())
 		).start();
 	};
 
@@ -497,16 +479,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	private final transient ActionListener removeClientAction = e -> {
 		removeClientBtn.setEnabled(false);
-		new Thread(() -> {
-			try {
-				Thread.sleep(TIMEOUT);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			bookingPresenter
-				.deleteClient(clientList.getSelectedValue());
-		}
+		new Thread(() -> bookingPresenter
+				.deleteClient(clientList.getSelectedValue())
 		).start();
 	};
 
@@ -516,16 +490,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	private final transient ActionListener addReservationAction = e -> {
 		addReservationBtn.setEnabled(false);
-		new Thread(() -> {
-			try {
-				Thread.sleep(TIMEOUT);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			bookingPresenter
-				.addReservation(clientList.getSelectedValue(), getDateViaForms());
-		}
+		new Thread(() -> bookingPresenter
+				.addReservation(clientList.getSelectedValue(), getDateViaForms())
 		).start();
 	};
 
@@ -535,16 +501,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	private final transient ActionListener rescheduleAction = e -> {
 		rescheduleBtn.setEnabled(false);
-		new Thread(() -> {
-			try {
-				Thread.sleep(TIMEOUT);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			bookingPresenter
-				.rescheduleReservation(reservationList.getSelectedValue(), getDateViaForms());
-		}
+		new Thread(() -> bookingPresenter
+				.rescheduleReservation(reservationList.getSelectedValue(), getDateViaForms())
 		).start();
 	};
 
@@ -554,16 +512,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 */
 	private final transient ActionListener removeReservationAction = e -> {
 		removeReservationBtn.setEnabled(false);
-		new Thread(() -> {
-			try {
-				Thread.sleep(TIMEOUT);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			bookingPresenter
-				.deleteReservation(reservationList.getSelectedValue());
-		}
+		new Thread(() -> bookingPresenter
+				.deleteReservation(reservationList.getSelectedValue())
 		).start();
 	};
 
