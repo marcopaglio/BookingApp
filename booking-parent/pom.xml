@@ -37,6 +37,7 @@
     <testcontainers.version>1.18.3</testcontainers.version>
     <logback.version>1.2.12</logback.version>
     <postgresql.version>42.6.0</postgresql.version>
+    <awaitility.version>4.2.0</awaitility.version>
 
 
     <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
@@ -108,6 +109,11 @@
         <version>${testcontainers.version}</version>
         <scope>import</scope>
         <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.awaitility</groupId>
+        <artifactId>awaitility</artifactId>
+        <version>${awaitility.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
