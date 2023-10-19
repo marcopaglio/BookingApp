@@ -264,7 +264,7 @@ class ServedBookingPresenterTest {
 
 		@Test
 		@DisplayName("Concurrent requests occur")
-		void testDeleteClientWhenConcurrentRequestsOccurShouldAvoidRaceConditions() {
+		void testDeleteClientWhenConcurrentRequestsOccurShouldDeleteOnce() {
 			List<Client> clients = new ArrayList<>();
 			IntStream.range(0, NUM_OF_THREADS).forEach(i -> clients.add(i, A_CLIENT));
 			
@@ -362,7 +362,7 @@ class ServedBookingPresenterTest {
 
 		@Test
 		@DisplayName("Concurrent requests occur")
-		void testDeleteReservationWhenConcurrentRequestsOccurShouldAvoidRaceConditions() {
+		void testDeleteReservationWhenConcurrentRequestsOccurShouldDeleteOnce() {
 			List<Reservation> reservations = new ArrayList<>();
 			IntStream.range(0, NUM_OF_THREADS).forEach(i -> reservations.add(i, A_RESERVATION));
 			
@@ -468,7 +468,7 @@ class ServedBookingPresenterTest {
 
 			@Test
 			@DisplayName("Concurrent requests occur")
-			void testAddClientWhenConcurrentRequestsOccurShouldAvoidRaceConditions() {
+			void testAddClientWhenConcurrentRequestsOccurShouldAddOnce() {
 				List<Client> clients = new ArrayList<>();
 				
 				doAnswer(invocation -> {
@@ -644,7 +644,7 @@ class ServedBookingPresenterTest {
 
 			@Test
 			@DisplayName("Concurrent requests occur")
-			void testAddReservationWhenConcurrentRequestsOccurShouldAvoidRaceConditions() {
+			void testAddReservationWhenConcurrentRequestsOccurShouldAddOnce() {
 				List<Reservation> reservations = new ArrayList<>();
 				
 				doAnswer(invocation -> {
@@ -887,7 +887,7 @@ class ServedBookingPresenterTest {
 
 			@Test
 			@DisplayName("Concurrent requests occur")
-			void testRenameClientWhenConcurrentRequestsOccurShouldAvoidRaceConditions() {
+			void testRenameClientWhenConcurrentRequestsOccurShouldRenameOnce() {
 				List<Client> clients = new ArrayList<>();
 				IntStream.range(0, NUM_OF_THREADS).forEach(i -> clients.add(i, A_CLIENT));
 				
@@ -1086,7 +1086,7 @@ class ServedBookingPresenterTest {
 
 			@Test
 			@DisplayName("Concurrent requests occur")
-			void testRescheduleReservationWhenConcurrentRequestsOccurShouldAvoidRaceConditions() {
+			void testRescheduleReservationWhenConcurrentRequestsOccurShouldRescheduleOnce() {
 				List<Reservation> reservations = new ArrayList<>();
 				IntStream.range(0, NUM_OF_THREADS).forEach(i -> reservations.add(i, A_RESERVATION));
 				
