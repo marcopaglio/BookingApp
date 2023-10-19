@@ -8,6 +8,7 @@ import static org.assertj.swing.timing.Timeout.timeout;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import javax.swing.JButton;
@@ -235,7 +236,7 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 		
 		assertThat(readAllClientsFromDatabase()).doesNotContain(client);
 		assertThat(readAllReservationsFromDatabase())
-			.filteredOn(r -> r.getClientId().equals(client_id)).isEmpty();
+			.filteredOn(r -> Objects.equals(r.getClientId(), client_id)).isEmpty();
 	}
 
 	@Test

@@ -12,6 +12,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterAll;
@@ -228,7 +229,7 @@ class TransactionalPostgresBookingServiceIT {
 				
 				assertThat(readAllClientsFromDatabase())
 					.containsExactlyInAnyOrder(client, another_client)
-					.filteredOn(c -> c.getId().equals(client_id)).containsOnly(client);
+					.filteredOn(c -> Objects.equals(c.getId(), client_id)).containsOnly(client);
 			}
 		}
 	}
@@ -344,7 +345,7 @@ class TransactionalPostgresBookingServiceIT {
 				
 				assertThat(readAllReservationsFromDatabase())
 					.containsExactlyInAnyOrder(reservation, another_reservation)
-					.filteredOn(r -> r.getId().equals(reservation_id)).containsOnly(reservation);
+					.filteredOn(r -> Objects.equals(r.getId(), reservation_id)).containsOnly(reservation);
 			}
 		}
 
@@ -466,7 +467,7 @@ class TransactionalPostgresBookingServiceIT {
 				service.removeClient(client_id);
 				
 				assertThat(readAllReservationsFromDatabase())
-					.filteredOn(r -> r.getClientId().equals(client_id)).isEmpty();
+					.filteredOn(r -> Objects.equals(r.getClientId(), client_id)).isEmpty();
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(another_client);
@@ -499,7 +500,7 @@ class TransactionalPostgresBookingServiceIT {
 				service.removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 				
 				assertThat(readAllReservationsFromDatabase())
-					.filteredOn(r -> r.getClientId().equals(client_id)).isEmpty();
+					.filteredOn(r -> Objects.equals(r.getClientId(), client_id)).isEmpty();
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(another_client);

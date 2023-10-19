@@ -8,6 +8,7 @@ import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOO
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -272,7 +273,7 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		
 		assertThat(readAllClientsFromDatabase()).doesNotContain(client);
 		assertThat(readAllReservationsFromDatabase())
-			.filteredOn(r -> r.getClientId().equals(A_CLIENT_UUID)).isEmpty();
+			.filteredOn(r -> Objects.equals(r.getClientId(), A_CLIENT_UUID)).isEmpty();
 	}
 
 	@Test

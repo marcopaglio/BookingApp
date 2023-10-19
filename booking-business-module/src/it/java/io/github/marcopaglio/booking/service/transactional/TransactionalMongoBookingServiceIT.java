@@ -19,6 +19,7 @@ import static org.bson.codecs.pojo.Conventions.USE_GETTERS_FOR_SETTERS;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -263,7 +264,7 @@ class TransactionalMongoBookingServiceIT {
 				
 				assertThat(readAllClientsFromDatabase())
 					.containsExactlyInAnyOrder(client, another_client)
-					.filteredOn(c -> c.getId().equals(A_CLIENT_UUID)).containsOnly(client);
+					.filteredOn(c -> Objects.equals(c.getId(), A_CLIENT_UUID)).containsOnly(client);
 			}
 		}
 	}
@@ -376,7 +377,7 @@ class TransactionalMongoBookingServiceIT {
 				
 				assertThat(readAllReservationsFromDatabase())
 					.containsExactlyInAnyOrder(reservation, another_reservation)
-					.filteredOn(r -> r.getId().equals(A_RESERVATION_UUID)).containsOnly(reservation);
+					.filteredOn(r -> Objects.equals(r.getId(), A_RESERVATION_UUID)).containsOnly(reservation);
 			}
 		}
 
@@ -492,7 +493,7 @@ class TransactionalMongoBookingServiceIT {
 				service.removeClient(A_CLIENT_UUID);
 				
 				assertThat(readAllReservationsFromDatabase())
-					.filteredOn(r -> r.getClientId().equals(A_CLIENT_UUID)).isEmpty();
+					.filteredOn(r -> Objects.equals(r.getClientId(), A_CLIENT_UUID)).isEmpty();
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(another_client);
@@ -522,7 +523,7 @@ class TransactionalMongoBookingServiceIT {
 				service.removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 				
 				assertThat(readAllReservationsFromDatabase())
-					.filteredOn(r -> r.getClientId().equals(A_CLIENT_UUID)).isEmpty();
+					.filteredOn(r -> Objects.equals(r.getClientId(), A_CLIENT_UUID)).isEmpty();
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(another_client);
