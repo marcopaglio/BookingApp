@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import org.bson.BsonDocument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -24,6 +25,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.mongodb.MongoCommandException;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 
@@ -203,6 +206,23 @@ class TransactionMongoManagerTest {
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
 		}
+
+		@Test
+		@DisplayName("Commit fails")
+		void testDoInTransactionWhenCommitFailsShouldRollBackAndThrow() {
+			ClientTransactionCode<List<Client>> code =
+					(ClientRepository clientRepository) -> clientRepository.findAll();
+			
+			doThrow(new MongoCommandException(new BsonDocument(), new ServerAddress()))
+				.when(transactionMongoHandler).commitTransaction();
+			
+			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
+				.isInstanceOf(TransactionException.class)
+				.hasMessage("Transaction fails due to a commitment failure.");
+			
+			verify(transactionMongoHandler).commitTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
+		}
 	}
 
 	@Nested
@@ -320,6 +340,23 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+		}
+
+		@Test
+		@DisplayName("Commit fails")
+		void testDoInTransactionWhenCommitFailsShouldRollBackAndThrow() {
+			ReservationTransactionCode<List<Reservation>> code = 
+					(ReservationRepository reservationRepository) -> reservationRepository.findAll();
+			
+			doThrow(new MongoCommandException(new BsonDocument(), new ServerAddress()))
+				.when(transactionMongoHandler).commitTransaction();
+			
+			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
+				.isInstanceOf(TransactionException.class)
+				.hasMessage("Transaction fails due to a commitment failure.");
+			
+			verify(transactionMongoHandler).commitTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
 		}
 	}
 
@@ -539,6 +576,26 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+		}
+
+		@Test
+		@DisplayName("Commit fails")
+		void testDoInTransactionWhenCommitFailsShouldRollBackAndThrow() {
+			ClientReservationTransactionCode<List<Reservation>> code = 
+				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+					clientRepository.findAll();
+					return reservationRepository.findAll();
+				};
+			
+			doThrow(new MongoCommandException(new BsonDocument(), new ServerAddress()))
+				.when(transactionMongoHandler).commitTransaction();
+			
+			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
+				.isInstanceOf(TransactionException.class)
+				.hasMessage("Transaction fails due to a commitment failure.");
+			
+			verify(transactionMongoHandler).commitTransaction();
+			verify(transactionMongoHandler).rollbackTransaction();
 		}
 	}
 }

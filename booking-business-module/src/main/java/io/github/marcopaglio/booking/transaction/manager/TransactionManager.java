@@ -24,26 +24,27 @@ public abstract class TransactionManager {
 	/**
 	 * Creates meaningful logs on behalf of the class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(TransactionManager.class);
+	protected static final Logger LOGGER = LogManager.getLogger(TransactionManager.class);
+
 	/**
 	 * Specifies that the reason the transaction fails is the passing of an invalid argument.
 	 */
-	public static final String INVALID_ARGUMENT = "invalid argument(s) passed";
+	private static final String INVALID_ARGUMENT = "invalid argument(s) passed";
 
 	/**
 	 * Specifies that the reason the transaction fails is an update failure.
 	 */
-	public static final String UPDATE_FAILURE = "an update failure";
+	private static final String UPDATE_FAILURE = "an update failure";
 
 	/**
 	 * Specifies that the reason the transaction fails is a not-null constraint violation.
 	 */
-	public static final String VIOLATION_OF_NOT_NULL_CONSTRAINT = "violation of not-null constraint(s)";
+	private static final String VIOLATION_OF_NOT_NULL_CONSTRAINT = "violation of not-null constraint(s)";
 
 	/**
 	 * Specifies that the reason the transaction fails is a uniqueness constraint violation.
 	 */
-	public static final String VIOLATION_OF_UNIQUENESS_CONSTRAINT = "violation of uniqueness constraint(s)";
+	private static final String VIOLATION_OF_UNIQUENESS_CONSTRAINT = "violation of uniqueness constraint(s)";
 
 	/**
 	 * Used for creation of {@code EntityManager} instances.

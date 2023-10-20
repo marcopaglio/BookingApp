@@ -12,12 +12,17 @@ import io.github.marcopaglio.booking.transaction.handler.factory.TransactionHand
 import io.github.marcopaglio.booking.transaction.handler.postgres.TransactionPostgresHandler;
 import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.RollbackException;
 
 /**
  * An implementation of {@code TransactionManager} for managing code executed
  * on PostgreSQL within transactions.
  */
 public class TransactionPostgresManager extends TransactionManager {
+	/**
+	 * Specifies that the reason the transaction fails is a commitment failure.
+	 */
+	private static final String COMMIT_FAILURE = "a commitment failure";
 
 	/**
 	 * Used for executing code on {@code ClientRepository} and/or {@code ReservationRepository}
@@ -64,7 +69,13 @@ public class TransactionPostgresManager extends TransactionManager {
 				transactionHandlerFactory.createTransactionHandler(emf);
 		ClientPostgresRepository clientRepository = clientRepositoryFactory
 				.createClientRepository(sessionHandler.getHandler());
-		return executeInTransaction(code, sessionHandler, clientRepository);
+		try {
+			return executeInTransaction(code, sessionHandler, clientRepository);
+		} catch(RollbackException e) {
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(
+					transactionFailureMsg(COMMIT_FAILURE), e.getCause());
+		}
 	}
 
 	/**
@@ -85,7 +96,13 @@ public class TransactionPostgresManager extends TransactionManager {
 				transactionHandlerFactory.createTransactionHandler(emf);
 		ReservationPostgresRepository reservationRepository = reservationRepositoryFactory
 				.createReservationRepository(sessionHandler.getHandler());
-		return executeInTransaction(code, sessionHandler, reservationRepository);
+		try {
+			return executeInTransaction(code, sessionHandler, reservationRepository);
+		} catch(RollbackException e) {
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(
+					transactionFailureMsg(COMMIT_FAILURE), e.getCause());
+		}
 	}
 
 	/**
@@ -108,6 +125,12 @@ public class TransactionPostgresManager extends TransactionManager {
 				.createClientRepository(sessionHandler.getHandler());
 		ReservationPostgresRepository reservationRepository = reservationRepositoryFactory
 				.createReservationRepository(sessionHandler.getHandler());
-		return executeInTransaction(code, sessionHandler, clientRepository, reservationRepository);
+		try {
+			return executeInTransaction(code, sessionHandler, clientRepository, reservationRepository);
+		} catch(RollbackException e) {
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(
+					transactionFailureMsg(COMMIT_FAILURE), e.getCause());
+		}
 	}
 }
