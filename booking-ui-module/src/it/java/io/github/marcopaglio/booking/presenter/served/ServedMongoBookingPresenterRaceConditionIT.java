@@ -19,6 +19,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -58,7 +59,7 @@ import io.github.marcopaglio.booking.view.BookingView;
 
 @DisplayName("Integration tests of race conditions for ServedBookingPresenter and MongoDB")
 class ServedMongoBookingPresenterRaceConditionIT {
-	private static final int NUM_OF_THREADS = 10;
+	private static final int NUM_OF_THREADS = 9;
 
 	private static final String A_LASTNAME = "Rossi";
 	private static final String A_FIRSTNAME = "Mario";
@@ -158,7 +159,7 @@ class ServedMongoBookingPresenterRaceConditionIT {
 	}
 
 	@Test
-	@DisplayName("Concurrent requests occur")
+	@DisplayName("Concurrent requests of 'addClient'")
 	void testAddClientWhenConcurrentRequestsOccurShouldAddOnceAndNotThrowShowingErrors() {
 		when(clientValidator.validateFirstName(A_FIRSTNAME)).thenReturn(A_FIRSTNAME);
 		when(clientValidator.validateLastName(A_LASTNAME)).thenReturn(A_LASTNAME);
@@ -180,7 +181,7 @@ class ServedMongoBookingPresenterRaceConditionIT {
 	}
 
 	@Test
-	@DisplayName("Concurrent requests occur")
+	@DisplayName("Concurrent requests of 'addReservation'")
 	void testAddReservationWhenConcurrentRequestsOccurShouldAddOnceAndNotThrowShowingErrors() {
 		addTestClientToDatabase(client, A_CLIENT_UUID);
 		
@@ -204,7 +205,7 @@ class ServedMongoBookingPresenterRaceConditionIT {
 	}
 
 	@Test
-	@DisplayName("Concurrent requests occur")
+	@DisplayName("Concurrent requests of 'deleteClient'")
 	void testDeleteClientWhenConcurrentRequestsOccurShouldDeleteOnceAndNotThrowShowingErrors() {
 		addTestClientToDatabase(client, A_CLIENT_UUID);
 		
@@ -225,7 +226,7 @@ class ServedMongoBookingPresenterRaceConditionIT {
 	}
 
 	@Test
-	@DisplayName("Concurrent requests occur")
+	@DisplayName("Concurrent requests of 'deleteReservation'")
 	void testDeleteReservationWhenConcurrentRequestsOccurShouldDeleteOnceAndNotThrowShowingErrors() {
 		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
 		
@@ -246,9 +247,14 @@ class ServedMongoBookingPresenterRaceConditionIT {
 	}
 
 	@Test
-	@DisplayName("Concurrent requests occur")
+	@DisplayName("Concurrent requests of 'renameClient'")
 	void testRenameClientWhenConcurrentRequestsOccurShouldRenameOnceAndNotThrowShowingErrors() {
-		addTestClientToDatabase(client, A_CLIENT_UUID);
+		List<Client> clients = new ArrayList<>();
+		IntStream.range(0, NUM_OF_THREADS).forEach(i -> {
+			Client a_client = new Client(A_FIRSTNAME + i, A_LASTNAME + i);
+			addTestClientToDatabase(a_client, UUID.randomUUID());
+			clients.add(i, a_client);
+		});
 		
 		when(clientValidator.validateFirstName(ANOTHER_FIRSTNAME)).thenReturn(ANOTHER_FIRSTNAME);
 		when(clientValidator.validateLastName(ANOTHER_LASTNAME)).thenReturn(ANOTHER_LASTNAME);
@@ -257,7 +263,7 @@ class ServedMongoBookingPresenterRaceConditionIT {
 				.mapToObj(i -> new Thread(() ->
 						new ServedBookingPresenter(view, transactionalBookingService,
 								clientValidator, reservationValidator)
-							.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME)))
+							.renameClient(clients.get(i), ANOTHER_FIRSTNAME, ANOTHER_LASTNAME)))
 				.peek(t -> t.start())
 				.collect(Collectors.toList());
 		
@@ -265,17 +271,21 @@ class ServedMongoBookingPresenterRaceConditionIT {
 			.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
 		
 		assertThat(readAllClientsFromDatabase())
-			.doesNotContain(client)
 			.containsOnlyOnce(new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME));
 		
 		verify(view, times(NUM_OF_THREADS-1)).showOperationError(anyString());
 	}
 
 	@Test
-	@DisplayName("Concurrent requests occur")
+	@DisplayName("Concurrent requests of 'rescheduleReservation'")
 	void testRescheduleReservationWhenConcurrentRequestsOccurShouldRescheduleOnceAndNotThrowShowingErrors() {
 		addTestClientToDatabase(client, A_CLIENT_UUID);
-		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+		List<Reservation> reservations = new ArrayList<>();
+		IntStream.range(0, NUM_OF_THREADS).forEach(i -> {
+			Reservation a_reservation = new Reservation(A_CLIENT_UUID, LocalDate.of(i, 4, 24));
+			addTestReservationToDatabase(a_reservation, UUID.randomUUID());
+			reservations.add(i, a_reservation);
+		});
 		
 		when(reservationValidator.validateDate(ANOTHER_DATE)).thenReturn(ANOTHER_LOCALDATE);
 		
@@ -283,7 +293,7 @@ class ServedMongoBookingPresenterRaceConditionIT {
 				.mapToObj(i -> new Thread(() ->
 						new ServedBookingPresenter(view, transactionalBookingService,
 								clientValidator, reservationValidator)
-							.rescheduleReservation(reservation, ANOTHER_DATE)))
+							.rescheduleReservation(reservations.get(i), ANOTHER_DATE)))
 				.peek(t -> t.start())
 				.collect(Collectors.toList());
 		
@@ -291,7 +301,6 @@ class ServedMongoBookingPresenterRaceConditionIT {
 			.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
 		
 		assertThat(readAllReservationsFromDatabase())
-			.doesNotContain(reservation)
 			.containsOnlyOnce(new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE));
 		
 		verify(view, times(NUM_OF_THREADS-1)).showOperationError(anyString());

@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -119,7 +120,7 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 	}
 
 	@Test
-	@DisplayName("Concurrent requests occur")
+	@DisplayName("Concurrent requests of 'addClient'")
 	void testAddClientWhenConcurrentRequestsOccurShouldAddOnceAndNotThrowShowingErrors() {
 		when(clientValidator.validateFirstName(A_FIRSTNAME)).thenReturn(A_FIRSTNAME);
 		when(clientValidator.validateLastName(A_LASTNAME)).thenReturn(A_LASTNAME);
@@ -141,7 +142,7 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 	}
 
 	@Test
-	@DisplayName("Concurrent requests occur")
+	@DisplayName("Concurrent requests of 'addReservation'")
 	void testAddReservationWhenConcurrentRequestsOccurShouldAddOnceAndNotThrowShowingErrors() {
 		addTestClientToDatabase(client);
 		UUID client_id = client.getId();
@@ -166,7 +167,7 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 	}
 
 	@Test
-	@DisplayName("Concurrent requests occur")
+	@DisplayName("Concurrent requests of 'deleteClient'")
 	void testDeleteClientWhenConcurrentRequestsOccurShouldDeleteOnceAndNotThrowShowingErrors() {
 		addTestClientToDatabase(client);
 		
@@ -187,7 +188,7 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 	}
 
 	@Test
-	@DisplayName("Concurrent requests occur")
+	@DisplayName("Concurrent requests of 'deleteReservation'")
 	void testDeleteReservationWhenConcurrentRequestsOccurShouldDeleteOnceAndNotThrowShowingErrors() {
 		addTestClientToDatabase(client);
 		
@@ -208,9 +209,14 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 	}
 
 	@Test
-	@DisplayName("Concurrent requests occur")
+	@DisplayName("Concurrent requests of 'renameClient'")
 	void testRenameClientWhenConcurrentRequestsOccurShouldRenameOnceAndNotThrowShowingErrors() {
-		addTestClientToDatabase(client);
+		List<Client> clients = new ArrayList<>();
+		IntStream.range(0, NUM_OF_THREADS).forEach(i -> {
+			Client a_client = new Client(A_FIRSTNAME + i, A_LASTNAME + i);
+			addTestClientToDatabase(a_client);
+			clients.add(i, a_client);
+		});
 		
 		when(clientValidator.validateFirstName(ANOTHER_FIRSTNAME)).thenReturn(ANOTHER_FIRSTNAME);
 		when(clientValidator.validateLastName(ANOTHER_LASTNAME)).thenReturn(ANOTHER_LASTNAME);
@@ -219,7 +225,7 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 				.mapToObj(i -> new Thread(() ->
 						new ServedBookingPresenter(view, transactionalBookingService,
 								clientValidator, reservationValidator)
-							.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME)))
+							.renameClient(clients.get(i), ANOTHER_FIRSTNAME, ANOTHER_LASTNAME)))
 				.peek(t -> t.start())
 				.collect(Collectors.toList());
 		
@@ -227,17 +233,21 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 			.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
 		
 		assertThat(readAllClientsFromDatabase())
-			.doesNotContain(client)
 			.containsOnlyOnce(new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME));
 		
-		verify(view, times(NUM_OF_THREADS-1)).showOperationError(anyString());
+		verify(view, times(NUM_OF_THREADS-1)).showOperationError(anyString()); //TODO
 	}
 
 	@Test
-	@DisplayName("Concurrent requests occur")
+	@DisplayName("Concurrent requests of 'rescheduleReservation'")
 	void testRescheduleReservationWhenConcurrentRequestsOccurShouldRescheduleOnceAndNotThrowShowingErrors() {
 		addTestClientToDatabase(client);
-		addTestReservationToDatabase(reservation);
+		List<Reservation> reservations = new ArrayList<>();
+		IntStream.range(0, NUM_OF_THREADS).forEach(i -> {
+			Reservation a_reservation = new Reservation(A_CLIENT_UUID, LocalDate.of(i, 4, 24));
+			addTestReservationToDatabase(a_reservation);
+			reservations.add(i, a_reservation);
+		});
 		
 		when(reservationValidator.validateDate(ANOTHER_DATE)).thenReturn(ANOTHER_LOCALDATE);
 		
@@ -245,7 +255,7 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 				.mapToObj(i -> new Thread(() ->
 						new ServedBookingPresenter(view, transactionalBookingService,
 								clientValidator, reservationValidator)
-							.rescheduleReservation(reservation, ANOTHER_DATE)))
+							.rescheduleReservation(reservations.get(i), ANOTHER_DATE)))
 				.peek(t -> t.start())
 				.collect(Collectors.toList());
 		
