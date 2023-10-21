@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.AdditionalMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -138,7 +140,9 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 		
 		assertThat(readAllClientsFromDatabase()).containsOnlyOnce(client);
 		
-		verify(view, times(NUM_OF_THREADS-1)).showOperationError(anyString());
+		verify(view, times(NUM_OF_THREADS-1)).showOperationError(AdditionalMatchers.or(
+				eq("A client named " + A_FIRSTNAME + " " + A_LASTNAME + " has already been made."),
+				eq("Something went wrong while adding " + new Client(A_FIRSTNAME, A_LASTNAME).toString() + ".")));
 	}
 
 	@Test
@@ -163,7 +167,9 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 		
 		assertThat(readAllReservationsFromDatabase()).containsOnlyOnce(reservation);
 		
-		verify(view, times(NUM_OF_THREADS-1)).showOperationError(anyString());
+		verify(view, times(NUM_OF_THREADS-1)).showOperationError(AdditionalMatchers.or(
+				eq("A reservation on " + A_DATE + " has already been made."),
+				eq("Something went wrong while adding " + new Reservation(client_id, A_LOCALDATE).toString() + ".")));
 	}
 
 	@Test
@@ -235,7 +241,7 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 		assertThat(readAllClientsFromDatabase())
 			.containsOnlyOnce(new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME));
 		
-		verify(view, times(NUM_OF_THREADS-1)).showOperationError(anyString()); //TODO
+		verify(view, times(NUM_OF_THREADS-1)).showOperationError(anyString());
 	}
 
 	@Test

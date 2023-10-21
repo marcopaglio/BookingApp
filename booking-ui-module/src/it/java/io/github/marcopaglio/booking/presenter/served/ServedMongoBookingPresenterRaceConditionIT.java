@@ -14,6 +14,7 @@ import static org.bson.codecs.pojo.Conventions.ANNOTATION_CONVENTION;
 import static org.bson.codecs.pojo.Conventions.USE_GETTERS_FOR_SETTERS;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +37,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.AdditionalMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -59,7 +61,7 @@ import io.github.marcopaglio.booking.view.BookingView;
 
 @DisplayName("Integration tests of race conditions for ServedBookingPresenter and MongoDB")
 class ServedMongoBookingPresenterRaceConditionIT {
-	private static final int NUM_OF_THREADS = 9;
+	private static final int NUM_OF_THREADS = 10;
 
 	private static final String A_LASTNAME = "Rossi";
 	private static final String A_FIRSTNAME = "Mario";
@@ -177,7 +179,9 @@ class ServedMongoBookingPresenterRaceConditionIT {
 		
 		assertThat(readAllClientsFromDatabase()).containsOnlyOnce(client);
 		
-		verify(view, times(NUM_OF_THREADS-1)).showOperationError(anyString());
+		verify(view, times(NUM_OF_THREADS-1)).showOperationError(AdditionalMatchers.or(
+				eq("A client named " + A_FIRSTNAME + " " + A_LASTNAME + " has already been made."),
+				eq("Something went wrong while adding " + new Client(A_FIRSTNAME, A_LASTNAME).toString() + ".")));
 	}
 
 	@Test
@@ -201,7 +205,9 @@ class ServedMongoBookingPresenterRaceConditionIT {
 		
 		assertThat(readAllReservationsFromDatabase()).containsOnlyOnce(reservation);
 		
-		verify(view, times(NUM_OF_THREADS-1)).showOperationError(anyString());
+		verify(view, times(NUM_OF_THREADS-1)).showOperationError(AdditionalMatchers.or(
+				eq("A reservation on " + A_DATE + " has already been made."),
+				eq("Something went wrong while adding " + new Reservation(A_CLIENT_UUID, A_LOCALDATE).toString() + ".")));
 	}
 
 	@Test
