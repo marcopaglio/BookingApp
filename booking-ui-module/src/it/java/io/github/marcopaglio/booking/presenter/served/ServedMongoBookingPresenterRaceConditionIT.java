@@ -2,6 +2,9 @@ package io.github.marcopaglio.booking.presenter.served;
 
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
+import static io.github.marcopaglio.booking.model.Client.FIRSTNAME_DB;
+import static io.github.marcopaglio.booking.model.Client.LASTNAME_DB;
+import static io.github.marcopaglio.booking.model.Reservation.DATE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
 import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOOKING_DB_NAME;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -43,10 +46,13 @@ import org.mockito.MockitoAnnotations;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Indexes;
 
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.model.Reservation;
@@ -326,11 +332,19 @@ class ServedMongoBookingPresenterRaceConditionIT {
 
 	public void addTestClientToDatabase(Client client, UUID id) {
 		client.setId(id);
-		clientCollection.insertOne(client);
+		ClientSession session = mongoClient.startSession();
+		clientCollection.createIndex(session,
+				Indexes.descending(FIRSTNAME_DB, LASTNAME_DB), new IndexOptions().unique(true));
+		clientCollection.insertOne(session, client);
+		session.close();
 	}
 
 	public void addTestReservationToDatabase(Reservation reservation, UUID id) {
 		reservation.setId(id);
-		reservationCollection.insertOne(reservation);
+		ClientSession session = mongoClient.startSession();
+		reservationCollection.createIndex(session,
+				Indexes.descending(DATE_DB), new IndexOptions().unique(true));
+		reservationCollection.insertOne(session, reservation);
+		session.close();
 	}
 }
