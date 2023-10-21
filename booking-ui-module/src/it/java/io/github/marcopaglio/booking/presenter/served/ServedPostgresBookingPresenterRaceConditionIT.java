@@ -190,22 +190,22 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 	@Test
 	@DisplayName("Concurrent requests of 'deleteReservation'")
 	void testDeleteReservationWhenConcurrentRequestsOccurShouldDeleteOnceAndNotThrowShowingErrors() {
-		addTestClientToDatabase(client);
+		addTestReservationToDatabase(reservation);
 		
 		List<Thread> threads = IntStream.range(0, NUM_OF_THREADS)
 				.mapToObj(i -> new Thread(() ->
 						new ServedBookingPresenter(view, transactionalBookingService,
 								clientValidator, reservationValidator)
-							.deleteClient(client)))
+							.deleteReservation(reservation)))
 				.peek(t -> t.start())
 				.collect(Collectors.toList());
 		
 		await().atMost(10, SECONDS)
 			.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
 		
-		assertThat(readAllClientsFromDatabase()).doesNotContain(client);
+		assertThat(readAllReservationsFromDatabase()).doesNotContain(reservation);
 		
-		verify(view, times(NUM_OF_THREADS-1)).showOperationError(contains(client.toString()));
+		verify(view, times(NUM_OF_THREADS-1)).showOperationError(contains(reservation.toString()));
 	}
 
 	@Test
