@@ -3,7 +3,7 @@ name: Java CI with Maven in MacOS
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main, integration-tests" ]
 
 jobs:
   build:

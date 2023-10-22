@@ -266,13 +266,12 @@
           <artifactId>docker-maven-plugin</artifactId>
           <version>${docker.version}</version>
           <configuration>
+            <containerNamePattern>%a</containerNamePattern> <!-- %a = <alias>'s value-->
             <images>
               <image>
                 <name>mongo:6.0.7</name>
                 <alias>mongo</alias>
                 <run>
-                  <!-- %a = <alias>'s value-->
-                  <containerNamePattern>%a-${mongo.mapped.port}</containerNamePattern>
                   <ports>
                     <port>mongo.mapped.port:27017</port>
                   </ports>
@@ -294,8 +293,6 @@
                 <name>postgres:15.2</name>
                 <alias>postgres</alias>
                 <run>
-                  <!-- %a = <alias>'s value-->
-                  <containerNamePattern>%a-${postgres.mapped.port}</containerNamePattern> <!-- %a = <alias>'s value-->
                   <ports>
                     <port>postgres.mapped.port:5432</port>
                   </ports>
@@ -304,6 +301,10 @@
                     <POSTGRES_USER>postgres-it</POSTGRES_USER>
                     <POSTGRES_PASSWORD>postgres-it</POSTGRES_PASSWORD>
                   </env>
+                  <wait>
+                    <log>\[1\] LOG:  database system is ready to accept connections</log>
+                    <time>20000</time>
+                  </wait>
                 </run>
               </image>
             </images>
