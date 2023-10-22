@@ -26,7 +26,6 @@
     <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
     
     <!-- POSTGRESQL PROPERTIES -->
-    <postgres.mapped.port>5432</postgres.mapped.port>
     <postgres.database.name>IntegrationTest_db</postgres.database.name>
 
     <!-- VERSIONS FOR DEPENDENCIES -->
@@ -300,7 +299,7 @@
                 </run>
               </image>
               <image>
-                <name>postgres:15.2</name>
+                <name>postgres:15.3</name>
                 <alias>postgres</alias>
                 <run>
                   <ports>
