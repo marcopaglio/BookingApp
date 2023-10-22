@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterAll;
@@ -177,7 +178,8 @@ class ServedPostgresBookingPresenterIT {
 		@DisplayName("Client is in repository")
 		void testDeleteClientWhenClientIsInRepositoryShouldRemoveAndNotifyView() {
 			addTestClientToDatabase(client);
-			reservation.setClientId(client.getId());
+			UUID client_id = client.getId();
+			reservation.setClientId(client_id);
 			addTestReservationToDatabase(reservation);
 			addTestClientToDatabase(another_client);
 			another_reservation.setClientId(another_client.getId());
@@ -187,6 +189,8 @@ class ServedPostgresBookingPresenterIT {
 			
 			verify(view).showAllReservations(Arrays.asList(another_reservation));
 			verify(view).clientRemoved(client);
+			assertThat(readAllReservationsFromDatabase())
+				.filteredOn(r -> Objects.equals(r.getClientId(), client_id)).isEmpty();
 			assertThat(readAllClientsFromDatabase())
 				.doesNotContain(client)
 				.containsExactly(another_client);
@@ -287,6 +291,7 @@ class ServedPostgresBookingPresenterIT {
 		void testAddReservationWhenReservationIsNewShouldValidateItAndInsertAndNotifyView() {
 			addTestClientToDatabase(client);
 			UUID client_id = client.getId();
+			
 			when(reservationValidator.validateClientId(client_id)).thenReturn(client_id);
 			
 			presenter.addReservation(client, A_DATE);
@@ -302,8 +307,11 @@ class ServedPostgresBookingPresenterIT {
 		@DisplayName("Reservation is not new")
 		void testAddReservationWhenReservationIsNotNewShouldShowErrorAndUpdateView() {
 			addTestClientToDatabase(client);
-			reservation.setClientId(client.getId());
+			UUID client_id = client.getId();
+			reservation.setClientId(client_id);
 			addTestReservationToDatabase(reservation);
+			
+			when(reservationValidator.validateClientId(client_id)).thenReturn(client_id);
 			
 			presenter.addReservation(client, A_DATE);
 			
@@ -329,9 +337,8 @@ class ServedPostgresBookingPresenterIT {
 		@Test
 		@DisplayName("Renamed client is new")
 		void testRenameClientWhenRenamedClientIsNewShouldValidateItAndRenameAndNotifyView() {
-			addTestClientToDatabase(client);
 			Client renamedClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
-			renamedClient.setId(client.getId());
+			addTestClientToDatabase(client);
 			
 			presenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
@@ -349,8 +356,6 @@ class ServedPostgresBookingPresenterIT {
 		void testRenameClientWhenRenamedClientIsNotNewShouldShowErrorAndUpdateView() {
 			addTestClientToDatabase(client);
 			addTestClientToDatabase(another_client);
-			Client renamedClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
-			renamedClient.setId(client.getId());
 			
 			presenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
@@ -374,9 +379,8 @@ class ServedPostgresBookingPresenterIT {
 		@Test
 		@DisplayName("Rescheduled reservation is new")
 		void testRescheduleReservationWhenRescheduledReservationIsNewShouldValidateItAndRescheduleAndNotifyView() {
-			addTestReservationToDatabase(reservation);
 			Reservation rescheduledReservation = new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE);
-			rescheduledReservation.setId(reservation.getId());
+			addTestReservationToDatabase(reservation);
 			
 			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
@@ -393,8 +397,6 @@ class ServedPostgresBookingPresenterIT {
 		void testRescheduleReservationWhenRescheduledReservationIsNotNewShouldShowErrorAndUpdateView() {
 			addTestReservationToDatabase(reservation);
 			addTestReservationToDatabase(another_reservation);
-			Reservation rescheduledReservation = new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE);
-			rescheduledReservation.setId(reservation.getId());
 			
 			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			

@@ -60,9 +60,14 @@ class ValidatedServedBookingPresenterIT {
 	@Nested
 	@DisplayName("Integration tests for RestrictedClientValidator")
 	class RestrictedClientValidatorIT {
-		private String validFirstName = "Maria";
-		private String validLastName = "De Lucia";
-		private Client client = new Client(validFirstName, validLastName);
+		private String validFirstName = "Mario";
+		private String validLastName = "Rossi";
+		private Client client;
+
+		@BeforeEach
+		void setupClient() throws Exception {
+			client = new Client(validFirstName, validLastName);
+		}
 
 		@Nested
 		@DisplayName("Integration tests for 'addClient'")
@@ -82,8 +87,8 @@ class ValidatedServedBookingPresenterIT {
 			@Test
 			@DisplayName("Fixed names")
 			void testAddClientWhenNamesAreFixedShouldDelegateToServiceAndNotifyView() {
-				String firstNameToFix = " Maria";
-				String lastNameToFix = "De   Lucia";
+				String firstNameToFix = " Mario";
+				String lastNameToFix = "Rossi   ";
 				
 				when(bookingService.insertNewClient(client)).thenReturn(client);
 				
@@ -96,7 +101,7 @@ class ValidatedServedBookingPresenterIT {
 			@Test
 			@DisplayName("Name is not valid")
 			void testAddClientWhenNameIsNotValidShouldShowErrorAndNotInsert() {
-				String invalidFirstName = "";
+				String invalidFirstName = "Mari0";
 				
 				presenter.addClient(invalidFirstName, validLastName);
 				
@@ -107,7 +112,7 @@ class ValidatedServedBookingPresenterIT {
 			@Test
 			@DisplayName("Surname is not valid")
 			void testAddClientWhenSurnameIsNotValidShouldShowErrorAndNotInsert() {
-				String invalidLastName = "D3 Lucia";
+				String invalidLastName = "Rossi!";
 				
 				presenter.addClient(validFirstName, invalidLastName);
 				
@@ -119,15 +124,15 @@ class ValidatedServedBookingPresenterIT {
 		@Nested
 		@DisplayName("Integration tests for 'renameClient'")
 		class RenameClientIT {
-			private String validNewFirstName = "Mario";
-			private String validNewLastName = "Rossi";
+			private String validNewFirstName = "Maria";
+			private String validNewLastName = "De Lucia";
+			private Client renamedClient = new Client(validNewFirstName, validNewLastName);
+			private UUID client_id = UUID.fromString("18a2795d-d4ef-4c90-ad8c-aafbda231262");
 
 			@Test
 			@DisplayName("New names are valid")
 			void testRenameClientWhenNewNamesAreValidShouldDelegateToServiceAndNotifyView() {
-				UUID client_id = UUID.fromString("18a2795d-d4ef-4c90-ad8c-aafbda231262");
 				client.setId(client_id);
-				Client renamedClient = new Client(validNewFirstName, validNewLastName);
 				
 				when(bookingService.renameClient(client_id, validNewFirstName, validNewLastName))
 					.thenReturn(renamedClient);
@@ -139,9 +144,25 @@ class ValidatedServedBookingPresenterIT {
 			}
 
 			@Test
+			@DisplayName("New names are fixed")
+			void testRenameClientWhenNewNamesAreFixedShouldDelegateToServiceAndNotifyView() {
+				String firstNameToFix = " Maria";
+				String lastNameToFix = "De   Lucia";
+				client.setId(client_id);
+				
+				when(bookingService.renameClient(client_id, validNewFirstName, validNewLastName))
+					.thenReturn(renamedClient);
+				
+				presenter.renameClient(client, firstNameToFix, lastNameToFix);
+				
+				verify(bookingService).renameClient(client_id, validNewFirstName, validNewLastName);
+				verify(view).clientRenamed(client, renamedClient);
+			}
+
+			@Test
 			@DisplayName("New name is not valid")
 			void testRenameClientWhenNewNameIsNotValidShouldShowErrorAndNotRename() {
-				String invalidNewFirstName = "Mari0";
+				String invalidNewFirstName = "";
 				
 				presenter.renameClient(client, invalidNewFirstName, validNewLastName);
 				
@@ -153,7 +174,7 @@ class ValidatedServedBookingPresenterIT {
 			@Test
 			@DisplayName("New surname is not valid")
 			void testRenameClientWhenNewSurnameIsNotValidShouldShowErrorAndNotRename() {
-				String invalidNewLastName = "Rossi!";
+				String invalidNewLastName = "D3 Lucia";
 				
 				presenter.renameClient(client, validNewFirstName, invalidNewLastName);
 				
@@ -186,8 +207,7 @@ class ValidatedServedBookingPresenterIT {
 			@Test
 			@DisplayName("Valid inputs")
 			void testAddReservationWhenInputsAreValidShouldDelegateToServiceAndNotifyView() {
-				when(bookingService.insertNewReservation(reservation))
-					.thenReturn(reservation);
+				when(bookingService.insertNewReservation(reservation)).thenReturn(reservation);
 				
 				presenter.addReservation(client, validDate);
 				
@@ -202,7 +222,8 @@ class ValidatedServedBookingPresenterIT {
 				
 				presenter.addReservation(client, validDate);
 				
-				verify(view).showFormError("Client's identifier associated with reservation is not valid.");
+				verify(view).showFormError(
+						"Client's identifier associated with reservation is not valid.");
 				verify(bookingService, never()).insertNewReservation(any(Reservation.class));
 			}
 
@@ -225,11 +246,11 @@ class ValidatedServedBookingPresenterIT {
 			@Test
 			@DisplayName("New date is valid")
 			void testRescheduleReservationWhenNewDateIsValidShouldDelegateToServiceAndNotifyView() {
-				UUID reservation_id = UUID.fromString("04e55ea5-e3df-4dae-9c49-a681a2c00833");
-				reservation.setId(reservation_id);
 				String validNewDate = "2023-09-05";
 				LocalDate validNewLocalDate = LocalDate.parse(validNewDate);
 				Reservation rescheduledReservation = new Reservation(validClientId, validNewLocalDate);
+				UUID reservation_id = UUID.fromString("04e55ea5-e3df-4dae-9c49-a681a2c00833");
+				reservation.setId(reservation_id);
 				
 				when(bookingService.rescheduleReservation(reservation_id, validNewLocalDate))
 					.thenReturn(rescheduledReservation);

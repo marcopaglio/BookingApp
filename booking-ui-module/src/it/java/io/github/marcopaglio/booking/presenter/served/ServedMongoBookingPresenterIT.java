@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -224,6 +225,8 @@ class ServedMongoBookingPresenterIT {
 			
 			verify(view).showAllReservations(Arrays.asList(another_reservation));
 			verify(view).clientRemoved(client);
+			assertThat(readAllReservationsFromDatabase())
+				.filteredOn(r -> Objects.equals(r.getClientId(), A_CLIENT_UUID)).isEmpty();
 			assertThat(readAllClientsFromDatabase())
 				.doesNotContain(client)
 				.containsExactly(another_client);
@@ -365,9 +368,8 @@ class ServedMongoBookingPresenterIT {
 		@Test
 		@DisplayName("Renamed client is new")
 		void testRenameClientWhenRenamedClientIsNewShouldValidateItAndRenameAndNotifyView() {
-			addTestClientToDatabase(client, A_CLIENT_UUID);
 			Client renamedClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
-			renamedClient.setId(A_CLIENT_UUID);
+			addTestClientToDatabase(client, A_CLIENT_UUID);
 			
 			presenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
@@ -385,8 +387,6 @@ class ServedMongoBookingPresenterIT {
 		void testRenameClientWhenRenamedClientIsNotNewShouldShowErrorAndUpdateView() {
 			addTestClientToDatabase(client, A_CLIENT_UUID);
 			addTestClientToDatabase(another_client, ANOTHER_CLIENT_UUID);
-			Client renamedClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
-			renamedClient.setId(A_CLIENT_UUID);
 			
 			presenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
@@ -410,9 +410,8 @@ class ServedMongoBookingPresenterIT {
 		@Test
 		@DisplayName("Rescheduled reservation is new")
 		void testRescheduleReservationWhenRescheduledReservationIsNewShouldValidateItAndRescheduleAndNotifyView() {
-			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
 			Reservation rescheduledReservation = new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE);
-			rescheduledReservation.setId(A_RESERVATION_UUID);
+			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
 			
 			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
@@ -429,8 +428,6 @@ class ServedMongoBookingPresenterIT {
 		void testRescheduleReservationWhenRescheduledReservationIsNotNewShouldShowErrorAndUpdateView() {
 			addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
 			addTestReservationToDatabase(another_reservation, ANOTHER_RESERVATION_UUID);
-			Reservation rescheduledReservation = new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE);
-			rescheduledReservation.setId(A_RESERVATION_UUID);
 			
 			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			

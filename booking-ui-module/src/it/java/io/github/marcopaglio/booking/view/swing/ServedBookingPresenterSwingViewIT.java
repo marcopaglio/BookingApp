@@ -122,8 +122,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	public void testAllClientsWhenThereAreSeveralClientsInRepositoryShouldShowClientsInClientList() {
 		Client anotherClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 		
-		when(bookingService.findAllClients())
-			.thenReturn(Arrays.asList(client, anotherClient));
+		when(bookingService.findAllClients()).thenReturn(Arrays.asList(client, anotherClient));
 		
 		servedBookingPresenter.allClients();
 		
@@ -306,8 +305,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		when(reservationValidator.validateDate(A_DATE)).thenReturn(A_LOCALDATE);
 		when(bookingService.insertNewReservation(reservation))
 			.thenThrow(new InstanceAlreadyExistsException());
-		when(bookingService.findAllReservations())
-			.thenReturn(Arrays.asList(reservation));
+		when(bookingService.findAllReservations()).thenReturn(Arrays.asList(reservation));
 		
 		servedBookingPresenter.addReservation(client, A_DATE);
 		
@@ -345,8 +343,8 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	@Test @GUITest
 	@DisplayName("Renamed client is new")
 	public void testRenameClientWhenRenamedClientIsNewShouldValidateItAndDelegateToServiceAndUpdateClientList() {
-		addClientInList(client);
 		Client renamedClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+		addClientInList(client);
 		
 		when(clientValidator.validateFirstName(ANOTHER_FIRSTNAME)).thenReturn(ANOTHER_FIRSTNAME);
 		when(clientValidator.validateLastName(ANOTHER_LASTNAME)).thenReturn(ANOTHER_LASTNAME);
@@ -366,8 +364,8 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	@Test @GUITest
 	@DisplayName("Renamed client is not new")
 	public void testRenameClientWhenRenamedClientIsNotNewShouldShowOperationErrorAndUpdateLists() {
-		addClientInList(client);
 		Client hiddenClient = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+		addClientInList(client);
 		
 		when(clientValidator.validateFirstName(ANOTHER_FIRSTNAME)).thenReturn(ANOTHER_FIRSTNAME);
 		when(clientValidator.validateLastName(ANOTHER_LASTNAME)).thenReturn(ANOTHER_LASTNAME);
@@ -412,8 +410,8 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	@Test @GUITest
 	@DisplayName("Rescheduled reservation is new")
 	public void testRescheduleReservationWhenRescheduledReservationIsNewShouldValidateItAndDelegateToServiceAndUpdateReservationList() {
-		addReservationInList(reservation);
 		Reservation rescheduledReservation = new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE);
+		addReservationInList(reservation);
 		
 		when(reservationValidator.validateDate(ANOTHER_DATE)).thenReturn(ANOTHER_LOCALDATE);
 		when(bookingService.rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE))
@@ -431,9 +429,8 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	@Test @GUITest
 	@DisplayName("Rescheduled reservation is not new")
 	public void testRescheduleReservationWhenRescheduledReservationIsNotNewShouldShowOperationErrorAndUpdateLists() {
-		addReservationInList(reservation);
 		Reservation hiddenReservation = new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE);
-
+		addReservationInList(reservation);
 		
 		when(reservationValidator.validateDate(ANOTHER_DATE)).thenReturn(ANOTHER_LOCALDATE);
 		when(bookingService.rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE))
