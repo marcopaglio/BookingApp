@@ -2,8 +2,7 @@
 name: Build with Maven in Windows
 
 on:
-  pull_request:
-    branches: [ "main" ]
+  push:
 
 jobs:
   build:
