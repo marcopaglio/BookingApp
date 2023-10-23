@@ -30,7 +30,7 @@ jobs:
 
     - name: Build with Maven Wrapper
       id: maven-build
-      run: ../mvnw.cmd install -Pskip-testcontainers
+      run: ../mvnw.cmd install -Pbuild-on-windows -Pskip-testcontainers
       working-directory:  ${{ env.workdir }}
 
     - name: Generate JUnit Report

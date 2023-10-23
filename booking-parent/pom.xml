@@ -22,10 +22,12 @@
     <maven.compiler.target>11</maven.compiler.target>
     
     <!-- MONGODB PROPERTIES -->
+    <mongo.image>mongo:6.0.7</mongo.image>
     <mongo.mapped.port>27017</mongo.mapped.port>
     <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
     
     <!-- POSTGRESQL PROPERTIES -->
+    <postgres.image>postgres:15.3</postgres.image>
     <postgres.database.name>IntegrationTest_db</postgres.database.name>
 
     <!-- VERSIONS FOR DEPENDENCIES -->
@@ -278,7 +280,7 @@
             <containerNamePattern>%a</containerNamePattern> <!-- %a = <alias>'s value-->
             <images>
               <image>
-                <name>mongo:6.0.7</name>
+                <name>${mongo.image}</name>
                 <alias>mongo</alias>
                 <run>
                   <ports>
@@ -299,7 +301,7 @@
                 </run>
               </image>
               <image>
-                <name>postgres:15.3</name>
+                <name>${postgres.image}</name>
                 <alias>postgres</alias>
                 <run>
                   <ports>
@@ -420,6 +422,14 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <profile>
+      <id>build-on-windows</id>
+      <properties>
+        <mongo.image>winamd64/mongo:6.0.7</mongo.image>
+        <postgres.image>intland/postgres:windows-15.3</postgres.image>
+      </properties>
     </profile>
   </profiles>
 </project>
