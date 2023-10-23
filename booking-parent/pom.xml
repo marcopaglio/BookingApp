@@ -282,7 +282,6 @@
               <image>
                 <name>${mongo.image}</name>
                 <alias>mongo</alias>
-                <build><entryPoint>powershell.exe</entryPoint></build>
                 <run>
                   <ports>
                     <port>mongo.mapped.port:27017</port>
