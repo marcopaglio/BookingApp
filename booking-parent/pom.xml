@@ -288,11 +288,7 @@
                   </ports>
                   <cmd>mongod --replSet ${mongo.replicaSet.name}</cmd>
                   <wait>
-                    <http>
-                      <url>http://localhost:${mongo.mapped.port}</url>
-                      <method>GET</method>
-                      <status>200</status>
-                    </http>
+                    <log>Waiting for connections</log>
                     <time>10000</time>
                     <exec>
                       <postStart>mongosh --eval "rs.initiate({_id:'${mongo.replicaSet.name}',members:[{_id:0,host:'localhost:${mongo.mapped.port}'}]})"</postStart>
