@@ -53,7 +53,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
-import static io.github.marcopaglio.booking.repository.mongo.ClientMongoRepository.BOOKING_DB_NAME;
+import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOOKING_DB_NAME;
 
 @DisplayName("Tests for ClientMongoRepository class")
 @Testcontainers
@@ -173,7 +173,7 @@ class ClientMongoRepositoryTest {
 		private Client another_client;
 
 		@BeforeEach
-		void resetClientId() throws Exception {
+		void initClients() throws Exception {
 			client = new Client(A_FIRSTNAME, A_LASTNAME);
 			another_client = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 		}

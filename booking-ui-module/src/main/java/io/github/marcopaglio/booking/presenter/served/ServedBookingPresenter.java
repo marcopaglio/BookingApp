@@ -110,15 +110,16 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @param client	the client to delete.
 	 */
 	@Override
-	public void deleteClient(Client client) {
+	public synchronized void deleteClient(Client client) {
 		if (client == null) {
 			LOGGER.warn("Client to delete cannot be null.");
 			view.showFormError("Select a client to delete.");
 		} else {
 			try {
 				bookingService.removeClientNamed(client.getFirstName(), client.getLastName());
+				allReservations();
 				view.clientRemoved(client);
-				LOGGER.info(() -> String.format("%s has been deleted with success.", client.toString()));
+				LOGGER.info(() -> String.format("%s and all his reservations have been deleted with success.", client.toString()));
 			} catch (InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
 				view.showOperationError(instanceNotFoundErrorMsg(client.toString()));
@@ -138,7 +139,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @param reservation	the reservation to delete.
 	 */
 	@Override
-	public void deleteReservation(Reservation reservation) {
+	public synchronized void deleteReservation(Reservation reservation) {
 		if (reservation == null) {
 			LOGGER.warn("Reservation to delete cannot be null.");
 			view.showFormError("Select a reservation to delete.");
@@ -166,7 +167,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @param lastName	the surname of the client to add.
 	 */
 	@Override
-	public void addClient(String firstName, String lastName) {
+	public synchronized void addClient(String firstName, String lastName) {
 		Client client = createClient(firstName, lastName);
 		
 		if (client != null) {
@@ -247,7 +248,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @param date		the date of the reservation to add.
 	 */
 	@Override
-	public void addReservation(Client client, String date) {
+	public synchronized void addReservation(Client client, String date) {
 		Reservation reservation = createReservation(client, date);
 		
 		if (reservation != null) {
@@ -341,7 +342,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @param newLastName	the new surname for the client.
 	 */
 	@Override
-	public void renameClient(Client client, String newFirstName, String newLastName) {
+	public synchronized void renameClient(Client client, String newFirstName, String newLastName) {
 		if (client == null) {
 			LOGGER.warn("Client to rename cannot be null.");
 			view.showFormError("Select a client to rename.");
@@ -392,7 +393,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @param newDate		the new date for the reservation.
 	 */
 	@Override
-	public void rescheduleReservation(Reservation reservation, String newDate) {
+	public synchronized void rescheduleReservation(Reservation reservation, String newDate) {
 		if (reservation == null) {
 			LOGGER.warn("Reservation to reschedule cannot be null.");
 			view.showFormError("Select a reservation to reschedule.");

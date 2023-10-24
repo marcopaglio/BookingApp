@@ -1,5 +1,6 @@
 package io.github.marcopaglio.booking.transaction.manager.mongo;
 
+import com.mongodb.MongoCommandException;
 import com.mongodb.ReadConcern;
 import com.mongodb.ReadPreference;
 import com.mongodb.TransactionOptions;
@@ -24,6 +25,11 @@ import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
  */
 public class TransactionMongoManager extends TransactionManager {
 	/**
+	 * Specifies that the reason the transaction fails is a commitment failure.
+	 */
+	private static final String COMMIT_FAILURE = "a commitment failure";
+
+	/**
 	 * Options used to configure transactions.
 	 * Note: casually consistency is applied when both read and write concerns
 	 * has value 'majority'.
@@ -42,41 +48,22 @@ public class TransactionMongoManager extends TransactionManager {
 	private MongoClient mongoClient;
 
 	/**
-	 * Used for creation of {@code ClientSession} instances.
-	 */
-	private TransactionHandlerFactory transactionHandlerFactory;
-
-	/**
-	 * Used for creation of {@code ClientMongoRepository} instances.
-	 */
-	private ClientRepositoryFactory clientRepositoryFactory;
-
-	/**
-	 * Used for creation of {@code ReservationMongoRepository} instances.
-	 */
-	private ReservationRepositoryFactory reservationRepositoryFactory;
-
-	/**
 	 * Constructs a manager for applying code that uses entity repositories 
 	 * using MongoDB transactions.
 	 * 
 	 * @param mongoClient					the client connected to the MongoDB database.
-	 * @param transactionHandlerFactory		the factory for create instances
-	 * 										of {@code ClientSession}.
-	 * @param clientRepositoryFactory		the factory to create instances
-	 * 										of {@code ClientMongoRepository}.
-	 * @param reservationRepositoryFactory	the factory to create instances
-	 * 										of {@code ReservationMongoRepository}.
+	 * @param transactionHandlerFactory		the factory to create {@code ClientSession} instances.
+	 * @param clientRepositoryFactory		the factory to create
+	 * 										{@code ClientMongoRepository} instances.
+	 * @param reservationRepositoryFactory	the factory to create
+	 * 										{@code ReservationMongoRepository} instances.
 	 */
 	public TransactionMongoManager(MongoClient mongoClient,
 			TransactionHandlerFactory transactionHandlerFactory,
 			ClientRepositoryFactory clientRepositoryFactory,
 			ReservationRepositoryFactory reservationRepositoryFactory) {
-		super();
+		super(transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
 		this.mongoClient = mongoClient;
-		this.transactionHandlerFactory = transactionHandlerFactory;
-		this.clientRepositoryFactory = clientRepositoryFactory;
-		this.reservationRepositoryFactory = reservationRepositoryFactory;
 	}
 
 	/**
@@ -97,7 +84,13 @@ public class TransactionMongoManager extends TransactionManager {
 				transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS);
 		ClientMongoRepository clientRepository = clientRepositoryFactory
 				.createClientRepository(mongoClient, sessionHandler.getHandler());
-		return executeInTransaction(code, sessionHandler, clientRepository);
+		try {
+			return executeInTransaction(code, sessionHandler, clientRepository);
+		} catch(MongoCommandException e) {
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(
+					transactionFailureMsg(COMMIT_FAILURE), e.getCause());
+		}
 	}
 
 	/**
@@ -118,7 +111,13 @@ public class TransactionMongoManager extends TransactionManager {
 				transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS);
 		ReservationMongoRepository reservationRepository = reservationRepositoryFactory
 				.createReservationRepository(mongoClient, sessionHandler.getHandler());
-		return executeInTransaction(code, sessionHandler, reservationRepository);
+		try {
+			return executeInTransaction(code, sessionHandler, reservationRepository);
+		} catch(MongoCommandException e) {
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(
+					transactionFailureMsg(COMMIT_FAILURE), e.getCause());
+		}
 	}
 
 	/**
@@ -141,6 +140,12 @@ public class TransactionMongoManager extends TransactionManager {
 				.createClientRepository(mongoClient, sessionHandler.getHandler());
 		ReservationMongoRepository reservationRepository = reservationRepositoryFactory
 				.createReservationRepository(mongoClient, sessionHandler.getHandler());
-		return executeInTransaction(code, sessionHandler, clientRepository, reservationRepository);
+		try {
+			return executeInTransaction(code, sessionHandler, clientRepository, reservationRepository);
+		} catch(MongoCommandException e) {
+			LOGGER.warn(e.getMessage());
+			throw new TransactionException(
+					transactionFailureMsg(COMMIT_FAILURE), e.getCause());
+		}
 	}
 }

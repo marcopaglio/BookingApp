@@ -138,16 +138,6 @@
           **/annotation/*.*,
           **/exception/*.*
         </sonar.coverage.exclusions>
-        <sonar.junit.reportPaths>
-          ${project.build.directory}/surefire-reports
-          <!-- HERE INTEGRATION TEST REPORT PATH -->
-        </sonar.junit.reportPaths>
-        <sonar.coverage.jacoco.xmlReportPaths>
-          ${project.build.directory}/site/jacoco/jacoco.xml
-        </sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.java.libraries>
-          ${project.build.directory}/dependency
-        </sonar.java.libraries>
       </properties>
     </profile>
 

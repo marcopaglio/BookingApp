@@ -42,6 +42,7 @@ import io.github.marcopaglio.booking.transaction.handler.factory.TransactionHand
 import io.github.marcopaglio.booking.transaction.handler.postgres.TransactionPostgresHandler;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.RollbackException;
 
 @DisplayName("Tests for TransactionPostgresManager class")
 @ExtendWith(MockitoExtension.class)
@@ -201,6 +202,23 @@ class TransactionPostgresManagerTest {
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
 		}
+
+		@Test
+		@DisplayName("Commit fails")
+		void testDoInTransactionWhenCommitFailsShouldRollBackAndThrow() {
+			ClientTransactionCode<List<Client>> code =
+					(ClientRepository clientRepository) -> clientRepository.findAll();
+			
+			doThrow(new RollbackException())
+				.when(transactionPostgresHandler).commitTransaction();
+			
+			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
+				.isInstanceOf(TransactionException.class)
+				.hasMessage("Transaction fails due to a commitment failure.");
+			
+			verify(transactionPostgresHandler).commitTransaction();
+			verify(transactionPostgresHandler).rollbackTransaction();
+		}
 	}
 
 	@Nested
@@ -318,6 +336,23 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+		}
+
+		@Test
+		@DisplayName("Commit fails")
+		void testDoInTransactionWhenCommitFailsShouldRollBackAndThrow() {
+			ReservationTransactionCode<List<Reservation>> code = 
+					(ReservationRepository reservationRepository) -> reservationRepository.findAll();
+			
+			doThrow(new RollbackException())
+				.when(transactionPostgresHandler).commitTransaction();
+			
+			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
+				.isInstanceOf(TransactionException.class)
+				.hasMessage("Transaction fails due to a commitment failure.");
+			
+			verify(transactionPostgresHandler).commitTransaction();
+			verify(transactionPostgresHandler).rollbackTransaction();
 		}
 	}
 
@@ -537,6 +572,26 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+		}
+
+		@Test
+		@DisplayName("Commit fails")
+		void testDoInTransactionWhenCommitFailsShouldRollBackAndThrow() {
+			ClientReservationTransactionCode<List<Reservation>> code = 
+				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
+					clientRepository.findAll();
+					return reservationRepository.findAll();
+				};
+			
+			doThrow(new RollbackException())
+				.when(transactionPostgresHandler).commitTransaction();
+			
+			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
+				.isInstanceOf(TransactionException.class)
+				.hasMessage("Transaction fails due to a commitment failure.");
+			
+			verify(transactionPostgresHandler).commitTransaction();
+			verify(transactionPostgresHandler).rollbackTransaction();
 		}
 	}
 }

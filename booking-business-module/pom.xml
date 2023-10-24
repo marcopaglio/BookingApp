@@ -119,6 +119,23 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <!-- version taken from the parent -->
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <!-- version taken from the bom -->
+      </plugin>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <!-- version taken from the parent -->
+      </plugin>
+    </plugins>
   </build>
   
   <profiles>
@@ -128,16 +145,6 @@
         <sonar.coverage.exclusions>
           **/transaction/code/*.*
         </sonar.coverage.exclusions>
-        <sonar.junit.reportPaths>
-          ${project.build.directory}/surefire-reports
-          <!-- HERE INTEGRATION TEST REPORT PATH -->
-        </sonar.junit.reportPaths>
-        <sonar.coverage.jacoco.xmlReportPaths>
-          ${project.build.directory}/site/jacoco/jacoco.xml
-        </sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.java.libraries>
-          ${project.build.directory}/dependency
-        </sonar.java.libraries>
         <sonar.cpd.exclusions>
         <!-- Duplicated Code Exclusions -->
           **/transaction/manager/TransactionManager.java

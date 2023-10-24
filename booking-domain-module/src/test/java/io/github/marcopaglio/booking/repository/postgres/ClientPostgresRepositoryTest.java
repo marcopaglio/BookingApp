@@ -129,7 +129,7 @@ class ClientPostgresRepositoryTest {
 		private Client another_client;
 
 		@BeforeEach
-		void resetClientId() throws Exception {
+		void initClients() throws Exception {
 			client = new Client(A_FIRSTNAME, A_LASTNAME);
 			another_client = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 		}

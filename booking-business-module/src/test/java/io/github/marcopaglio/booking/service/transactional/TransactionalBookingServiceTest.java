@@ -423,14 +423,14 @@ class TransactionalBookingServiceTest {
 					.thenAnswer(
 						answer((ReservationTransactionCode<?> code) -> code.apply(reservationRepository)));
 			}
-	
+
 			@Nested
 			@DisplayName("Tests for 'findAllReservations'")
 			class FindAllReservationsTest {
-	
+
 				@Test
 				@DisplayName("No reservations to retrieve")
-				void testFindAllReservationsWhenThereAreNotReservationsToRetrieveShouldReturnEmptyList() {
+				void testFindAllReservationsWhenThereAreNoReservationsToRetrieveShouldReturnEmptyList() {
 					// default stubbing for reservationRepository.findAll()
 					
 					assertThat(transactionalBookingService.findAllReservations())
@@ -444,7 +444,7 @@ class TransactionalBookingServiceTest {
 					
 					verifyNoMoreInteractions(transactionManager, reservationRepository);
 				}
-	
+
 				@Test
 				@DisplayName("Several reservations to retrieve")
 				void testFindAllReservationsWhenThereAreSeveralReservationsToRetrieveShouldReturnReservationsAsList() {
@@ -469,9 +469,9 @@ class TransactionalBookingServiceTest {
 			@Nested
 			@DisplayName("Tests for 'findReservation'")
 			class FindReservationTest {
-	
-				@DisplayName("Reservation exists")
+
 				@Test
+				@DisplayName("Reservation exists")
 				void testFindReservationWhenReservationExistsShouldReturnTheReservation() {
 					when(reservationRepository.findById(A_RESERVATION_UUID))
 						.thenReturn(Optional.of(A_RESERVATION));
@@ -511,9 +511,9 @@ class TransactionalBookingServiceTest {
 			@Nested
 			@DisplayName("Tests for 'findReservationOn'")
 			class FindReservationOnTest {
-	
-				@DisplayName("Reservation exists")
+
 				@Test
+				@DisplayName("Reservation exists")
 				void testFindReservationOnWhenReservationExistsShouldReturnTheReservation() {
 					when(reservationRepository.findByDate(A_LOCALDATE))
 						.thenReturn(Optional.of(A_RESERVATION));
@@ -671,7 +671,7 @@ class TransactionalBookingServiceTest {
 
 				@Test
 				@DisplayName("A same date reservation already exists")
-				void testRescheduleReservationWhenThereIsAlreadyAReservationInTheSameNewDateShouldRescheduleAndReturn() {
+				void testRescheduleReservationWhenThereIsAlreadyAReservationInTheSameNewDateShouldNotRescheduleAndThrow() {
 					Reservation spiedReservation = spy(A_RESERVATION);
 					Reservation anotherReservation = new Reservation(
 							ANOTHER_CLIENT_UUID, ANOTHER_LOCALDATE);
@@ -1005,8 +1005,8 @@ class TransactionalBookingServiceTest {
 			@DisplayName("Tests for 'insertNewReservation'")
 			class InsertNewReservationTest {
 
-				@DisplayName("Reservation is new and client exists")
 				@Test
+				@DisplayName("Reservation is new and client exists")
 				void testInsertNewReservationWhenReservationIsNewAndAssociatedClientExistsShouldInsertAndReturn() {
 					// default stubbing for reservationRepository.findByDate(date)
 					when(clientRepository.findById(A_CLIENT_UUID)).thenReturn(Optional.of(A_CLIENT));

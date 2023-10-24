@@ -20,6 +20,13 @@
     <!-- PROJECT PROPERTIES -->
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
+    
+    <!-- MONGODB PROPERTIES -->
+    <mongo.mapped.port>27017</mongo.mapped.port>
+    <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
+    
+    <!-- POSTGRESQL PROPERTIES -->
+    <postgres.database.name>IntegrationTest_db</postgres.database.name>
 
     <!-- VERSIONS FOR DEPENDENCIES -->
     <junit.version>5.9.2</junit.version>
@@ -29,6 +36,7 @@
     <testcontainers.version>1.18.3</testcontainers.version>
     <logback.version>1.2.12</logback.version>
     <postgresql.version>42.6.0</postgresql.version>
+    <awaitility.version>4.2.0</awaitility.version>
 
 
     <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
@@ -43,6 +51,8 @@
     <pitest.version>1.11.4</pitest.version>
     <pitest.junit5.version>1.1.2</pitest.junit5.version>
     <sonar.version>3.9.1.2184</sonar.version>
+    <build.helper.version>3.4.0</build.helper.version>
+    <docker.version>0.43.4</docker.version>
   </properties>
   
   <dependencyManagement>
@@ -99,6 +109,11 @@
         <scope>import</scope>
         <type>pom</type>
       </dependency>
+      <dependency>
+        <groupId>org.awaitility</groupId>
+        <artifactId>awaitility</artifactId>
+        <version>${awaitility.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   
@@ -132,6 +147,25 @@
         <plugin>
           <artifactId>maven-jar-plugin</artifactId>
           <version>${maven.jar.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <!-- version taken from the bom -->
+          <configuration>
+            <systemPropertyVariables>
+              <mongo.connectionString>mongodb://localhost:${mongo.mapped.port}</mongo.connectionString>
+              <postgres.port>${postgres.mapped.port}</postgres.port>
+              <postgres.name>${postgres.database.name}</postgres.name>
+            </systemPropertyVariables>
+          </configuration>
+          <executions>
+            <execution>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
 
         <!-- OTHER PLUGINS -->
@@ -192,6 +226,9 @@
             <avoidCallsTo>
               <avoidCallsTo>org.apache.logging.log4j</avoidCallsTo>
             </avoidCallsTo>
+            <excludedTestClasses>
+              <excludedTestClass>**.*IT</excludedTestClass>
+            </excludedTestClasses>
             <exportLineCoverage>true</exportLineCoverage>
             <outputFormats>
               <outputFormat>HTML</outputFormat>
@@ -210,6 +247,90 @@
               <phase>verify</phase>
               <goals>
                 <goal>sonar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>build-helper-maven-plugin</artifactId>
+          <version>${build.helper.version}</version>
+          <executions>
+            <execution>
+              <id>add-test-source</id>
+              <phase>generate-test-sources</phase>
+              <goals>
+                <goal>add-test-source</goal>
+              </goals>
+              <configuration>
+                <sources>
+                  <source>src/it/java</source>
+                </sources>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>io.fabric8</groupId>
+          <artifactId>docker-maven-plugin</artifactId>
+          <version>${docker.version}</version>
+          <configuration>
+            <containerNamePattern>%a</containerNamePattern> <!-- %a = <alias>'s value-->
+            <images>
+              <image>
+                <name>mongo:6.0.7</name>
+                <alias>mongo</alias>
+                <run>
+                  <ports>
+                    <port>mongo.mapped.port:27017</port>
+                  </ports>
+                  <cmd>mongod --replSet ${mongo.replicaSet.name}</cmd>
+                  <wait>
+                    <http>
+                      <url>http://localhost:${mongo.mapped.port}</url>
+                      <method>GET</method>
+                      <status>200</status>
+                    </http>
+                    <time>10000</time>
+                    <exec>
+                      <postStart>mongosh --eval "rs.initiate({_id:'${mongo.replicaSet.name}',members:[{_id:0,host:'localhost:${mongo.mapped.port}'}]})"</postStart>
+                    </exec>
+                  </wait>
+                </run>
+              </image>
+              <image>
+                <name>postgres:15.3</name>
+                <alias>postgres</alias>
+                <run>
+                  <ports>
+                    <port>postgres.mapped.port:5432</port>
+                  </ports>
+                  <env>
+                    <POSTGRES_DB>${postgres.database.name}</POSTGRES_DB>
+                    <POSTGRES_USER>postgres-it</POSTGRES_USER>
+                    <POSTGRES_PASSWORD>postgres-it</POSTGRES_PASSWORD>
+                  </env>
+                  <wait>
+                    <log>\[1\] LOG:  database system is ready to accept connections</log>
+                    <time>20000</time>
+                  </wait>
+                </run>
+              </image>
+            </images>
+          </configuration>
+          <executions>
+            <execution>
+              <id>docker-start</id>
+              <phase>pre-integration-test</phase>
+              <goals>
+                <goal>start</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>docker-stop</id>
+              <phase>post-integration-test</phase>
+              <goals>
+                <goal>stop</goal>
               </goals>
             </execution>
           </executions>
@@ -266,6 +387,18 @@
 
     <profile>
       <id>sonar</id>
+      <properties>
+        <sonar.junit.reportPaths>
+          ${project.build.directory}/surefire-reports,
+          ${project.build.directory}/failsafe-reports
+        </sonar.junit.reportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>
+          ${project.build.directory}/site/jacoco/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.java.libraries>
+          ${project.build.directory}/dependency
+        </sonar.java.libraries>
+      </properties>
       <build>
         <plugins>
           <plugin>

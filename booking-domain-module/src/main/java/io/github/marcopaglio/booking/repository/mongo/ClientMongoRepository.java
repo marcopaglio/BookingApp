@@ -26,6 +26,7 @@ import io.github.marcopaglio.booking.repository.ClientRepository;
 import static io.github.marcopaglio.booking.model.BaseEntity.ID_DB;
 import static io.github.marcopaglio.booking.model.Client.FIRSTNAME_DB;
 import static io.github.marcopaglio.booking.model.Client.LASTNAME_DB;
+import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 
 /**
  * Implementation of repository layer through MongoDB for Client entities of the booking application.
@@ -37,16 +38,6 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	private static final Logger LOGGER = LogManager.getLogger(ClientMongoRepository.class);
 
 	/**
-	 * Name of the database in which the repository works.
-	 */
-	public static final String BOOKING_DB_NAME = "booking_db";
-
-	/**
-	 * Name of the collection managed by the repository.
-	 */
-	public static final String CLIENT_COLLECTION_NAME = "booking_client";
-
-	/**
 	 * Constructs a repository layer for Client entities using MongoDB database. 
 	 * The construction generates and configures a collection for using by the repository.
 	 * 
@@ -56,7 +47,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	public ClientMongoRepository(MongoClient client, ClientSession session) {
 		super(client
 				.getDatabase(BOOKING_DB_NAME)
-				.getCollection(CLIENT_COLLECTION_NAME, Client.class),
+				.getCollection(CLIENT_TABLE_DB, Client.class),
 				session);
 		
 		// configuration

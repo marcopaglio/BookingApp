@@ -1,20 +1,29 @@
 package io.github.marcopaglio.booking.presenter.served;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.awaitility.Awaitility.await;
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +31,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
@@ -43,6 +51,8 @@ import io.github.marcopaglio.booking.view.BookingView;
 @DisplayName("Tests for ServedBookingPresenter class")
 @ExtendWith(MockitoExtension.class)
 class ServedBookingPresenterTest {
+	private static final int NUM_OF_THREADS = 10;
+
 	final static private String A_FIRSTNAME = "Mario";
 	final static private String A_LASTNAME = "Rossi";
 	final static private Client A_CLIENT = new Client(A_FIRSTNAME, A_LASTNAME);
@@ -200,6 +210,8 @@ class ServedBookingPresenterTest {
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
 			inOrder.verify(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
+			inOrder.verify(bookingService).findAllReservations();
+			inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
 			inOrder.verify(view).clientRemoved(A_CLIENT);
 			
 			verifyNoMoreInteractions(bookingService, view);
@@ -248,6 +260,35 @@ class ServedBookingPresenterTest {
 			inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
 			
 			verifyNoMoreInteractions(bookingService, view);
+		}
+
+		@Test
+		@DisplayName("Concurrent requests occur")
+		void testDeleteClientWhenConcurrentRequestsOccurShouldDeleteOnce() {
+			List<Client> clients = new ArrayList<>();
+			IntStream.range(0, NUM_OF_THREADS).forEach(i -> clients.add(i, A_CLIENT));
+			
+			doAnswer(invocation -> {
+				if (clients.size() == NUM_OF_THREADS) {
+					// wait for simulating database operations
+					await().timeout(Duration.of(1, MILLIS));
+					clients.remove(A_CLIENT);
+					return null;
+				}
+				else throw new InstanceNotFoundException();
+			}).when(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
+			
+			List<Thread> threads = IntStream.range(0, NUM_OF_THREADS)
+					.mapToObj(i -> new Thread(() ->
+						servedBookingPresenter.deleteClient(A_CLIENT)))
+					.peek(t -> t.start())
+					.collect(Collectors.toList());
+			
+			await().atMost(10, SECONDS)
+				.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
+			
+			// should be removed a single element from the list
+			assertThat(clients).hasSize(NUM_OF_THREADS-1);
 		}
 	}
 
@@ -317,6 +358,35 @@ class ServedBookingPresenterTest {
 					"Something went wrong while deleting " + A_RESERVATION.toString() + ".");
 			
 			verifyNoMoreInteractions(bookingService, view);
+		}
+
+		@Test
+		@DisplayName("Concurrent requests occur")
+		void testDeleteReservationWhenConcurrentRequestsOccurShouldDeleteOnce() {
+			List<Reservation> reservations = new ArrayList<>();
+			IntStream.range(0, NUM_OF_THREADS).forEach(i -> reservations.add(i, A_RESERVATION));
+			
+			doAnswer(invocation -> {
+				if (reservations.size() == NUM_OF_THREADS) {
+					// wait for simulating database operations
+					await().timeout(Duration.of(1, MILLIS));
+					reservations.remove(A_RESERVATION);
+					return null;
+				}
+				else throw new InstanceNotFoundException();
+			}).when(bookingService).removeReservationOn(A_LOCALDATE);
+			
+			List<Thread> threads = IntStream.range(0, NUM_OF_THREADS)
+					.mapToObj(i -> new Thread(() ->
+						servedBookingPresenter.deleteReservation(A_RESERVATION)))
+					.peek(t -> t.start())
+					.collect(Collectors.toList());
+			
+			await().atMost(10, SECONDS)
+				.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
+			
+			// should be removed a single element from the list
+			assertThat(reservations).hasSize(NUM_OF_THREADS-1);
 		}
 	}
 
@@ -394,6 +464,34 @@ class ServedBookingPresenterTest {
 				inOrder.verify(view).showAllClients(ArgumentMatchers.<List<Client>>any());
 				
 				verifyNoMoreInteractions(bookingService, view);
+			}
+
+			@Test
+			@DisplayName("Concurrent requests occur")
+			void testAddClientWhenConcurrentRequestsOccurShouldAddOnce() {
+				List<Client> clients = new ArrayList<>();
+				
+				doAnswer(invocation -> {
+					if (!clients.contains(A_CLIENT)) {
+						// wait for simulating database operations
+						await().timeout(Duration.of(1, MILLIS));
+						clients.add(A_CLIENT);
+						return A_CLIENT;
+					}
+					else throw new InstanceAlreadyExistsException();
+				}).when(bookingService).insertNewClient(A_CLIENT);
+				
+				List<Thread> threads = IntStream.range(0, NUM_OF_THREADS)
+						.mapToObj(i -> new Thread(() ->
+							servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME)))
+						.peek(t -> t.start())
+						.collect(Collectors.toList());
+				
+				await().atMost(10, SECONDS)
+					.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
+				
+				// there should be a single element in the list
+				assertThat(clients).hasSize(1);
 			}
 		}
 
@@ -543,6 +641,34 @@ class ServedBookingPresenterTest {
 				
 				verifyNoMoreInteractions(bookingService, view);
 			}
+
+			@Test
+			@DisplayName("Concurrent requests occur")
+			void testAddReservationWhenConcurrentRequestsOccurShouldAddOnce() {
+				List<Reservation> reservations = new ArrayList<>();
+				
+				doAnswer(invocation -> {
+					if (!reservations.contains(A_RESERVATION)) {
+						// wait for simulating database operations
+						await().timeout(Duration.of(1, MILLIS));
+						reservations.add(A_RESERVATION);
+						return A_RESERVATION;
+					}
+					else throw new InstanceAlreadyExistsException();
+				}).when(bookingService).insertNewReservation(A_RESERVATION);
+				
+				List<Thread> threads = IntStream.range(0, NUM_OF_THREADS)
+						.mapToObj(i -> new Thread(() ->
+							servedBookingPresenter.addReservation(A_CLIENT, A_DATE)))
+						.peek(t -> t.start())
+						.collect(Collectors.toList());
+				
+				await().atMost(10, SECONDS)
+					.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
+				
+				// there should be a single element in the list
+				assertThat(reservations).hasSize(1);
+			}
 		}
 
 		@Nested
@@ -567,7 +693,6 @@ class ServedBookingPresenterTest {
 
 			@Test
 			@DisplayName("Date is not valid")
-			@ValueSource(strings = {"2O23-O4-24", "24-04-2023", "2022-13-12", "2022-08-32"})
 			void testAddReservationWhenDateIsNotValidShouldShowErrorAndNotInsert() {
 				when(reservationValidator.validateDate(A_DATE))
 					.thenThrow(illegalArgumentException);
@@ -759,6 +884,37 @@ class ServedBookingPresenterTest {
 				
 				verifyNoMoreInteractions(bookingService, view);
 			}
+
+			@Test
+			@DisplayName("Concurrent requests occur")
+			void testRenameClientWhenConcurrentRequestsOccurShouldRenameOnce() {
+				List<Client> clients = new ArrayList<>();
+				IntStream.range(0, NUM_OF_THREADS).forEach(i -> clients.add(i, A_CLIENT));
+				
+				doAnswer(invocation -> {
+					if (!clients.contains(renamedClient)) {
+						// wait for simulating database operations
+						await().timeout(Duration.of(1, MILLIS));
+						clients.remove(A_CLIENT);
+						clients.add(renamedClient);
+						return renamedClient;
+					}
+					else throw new InstanceAlreadyExistsException();
+				}).when(bookingService).renameClient(A_CLIENT_UUID, validatedFirstName, validatedLastName);
+				
+				List<Thread> threads = IntStream.range(0, NUM_OF_THREADS)
+						.mapToObj(i -> new Thread(() ->
+							servedBookingPresenter.renameClient(A_CLIENT, newFirstName, newLastName)))
+						.peek(t -> t.start())
+						.collect(Collectors.toList());
+				
+				await().atMost(10, SECONDS)
+					.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
+				
+				// should be renamed a single element of the list
+				assertThat(clients)
+					.filteredOn(c -> Objects.equals(c, renamedClient)).hasSize(1);
+			}
 		}
 
 		@Nested
@@ -768,8 +924,8 @@ class ServedBookingPresenterTest {
 					new IllegalArgumentException();
 
 			@Test
-			@DisplayName("Name is not valid")
-			void testRenameClientWhenNameIsNotValidShouldShowErrorAndNotRename() {
+			@DisplayName("New name is not valid")
+			void testRenameClientWhenNewNameIsNotValidShouldShowErrorAndNotRename() {
 				when(clientValidator.validateFirstName(newFirstName))
 					.thenThrow(illegalArgumentException);
 				
@@ -783,8 +939,8 @@ class ServedBookingPresenterTest {
 			}
 
 			@Test
-			@DisplayName("Surname is not valid")
-			void testRenameClientWhenSurnameIsNotValidShouldShowErrorAndNotRename() {
+			@DisplayName("New surname is not valid")
+			void testRenameClientWhenNewSurnameIsNotValidShouldShowErrorAndNotRename() {
 				when(clientValidator.validateLastName(newLastName))
 					.thenThrow(illegalArgumentException);
 				
@@ -927,11 +1083,42 @@ class ServedBookingPresenterTest {
 				verify(bookingService, never())
 					.rescheduleReservation(any(UUID.class), any(LocalDate.class));
 			}
+
+			@Test
+			@DisplayName("Concurrent requests occur")
+			void testRescheduleReservationWhenConcurrentRequestsOccurShouldRescheduleOnce() {
+				List<Reservation> reservations = new ArrayList<>();
+				IntStream.range(0, NUM_OF_THREADS).forEach(i -> reservations.add(i, A_RESERVATION));
+				
+				doAnswer(invocation -> {
+					if (!reservations.contains(rescheduledReservation)) {
+						// wait for simulating database operations
+						await().timeout(Duration.of(1, MILLIS));
+						reservations.remove(A_RESERVATION);
+						reservations.add(rescheduledReservation);
+						return rescheduledReservation;
+					}
+					else throw new InstanceAlreadyExistsException();
+				}).when(bookingService).rescheduleReservation(A_RESERVATION_UUID, validatedDate);
+				
+				List<Thread> threads = IntStream.range(0, NUM_OF_THREADS)
+						.mapToObj(i -> new Thread(() ->
+							servedBookingPresenter.rescheduleReservation(A_RESERVATION, newDate)))
+						.peek(t -> t.start())
+						.collect(Collectors.toList());
+				
+				await().atMost(10, SECONDS)
+					.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
+				
+				// should be rescheduled a single element of the list
+				assertThat(reservations)
+					.filteredOn(r -> Objects.equals(r, rescheduledReservation)).hasSize(1);
+			}
 		}
 
 		@Test
-		@DisplayName("Date is not valid")
-		void testRescheduleReservationWhenDateIsNotValidShouldShowErrorAndNotReschedule() {
+		@DisplayName("New date is not valid")
+		void testRescheduleReservationWhenNewDateIsNotValidShouldShowErrorAndNotReschedule() {
 			when(reservationValidator.validateDate(newDate))
 				.thenThrow(new IllegalArgumentException());
 			

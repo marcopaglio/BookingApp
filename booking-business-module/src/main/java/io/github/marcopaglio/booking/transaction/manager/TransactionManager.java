@@ -9,10 +9,13 @@ import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationExce
 import io.github.marcopaglio.booking.exception.UpdateFailureException;
 import io.github.marcopaglio.booking.repository.ClientRepository;
 import io.github.marcopaglio.booking.repository.ReservationRepository;
+import io.github.marcopaglio.booking.repository.factory.ClientRepositoryFactory;
+import io.github.marcopaglio.booking.repository.factory.ReservationRepositoryFactory;
 import io.github.marcopaglio.booking.transaction.code.ClientReservationTransactionCode;
 import io.github.marcopaglio.booking.transaction.code.ClientTransactionCode;
 import io.github.marcopaglio.booking.transaction.code.ReservationTransactionCode;
 import io.github.marcopaglio.booking.transaction.handler.TransactionHandler;
+import io.github.marcopaglio.booking.transaction.handler.factory.TransactionHandlerFactory;
 
 /**
  * Provides methods for managing transactions in the booking application.
@@ -21,26 +24,59 @@ public abstract class TransactionManager {
 	/**
 	 * Creates meaningful logs on behalf of the class.
 	 */
-	private static final Logger LOGGER = LogManager.getLogger(TransactionManager.class);
+	protected static final Logger LOGGER = LogManager.getLogger(TransactionManager.class);
+
 	/**
 	 * Specifies that the reason the transaction fails is the passing of an invalid argument.
 	 */
-	public static final String INVALID_ARGUMENT = "invalid argument(s) passed";
+	private static final String INVALID_ARGUMENT = "invalid argument(s) passed";
 
 	/**
 	 * Specifies that the reason the transaction fails is an update failure.
 	 */
-	public static final String UPDATE_FAILURE = "an update failure";
+	private static final String UPDATE_FAILURE = "an update failure";
 
 	/**
 	 * Specifies that the reason the transaction fails is a not-null constraint violation.
 	 */
-	public static final String VIOLATION_OF_NOT_NULL_CONSTRAINT = "violation of not-null constraint(s)";
+	private static final String VIOLATION_OF_NOT_NULL_CONSTRAINT = "violation of not-null constraint(s)";
 
 	/**
 	 * Specifies that the reason the transaction fails is a uniqueness constraint violation.
 	 */
-	public static final String VIOLATION_OF_UNIQUENESS_CONSTRAINT = "violation of uniqueness constraint(s)";
+	private static final String VIOLATION_OF_UNIQUENESS_CONSTRAINT = "violation of uniqueness constraint(s)";
+
+	/**
+	 * Used for creation of {@code EntityManager} instances.
+	 */
+	protected TransactionHandlerFactory transactionHandlerFactory;
+
+	/**
+	 * Used for creation of {@code ClientPostgresRepository} instances.
+	 */
+	protected ClientRepositoryFactory clientRepositoryFactory;
+
+	/**
+	 * Used for creation of {@code ReservationPostgresRepository} instances.
+	 */
+	protected ReservationRepositoryFactory reservationRepositoryFactory;
+
+	/**
+	 * Sets the handler and repository factories used by the service layer.
+	 * 
+	 * @param transactionHandlerFactory		the factory to create handler instances.
+	 * @param clientRepositoryFactory		the factory to create
+	 * 										{@code ClientRepository} instances.
+	 * @param reservationRepositoryFactory	the factory to create
+	 * 										{@code ReservationRepository} instances.
+	 */
+	protected TransactionManager(TransactionHandlerFactory transactionHandlerFactory,
+			ClientRepositoryFactory clientRepositoryFactory,
+			ReservationRepositoryFactory reservationRepositoryFactory) {
+		this.transactionHandlerFactory = transactionHandlerFactory;
+		this.clientRepositoryFactory = clientRepositoryFactory;
+		this.reservationRepositoryFactory = reservationRepositoryFactory;
+	}
 
 	/**
 	 * Prepares to execution of code that involves the {@code ClientRepository}'s method(s)
