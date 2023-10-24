@@ -22,7 +22,6 @@
     <maven.compiler.target>11</maven.compiler.target>
     
     <!-- MONGODB PROPERTIES -->
-    <mongo.mapped.port>27017</mongo.mapped.port>
     <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
     
     <!-- POSTGRESQL PROPERTIES -->
@@ -293,7 +292,7 @@
                     </http>
                     <time>10000</time>
                     <exec>
-                      <postStart>mongosh --eval "rs.initiate({_id:'${mongo.replicaSet.name}',members:[{_id:0,host:'localhost:${mongo.mapped.port}'}]})"</postStart>
+                      <postStart>mongosh --eval "rs.initiate();"</postStart>
                     </exec>
                   </wait>
                 </run>
