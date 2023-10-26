@@ -75,6 +75,9 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	private static final LocalDate A_LOCALDATE = LocalDate.parse(A_YEAR + "-" + A_MONTH + "-" + A_DAY);
 	private static final UUID A_RESERVATION_UUID = UUID.fromString("92403799-acf3-45c9-896e-ef57b1f3be3b");
 
+	private static String mongoHost = System.getProperty("mongo.host", "localhost");
+	private static int mongoPort = Integer.parseInt(System.getProperty("mongo.port", "27017"));
+
 	private static MongoClient mongoClient;
 	private static MongoDatabase database;
 	private static MongoCollection<Client> clientCollection;
@@ -113,7 +116,7 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 
 	@BeforeClass
 	public static void setupClient() throws Exception {
-		mongoClient = getClient(System.getProperty("mongo.connectionString", "mongodb://localhost:27017"));
+		mongoClient = getClient(String.format("mongodb://%s:%d", mongoHost, mongoPort));
 		database = mongoClient.getDatabase(BOOKING_DB_NAME);
 		clientCollection = database.getCollection(CLIENT_TABLE_DB, Client.class);
 		reservationCollection = database.getCollection(RESERVATION_TABLE_DB, Reservation.class);

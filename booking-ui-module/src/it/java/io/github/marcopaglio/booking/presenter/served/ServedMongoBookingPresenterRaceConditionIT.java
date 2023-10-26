@@ -81,6 +81,9 @@ class ServedMongoBookingPresenterRaceConditionIT {
 	private static final String ANOTHER_DATE = "2023-09-05";
 	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse(ANOTHER_DATE);
 
+	private static String mongoHost = System.getProperty("mongo.host", "localhost");
+	private static int mongoPort = Integer.parseInt(System.getProperty("mongo.port", "27017"));
+
 	private static MongoClient mongoClient;
 
 	private static MongoDatabase database;
@@ -110,7 +113,7 @@ class ServedMongoBookingPresenterRaceConditionIT {
 
 	@BeforeAll
 	static void setupClient() throws Exception {
-		mongoClient = getClient(System.getProperty("mongo.connectionString", "mongodb://localhost:27017"));
+		mongoClient = getClient(String.format("mongodb://%s:%d", mongoHost, mongoPort));
 		database = mongoClient.getDatabase(BOOKING_DB_NAME);
 		clientCollection = database.getCollection(CLIENT_TABLE_DB, Client.class);
 		reservationCollection = database.getCollection(RESERVATION_TABLE_DB, Reservation.class);
