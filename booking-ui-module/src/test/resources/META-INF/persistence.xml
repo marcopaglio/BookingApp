@@ -17,8 +17,8 @@ version="3.0">
       <!-- Jakarta Datasource Properties -->
       <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />
       <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:${db.port}/${db.name}" />
-      <property name="jakarta.persistence.jdbc.user" value="postgres-it" />
-      <property name="jakarta.persistence.jdbc.password" value="postgres-it" />
+      <property name="jakarta.persistence.jdbc.user" value="postgres-it-e2e" />
+      <property name="jakarta.persistence.jdbc.password" value="postgres-it-e2e" />
       
       <!-- Hibernate Configuration Properties -->
       <!-- DEFAULT <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/> -->
