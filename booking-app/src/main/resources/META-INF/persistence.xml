@@ -5,7 +5,7 @@ https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
 version="3.0">
 
   <persistence-unit name="postgres-app">
-    <description>Persistence unit used in unit tests with TestContainers.</description>
+    <description>Persistence unit used in BookingApp.</description>
 
     <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
@@ -23,7 +23,7 @@ version="3.0">
       <!-- Hibernate Configuration Properties -->
       <!-- DEFAULT <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/> -->
       <property name="hibernate.connection.provider_class" value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider" />
-      <property name="hibernate.hbm2ddl.auto" value="create" />
+      <property name="hibernate.hbm2ddl.auto" value="update" />
       <property name="hibernate.hbm2ddl.halt_on_error" value="true" />
       <!-- DEFAULT <property name="org.hibernate.flushMode" value="AUTO" /> -->
       
