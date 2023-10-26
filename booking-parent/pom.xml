@@ -254,6 +254,7 @@
             </avoidCallsTo>
             <excludedTestClasses>
               <excludedTestClass>**.*IT</excludedTestClass>
+              <excludedTestClass>**.*E2E</excludedTestClass>
             </excludedTestClasses>
             <exportLineCoverage>true</exportLineCoverage>
             <outputFormats>

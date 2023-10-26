@@ -29,6 +29,7 @@
     <log4j.version>2.20.0</log4j.version>
     <mongo.version>4.9.1</mongo.version>
     <hibernate.version>6.3.0.CR1</hibernate.version>
+    <picocli.version>4.7.5</picocli.version>
 
     <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
     <maven.antrun.version>3.1.0</maven.antrun.version>
@@ -64,6 +65,12 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>booking-app</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      
+      <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-bom</artifactId>
         <version>${log4j.version}</version>
@@ -79,6 +86,11 @@
         <groupId>org.hibernate.orm</groupId>
         <artifactId>hibernate-core</artifactId>
         <version>${hibernate.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>info.picocli</groupId>
+        <artifactId>picocli</artifactId>
+        <version>${picocli.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

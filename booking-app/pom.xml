@@ -4,6 +4,7 @@
     <groupId>io.github.marcopaglio</groupId>
     <artifactId>booking-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <relativePath>../booking-parent</relativePath>
   </parent>
   <artifactId>booking-app</artifactId>
   
@@ -14,13 +15,18 @@
   
   <dependencies>
     <dependency>
-      <groupId>io.github.marcopaglio</groupId>
+      <groupId>${project.groupId}</groupId>
       <artifactId>booking-ui-module</artifactId>
       <!-- version taken from the bom -->
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
+      <artifactId>log4j-core</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli</artifactId>
       <!-- version taken from the bom -->
     </dependency>
 
@@ -66,18 +72,27 @@
       <!-- version taken from the parent -->
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>info.picocli</groupId>
-      <artifactId>picocli</artifactId>
-      <version>4.7.5</version>
-    </dependency>
   </dependencies>
   
   <build>
     <pluginManagement>
       <plugins>
-        
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <configuration>
+            <excludes>
+              <exclude>**/app/*</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.pitest</groupId>
+          <artifactId>pitest-maven</artifactId>
+          <configuration>
+            <skip>true</skip>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
     
@@ -104,7 +119,7 @@
       <id>sonar</id>
       <properties>
         <sonar.coverage.exclusions>
-          <!-- HERE SOME EXCLUSIONS -->
+          **/app/*
         </sonar.coverage.exclusions>
         
         <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>

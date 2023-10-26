@@ -31,6 +31,11 @@
       <artifactId>booking-ui-module</artifactId>
       <!-- version taken from the bom -->
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>booking-app</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
   </dependencies>
   
   <build>
@@ -47,6 +52,7 @@
                 <exclude>**/annotation/*</exclude>
                 <exclude>**/exception/*</exclude>
                 <exclude>**/transaction/code/*</exclude>
+                <exclude>**/app/*</exclude>
               </excludes>
             </configuration>
             <executions>
@@ -76,6 +82,7 @@
                 <sourceDirectory>../booking-domain-module/src/main/java/</sourceDirectory>
                 <sourceDirectory>../booking-business-module/src/main/java/</sourceDirectory>
                 <sourceDirectory>../booking-ui-module/src/main/java/</sourceDirectory>
+                <sourceDirectory>../booking-app/src/main/java/</sourceDirectory>
               </sourceDirectories>
             </configuration>
             <executions>
