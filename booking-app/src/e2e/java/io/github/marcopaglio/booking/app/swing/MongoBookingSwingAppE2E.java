@@ -53,18 +53,17 @@ import io.github.marcopaglio.booking.model.Reservation;
 @DisplayName("End-to-end tests for BookingSwingApp usign MongoDB")
 @RunWith(GUITestRunner.class)
 public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
-	private static final String DBMS = "MONGO";
-
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
-	private static final UUID A_CLIENT_UUID = UUID.fromString("4ed2e7a3-fa50-4889-bfe4-b833ddfc4f0b");
+	private static final UUID A_CLIENT_UUID = UUID.fromString("b8a88ad6-739e-4df5-b3ea-82832a56843a");
 
 	private static final String A_YEAR = "2022";
 	private static final String A_MONTH = "04";
 	private static final String A_DAY = "24";
 	private static final LocalDate A_LOCALDATE = LocalDate.parse(A_YEAR + "-" + A_MONTH + "-" + A_DAY);
-	private static final UUID A_RESERVATION_UUID = UUID.fromString("92403799-acf3-45c9-896e-ef57b1f3be3b");
+	private static final UUID A_RESERVATION_UUID = UUID.fromString("6de5f28a-541a-4699-8377-e0eaa9d2b13e");
 
+	private static final String DBMS = "MONGO";
 	private static String mongoHost = System.getProperty("mongo.host", "localhost");
 	private static int mongoPort = Integer.parseInt(System.getProperty("mongo.port", "27017"));
 
@@ -124,7 +123,7 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		// start the Swing application
 		application("io.github.marcopaglio.booking.app.swing.BookingSwingApp")
 			.withArgs(
-					"--database=" + DBMS,
+					"--dbms=" + DBMS,
 					"--host=" + mongoHost,
 					"--port=" + mongoPort
 			).start();

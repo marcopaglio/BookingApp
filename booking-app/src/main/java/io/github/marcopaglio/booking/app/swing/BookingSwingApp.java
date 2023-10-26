@@ -46,16 +46,32 @@ import picocli.CommandLine.Option;
 
 @Command(mixinStandardHelpOptions = true)
 public class BookingSwingApp implements Callable<Void> {
+	/**
+	 * Creates meaningful logs on behalf of the class.
+	 */
+	private static final Logger LOGGER = LogManager.getLogger(BookingSwingApp.class);
 
-	@Option(names = { "--database", "-database", "-db" },
+	@Option(names = { "--dbms", "-dbms" },
 			description = "Name of the DBMS accepted: ${COMPLETION-CANDIDATES}")
-	private Database database = Database.MONGO;
+	private DBMS dbms = DBMS.MONGO;
 
 	@Option(names = { "--host", "-host", "-h" }, description = "Host name of the database to connect to")
 	private String host = "localhost";
 
 	@Option(names = { "--port", "-port", "-p" }, description = "Port number of the database to connect to")
 	private int port = 27017;
+
+	//TODO: al momento questa option è ignorata da mongo
+	@Option(names = { "--name", "-name", "-n" }, description = "Name of the database to connect to")
+	private String name = "BookingApp_db";
+
+	// Ignored by MongoDB
+	@Option(names = { "--user", "-user", }, description = "Username for loggin into the database")
+	private String user = "postgres-app";
+
+	// Ignored by MongoDB
+	@Option(names = { "--pswd", "-pswd", }, description = "Password for logging into the database")
+	private String pswd = "postgres-app";
 
 	private EntityManagerFactory emf;
 	private MongoClient mongoClient;
@@ -87,22 +103,21 @@ public class BookingSwingApp implements Callable<Void> {
 				bookingPresenter.allClients();
 				bookingPresenter.allReservations();
 			} catch(Exception e) {
-				//
+				LOGGER.error(() -> "The application terminates due to an unexpected error.");
 			}
 		});
 		
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				if (database == Database.MONGO) {
+				if (dbms == DBMS.MONGO) {
 					if (mongoClient != null)
 						mongoClient.close();
 				}
-				if (database == Database.POSTGRES) {
+				if (dbms == DBMS.POSTGRES) {
 					if (emf != null && emf.isOpen())
 						emf.close();
 				}
-				
 			}
 		});
 		
@@ -113,15 +128,16 @@ public class BookingSwingApp implements Callable<Void> {
 			ClientRepositoryFactory clientRepositoryFactory,
 			ReservationRepositoryFactory reservationRepositoryFactory) {
 		TransactionManager transactionManager = null;
-		if (database == Database.MONGO) {
+		if (dbms == DBMS.MONGO) {
 			mongoClient = getClient(String.format("mongodb://%s:%d", host, port));
 			transactionManager = new TransactionMongoManager(mongoClient, transactionHandlerFactory,
 					clientRepositoryFactory, reservationRepositoryFactory);
 		}
-		if (database == Database.POSTGRES) {
-			String jdbcUrl = String.format("jdbc:postgresql://%s:%d/BookingApp_db", host, port);
-			emf = Persistence.createEntityManagerFactory("postgres-app",
-					Map.of("jakarta.persistence.jdbc.url", jdbcUrl));
+		if (dbms == DBMS.POSTGRES) {
+			emf = Persistence.createEntityManagerFactory("postgres-app", Map.of(
+					"jakarta.persistence.jdbc.url", String.format("jdbc:postgresql://%s:%d/%s", host, port, name),
+					"jakarta.persistence.jdbc.user", user,
+					"jakarta.persistence.jdbc.password", pswd));
 			transactionManager = new TransactionPostgresManager(emf, transactionHandlerFactory,
 					clientRepositoryFactory, reservationRepositoryFactory);
 		}
@@ -152,12 +168,12 @@ public class BookingSwingApp implements Callable<Void> {
 	/**
 	 * Enumerated values accepted for {@code database} argument.
 	 */
-	enum Database {
+	enum DBMS {
 		/**
 		 * Defines the use of the MongoDB DBMS.
 		 */
 		MONGO,
-
+	
 		/**
 		 * Defines the use of the PostgreSQL DBMS.
 		 */
