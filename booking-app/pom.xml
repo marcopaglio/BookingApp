@@ -1,43 +1,57 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>io.github.marcopaglio</groupId>
+  <parent>
+    <groupId>io.github.marcopaglio</groupId>
+    <artifactId>booking-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
   <artifactId>booking-app</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
   
   <name>BookingApp - Application</name>
   <description>
     The application itself that contains everything you need to start a new instance of BookingApp.
   </description>
   
-  <properties>
-    <!-- PROJECT PROPERTIES -->
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>11</maven.compiler.source>
-    <maven.compiler.target>11</maven.compiler.target>
-  </properties>
-  
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>io.github.marcopaglio</groupId>
-        <artifactId>booking-bom</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-        <scope>import</scope>
-        <type>pom</type>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-  
   <dependencies>
     <dependency>
       <groupId>io.github.marcopaglio</groupId>
       <artifactId>booking-ui-module</artifactId>
       <!-- version taken from the bom -->
-	</dependency>
+    </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
       <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-swing-junit</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.vintage</groupId>
+      <artifactId>junit-vintage-engine</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <!-- version taken from the parent -->
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -53,6 +67,23 @@
         
       </plugins>
     </pluginManagement>
+    
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <!-- version taken from the parent -->
+      </plugin>
+      <plugin>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <!-- version taken from the bom -->
+      </plugin>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>docker-maven-plugin</artifactId>
+        <!-- version taken from the parent -->
+      </plugin>
+    </plugins>
   </build>
   
   <profiles>

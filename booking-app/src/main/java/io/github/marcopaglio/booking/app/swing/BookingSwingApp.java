@@ -83,6 +83,7 @@ public class BookingSwingApp implements Callable<Void> {
 				BookingPresenter bookingPresenter = new ServedBookingPresenter(bookingView,
 						bookingService, clientValidator, reservationValidator);
 				bookingView.setBookingPresenter(bookingPresenter);
+				bookingView.setVisible(true);
 				bookingPresenter.allClients();
 				bookingPresenter.allReservations();
 			} catch(Exception e) {
@@ -162,5 +163,4 @@ public class BookingSwingApp implements Callable<Void> {
 		 */
 		POSTGRES
 	}
-
 }
