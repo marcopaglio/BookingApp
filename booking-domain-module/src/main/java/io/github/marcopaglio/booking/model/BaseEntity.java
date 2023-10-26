@@ -16,9 +16,14 @@ import jakarta.persistence.MappedSuperclass;
 @MappedSuperclass
 public abstract class BaseEntity {
 	/**
-	 * Field name used in a database to access the {@code id} attribute.
+	 * Field name used in a MongoDB database to access the {@code id} attribute.
 	 */
-	public static final String ID_DB = "_id";
+	public static final String ID_MONGODB = "_id";
+
+	/**
+	 * Field name used in a PostgreSQL database to access the {@code id} attribute.
+	 */
+	public static final String ID_POSTGRESQL = "id";
 
 	/**
 	 * The identifier of the entity.
@@ -27,7 +32,7 @@ public abstract class BaseEntity {
 	@GeneratedValue
 	@UuidGenerator
 	@BsonId
-	@BsonProperty(value = ID_DB)
+	@BsonProperty(value = ID_MONGODB)
 	private UUID id;
 
 	/**
