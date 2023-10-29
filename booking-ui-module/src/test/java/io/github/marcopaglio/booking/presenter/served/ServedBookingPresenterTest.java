@@ -511,7 +511,7 @@ class ServedBookingPresenterTest {
 						() -> servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME));
 				
 				verify(clientValidator).validateFirstName(A_FIRSTNAME);
-				verify(view).showFormError("Client's name is not valid.");
+				verify(view).showFormError("Client's name [" + A_FIRSTNAME + "] is not valid.");
 				verify(bookingService, never()).insertNewClient(any(Client.class));
 			}
 
@@ -525,7 +525,7 @@ class ServedBookingPresenterTest {
 						() -> servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME));
 				
 				verify(clientValidator).validateLastName(A_LASTNAME);
-				verify(view).showFormError("Client's surname is not valid.");
+				verify(view).showFormError("Client's surname [" + A_LASTNAME + "] is not valid.");
 				verify(bookingService, never()).insertNewClient(any(Client.class));
 			}
 		}
@@ -687,7 +687,7 @@ class ServedBookingPresenterTest {
 						() -> servedBookingPresenter.addReservation(A_CLIENT, A_DATE));
 				
 				verify(reservationValidator).validateClientId(A_CLIENT_UUID);
-				verify(view).showFormError("Client's identifier associated with reservation is not valid.");
+				verify(view).showFormError("Reservation's client ID [" + A_CLIENT_UUID + "] is not valid.");
 				verify(bookingService, never()).insertNewReservation(any(Reservation.class));
 			}
 
@@ -701,7 +701,7 @@ class ServedBookingPresenterTest {
 						() -> servedBookingPresenter.addReservation(A_CLIENT, A_DATE));
 				
 				verify(reservationValidator).validateDate(A_DATE);
-				verify(view).showFormError("Reservation's date is not valid.");
+				verify(view).showFormError("Reservation's date [" + A_DATE + "] is not valid.");
 				verify(bookingService, never()).insertNewReservation(any(Reservation.class));
 			}
 		}
@@ -933,7 +933,7 @@ class ServedBookingPresenterTest {
 						.renameClient(A_CLIENT, newFirstName, newLastName));
 				
 				verify(clientValidator).validateFirstName(newFirstName);
-				verify(view).showFormError("Client's name is not valid.");
+				verify(view).showFormError("Client's name [" + newFirstName + "] is not valid.");
 				verify(bookingService, never())
 					.renameClient(any(UUID.class), anyString(), anyString());
 			}
@@ -948,7 +948,7 @@ class ServedBookingPresenterTest {
 						.renameClient(A_CLIENT, newFirstName, newLastName));
 				
 				verify(clientValidator).validateLastName(newLastName);
-				verify(view).showFormError("Client's surname is not valid.");
+				verify(view).showFormError("Client's surname [" + newLastName + "] is not valid.");
 				verify(bookingService, never())
 					.renameClient(any(UUID.class), anyString(), anyString());
 			}
@@ -1126,7 +1126,7 @@ class ServedBookingPresenterTest {
 					.rescheduleReservation(A_RESERVATION, newDate));
 			
 			verify(reservationValidator).validateDate(newDate);
-			verify(view).showFormError("Reservation's date is not valid.");
+			verify(view).showFormError("Reservation's date [" + newDate + "] is not valid.");
 			verify(bookingService, never())
 				.rescheduleReservation(any(UUID.class), any(LocalDate.class));
 		}

@@ -227,7 +227,7 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 			}
 		, timeout(TIMEOUT));
 		
-		assertThat(formErrorMsgLbl.text()).contains("name");
+		assertThat(formErrorMsgLbl.text()).contains(INVALID_FIRSTNAME);
 	}
 
 	@Test @GUITest
@@ -247,7 +247,7 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 			}
 		, timeout(TIMEOUT));
 		
-		assertThat(formErrorMsgLbl.text()).contains("surname");
+		assertThat(formErrorMsgLbl.text()).contains(INVALID_LASTNAME);
 	}
 
 	@Test @GUITest

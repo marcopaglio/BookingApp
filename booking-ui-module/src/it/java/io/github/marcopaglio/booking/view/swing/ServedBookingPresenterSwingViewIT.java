@@ -266,7 +266,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		
 		servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME);
 		
-		formErrorMsgLbl.requireText("Client's name is not valid.");
+		formErrorMsgLbl.requireText("Client's name [" + A_FIRSTNAME + "] is not valid.");
 	}
 
 	@Test @GUITest
@@ -277,7 +277,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		
 		servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME);
 		
-		formErrorMsgLbl.requireText("Client's surname is not valid.");
+		formErrorMsgLbl.requireText("Client's surname [" + A_LASTNAME + "] is not valid.");
 	}
 	////////////// Integration tests for 'addClient'
 
@@ -322,8 +322,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		
 		servedBookingPresenter.addReservation(client, A_DATE);
 		
-		formErrorMsgLbl.requireText(
-				"Client's identifier associated with reservation is not valid.");
+		formErrorMsgLbl.requireText("Reservation's client ID [" + A_CLIENT_UUID + "] is not valid.");
 	}
 
 	@Test @GUITest
@@ -334,7 +333,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		
 		servedBookingPresenter.addReservation(client, A_DATE);
 		
-		formErrorMsgLbl.requireText("Reservation's date is not valid.");
+		formErrorMsgLbl.requireText("Reservation's date [" + A_DATE + "] is not valid.");
 	}
 	////////////// Integration tests for 'addReservation'
 
@@ -390,7 +389,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		
 		servedBookingPresenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 		
-		formErrorMsgLbl.requireText("Client's name is not valid.");
+		formErrorMsgLbl.requireText("Client's name [" + ANOTHER_FIRSTNAME + "] is not valid.");
 	}
 
 	@Test @GUITest
@@ -401,7 +400,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		
 		servedBookingPresenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 		
-		formErrorMsgLbl.requireText("Client's surname is not valid.");
+		formErrorMsgLbl.requireText("Client's surname [" + ANOTHER_LASTNAME + "] is not valid.");
 	}
 	////////////// Integration tests for 'renameClient'
 
@@ -454,7 +453,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		
 		servedBookingPresenter.rescheduleReservation(reservation, ANOTHER_DATE);
 		
-		formErrorMsgLbl.requireText("Reservation's date is not valid.");
+		formErrorMsgLbl.requireText("Reservation's date [" + ANOTHER_DATE + "] is not valid.");
 	}
 	////////////// Integration tests for 'rescheduleReservation'
 

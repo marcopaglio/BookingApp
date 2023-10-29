@@ -105,7 +105,7 @@ class ValidatedServedBookingPresenterIT {
 				
 				presenter.addClient(invalidFirstName, validLastName);
 				
-				verify(view).showFormError("Client's name is not valid.");
+				verify(view).showFormError("Client's name [" + invalidFirstName + "] is not valid.");
 				verify(bookingService, never()).insertNewClient(any(Client.class));
 			}
 
@@ -116,7 +116,7 @@ class ValidatedServedBookingPresenterIT {
 				
 				presenter.addClient(validFirstName, invalidLastName);
 				
-				verify(view).showFormError("Client's surname is not valid.");
+				verify(view).showFormError("Client's surname [" + invalidLastName + "] is not valid.");
 				verify(bookingService, never()).insertNewClient(any(Client.class));
 			}
 		}
@@ -166,7 +166,7 @@ class ValidatedServedBookingPresenterIT {
 				
 				presenter.renameClient(client, invalidNewFirstName, validNewLastName);
 				
-				verify(view).showFormError("Client's name is not valid.");
+				verify(view).showFormError("Client's name [" + invalidNewFirstName + "] is not valid.");
 				verify(bookingService, never())
 					.renameClient(any(UUID.class), anyString(), anyString());
 			}
@@ -178,7 +178,7 @@ class ValidatedServedBookingPresenterIT {
 				
 				presenter.renameClient(client, validNewFirstName, invalidNewLastName);
 				
-				verify(view).showFormError("Client's surname is not valid.");
+				verify(view).showFormError("Client's surname [" + invalidNewLastName + "] is not valid.");
 				verify(bookingService, never())
 					.renameClient(any(UUID.class), anyString(), anyString());
 			}
@@ -222,8 +222,7 @@ class ValidatedServedBookingPresenterIT {
 				
 				presenter.addReservation(client, validDate);
 				
-				verify(view).showFormError(
-						"Client's identifier associated with reservation is not valid.");
+				verify(view).showFormError("Reservation's client ID [" + null + "] is not valid.");
 				verify(bookingService, never()).insertNewReservation(any(Reservation.class));
 			}
 
@@ -234,7 +233,7 @@ class ValidatedServedBookingPresenterIT {
 				
 				presenter.addReservation(client, invalidDate);
 				
-				verify(view).showFormError("Reservation's date is not valid.");
+				verify(view).showFormError("Reservation's date [" + invalidDate + "] is not valid.");
 				verify(bookingService, never()).insertNewReservation(any(Reservation.class));
 			}
 		}
@@ -268,7 +267,7 @@ class ValidatedServedBookingPresenterIT {
 				
 				presenter.rescheduleReservation(reservation, invalidNewDate);
 				
-				verify(view).showFormError("Reservation's date is not valid.");
+				verify(view).showFormError("Reservation's date [" + invalidNewDate + "] is not valid.");
 				verify(bookingService, never())
 					.rescheduleReservation(any(UUID.class), any(LocalDate.class));
 			}

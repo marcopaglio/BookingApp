@@ -220,7 +220,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			return clientValidator.validateFirstName(firstName);
 		} catch(IllegalArgumentException e) {
 			LOGGER.warn(e.getMessage());
-			throw new IllegalArgumentException("Client's name is not valid.");
+			throw new IllegalArgumentException(illegalArgumentErrorMsg("Client's name", firstName));
 		}
 	}
 
@@ -236,7 +236,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			return clientValidator.validateLastName(lastName);
 		} catch(IllegalArgumentException e) {
 			LOGGER.warn(e.getMessage());
-			throw new IllegalArgumentException("Client's surname is not valid.");
+			throw new IllegalArgumentException(illegalArgumentErrorMsg("Client's surname", lastName));
 		}
 	}
 
@@ -312,7 +312,8 @@ public class ServedBookingPresenter implements BookingPresenter {
 			return reservationValidator.validateClientId(clientId);
 		} catch(IllegalArgumentException e) {
 			LOGGER.warn(e.getMessage());
-			throw new IllegalArgumentException("Client's identifier associated with reservation is not valid.");
+			throw new IllegalArgumentException(
+					illegalArgumentErrorMsg("Reservation's client ID", String.valueOf(clientId)));
 		}
 	}
 
@@ -328,7 +329,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			return reservationValidator.validateDate(date);
 		} catch(IllegalArgumentException e) {
 			LOGGER.warn(e.getMessage());
-			throw new IllegalArgumentException("Reservation's date is not valid.");
+			throw new IllegalArgumentException(illegalArgumentErrorMsg("Reservation's date", date));
 		}
 	}
 
@@ -474,5 +475,16 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 */
 	private String databaseErrorMsg(String failedAction) {
 		return "Something went wrong while " + failedAction + ".";
+	}
+
+	/**
+	 * Generates an error message used when an {@code IllegalArgumentException} occurs.
+	 * 
+	 * @param argName	description of the illegal argument.
+	 * @param argValue	value of the illegal argument.
+	 * @return			a {@code String} containing the generated error message.
+	 */
+	private String illegalArgumentErrorMsg(String argName, String argValue) {
+		return argName + " [" + argValue + "] is not valid.";
 	}
 }
