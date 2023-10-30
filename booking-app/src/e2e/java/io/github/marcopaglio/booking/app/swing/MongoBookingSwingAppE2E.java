@@ -65,6 +65,7 @@ import io.github.marcopaglio.booking.model.Reservation;
 public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	private static final int TIMEOUT = 5000;
 	private static final int DEFAULT_NUM_OF_CLIENTS = 1;
+	private static final int DEFAULT_NUM_OF_RESERVATIONS = 1;
 
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
@@ -82,8 +83,17 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	private static final String A_YEAR = "2022";
 	private static final String A_MONTH = "04";
 	private static final String A_DAY = "24";
-	private static final LocalDate A_LOCALDATE = LocalDate.parse(A_YEAR + "-" + A_MONTH + "-" + A_DAY);
+	private static final String A_DATE = A_YEAR + "-" + A_MONTH + "-" + A_DAY;
+	private static final LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
 	private static final UUID A_RESERVATION_UUID = UUID.fromString("6de5f28a-541a-4699-8377-e0eaa9d2b13e");
+	private static final String ANOTHER_YEAR = "2023";
+	private static final String ANOTHER_MONTH = "09";
+	private static final String ANOTHER_DAY = "05";
+	private static final String ANOTHER_DATE = ANOTHER_YEAR + "-" + ANOTHER_MONTH + "-" + ANOTHER_DAY;
+	private static final String INVALID_YEAR = "2O23";
+	private static final String INVALID_MONTH = "13";
+	private static final String INVALID_DAY = ".5";
+	private static final String INVALID_DATE = INVALID_YEAR + "-" + INVALID_MONTH + "-" + INVALID_DAY;
 
 	private static final String DBMS = "MONGO";
 	private static String mongoHost = System.getProperty("mongo.host", "localhost");
@@ -98,8 +108,12 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 
 	private JTextComponentFixture nameFormTxt;
 	private JTextComponentFixture surnameFormTxt;
+	private JTextComponentFixture yearFormTxt;
+	private JTextComponentFixture monthFormTxt;
+	private JTextComponentFixture dayFormTxt;
 	private JLabelFixture formErrorMsgLbl;
 	private JLabelFixture operationErrorMsgLbl;
+	private JButtonFixture addReservationBtn;
 	private JButtonFixture addClientBtn;
 	private JButtonFixture renameBtn;
 	private JListFixture clientList;
@@ -162,12 +176,16 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		// text fields
 		nameFormTxt = window.textBox("nameFormTxt");
 		surnameFormTxt = window.textBox("surnameFormTxt");
+		yearFormTxt = window.textBox("yearFormTxt");
+		monthFormTxt = window.textBox("monthFormTxt");
+		dayFormTxt = window.textBox("dayFormTxt");
 		
 		// error labels
 		formErrorMsgLbl = window.label("formErrorMsgLbl");
 		operationErrorMsgLbl = window.label("operationErrorMsgLbl");
 		
 		// buttons
+		addReservationBtn = window.button(JButtonMatcher.withText("Add Reservation"));
 		addClientBtn = window.button(JButtonMatcher.withText("Add Client"));
 		renameBtn = window.button(JButtonMatcher.withText("Rename"));
 		
@@ -195,7 +213,7 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 
 	////////////// Add client
 	@Test @GUITest
-	@DisplayName("Add client is successful")
+	@DisplayName("Adding client is successful")
 	public void testAddClientWhenIsSuccessfulShouldShowTheNewClient() {
 		nameFormTxt.enterText(ANOTHER_FIRSTNAME);
 		surnameFormTxt.enterText(ANOTHER_LASTNAME);
@@ -390,6 +408,100 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		assertThat(operationErrorMsgLbl.text()).contains(A_FIRSTNAME, A_LASTNAME);
 	}
 	////////////// Rename client
+
+
+	////////////// Add reservation
+	@Test @GUITest
+	@DisplayName("Adding reservation is successful")
+	public void testAddReservationWhenIsSuccessfulShouldShowTheNewReservation() {
+		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
+		yearFormTxt.enterText(ANOTHER_YEAR);
+		monthFormTxt.enterText(ANOTHER_MONTH);
+		dayFormTxt.enterText(ANOTHER_DAY);
+		
+		addReservationBtn.click();
+		
+		pause(
+			new Condition("Reservation list to contain different number of reservations than the default ones") {
+				@Override
+				public boolean test() {
+					return reservationList.contents().length != DEFAULT_NUM_OF_RESERVATIONS;
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(reservationList.contents())
+			.anySatisfy(e -> assertThat(e).contains(ANOTHER_DATE));
+	}
+
+	@Test @GUITest
+	@DisplayName("Date is invalid")
+	public void testAddReservationWhenDateIsInvalidShouldShowFormError() {
+		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
+		yearFormTxt.enterText(INVALID_YEAR);
+		monthFormTxt.enterText(INVALID_MONTH);
+		dayFormTxt.enterText(INVALID_DAY);
+		
+		addReservationBtn.click();
+		
+		pause(
+			new Condition("Form error to contain a message") {
+				@Override
+				public boolean test() {
+					return !formErrorMsgLbl.text().isBlank();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(formErrorMsgLbl.text()).contains(INVALID_DATE);
+	}
+
+	@Test @GUITest
+	@DisplayName("Selected client is wrong")
+	public void testAddReservationWhenSelectedClientIsWrongShouldShowOperationError() {
+		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
+		yearFormTxt.enterText(ANOTHER_YEAR);
+		monthFormTxt.enterText(ANOTHER_MONTH);
+		dayFormTxt.enterText(ANOTHER_DAY);
+		
+		removeTestClientFromDatabase(A_CLIENT_UUID);
+		
+		addReservationBtn.click();
+		
+		pause(
+			new Condition("Operation error to contain a message") {
+				@Override
+				public boolean test() {
+					return !operationErrorMsgLbl.text().isBlank();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(operationErrorMsgLbl.text()).contains(A_FIRSTNAME, A_LASTNAME);
+	}
+
+	@Test @GUITest
+	@DisplayName("Adding reservation fails")
+	public void testAddReservationWhenIsAFailureShouldShowAnOperationError() {
+		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
+		yearFormTxt.enterText(A_YEAR);
+		monthFormTxt.enterText(A_MONTH);
+		dayFormTxt.enterText(A_DAY);
+		
+		addReservationBtn.click();
+		
+		pause(
+			new Condition("Operation error to contain a message") {
+				@Override
+				public boolean test() {
+					return !operationErrorMsgLbl.text().isBlank();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(operationErrorMsgLbl.text()).contains(A_DATE);
+	}
+	////////////// Add reservation
 
 
 	public void addTestClientToDatabase(String name, String surname, UUID id) {
