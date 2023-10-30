@@ -15,6 +15,7 @@ import static org.assertj.swing.timing.Timeout.timeout;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 
@@ -36,8 +37,6 @@ import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.runner.RunWith;
 
-import io.github.marcopaglio.booking.model.Client;
-import io.github.marcopaglio.booking.model.Reservation;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
@@ -50,10 +49,15 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
+	private static final String NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX =
+			".*" + A_FIRSTNAME + ".*" + A_LASTNAME + ".*"
+			+ "|" +
+			".*" + A_LASTNAME + ".*" + A_FIRSTNAME + ".*";
 	private static final UUID A_CLIENT_UUID = UUID.fromString("500775ab-0ef3-4893-999f-f70098670722");
 	private static final String ANOTHER_FIRSTNAME = "Maria";
 	private static final String ANOTHER_LASTNAME = "De Lucia";
-	private static final String INVALID_FIRSTNAME = "Mari@";
+	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("c5014376-5a67-4c17-a1da-0b0b92af5711");
+	private static final String INVALID_FIRSTNAME = "Mari4";
 	private static final String INVALID_LASTNAME = "De_Lucia";
 
 	private static final String A_YEAR = "2022";
@@ -79,11 +83,9 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	private JLabelFixture formErrorMsgLbl;
 	private JLabelFixture operationErrorMsgLbl;
 	private JButtonFixture addClientBtn;
+	private JButtonFixture renameBtn;
 	private JListFixture clientList;
 	private JListFixture reservationList;
-
-	private Client client;
-	private Reservation reservation;
 
 	@BeforeClass
 	public static void setupEmf() throws Exception {
@@ -105,10 +107,8 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		em.close();
 		
 		// add entities to the database
-		client = new Client(A_FIRSTNAME, A_LASTNAME);
-		addTestClientToDatabase(client, A_CLIENT_UUID);
-		reservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
-		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+		addTestClientToDatabase(A_FIRSTNAME, A_LASTNAME, A_CLIENT_UUID);
+		addTestReservationToDatabase(A_CLIENT_UUID, A_LOCALDATE, A_RESERVATION_UUID);
 		
 		// start the Swing application
 		application("io.github.marcopaglio.booking.app.swing.BookingSwingApp")
@@ -139,6 +139,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		// buttons
 		addClientBtn = window.button(JButtonMatcher.withText("Add Client"));
+		renameBtn = window.button(JButtonMatcher.withText("Rename"));
 		
 		// lists
 		clientList = window.list("clientList");
@@ -246,24 +247,148 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	////////////// Add client
 
 
+	////////////// Rename client
+	@Test @GUITest
+	@DisplayName("Renaming client succeeds")
+	public void testRenameClientWhenIsSuccessfulShouldShowChanges() {
+		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
+		nameFormTxt.enterText(ANOTHER_FIRSTNAME);
+		surnameFormTxt.enterText(ANOTHER_LASTNAME);
+		
+		renameBtn.click();
+		
+		pause(
+			new Condition("Name forms to be reset") {
+				@Override
+				public boolean test() {
+					return nameFormTxt.text().isEmpty() && 
+							surnameFormTxt.text().isEmpty();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(clientList.contents())
+			.anySatisfy(e -> assertThat(e).doesNotContain(A_FIRSTNAME, A_LASTNAME))
+			.anySatisfy(e -> assertThat(e).contains(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME));
+	}
 
-	private void addTestClientToDatabase(Client client, UUID id) {
+	@Test @GUITest
+	@DisplayName("New name is invalid")
+	public void testRenameClientWhenNewNameIsInvalidShouldShowFormError() {
+		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
+		nameFormTxt.enterText(INVALID_FIRSTNAME);
+		surnameFormTxt.enterText(ANOTHER_LASTNAME);
+		
+		renameBtn.click();
+		
+		pause(
+			new Condition("Form error to contain a message") {
+				@Override
+				public boolean test() {
+					return !formErrorMsgLbl.text().isBlank();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(formErrorMsgLbl.text()).contains(INVALID_FIRSTNAME);
+	}
+
+	@Test @GUITest
+	@DisplayName("New surname is invalid")
+	public void testRenameClientWhenNewSurnameIsInvalidShouldShowFormError() {
+		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
+		nameFormTxt.enterText(ANOTHER_FIRSTNAME);
+		surnameFormTxt.enterText(INVALID_LASTNAME);
+		
+		renameBtn.click();
+		
+		pause(
+			new Condition("Form error to contain a message") {
+				@Override
+				public boolean test() {
+					return !formErrorMsgLbl.text().isBlank();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(formErrorMsgLbl.text()).contains(INVALID_LASTNAME);
+	}
+
+	@Test @GUITest
+	@DisplayName("Renamed client is homonymic")
+	public void testRenameClientWhenThereIsHomonymyShouldShowAnOperationError() {
+		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
+		nameFormTxt.enterText(ANOTHER_FIRSTNAME);
+		surnameFormTxt.enterText(ANOTHER_LASTNAME);
+		
+		addTestClientToDatabase(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME, ANOTHER_CLIENT_UUID);
+		
+		renameBtn.click();
+		
+		pause(
+			new Condition("Operation error to contain a message") {
+				@Override
+				public boolean test() {
+					return !operationErrorMsgLbl.text().isBlank();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(operationErrorMsgLbl.text()).contains(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+	}
+
+	@Test @GUITest
+	@DisplayName("Renaming client fails")
+	public void testRenameClientWhenIsAFailureShouldShowAnOperationError() {
+		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
+		nameFormTxt.enterText(ANOTHER_FIRSTNAME);
+		surnameFormTxt.enterText(ANOTHER_LASTNAME);
+		
+		removeTestClientFromDatabase(A_CLIENT_UUID);
+		
+		renameBtn.click();
+		
+		pause(
+			new Condition("Operation error to contain a message") {
+				@Override
+				public boolean test() {
+					return !operationErrorMsgLbl.text().isBlank();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(operationErrorMsgLbl.text()).contains(A_FIRSTNAME, A_LASTNAME);
+	}
+	////////////// Rename client
+
+
+	private void addTestClientToDatabase(String name, String surname, UUID id) {
 		EntityManager em = emf.createEntityManager();
 		em.getTransaction().begin();
 		em.createNativeQuery("INSERT INTO " + CLIENT_TABLE_DB +
 				"(" + ID_POSTGRESQL + ", "+ FIRSTNAME_DB + ", " + LASTNAME_DB + ") " +
-				"VALUES ('" + id + "', '" + client.getFirstName() + "', '" + client.getLastName() + "')")
+				"VALUES ('" + id + "', '" + name + "', '" + surname + "')")
 			.executeUpdate();
 		em.getTransaction().commit();
 		em.close();
 	}
 
-	private void addTestReservationToDatabase(Reservation reservation, UUID id) {
+	private void removeTestClientFromDatabase(UUID id) {
+		EntityManager em = emf.createEntityManager();
+		em.getTransaction().begin();
+		em.createNativeQuery("DELETE FROM " + CLIENT_TABLE_DB +
+				" WHERE " + ID_POSTGRESQL + "='" + id +"'")
+			.executeUpdate();
+		em.getTransaction().commit();
+		em.close();
+	}
+
+	private void addTestReservationToDatabase(UUID clientId, LocalDate localDate, UUID id) {
 		EntityManager em = emf.createEntityManager();
 		em.getTransaction().begin();
 		em.createNativeQuery("INSERT INTO " + RESERVATION_TABLE_DB +
 				"(" + ID_POSTGRESQL + ", "+ CLIENTID_DB + ", " + DATE_DB + ") " +
-				"VALUES ('" + id + "', '" + reservation.getClientId() + "', '" + reservation.getDate() + "')")
+				"VALUES ('" + id + "', '" + clientId + "', '" + localDate + "')")
 			.executeUpdate();
 		em.getTransaction().commit();
 		em.close();
