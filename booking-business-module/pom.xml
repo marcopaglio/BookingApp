@@ -159,9 +159,9 @@
       <properties>
         <sonar.coverage.exclusions>
           **/transaction/code/*.*,
-          **/handler/factory/*,
-          **/handler/mongo/*,
-          **/handler/postgres/*
+          **/handler/factory/*.*,
+          **/handler/mongo/*.*,
+          **/handler/postgres/*.*
         </sonar.coverage.exclusions>
       </properties>
       <build>

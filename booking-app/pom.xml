@@ -119,7 +119,7 @@
       <id>sonar</id>
       <properties>
         <sonar.coverage.exclusions>
-          **/app/*
+          **/app/swing/*.*
         </sonar.coverage.exclusions>
         
         <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
