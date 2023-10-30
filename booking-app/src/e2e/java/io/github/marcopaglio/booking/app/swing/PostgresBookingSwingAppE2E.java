@@ -65,11 +65,14 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	private static final String A_MONTH = "04";
 	private static final String A_DAY = "24";
 	private static final String A_DATE = A_YEAR + "-" + A_MONTH + "-" + A_DAY;
-	private static final LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);	private static final UUID A_RESERVATION_UUID = UUID.fromString("bfe395cd-08f9-46bd-8080-269d62f0d366");
+	private static final LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
+	private static final UUID A_RESERVATION_UUID = UUID.fromString("bfe395cd-08f9-46bd-8080-269d62f0d366");
 	private static final String ANOTHER_YEAR = "2023";
 	private static final String ANOTHER_MONTH = "09";
 	private static final String ANOTHER_DAY = "05";
 	private static final String ANOTHER_DATE = ANOTHER_YEAR + "-" + ANOTHER_MONTH + "-" + ANOTHER_DAY;
+	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse(ANOTHER_DATE);
+	private static final UUID ANOTHER_RESERVATION_UUID = UUID.fromString("17f600a7-af1e-41d1-8dd0-f4d00dbda750");
 	private static final String INVALID_YEAR = "2O23";
 	private static final String INVALID_MONTH = "13";
 	private static final String INVALID_DAY = ".5";
@@ -97,6 +100,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	private JButtonFixture addReservationBtn;
 	private JButtonFixture addClientBtn;
 	private JButtonFixture renameBtn;
+	private JButtonFixture rescheduleBtn;
 	private JListFixture clientList;
 	private JListFixture reservationList;
 
@@ -157,6 +161,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		addReservationBtn = window.button(JButtonMatcher.withText("Add Reservation"));
 		addClientBtn = window.button(JButtonMatcher.withText("Add Client"));
 		renameBtn = window.button(JButtonMatcher.withText("Rename"));
+		rescheduleBtn = window.button(JButtonMatcher.withText("Reschedule"));
 		
 		// lists
 		clientList = window.list("clientList");
@@ -332,7 +337,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	}
 
 	@Test @GUITest
-	@DisplayName("Renamed client is homonymic")
+	@DisplayName("Renamed client would be homonymic")
 	public void testRenameClientWhenThereIsHomonymyShouldShowAnOperationError() {
 		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
 		nameFormTxt.enterText(ANOTHER_FIRSTNAME);
@@ -473,6 +478,105 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	////////////// Add reservation
 
 
+	////////////// Reschedule reservation
+	@Test @GUITest
+	@DisplayName("Rescheduling reservation succeeds")
+	public void testRescheduleReservationWhenIsSuccessfulShouldShowChanges() {
+		reservationList.selectItem(Pattern.compile(".*" + A_DATE + ".*"));
+		yearFormTxt.enterText(ANOTHER_YEAR);
+		monthFormTxt.enterText(ANOTHER_MONTH);
+		dayFormTxt.enterText(ANOTHER_DAY);
+		
+		rescheduleBtn.click();
+		
+		pause(
+			new Condition("Date forms to be reset") {
+				@Override
+				public boolean test() {
+					return yearFormTxt.text().isEmpty() && 
+							monthFormTxt.text().isEmpty() && 
+							dayFormTxt.text().isEmpty();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(reservationList.contents())
+			.allSatisfy(e -> assertThat(e).doesNotContain(A_DATE))
+			.anySatisfy(e -> assertThat(e).contains(ANOTHER_DATE));
+	}
+
+	@Test @GUITest
+	@DisplayName("New date is invalid")
+	public void testRescheduleReservationWhenNewDateIsInvalidShouldShowFormError() {
+		reservationList.selectItem(Pattern.compile(".*" + A_DATE + ".*"));
+		yearFormTxt.enterText(INVALID_YEAR);
+		monthFormTxt.enterText(INVALID_MONTH);
+		dayFormTxt.enterText(INVALID_DAY);
+		
+		rescheduleBtn.click();
+		
+		pause(
+			new Condition("Form error to contain a message") {
+				@Override
+				public boolean test() {
+					return !formErrorMsgLbl.text().isBlank();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(formErrorMsgLbl.text()).contains(INVALID_DATE);
+	}
+
+	@Test @GUITest
+	@DisplayName("Rescheduled reservation would be simultaneous")
+	public void testRescheduleReservationWhenThereIsSimultaneityShouldShowAnOperationError() {
+		reservationList.selectItem(Pattern.compile(".*" + A_DATE + ".*"));
+		yearFormTxt.enterText(ANOTHER_YEAR);
+		monthFormTxt.enterText(ANOTHER_MONTH);
+		dayFormTxt.enterText(ANOTHER_DAY);
+		
+		addTestReservationToDatabase(A_CLIENT_UUID, ANOTHER_LOCALDATE, ANOTHER_RESERVATION_UUID);
+		
+		rescheduleBtn.click();
+		
+		pause(
+			new Condition("Operation error to contain a message") {
+				@Override
+				public boolean test() {
+					return !operationErrorMsgLbl.text().isBlank();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(operationErrorMsgLbl.text()).contains(ANOTHER_DATE);
+	}
+
+	@Test @GUITest
+	@DisplayName("Rescheduling reservation fails")
+	public void testRescheduleReservationWhenIsAFailureShouldShowAnOperationError() {
+		reservationList.selectItem(Pattern.compile(".*" + A_DATE + ".*"));
+		yearFormTxt.enterText(ANOTHER_YEAR);
+		monthFormTxt.enterText(ANOTHER_MONTH);
+		dayFormTxt.enterText(ANOTHER_DAY);
+		
+		removeTestReservationFromDatabase(A_RESERVATION_UUID);
+		
+		rescheduleBtn.click();
+		
+		pause(
+			new Condition("Operation error to contain a message") {
+				@Override
+				public boolean test() {
+					return !operationErrorMsgLbl.text().isBlank();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(operationErrorMsgLbl.text()).contains(A_DATE);
+	}
+	////////////// Reschedule reservation
+
+
 	private void addTestClientToDatabase(String name, String surname, UUID id) {
 		EntityManager em = emf.createEntityManager();
 		em.getTransaction().begin();
@@ -500,6 +604,16 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		em.createNativeQuery("INSERT INTO " + RESERVATION_TABLE_DB +
 				"(" + ID_POSTGRESQL + ", "+ CLIENTID_DB + ", " + DATE_DB + ") " +
 				"VALUES ('" + id + "', '" + clientId + "', '" + localDate + "')")
+			.executeUpdate();
+		em.getTransaction().commit();
+		em.close();
+	}
+
+	private void removeTestReservationFromDatabase(UUID id) {
+		EntityManager em = emf.createEntityManager();
+		em.getTransaction().begin();
+		em.createNativeQuery("DELETE FROM " + RESERVATION_TABLE_DB +
+				" WHERE " + ID_POSTGRESQL + "='" + id +"'")
 			.executeUpdate();
 		em.getTransaction().commit();
 		em.close();
