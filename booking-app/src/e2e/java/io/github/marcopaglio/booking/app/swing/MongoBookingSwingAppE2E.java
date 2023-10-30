@@ -84,6 +84,7 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	private static final String A_MONTH = "04";
 	private static final String A_DAY = "24";
 	private static final String A_DATE = A_YEAR + "-" + A_MONTH + "-" + A_DAY;
+	private static final String DATE_REGEX = ".*" + A_DATE + ".*";
 	private static final LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
 	private static final UUID A_RESERVATION_UUID = UUID.fromString("6de5f28a-541a-4699-8377-e0eaa9d2b13e");
 	private static final String ANOTHER_YEAR = "2023";
@@ -119,6 +120,8 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	private JButtonFixture addClientBtn;
 	private JButtonFixture renameBtn;
 	private JButtonFixture rescheduleBtn;
+	private JButtonFixture removeClientBtn;
+	private JButtonFixture removeReservationBtn;
 	private JListFixture clientList;
 	private JListFixture reservationList;
 
@@ -192,6 +195,8 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		addClientBtn = window.button(JButtonMatcher.withText("Add Client"));
 		renameBtn = window.button(JButtonMatcher.withText("Rename"));
 		rescheduleBtn = window.button(JButtonMatcher.withText("Reschedule"));
+		removeClientBtn = window.button(JButtonMatcher.withText("Remove Client"));
+		removeReservationBtn = window.button(JButtonMatcher.withText("Remove Reservation"));
 		
 		// lists
 		clientList = window.list("clientList");
@@ -217,7 +222,7 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 
 	////////////// Add client
 	@Test @GUITest
-	@DisplayName("Adding client is successful")
+	@DisplayName("Adding client succeeds")
 	public void testAddClientWhenIsSuccessfulShouldShowTheNewClient() {
 		nameFormTxt.enterText(ANOTHER_FIRSTNAME);
 		surnameFormTxt.enterText(ANOTHER_LASTNAME);
@@ -414,9 +419,53 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	////////////// Rename client
 
 
+	////////////// Remove client
+	@Test @GUITest
+	@DisplayName("Removing client succeeds")
+	public void testRemoveClientWhenIsSuccessfulShouldMakeDisappearTheClient() {
+		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
+		
+		removeClientBtn.click();
+		
+		pause(
+			new Condition("Client list to contain different number of clients than the default ones") {
+				@Override
+				public boolean test() {
+					return clientList.contents().length != DEFAULT_NUM_OF_CLIENTS;
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(clientList.contents())
+			.allSatisfy(e -> assertThat(e).doesNotContain(A_FIRSTNAME, A_LASTNAME));
+	}
+
+	@Test @GUITest
+	@DisplayName("Removing client fails")
+	public void testRemoveClientWhenIsAFailureShouldShowOperationError() {
+		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
+		
+		removeTestClientFromDatabase(A_CLIENT_UUID);
+		
+		removeClientBtn.click();
+		
+		pause(
+			new Condition("Operation error to contain a message") {
+				@Override
+				public boolean test() {
+					return !operationErrorMsgLbl.text().isBlank();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(operationErrorMsgLbl.text()).contains(A_FIRSTNAME, A_LASTNAME);
+	}
+	////////////// Remove client
+
+
 	////////////// Add reservation
 	@Test @GUITest
-	@DisplayName("Adding reservation is successful")
+	@DisplayName("Adding reservation succeeds")
 	public void testAddReservationWhenIsSuccessfulShouldShowTheNewReservation() {
 		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
 		yearFormTxt.enterText(ANOTHER_YEAR);
@@ -512,7 +561,7 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	@Test @GUITest
 	@DisplayName("Rescheduling reservation succeeds")
 	public void testRescheduleReservationWhenIsSuccessfulShouldShowChanges() {
-		reservationList.selectItem(Pattern.compile(".*" + A_DATE + ".*"));
+		reservationList.selectItem(Pattern.compile(DATE_REGEX));
 		yearFormTxt.enterText(ANOTHER_YEAR);
 		monthFormTxt.enterText(ANOTHER_MONTH);
 		dayFormTxt.enterText(ANOTHER_DAY);
@@ -538,7 +587,7 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	@Test @GUITest
 	@DisplayName("New date is invalid")
 	public void testRescheduleReservationWhenNewDateIsInvalidShouldShowFormError() {
-		reservationList.selectItem(Pattern.compile(".*" + A_DATE + ".*"));
+		reservationList.selectItem(Pattern.compile(DATE_REGEX));
 		yearFormTxt.enterText(INVALID_YEAR);
 		monthFormTxt.enterText(INVALID_MONTH);
 		dayFormTxt.enterText(INVALID_DAY);
@@ -560,7 +609,7 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	@Test @GUITest
 	@DisplayName("Rescheduled reservation would be simultaneous")
 	public void testRescheduleReservationWhenThereIsSimultaneityShouldShowAnOperationError() {
-		reservationList.selectItem(Pattern.compile(".*" + A_DATE + ".*"));
+		reservationList.selectItem(Pattern.compile(DATE_REGEX));
 		yearFormTxt.enterText(ANOTHER_YEAR);
 		monthFormTxt.enterText(ANOTHER_MONTH);
 		dayFormTxt.enterText(ANOTHER_DAY);
@@ -584,7 +633,7 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	@Test @GUITest
 	@DisplayName("Rescheduling reservation fails")
 	public void testRescheduleReservationWhenIsAFailureShouldShowAnOperationError() {
-		reservationList.selectItem(Pattern.compile(".*" + A_DATE + ".*"));
+		reservationList.selectItem(Pattern.compile(DATE_REGEX));
 		yearFormTxt.enterText(ANOTHER_YEAR);
 		monthFormTxt.enterText(ANOTHER_MONTH);
 		dayFormTxt.enterText(ANOTHER_DAY);
@@ -605,6 +654,50 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		assertThat(operationErrorMsgLbl.text()).contains(A_DATE);
 	}
 	////////////// Reschedule reservation
+
+
+	////////////// Remove reservation
+	@Test @GUITest
+	@DisplayName("Removing reservation succeeds")
+	public void testRemoveReservationWhenIsSuccessfulShouldMakeDisappearTheReservation() {
+		reservationList.selectItem(Pattern.compile(DATE_REGEX));
+		
+		removeReservationBtn.click();
+		
+		pause(
+			new Condition("Reservation list to contain different number of reservations than the default ones") {
+				@Override
+				public boolean test() {
+					return reservationList.contents().length != DEFAULT_NUM_OF_RESERVATIONS;
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(reservationList.contents())
+			.allSatisfy(e -> assertThat(e).doesNotContain(A_DATE));
+	}
+
+	@Test @GUITest
+	@DisplayName("Removing reservation fails")
+	public void testRemoveReservationWhenIsAFailureShouldShowOperationError() {
+		reservationList.selectItem(Pattern.compile(DATE_REGEX));
+		
+		removeTestReservationFromDatabase(A_RESERVATION_UUID);
+		
+		removeReservationBtn.click();
+		
+		pause(
+			new Condition("Operation error to contain a message") {
+				@Override
+				public boolean test() {
+					return !operationErrorMsgLbl.text().isBlank();
+				}
+			}
+		, timeout(TIMEOUT));
+		
+		assertThat(operationErrorMsgLbl.text()).contains(A_DATE);
+	}
+	////////////// Remove reservation
 
 
 	public void addTestClientToDatabase(String name, String surname, UUID id) {
