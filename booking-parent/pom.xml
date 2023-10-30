@@ -344,7 +344,7 @@
                   </wait>
                   <!-- real value of concorrent connection with HikariCP seems to be: -->
                   <!-- ceil(postgres_max_connection / 10) -->
-                  <cmd>postgres -c max_connections=181</cmd>
+                  <cmd>postgres -c max_connections=221</cmd>
                 </run>
               </image>
             </images>
