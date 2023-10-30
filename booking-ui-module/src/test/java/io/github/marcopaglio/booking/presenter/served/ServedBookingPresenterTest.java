@@ -608,7 +608,8 @@ class ServedBookingPresenterTest {
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				inOrder.verify(bookingService).insertNewReservation(A_RESERVATION);
-				inOrder.verify(view).showOperationError(A_CLIENT.toString() + " no longer exists.");
+				inOrder.verify(view).showOperationError(A_CLIENT.toString()
+						+ " with id=" + A_CLIENT_UUID + " no longer exists.");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());

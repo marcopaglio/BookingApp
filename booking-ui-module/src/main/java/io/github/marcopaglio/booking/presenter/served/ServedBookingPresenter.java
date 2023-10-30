@@ -263,7 +263,8 @@ public class ServedBookingPresenter implements BookingPresenter {
 				updateAll();
 			} catch(InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(instanceNotFoundErrorMsg(client.toString()));
+				view.showOperationError(instanceNotFoundErrorMsg(client.toString()
+						+ " with id=" + reservation.getClientId()));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
