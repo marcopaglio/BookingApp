@@ -342,7 +342,9 @@
                     <log>\[1\] LOG:  database system is ready to accept connections</log>
                     <time>20000</time>
                   </wait>
-                  <cmd>postgres -c max_connections=151</cmd>
+                  <!-- real value of concorrent connection with HikariCP seems to be: -->
+                  <!-- ceil(postgres_max_connection / 10) -->
+                  <cmd>postgres -c max_connections=181</cmd>
                 </run>
               </image>
             </images>
