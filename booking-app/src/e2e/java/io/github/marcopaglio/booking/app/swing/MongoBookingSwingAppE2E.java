@@ -316,7 +316,7 @@ public class MongoBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		, timeout(TIMEOUT));
 		
 		assertThat(clientList.contents())
-			.anySatisfy(e -> assertThat(e).doesNotContain(A_FIRSTNAME, A_LASTNAME))
+			.allSatisfy(e -> assertThat(e).doesNotContain(A_FIRSTNAME, A_LASTNAME))
 			.anySatisfy(e -> assertThat(e).contains(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME));
 	}
 
