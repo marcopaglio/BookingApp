@@ -342,6 +342,7 @@
                     <log>\[1\] LOG:  database system is ready to accept connections</log>
                     <time>20000</time>
                   </wait>
+                  <cmd>postgres -c max_connections=151</cmd>
                 </run>
               </image>
             </images>
