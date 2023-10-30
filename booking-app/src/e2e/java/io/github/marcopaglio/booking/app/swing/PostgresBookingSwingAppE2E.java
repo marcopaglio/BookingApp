@@ -12,7 +12,6 @@ import static org.assertj.swing.launcher.ApplicationLauncher.application;
 import static org.assertj.swing.timing.Pause.pause;
 import static org.assertj.swing.timing.Timeout.timeout;
 
-import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -44,20 +43,17 @@ import jakarta.persistence.Persistence;
 @DisplayName("End-to-end tests for BookingSwingApp using PostgreSQL")
 @RunWith(GUITestRunner.class)
 public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
+	private static final String DBMS = "POSTGRES";
 	private static final int TIMEOUT = 5000;
 	private static final int DEFAULT_NUM_OF_CLIENTS = 1;
 	private static final int DEFAULT_NUM_OF_RESERVATIONS = 1;
 
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
-	private static final String NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX =
-			".*" + A_FIRSTNAME + ".*" + A_LASTNAME + ".*"
-			+ "|" +
-			".*" + A_LASTNAME + ".*" + A_FIRSTNAME + ".*";
 	private static final UUID A_CLIENT_UUID = UUID.fromString("500775ab-0ef3-4893-999f-f70098670722");
 	private static final String ANOTHER_FIRSTNAME = "Maria";
 	private static final String ANOTHER_LASTNAME = "De Lucia";
-	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("c5014376-5a67-4c17-a1da-0b0b92af5711");
+
 	private static final String INVALID_FIRSTNAME = "Mari4";
 	private static final String INVALID_LASTNAME = "De_Lucia";
 
@@ -65,21 +61,19 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	private static final String A_MONTH = "04";
 	private static final String A_DAY = "24";
 	private static final String A_DATE = A_YEAR + "-" + A_MONTH + "-" + A_DAY;
-	private static final String DATE_REGEX = ".*" + A_DATE + ".*";
-	private static final LocalDate A_LOCALDATE = LocalDate.parse(A_DATE);
 	private static final UUID A_RESERVATION_UUID = UUID.fromString("bfe395cd-08f9-46bd-8080-269d62f0d366");
 	private static final String ANOTHER_YEAR = "2023";
 	private static final String ANOTHER_MONTH = "09";
 	private static final String ANOTHER_DAY = "05";
 	private static final String ANOTHER_DATE = ANOTHER_YEAR + "-" + ANOTHER_MONTH + "-" + ANOTHER_DAY;
-	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse(ANOTHER_DATE);
-	private static final UUID ANOTHER_RESERVATION_UUID = UUID.fromString("17f600a7-af1e-41d1-8dd0-f4d00dbda750");
-	private static final String INVALID_YEAR = "2O23";
-	private static final String INVALID_MONTH = "13";
-	private static final String INVALID_DAY = ".5";
-	private static final String INVALID_DATE = INVALID_YEAR + "-" + INVALID_MONTH + "-" + INVALID_DAY;
 
-	private static final String DBMS = "POSTGRES";
+	private static final String INVALID_YEAR = "2O23";
+
+	// regex
+	private static final String NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX =
+			".*" + A_FIRSTNAME + ".*" + A_LASTNAME + ".*" + "|" +
+			".*" + A_LASTNAME + ".*" + A_FIRSTNAME + ".*";
+	private static final String DATE_REGEX = ".*" + A_DATE + ".*";
 
 	private static String postgresHost = System.getProperty("postgres.host", "localhost");
 	private static int postgresPort = Integer.parseInt(System.getProperty("postgres.port", "5432"));
@@ -107,6 +101,55 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	private JListFixture clientList;
 	private JListFixture reservationList;
 
+	// pause conditions
+	private Condition untilClientListContainsDifferentNumberOfClientsThanTheDefaultOnes = new Condition(
+			"Client list to contain different number of clients than the default ones") {
+		@Override
+		public boolean test() {
+			return clientList.contents().length != DEFAULT_NUM_OF_CLIENTS;
+		}
+	};
+
+	private Condition untilNameFormsAreReset = new Condition("Name forms to be reset") {
+		@Override
+		public boolean test() {
+			return nameFormTxt.text().isEmpty() && 
+					surnameFormTxt.text().isEmpty();
+		}
+	};
+
+	private Condition untilReservationListContainsDifferentNumberOfReservationThanTheDefaultOnes = new Condition(
+			"Reservation list to contain different number of reservations than the default ones") {
+		@Override
+		public boolean test() {
+			return reservationList.contents().length != DEFAULT_NUM_OF_RESERVATIONS;
+		}
+	};
+
+	private Condition untilDateFormsAreReset = new Condition("Date forms to be reset") {
+		@Override
+		public boolean test() {
+			return yearFormTxt.text().isEmpty() && 
+					monthFormTxt.text().isEmpty() && 
+					dayFormTxt.text().isEmpty();
+		}
+	};
+
+	private Condition untilFormErrorContainsAMessage = new Condition("Form error to contain a message") {
+		@Override
+		public boolean test() {
+			return !formErrorMsgLbl.text().isBlank();
+		}
+	};
+
+	private Condition untilOperationErrorContainsAMessage = new Condition("Operation error to contain a message") {
+		@Override
+		public boolean test() {
+			return !operationErrorMsgLbl.text().isBlank();
+		}
+	};
+
+
 	@BeforeClass
 	public static void setupEmf() throws Exception {
 		String jdbcUrl = String.format("jdbc:postgresql://%s:%d/%s",
@@ -128,7 +171,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		// add entities to the database
 		addTestClientToDatabase(A_FIRSTNAME, A_LASTNAME, A_CLIENT_UUID);
-		addTestReservationToDatabase(A_CLIENT_UUID, A_LOCALDATE, A_RESERVATION_UUID);
+		addTestReservationToDatabase(A_CLIENT_UUID, A_DATE, A_RESERVATION_UUID);
 		
 		// start the Swing application
 		application("io.github.marcopaglio.booking.app.swing.BookingSwingApp")
@@ -186,7 +229,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 			.anySatisfy(e -> assertThat(e).contains(A_FIRSTNAME, A_LASTNAME));
 		
 		assertThat(reservationList.contents())
-			.anySatisfy(e -> assertThat(e).contains(A_LOCALDATE.toString()));
+			.anySatisfy(e -> assertThat(e).contains(A_DATE));
 	}
 
 
@@ -199,14 +242,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		addClientBtn.click();
 		
-		pause(
-			new Condition("Client list to contain different number of clients than the default ones") {
-				@Override
-				public boolean test() {
-					return clientList.contents().length != DEFAULT_NUM_OF_CLIENTS;
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilClientListContainsDifferentNumberOfClientsThanTheDefaultOnes, timeout(TIMEOUT));
 		
 		assertThat(clientList.contents())
 			.anySatisfy(e -> assertThat(e).contains(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME));
@@ -220,14 +256,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		addClientBtn.click();
 		
-		pause(
-			new Condition("Form error to contain a message") {
-				@Override
-				public boolean test() {
-					return !formErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilFormErrorContainsAMessage, timeout(TIMEOUT));
 		
 		assertThat(formErrorMsgLbl.text()).contains(INVALID_FIRSTNAME);
 	}
@@ -240,14 +269,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		addClientBtn.click();
 		
-		pause(
-			new Condition("Form error to contain a message") {
-				@Override
-				public boolean test() {
-					return !formErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilFormErrorContainsAMessage, timeout(TIMEOUT));
 		
 		assertThat(formErrorMsgLbl.text()).contains(INVALID_LASTNAME);
 	}
@@ -260,14 +282,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		addClientBtn.click();
 		
-		pause(
-			new Condition("Operation error to contain a message") {
-				@Override
-				public boolean test() {
-					return !operationErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilOperationErrorContainsAMessage, timeout(TIMEOUT));
 		
 		assertThat(operationErrorMsgLbl.text()).contains(A_FIRSTNAME, A_LASTNAME);
 	}
@@ -284,15 +299,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		renameBtn.click();
 		
-		pause(
-			new Condition("Name forms to be reset") {
-				@Override
-				public boolean test() {
-					return nameFormTxt.text().isEmpty() && 
-							surnameFormTxt.text().isEmpty();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilNameFormsAreReset, timeout(TIMEOUT));
 		
 		assertThat(clientList.contents())
 			.allSatisfy(e -> assertThat(e).doesNotContain(A_FIRSTNAME, A_LASTNAME))
@@ -308,14 +315,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		renameBtn.click();
 		
-		pause(
-			new Condition("Form error to contain a message") {
-				@Override
-				public boolean test() {
-					return !formErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilFormErrorContainsAMessage, timeout(TIMEOUT));
 		
 		assertThat(formErrorMsgLbl.text()).contains(INVALID_FIRSTNAME);
 	}
@@ -329,14 +329,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		renameBtn.click();
 		
-		pause(
-			new Condition("Form error to contain a message") {
-				@Override
-				public boolean test() {
-					return !formErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilFormErrorContainsAMessage, timeout(TIMEOUT));
 		
 		assertThat(formErrorMsgLbl.text()).contains(INVALID_LASTNAME);
 	}
@@ -344,22 +337,16 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	@Test @GUITest
 	@DisplayName("Renamed client would be homonymic")
 	public void testRenameClientWhenThereIsHomonymyShouldShowAnOperationError() {
+		UUID anotherClientUUID = UUID.fromString("c5014376-5a67-4c17-a1da-0b0b92af5711");
+		addTestClientToDatabase(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME, anotherClientUUID);
+		
 		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
 		nameFormTxt.enterText(ANOTHER_FIRSTNAME);
 		surnameFormTxt.enterText(ANOTHER_LASTNAME);
 		
-		addTestClientToDatabase(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME, ANOTHER_CLIENT_UUID);
-		
 		renameBtn.click();
 		
-		pause(
-			new Condition("Operation error to contain a message") {
-				@Override
-				public boolean test() {
-					return !operationErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilOperationErrorContainsAMessage, timeout(TIMEOUT));
 		
 		assertThat(operationErrorMsgLbl.text()).contains(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 	}
@@ -371,18 +358,11 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		nameFormTxt.enterText(ANOTHER_FIRSTNAME);
 		surnameFormTxt.enterText(ANOTHER_LASTNAME);
 		
-		removeTestClientFromDatabase(A_CLIENT_UUID);
+		removeTestClientFromDatabase(A_FIRSTNAME, A_LASTNAME);
 		
 		renameBtn.click();
 		
-		pause(
-			new Condition("Operation error to contain a message") {
-				@Override
-				public boolean test() {
-					return !operationErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilOperationErrorContainsAMessage, timeout(TIMEOUT));
 		
 		assertThat(operationErrorMsgLbl.text()).contains(A_FIRSTNAME, A_LASTNAME);
 	}
@@ -397,14 +377,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		removeClientBtn.click();
 		
-		pause(
-			new Condition("Client list to contain different number of clients than the default ones") {
-				@Override
-				public boolean test() {
-					return clientList.contents().length != DEFAULT_NUM_OF_CLIENTS;
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilClientListContainsDifferentNumberOfClientsThanTheDefaultOnes, timeout(TIMEOUT));
 		
 		assertThat(clientList.contents())
 			.allSatisfy(e -> assertThat(e).doesNotContain(A_FIRSTNAME, A_LASTNAME));
@@ -415,18 +388,11 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	public void testRemoveClientWhenIsAFailureShouldShowOperationError() {
 		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
 		
-		removeTestClientFromDatabase(A_CLIENT_UUID);
+		removeTestClientFromDatabase(A_FIRSTNAME, A_LASTNAME);
 		
 		removeClientBtn.click();
 		
-		pause(
-			new Condition("Operation error to contain a message") {
-				@Override
-				public boolean test() {
-					return !operationErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilOperationErrorContainsAMessage, timeout(TIMEOUT));
 		
 		assertThat(operationErrorMsgLbl.text()).contains(A_FIRSTNAME, A_LASTNAME);
 	}
@@ -444,14 +410,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		addReservationBtn.click();
 		
-		pause(
-			new Condition("Reservation list to contain different number of reservations than the default ones") {
-				@Override
-				public boolean test() {
-					return reservationList.contents().length != DEFAULT_NUM_OF_RESERVATIONS;
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilReservationListContainsDifferentNumberOfReservationThanTheDefaultOnes, timeout(TIMEOUT));
 		
 		assertThat(reservationList.contents())
 			.anySatisfy(e -> assertThat(e).contains(ANOTHER_DATE));
@@ -462,21 +421,14 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	public void testAddReservationWhenDateIsInvalidShouldShowFormError() {
 		clientList.selectItem(Pattern.compile(NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX));
 		yearFormTxt.enterText(INVALID_YEAR);
-		monthFormTxt.enterText(INVALID_MONTH);
-		dayFormTxt.enterText(INVALID_DAY);
+		monthFormTxt.enterText(ANOTHER_MONTH);
+		dayFormTxt.enterText(ANOTHER_DAY);
 		
 		addReservationBtn.click();
 		
-		pause(
-			new Condition("Form error to contain a message") {
-				@Override
-				public boolean test() {
-					return !formErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilFormErrorContainsAMessage, timeout(TIMEOUT));
 		
-		assertThat(formErrorMsgLbl.text()).contains(INVALID_DATE);
+		assertThat(formErrorMsgLbl.text()).contains(INVALID_YEAR);
 	}
 
 	@Test @GUITest
@@ -487,18 +439,11 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		monthFormTxt.enterText(ANOTHER_MONTH);
 		dayFormTxt.enterText(ANOTHER_DAY);
 		
-		removeTestClientFromDatabase(A_CLIENT_UUID);
+		removeTestClientFromDatabase(A_FIRSTNAME, A_LASTNAME);
 		
 		addReservationBtn.click();
 		
-		pause(
-			new Condition("Operation error to contain a message") {
-				@Override
-				public boolean test() {
-					return !operationErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilOperationErrorContainsAMessage, timeout(TIMEOUT));
 		
 		assertThat(operationErrorMsgLbl.text()).contains(A_FIRSTNAME, A_LASTNAME);
 	}
@@ -513,14 +458,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		addReservationBtn.click();
 		
-		pause(
-			new Condition("Operation error to contain a message") {
-				@Override
-				public boolean test() {
-					return !operationErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilOperationErrorContainsAMessage, timeout(TIMEOUT));
 		
 		assertThat(operationErrorMsgLbl.text()).contains(A_DATE);
 	}
@@ -538,16 +476,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		rescheduleBtn.click();
 		
-		pause(
-			new Condition("Date forms to be reset") {
-				@Override
-				public boolean test() {
-					return yearFormTxt.text().isEmpty() && 
-							monthFormTxt.text().isEmpty() && 
-							dayFormTxt.text().isEmpty();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilDateFormsAreReset, timeout(TIMEOUT));
 		
 		assertThat(reservationList.contents())
 			.allSatisfy(e -> assertThat(e).doesNotContain(A_DATE))
@@ -559,43 +488,30 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	public void testRescheduleReservationWhenNewDateIsInvalidShouldShowFormError() {
 		reservationList.selectItem(Pattern.compile(DATE_REGEX));
 		yearFormTxt.enterText(INVALID_YEAR);
-		monthFormTxt.enterText(INVALID_MONTH);
-		dayFormTxt.enterText(INVALID_DAY);
+		monthFormTxt.enterText(ANOTHER_MONTH);
+		dayFormTxt.enterText(ANOTHER_DAY);
 		
 		rescheduleBtn.click();
 		
-		pause(
-			new Condition("Form error to contain a message") {
-				@Override
-				public boolean test() {
-					return !formErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilFormErrorContainsAMessage, timeout(TIMEOUT));
 		
-		assertThat(formErrorMsgLbl.text()).contains(INVALID_DATE);
+		assertThat(formErrorMsgLbl.text()).contains(INVALID_YEAR);
 	}
 
 	@Test @GUITest
 	@DisplayName("Rescheduled reservation would be simultaneous")
 	public void testRescheduleReservationWhenThereIsSimultaneityShouldShowAnOperationError() {
+		UUID anotherReservationUUID = UUID.fromString("17f600a7-af1e-41d1-8dd0-f4d00dbda750");
+		addTestReservationToDatabase(A_CLIENT_UUID, ANOTHER_DATE, anotherReservationUUID);
+		
 		reservationList.selectItem(Pattern.compile(DATE_REGEX));
 		yearFormTxt.enterText(ANOTHER_YEAR);
 		monthFormTxt.enterText(ANOTHER_MONTH);
 		dayFormTxt.enterText(ANOTHER_DAY);
 		
-		addTestReservationToDatabase(A_CLIENT_UUID, ANOTHER_LOCALDATE, ANOTHER_RESERVATION_UUID);
-		
 		rescheduleBtn.click();
 		
-		pause(
-			new Condition("Operation error to contain a message") {
-				@Override
-				public boolean test() {
-					return !operationErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilOperationErrorContainsAMessage, timeout(TIMEOUT));
 		
 		assertThat(operationErrorMsgLbl.text()).contains(ANOTHER_DATE);
 	}
@@ -608,18 +524,11 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		monthFormTxt.enterText(ANOTHER_MONTH);
 		dayFormTxt.enterText(ANOTHER_DAY);
 		
-		removeTestReservationFromDatabase(A_RESERVATION_UUID);
+		removeTestReservationFromDatabase(A_DATE);
 		
 		rescheduleBtn.click();
 		
-		pause(
-			new Condition("Operation error to contain a message") {
-				@Override
-				public boolean test() {
-					return !operationErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilOperationErrorContainsAMessage, timeout(TIMEOUT));
 		
 		assertThat(operationErrorMsgLbl.text()).contains(A_DATE);
 	}
@@ -634,14 +543,7 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 		
 		removeReservationBtn.click();
 		
-		pause(
-			new Condition("Reservation list to contain different number of reservations than the default ones") {
-				@Override
-				public boolean test() {
-					return reservationList.contents().length != DEFAULT_NUM_OF_RESERVATIONS;
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilReservationListContainsDifferentNumberOfReservationThanTheDefaultOnes, timeout(TIMEOUT));
 		
 		assertThat(reservationList.contents())
 			.allSatisfy(e -> assertThat(e).doesNotContain(A_DATE));
@@ -652,18 +554,11 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	public void testRemoveReservationWhenIsAFailureShouldShowOperationError() {
 		reservationList.selectItem(Pattern.compile(DATE_REGEX));
 		
-		removeTestReservationFromDatabase(A_RESERVATION_UUID);
+		removeTestReservationFromDatabase(A_DATE);
 		
 		removeReservationBtn.click();
 		
-		pause(
-			new Condition("Operation error to contain a message") {
-				@Override
-				public boolean test() {
-					return !operationErrorMsgLbl.text().isBlank();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilOperationErrorContainsAMessage, timeout(TIMEOUT));
 		
 		assertThat(operationErrorMsgLbl.text()).contains(A_DATE);
 	}
@@ -673,40 +568,41 @@ public class PostgresBookingSwingAppE2E extends AssertJSwingJUnitTestCase {
 	private void addTestClientToDatabase(String name, String surname, UUID id) {
 		EntityManager em = emf.createEntityManager();
 		em.getTransaction().begin();
-		em.createNativeQuery("INSERT INTO " + CLIENT_TABLE_DB +
-				"(" + ID_POSTGRESQL + ", "+ FIRSTNAME_DB + ", " + LASTNAME_DB + ") " +
-				"VALUES ('" + id + "', '" + name + "', '" + surname + "')")
+		em.createNativeQuery("INSERT INTO " + CLIENT_TABLE_DB + " " +
+							"(" + ID_POSTGRESQL + ", "+ FIRSTNAME_DB + ", " + LASTNAME_DB + ") " +
+							"VALUES ('" + id + "', '" + name + "', '" + surname + "') ")
 			.executeUpdate();
 		em.getTransaction().commit();
 		em.close();
 	}
 
-	private void removeTestClientFromDatabase(UUID id) {
+	private void removeTestClientFromDatabase(String name, String surname) {
 		EntityManager em = emf.createEntityManager();
 		em.getTransaction().begin();
-		em.createNativeQuery("DELETE FROM " + CLIENT_TABLE_DB +
-				" WHERE " + ID_POSTGRESQL + "='" + id +"'")
+		em.createNativeQuery("DELETE FROM " + CLIENT_TABLE_DB + " " +
+							"WHERE " + FIRSTNAME_DB + "='" + name +"' " +
+							"AND " + LASTNAME_DB + "='" + surname +"' ")
 			.executeUpdate();
 		em.getTransaction().commit();
 		em.close();
 	}
 
-	private void addTestReservationToDatabase(UUID clientId, LocalDate localDate, UUID id) {
+	private void addTestReservationToDatabase(UUID clientId, String date, UUID id) {
 		EntityManager em = emf.createEntityManager();
 		em.getTransaction().begin();
-		em.createNativeQuery("INSERT INTO " + RESERVATION_TABLE_DB +
-				"(" + ID_POSTGRESQL + ", "+ CLIENTID_DB + ", " + DATE_DB + ") " +
-				"VALUES ('" + id + "', '" + clientId + "', '" + localDate + "')")
+		em.createNativeQuery("INSERT INTO " + RESERVATION_TABLE_DB + " " +
+							"(" + ID_POSTGRESQL + ", "+ CLIENTID_DB + ", " + DATE_DB + ") " +
+							"VALUES ('" + id + "', '" + clientId + "', '" + date + "') ")
 			.executeUpdate();
 		em.getTransaction().commit();
 		em.close();
 	}
 
-	private void removeTestReservationFromDatabase(UUID id) {
+	private void removeTestReservationFromDatabase(String date) {
 		EntityManager em = emf.createEntityManager();
 		em.getTransaction().begin();
-		em.createNativeQuery("DELETE FROM " + RESERVATION_TABLE_DB +
-				" WHERE " + ID_POSTGRESQL + "='" + id +"'")
+		em.createNativeQuery("DELETE FROM " + RESERVATION_TABLE_DB + " " +
+							"WHERE " + DATE_DB + "='" + date +"' ")
 			.executeUpdate();
 		em.getTransaction().commit();
 		em.close();
