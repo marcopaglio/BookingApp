@@ -32,6 +32,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionListener;
 import java.awt.Color;
+import java.awt.Component;
 
 /**
  * A concrete implementation of the view for the booking application using Swing.
@@ -455,15 +456,20 @@ public class BookingSwingView extends JFrame implements BookingView {
 	};
 
 	/**
-	 * Selects the client of the client list associated to the reservation selected, if it exists.
+	 * Selects the client of the client list associated to the reservation selected, if it exists,
+	 * or clears the selection, otherwise.
 	 */
 	private void selectAssociatedClient() {
 		if (!reservationList.isSelectionEmpty()) {
-			clientList.setSelectedValue(
+			Reservation reservationSelected = reservationList.getSelectedValue();
+			if (reservationSelected != null) {
+				clientList.setSelectedValue(
 					getClientToSelect(
-							reservationList.getSelectedValue().getClientId(),
+							reservationSelected.getClientId(),
 							clientListModel.toArray())
 					, true);
+			} else
+				clientList.clearSelection();
 		}
 	}
 
@@ -481,7 +487,7 @@ public class BookingSwingView extends JFrame implements BookingView {
 		int i = 0;
 		while(clientToSelect == null && i < size) {
 			Client client = (Client) clientsInList[i];
-			if (Objects.equals(client.getId(), clientId)) {
+			if (client != null && Objects.equals(client.getId(), clientId)) {
 				clientToSelect = client;
 			}
 			i++;

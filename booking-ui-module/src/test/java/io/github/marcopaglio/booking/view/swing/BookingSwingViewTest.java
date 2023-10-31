@@ -11,6 +11,7 @@ import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.presenter.BookingPresenter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -215,6 +216,30 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			reservationList.selectItem(0);
 			
 			clientList.requireNoSelection();
+		}
+
+		@Test @GUITest
+		@DisplayName("Null reservation")
+		public void testReservationListSelectionWhenTheReservationSelectedIsNullShouldClearSelection() {
+			addClientInList(A_CLIENT);
+			addReservationInList(null);
+			
+			clientList.selectItem(0);
+			
+			reservationList.selectItem(0);
+			
+			clientList.requireNoSelection();
+		}
+	
+		@Test @GUITest
+		@DisplayName("There are null clients")
+		public void testReservationListSelectionWhenThereAreNullClientsBeforeTheAssociatedClientShouldNotThrow() {
+			addClientInList(null);
+			A_CLIENT.setId(A_CLIENT_UUID);
+			addClientInList(A_CLIENT);
+			addReservationInList(A_RESERVATION);
+			
+			assertThatNoException().isThrownBy(() -> reservationList.selectItem(0));
 		}
 		////////////// Reservation List Selection
 
