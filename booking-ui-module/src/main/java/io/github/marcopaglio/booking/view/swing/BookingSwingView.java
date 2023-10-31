@@ -19,6 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.JLabel;
 import java.awt.Insets;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
@@ -850,6 +851,17 @@ public class BookingSwingView extends JFrame implements BookingView {
 		
 		clientListModel = new DefaultListModel<>();
 		clientList = new JList<>(clientListModel);
+		clientList.setCellRenderer(new DefaultListCellRenderer() {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value,
+					int index, boolean isSelected, boolean cellHasFocus) {
+				return super.getListCellRendererComponent(list,
+						getDisplayString((Client) value),
+						index, isSelected, cellHasFocus);
+			}
+		});
 		clientList.addListSelectionListener(clientListListener);
 		clientList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		clientList.setName("clientList");
@@ -867,6 +879,17 @@ public class BookingSwingView extends JFrame implements BookingView {
 		
 		reservationListModel = new DefaultListModel<>();
 		reservationList = new JList<>(reservationListModel);
+		reservationList.setCellRenderer(new DefaultListCellRenderer() {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value,
+					int index, boolean isSelected, boolean cellHasFocus) {
+				return super.getListCellRendererComponent(list,
+						getDisplayString((Reservation) value),
+						index, isSelected, cellHasFocus);
+			}
+		});
 		reservationList.addListSelectionListener(reservationListListener);
 		reservationList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		reservationList.setName("reservationList");
@@ -904,5 +927,29 @@ public class BookingSwingView extends JFrame implements BookingView {
 		gbcReservationErrorMsgLbl.gridx = 0;
 		gbcReservationErrorMsgLbl.gridy = 5;
 		contentPane.add(operationErrorMsgLbl, gbcReservationErrorMsgLbl);
+	}
+
+	/**
+	 * Generates a description string of the reservation.
+	 *  
+	 * @param reservation	reservation for which the string is generated.
+	 * @return				a descriptor {@code String} of the reservation.
+	 */
+	private String getDisplayString(Reservation reservation) {
+		if (reservation != null)
+			return "Reservation [" + reservation.getDate() + "]";
+		return String.valueOf(reservation);
+	}
+
+	/**
+	 * Generates a description string of the client.
+	 *  
+	 * @param client	client for which the string is generated.
+	 * @return			a descriptor {@code String} of the client.
+	 */
+	private String getDisplayString(Client client) {
+		if (client != null)
+			return "Client [" + client.getFirstName() + " " + client.getLastName() + "]";
+		return String.valueOf(client);
 	}
 }

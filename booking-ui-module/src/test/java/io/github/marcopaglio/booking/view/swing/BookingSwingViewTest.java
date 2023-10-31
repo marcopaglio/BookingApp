@@ -192,6 +192,43 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		operationErrorMsgLbl.requireText(" ");
 	}
 
+	////////////// Reservation List Displaying
+	@Test @GUITest
+	@DisplayName("Reservation is present")
+	public void testDisplayReservationListWhenReservationIsPresentShouldShowDate() {
+		addReservationInList(A_RESERVATION);
+		
+		assertThat(reservationList.item(0).value()).isEqualTo("Reservation [" + A_DATE + "]");
+	}
+
+	@Test @GUITest
+	@DisplayName("Reservation is null")
+	public void testDisplayReservationListWhenReservationIsNullShouldShowNullString() {
+		addReservationInList(null);
+		
+		assertThat(reservationList.item(0).value()).isEqualTo("null");
+	}
+	////////////// Reservation List Displaying
+
+	////////////// Client List Displaying
+	@Test @GUITest
+	@DisplayName("Client is present")
+	public void testDisplayClientListWhenClientIsPresentShouldShowNameAndSurname() {
+		addClientInList(A_CLIENT);
+		
+		assertThat(clientList.item(0).value())
+			.isEqualTo("Client [" + A_FIRSTNAME + " " + A_LASTNAME + "]");
+	}
+
+	@Test @GUITest
+	@DisplayName("Client is null")
+	public void testDisplayClientListWhenClientIsNullShouldShowNullString() {
+		addClientInList(null);
+		
+		assertThat(clientList.item(0).value()).isEqualTo("null");
+	}
+	////////////// Client List Displaying
+
 		////////////// Reservation List Selection
 		@Test @GUITest
 		@DisplayName("The associated client exists")
@@ -219,7 +256,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		}
 
 		@Test @GUITest
-		@DisplayName("Null reservation")
+		@DisplayName("Reservation is null")
 		public void testReservationListSelectionWhenTheReservationSelectedIsNullShouldClearSelection() {
 			addClientInList(A_CLIENT);
 			addReservationInList(null);
