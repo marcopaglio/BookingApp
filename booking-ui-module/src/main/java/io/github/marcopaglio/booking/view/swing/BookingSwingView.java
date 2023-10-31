@@ -1,6 +1,8 @@
 package io.github.marcopaglio.booking.view.swing;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -444,11 +446,48 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 * This handler enables:
 	 * 1) {@code rescheduleBtn} if date forms aren't blank and a reservation is selected;
 	 * 2) {@code removeReservationBtn} if a reservation is selected.
+	 * And, if a reservation is selected, it selects the associated client in the client list.
 	 */
 	private final transient ListSelectionListener reservationListListener = e -> {
 		rescheduleBtn.setEnabled(checkRescheduleBtnRequirements());
 		removeReservationBtn.setEnabled(checkRemoveReservationRequirements());
+		selectAssociatedClient();
 	};
+
+	/**
+	 * Selects the client of the client list associated to the reservation selected, if it exists.
+	 */
+	private void selectAssociatedClient() {
+		if (!reservationList.isSelectionEmpty()) {
+			clientList.setSelectedValue(
+					getClientToSelect(
+							reservationList.getSelectedValue().getClientId(),
+							clientListModel.toArray())
+					, true);
+		}
+	}
+
+	/**
+	 * Retrieves the client of the list with the specified identifier, if it exists.
+	 * 
+	 * @param clientId		the identifier of the client to retrieve.
+	 * @param clientsInList	the list in which to search for the client to retrieve.
+	 * @return				the {@code Client} with the specified identifier, if it exists;
+	 * 						a {@code null} object, otherwise.
+	 */
+	private Client getClientToSelect(UUID clientId, Object[] clientsInList) {
+		int size = clientsInList.length;
+		Client clientToSelect = null;
+		int i = 0;
+		while(clientToSelect == null && i < size) {
+			Client client = (Client) clientsInList[i];
+			if (Objects.equals(client.getId(), clientId)) {
+				clientToSelect = client;
+			}
+			i++;
+		}
+		return clientToSelect;
+	}
 
 	/**
 	 * Action activated on clicking on {@code addClientBtn}. This handler disables

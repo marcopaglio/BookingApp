@@ -191,6 +191,33 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		operationErrorMsgLbl.requireText(" ");
 	}
 
+		////////////// Reservation List Selection
+		@Test @GUITest
+		@DisplayName("The associated client exists")
+		public void testReservationListSelectionWhenTheAssociatedClientExistsShouldSelectIt() {
+			A_CLIENT.setId(A_CLIENT_UUID);
+			addClientInList(A_CLIENT);
+			addReservationInList(A_RESERVATION);
+			
+			reservationList.selectItem(0);
+			
+			clientList.requireSelection(0);
+		}
+	
+		@Test @GUITest
+		@DisplayName("The associated client does not exist")
+		public void testReservationListSelectionWhenTheAssociatedClientDoesNotExistShouldClearSelection() {
+			addClientInList(ANOTHER_CLIENT);
+			addReservationInList(A_RESERVATION);
+			
+			clientList.selectItem(0);
+			
+			reservationList.selectItem(0);
+			
+			clientList.requireNoSelection();
+		}
+		////////////// Reservation List Selection
+
 		////////////// Add Client Button
 			////////////// Name Form Text
 			@Test @GUITest
