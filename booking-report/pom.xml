@@ -52,7 +52,7 @@
                 <exclude>**/annotation/*</exclude>
                 <exclude>**/exception/*</exclude>
                 <exclude>**/transaction/code/*</exclude>
-                <exclude>**/app/*</exclude>
+                <exclude>**/app/swing/*</exclude>
               </excludes>
             </configuration>
             <executions>
