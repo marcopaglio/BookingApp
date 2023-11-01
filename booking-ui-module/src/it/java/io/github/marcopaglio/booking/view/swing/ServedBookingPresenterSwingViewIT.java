@@ -257,7 +257,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME);
 			
 			operationErrorMsgLbl.requireText("A client named " + A_FIRSTNAME
-					+ " " + A_LASTNAME + " has already been made.");
+					+ " " + A_LASTNAME + " already exists.");
 			assertThat(clientList.contents()).containsExactly(A_CLIENT_DISPLAYED);
 		}
 
@@ -313,7 +313,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			servedBookingPresenter.addReservation(client, A_DATE);
 			
 			operationErrorMsgLbl.requireText(
-					"A reservation on " + A_DATE + " has already been made.");
+					"A reservation on " + A_DATE + " already exists.");
 			assertThat(reservationList.contents()).containsExactly(A_RESERVATION_DISPLAYED);
 		}
 
@@ -377,7 +377,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			servedBookingPresenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
 			operationErrorMsgLbl.requireText("A client named " + ANOTHER_FIRSTNAME
-					+ " " + ANOTHER_LASTNAME + " has already been made.");
+					+ " " + ANOTHER_LASTNAME + " already exists.");
 			assertThat(clientList.contents())
 				.containsExactlyInAnyOrder(A_CLIENT_DISPLAYED, ANOTHER_CLIENT_DISPLAYED);
 		}
@@ -439,7 +439,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			servedBookingPresenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
 			operationErrorMsgLbl.requireText(
-					"A reservation on " + ANOTHER_LOCALDATE + " has already been made.");
+					"A reservation on " + ANOTHER_LOCALDATE + " already exists.");
 			assertThat(reservationList.contents())
 				.containsExactlyInAnyOrder(A_RESERVATION_DISPLAYED, ANOTHER_RESERVATION_DISPLAYED);
 		}

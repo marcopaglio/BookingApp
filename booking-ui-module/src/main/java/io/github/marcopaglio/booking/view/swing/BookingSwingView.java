@@ -73,10 +73,11 @@ public class BookingSwingView extends JFrame implements BookingView {
 
 	// METHODS
 	/**
-	 * Sets the presenter that is called when a button is clicked.
+	 * Sets the presenter called to carry out the actions of the controls.
 	 * 
 	 * @param bookingPresenter	the presenter of the booking application.
 	 */
+	@Generated
 	public void setBookingPresenter(BookingPresenter bookingPresenter) {
 		this.bookingPresenter = bookingPresenter;
 	}

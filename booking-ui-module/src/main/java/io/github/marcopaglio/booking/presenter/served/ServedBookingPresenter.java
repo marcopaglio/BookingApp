@@ -155,6 +155,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
 				view.showOperationError(databaseErrorMsg("deleting " + reservation.toString()));
+				updateAll();
 			}
 		}
 	}
@@ -439,11 +440,12 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * Generates an error message used when a {@code InstanceAlreadyExistsException} occurs
 	 * for {@code Client} entities.
 	 * 
-	 * @param date	the date of the existing reservation.
-	 * @return		a {@code String} containing the generated error message.
+	 * @param firstName	the name of the existing client.
+	 * @param lastName	the surname of the existing client.
+	 * @return			a {@code String} containing the generated error message.
 	 */
 	private String clientAlreadyExistsErrorMsg(String firstName, String lastName) {
-		return "A client named " + firstName + " " + lastName + " has already been made.";
+		return "A client named " + firstName + " " + lastName + " already exists.";
 	}
 
 	/**
@@ -454,7 +456,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @return		a {@code String} containing the generated error message.
 	 */
 	private String reservationAlreadyExistsErrorMsg(String date) {
-		return "A reservation on " + date + " has already been made.";
+		return "A reservation on " + date + " already exists.";
 	}
 
 	/**

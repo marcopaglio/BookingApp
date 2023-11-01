@@ -189,7 +189,7 @@ class ServedMongoBookingPresenterRaceConditionIT {
 		assertThat(readAllClientsFromDatabase()).containsOnlyOnce(client);
 		
 		verify(view, times(NUM_OF_THREADS-1)).showOperationError(AdditionalMatchers.or(
-				eq("A client named " + A_FIRSTNAME + " " + A_LASTNAME + " has already been made."),
+				eq("A client named " + A_FIRSTNAME + " " + A_LASTNAME + " already exists."),
 				eq("Something went wrong while adding " + new Client(A_FIRSTNAME, A_LASTNAME).toString() + ".")));
 	}
 
@@ -215,7 +215,7 @@ class ServedMongoBookingPresenterRaceConditionIT {
 		assertThat(readAllReservationsFromDatabase()).containsOnlyOnce(reservation);
 		
 		verify(view, times(NUM_OF_THREADS-1)).showOperationError(AdditionalMatchers.or(
-				eq("A reservation on " + A_DATE + " has already been made."),
+				eq("A reservation on " + A_DATE + " already exists."),
 				eq("Something went wrong while adding " + new Reservation(A_CLIENT_UUID, A_LOCALDATE).toString() + ".")));
 	}
 

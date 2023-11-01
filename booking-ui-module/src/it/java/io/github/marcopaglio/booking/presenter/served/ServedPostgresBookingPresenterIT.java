@@ -271,7 +271,7 @@ class ServedPostgresBookingPresenterIT {
 			presenter.addClient(A_FIRSTNAME, A_LASTNAME);
 			
 			verify(view).showOperationError("A client named " + A_FIRSTNAME
-					+ " " + A_LASTNAME + " has already been made.");
+					+ " " + A_LASTNAME + " already exists.");
 			verify(view).showAllReservations(Collections.emptyList());
 			verify(view).showAllClients(Arrays.asList(client));
 		}
@@ -316,7 +316,7 @@ class ServedPostgresBookingPresenterIT {
 			presenter.addReservation(client, A_DATE);
 			
 			verify(view).showOperationError(
-					"A reservation on " + A_DATE + " has already been made.");
+					"A reservation on " + A_DATE + " already exists.");
 			verify(view).showAllReservations(Arrays.asList(reservation));
 			verify(view).showAllClients(Arrays.asList(client));
 		}
@@ -360,7 +360,7 @@ class ServedPostgresBookingPresenterIT {
 			presenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
 			verify(view).showOperationError("A client named " + ANOTHER_FIRSTNAME
-					+ " " + ANOTHER_LASTNAME + " has already been made.");
+					+ " " + ANOTHER_LASTNAME + " already exists.");
 			verify(view).showAllReservations(Collections.emptyList());
 			verify(view).showAllClients(Arrays.asList(client, another_client));
 		}
@@ -401,7 +401,7 @@ class ServedPostgresBookingPresenterIT {
 			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
 			verify(view).showOperationError(
-					"A reservation on " + ANOTHER_DATE + " has already been made.");
+					"A reservation on " + ANOTHER_DATE + " already exists.");
 			// updateAll
 			verify(view).showAllReservations(Arrays.asList(reservation, another_reservation));
 			verify(view).showAllClients(Collections.emptyList());
