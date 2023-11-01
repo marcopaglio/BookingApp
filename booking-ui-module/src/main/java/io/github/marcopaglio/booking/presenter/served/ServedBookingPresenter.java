@@ -122,7 +122,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s and all his reservations have been deleted with success.", client.toString()));
 			} catch (InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(instanceNotFoundErrorMsg(client.toString()));
+				view.showOperationError(instanceNotFoundErrorMsg(client));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
@@ -150,7 +150,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s has been deleted with success.", reservation.toString()));
 			} catch (InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(instanceNotFoundErrorMsg(reservation.toString()));
+				view.showOperationError(instanceNotFoundErrorMsg(reservation));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
@@ -259,13 +259,11 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s has been added with success.", reservationInDB.toString()));
 			} catch(InstanceAlreadyExistsException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(reservationAlreadyExistsErrorMsg(
-						reservation.getDate().toString()));
+				view.showOperationError(reservationAlreadyExistsErrorMsg(reservation.getDate()));
 				updateAll();
 			} catch(InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(instanceNotFoundErrorMsg(client.toString()
-						+ " with id=" + reservation.getClientId()));
+				view.showOperationError(instanceNotFoundErrorMsg(client));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
@@ -377,7 +375,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			updateAll();
 		} catch(InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
-			view.showOperationError(instanceNotFoundErrorMsg(client.toString()));
+			view.showOperationError(instanceNotFoundErrorMsg(client));
 			updateAll();
 		} catch(DatabaseException e) {
 			LOGGER.warn(e.getMessage());
@@ -423,11 +421,11 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.info(() -> String.format("%s has been rescheduled with success.", reservationInDB.toString()));
 		} catch(InstanceAlreadyExistsException e) {
 			LOGGER.warn(e.getMessage());
-			view.showOperationError(reservationAlreadyExistsErrorMsg(validatedDate.toString()));
+			view.showOperationError(reservationAlreadyExistsErrorMsg(validatedDate));
 			updateAll();
 		} catch(InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
-			view.showOperationError(instanceNotFoundErrorMsg(reservation.toString()));
+			view.showOperationError(instanceNotFoundErrorMsg(reservation));
 			updateAll();
 		} catch(DatabaseException e) {
 			LOGGER.warn(e.getMessage());
@@ -455,7 +453,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @param date	the date of the existing reservation.
 	 * @return		a {@code String} containing the generated error message.
 	 */
-	private String reservationAlreadyExistsErrorMsg(String date) {
+	private String reservationAlreadyExistsErrorMsg(LocalDate date) {
 		return "A reservation on " + date + " already exists.";
 	}
 
@@ -465,8 +463,8 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 * @param notFoundInstance	description of the not found object.
 	 * @return					a {@code String} containing the generated error message.
 	 */
-	private String instanceNotFoundErrorMsg(String notFoundInstance) {
-		return notFoundInstance + " no longer exists.";
+	private String instanceNotFoundErrorMsg(Object notFoundInstance) {
+		return notFoundInstance.toString() + " no longer exists.";
 	}
 
 	/**

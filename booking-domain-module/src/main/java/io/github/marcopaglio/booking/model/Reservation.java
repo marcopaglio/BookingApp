@@ -110,12 +110,12 @@ public class Reservation extends BaseEntity {
 	 */
 	@Override
 	public int hashCode() {
-		return Objects.hash(date);
+		return Objects.hash(clientId, date);
 	}
 
 	/**
 	 * Overridden method for indicating whether some other reservation object is "equal to" this one.
-	 * Two reservation objects are equal if they have the date.
+	 * Two reservation objects are equal if they have the date and client identifier.
 	 * 
 	 * @param obj	the reference reservation object with which to compare.
 	 * @return		{@code true} if this object is the same as the {@code obj} argument;
@@ -133,7 +133,7 @@ public class Reservation extends BaseEntity {
 			return false;
 		}
 		Reservation other = (Reservation) obj;
-		return Objects.equals(date, other.date);
+		return Objects.equals(clientId, other.clientId) && Objects.equals(date, other.date);
 	}
 
 	/**

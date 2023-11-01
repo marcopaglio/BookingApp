@@ -291,6 +291,7 @@ class ServedPostgresBookingPresenterIT {
 		void testAddReservationWhenReservationIsNewShouldValidateItAndInsertAndNotifyView() {
 			addTestClientToDatabase(client);
 			UUID client_id = client.getId();
+			reservation.setClientId(client_id);
 			
 			when(reservationValidator.validateClientId(client_id)).thenReturn(client_id);
 			

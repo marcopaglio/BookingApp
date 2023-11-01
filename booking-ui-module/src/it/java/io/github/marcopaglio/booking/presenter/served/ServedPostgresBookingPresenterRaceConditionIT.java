@@ -150,6 +150,7 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 	void testAddReservationWhenConcurrentRequestsOccurShouldAddOnceAndNotThrowShowingErrors() {
 		addTestClientToDatabase(client);
 		UUID client_id = client.getId();
+		reservation.setClientId(client_id);
 		
 		when(reservationValidator.validateClientId(client_id)).thenReturn(client_id);
 		when(reservationValidator.validateDate(A_DATE)).thenReturn(A_LOCALDATE);
