@@ -52,6 +52,9 @@ class ServedPostgresBookingPresenterIT {
 	private static final String ANOTHER_DATE = "2023-09-05";
 	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse(ANOTHER_DATE);
 
+	final static private String CLIENT_STRING = "Client named " + A_FIRSTNAME + " " + A_LASTNAME;
+	private static final String RESERVATION_STRING = "Reservation on " + A_DATE;
+
 	private static EntityManagerFactory emf;
 
 	private TransactionPostgresManager transactionPostgresManager;
@@ -203,7 +206,7 @@ class ServedPostgresBookingPresenterIT {
 			
 			presenter.deleteClient(client);
 			
-			verify(view).showOperationError(client.toString() + " no longer exists.");
+			verify(view).showOperationError(CLIENT_STRING + " no longer exists.");
 			verify(view).showAllReservations(Collections.emptyList());
 			verify(view).showAllClients(Collections.emptyList());
 		}
@@ -235,7 +238,7 @@ class ServedPostgresBookingPresenterIT {
 			
 			presenter.deleteReservation(reservation);
 			
-			verify(view).showOperationError(reservation.toString() + " no longer exists.");
+			verify(view).showOperationError(RESERVATION_STRING + " no longer exists.");
 			verify(view).showAllReservations(Collections.emptyList());
 			verify(view).showAllClients(Collections.emptyList());
 		}
@@ -270,8 +273,7 @@ class ServedPostgresBookingPresenterIT {
 			
 			presenter.addClient(A_FIRSTNAME, A_LASTNAME);
 			
-			verify(view).showOperationError("A client named " + A_FIRSTNAME
-					+ " " + A_LASTNAME + " already exists.");
+			verify(view).showOperationError(CLIENT_STRING + " already exists.");
 			verify(view).showAllReservations(Collections.emptyList());
 			verify(view).showAllClients(Arrays.asList(client));
 		}
@@ -316,8 +318,7 @@ class ServedPostgresBookingPresenterIT {
 			
 			presenter.addReservation(client, A_DATE);
 			
-			verify(view).showOperationError(
-					"A reservation on " + A_DATE + " already exists.");
+			verify(view).showOperationError(RESERVATION_STRING + " already exists.");
 			verify(view).showAllReservations(Arrays.asList(reservation));
 			verify(view).showAllClients(Arrays.asList(client));
 		}
@@ -360,8 +361,8 @@ class ServedPostgresBookingPresenterIT {
 			
 			presenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
-			verify(view).showOperationError("A client named " + ANOTHER_FIRSTNAME
-					+ " " + ANOTHER_LASTNAME + " already exists.");
+			verify(view).showOperationError(
+					"Client named " + ANOTHER_FIRSTNAME + " " + ANOTHER_LASTNAME + " already exists.");
 			verify(view).showAllReservations(Collections.emptyList());
 			verify(view).showAllClients(Arrays.asList(client, another_client));
 		}
@@ -401,8 +402,7 @@ class ServedPostgresBookingPresenterIT {
 			
 			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
-			verify(view).showOperationError(
-					"A reservation on " + ANOTHER_DATE + " already exists.");
+			verify(view).showOperationError("Reservation on " + ANOTHER_DATE + " already exists.");
 			// updateAll
 			verify(view).showAllReservations(Arrays.asList(reservation, another_reservation));
 			verify(view).showAllClients(Collections.emptyList());

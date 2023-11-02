@@ -63,6 +63,9 @@ class ServedBookingPresenterTest {
 	final static private Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 	final static private UUID A_RESERVATION_UUID = UUID.fromString("3069144c-5c3d-4ee2-9458-ac67dd763fff");
 
+	final static private String CLIENT_STRING = "Client named " + A_FIRSTNAME + " " + A_LASTNAME;
+	final static private String RESERVATION_STRING = "Reservation on " + A_DATE;
+
 	@Mock
 	private BookingService bookingService;
 
@@ -228,7 +231,7 @@ class ServedBookingPresenterTest {
 			
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
-			inOrder.verify(view).showOperationError(A_CLIENT.toString() + " no longer exists.");
+			inOrder.verify(view).showOperationError(CLIENT_STRING + " no longer exists.");
 			// updateAll
 			inOrder.verify(bookingService).findAllReservations();
 			inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -250,7 +253,7 @@ class ServedBookingPresenterTest {
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
 			inOrder.verify(view).showOperationError(
-					"Something went wrong while deleting " + A_CLIENT.toString() + ".");
+					"Something went wrong while deleting " + CLIENT_STRING + ".");
 			// updateAll
 			inOrder.verify(bookingService).findAllReservations();
 			inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -328,8 +331,7 @@ class ServedBookingPresenterTest {
 			
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
-			inOrder.verify(view).showOperationError(
-					A_RESERVATION.toString() + " no longer exists.");
+			inOrder.verify(view).showOperationError(RESERVATION_STRING + " no longer exists.");
 			// updateAll
 			inOrder.verify(bookingService).findAllReservations();
 			inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -351,7 +353,7 @@ class ServedBookingPresenterTest {
 			InOrder inOrder = Mockito.inOrder(bookingService, view);
 			
 			inOrder.verify(view).showOperationError(
-					"Something went wrong while deleting " + A_RESERVATION.toString() + ".");
+					"Something went wrong while deleting " + RESERVATION_STRING + ".");
 			// updateAll
 			inOrder.verify(bookingService).findAllReservations();
 			inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -433,8 +435,7 @@ class ServedBookingPresenterTest {
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
-				inOrder.verify(view).showOperationError("A client named " + A_FIRSTNAME
-						+ " " + A_LASTNAME + " already exists.");
+				inOrder.verify(view).showOperationError(CLIENT_STRING + " already exists.");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -455,7 +456,7 @@ class ServedBookingPresenterTest {
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				inOrder.verify(view).showOperationError(
-						"Something went wrong while adding " + A_CLIENT.toString() + ".");
+						"Something went wrong while adding " + CLIENT_STRING + ".");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -583,8 +584,7 @@ class ServedBookingPresenterTest {
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
-				inOrder.verify(view).showOperationError(
-						"A reservation on " + A_DATE + " already exists.");
+				inOrder.verify(view).showOperationError(RESERVATION_STRING + " already exists.");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -605,7 +605,7 @@ class ServedBookingPresenterTest {
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
-				inOrder.verify(view).showOperationError(A_CLIENT.toString() + " no longer exists.");
+				inOrder.verify(view).showOperationError(CLIENT_STRING + " no longer exists.");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -627,7 +627,7 @@ class ServedBookingPresenterTest {
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				inOrder.verify(view).showOperationError(
-						"Something went wrong while adding " + A_RESERVATION.toString() + ".");
+						"Something went wrong while adding " + RESERVATION_STRING + ".");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -820,7 +820,7 @@ class ServedBookingPresenterTest {
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
-				inOrder.verify(view).showOperationError("A client named " + validatedFirstName
+				inOrder.verify(view).showOperationError("Client named " + validatedFirstName
 						+ " " + validatedLastName + " already exists.");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
@@ -842,7 +842,7 @@ class ServedBookingPresenterTest {
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
-				inOrder.verify(view).showOperationError(A_CLIENT.toString() + " no longer exists.");
+				inOrder.verify(view).showOperationError(CLIENT_STRING + " no longer exists.");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -864,7 +864,7 @@ class ServedBookingPresenterTest {
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				inOrder.verify(view).showOperationError(
-						"Something went wrong while renaming " + A_CLIENT.toString() + ".");
+						"Something went wrong while renaming " + CLIENT_STRING + ".");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -1000,7 +1000,7 @@ class ServedBookingPresenterTest {
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				inOrder.verify(view).showOperationError(
-						"A reservation on " + validatedDate + " already exists.");
+						"Reservation on " + validatedDate + " already exists.");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -1021,8 +1021,7 @@ class ServedBookingPresenterTest {
 				
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
-				inOrder.verify(view).showOperationError(
-						A_RESERVATION.toString() + " no longer exists.");
+				inOrder.verify(view).showOperationError(RESERVATION_STRING + " no longer exists.");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());
@@ -1044,7 +1043,7 @@ class ServedBookingPresenterTest {
 				InOrder inOrder = Mockito.inOrder(bookingService, view);
 				
 				inOrder.verify(view).showOperationError(
-						"Something went wrong while rescheduling " + A_RESERVATION.toString() + ".");
+						"Something went wrong while rescheduling " + RESERVATION_STRING + ".");
 				// updateAll
 				inOrder.verify(bookingService).findAllReservations();
 				inOrder.verify(view).showAllReservations(ArgumentMatchers.<List<Reservation>>any());

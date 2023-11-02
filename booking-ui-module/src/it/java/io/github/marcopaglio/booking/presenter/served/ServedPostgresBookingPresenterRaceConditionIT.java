@@ -4,7 +4,6 @@ import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -57,6 +56,9 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 	private static final UUID A_CLIENT_UUID = UUID.fromString("03ee257d-f06d-47e9-8ef0-78b18ee03fe9");
 	private static final String ANOTHER_DATE = "2023-09-05";
 	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse(ANOTHER_DATE);
+
+	private static final String CLIENT_STRING = "Client named " + A_FIRSTNAME + " " + A_LASTNAME;
+	final static private String RESERVATION_STRING = "Reservation on " + A_DATE;
 
 	private static EntityManagerFactory emf;
 
@@ -141,8 +143,8 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 		assertThat(readAllClientsFromDatabase()).containsOnlyOnce(client);
 		
 		verify(view, times(NUM_OF_THREADS-1)).showOperationError(AdditionalMatchers.or(
-				eq("A client named " + A_FIRSTNAME + " " + A_LASTNAME + " already exists."),
-				eq("Something went wrong while adding " + new Client(A_FIRSTNAME, A_LASTNAME).toString() + ".")));
+				eq(CLIENT_STRING + " already exists."),
+				eq("Something went wrong while adding " + CLIENT_STRING + ".")));
 	}
 
 	@Test
@@ -169,8 +171,8 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 		assertThat(readAllReservationsFromDatabase()).containsOnlyOnce(reservation);
 		
 		verify(view, times(NUM_OF_THREADS-1)).showOperationError(AdditionalMatchers.or(
-				eq("A reservation on " + A_DATE + " already exists."),
-				eq("Something went wrong while adding " + new Reservation(client_id, A_LOCALDATE).toString() + ".")));
+				eq(RESERVATION_STRING + " already exists."),
+				eq("Something went wrong while adding " + RESERVATION_STRING + ".")));
 	}
 
 	@Test
@@ -191,7 +193,9 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 		
 		assertThat(readAllClientsFromDatabase()).doesNotContain(client);
 		
-		verify(view, times(NUM_OF_THREADS-1)).showOperationError(contains(client.toString()));
+		verify(view, times(NUM_OF_THREADS-1)).showOperationError(AdditionalMatchers.or(
+				eq(CLIENT_STRING + " no longer exists."),
+				eq("Something went wrong while deleting " + CLIENT_STRING + ".")));
 	}
 
 	@Test
@@ -212,7 +216,9 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 		
 		assertThat(readAllReservationsFromDatabase()).doesNotContain(reservation);
 		
-		verify(view, times(NUM_OF_THREADS-1)).showOperationError(contains(reservation.toString()));
+		verify(view, times(NUM_OF_THREADS-1)).showOperationError(AdditionalMatchers.or(
+				eq(RESERVATION_STRING + " no longer exists."),
+				eq("Something went wrong while deleting " + RESERVATION_STRING + ".")));
 	}
 
 	@Test
@@ -242,7 +248,8 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 		assertThat(readAllClientsFromDatabase())
 			.containsOnlyOnce(new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME));
 		
-		verify(view, times(NUM_OF_THREADS-1)).showOperationError(anyString());
+		verify(view, times(NUM_OF_THREADS-1)).showOperationError(AdditionalMatchers.or(
+				contains(" already exists."), contains("Something went wrong while renaming ")));
 	}
 
 	@Test
@@ -273,7 +280,8 @@ class ServedPostgresBookingPresenterRaceConditionIT {
 			.doesNotContain(reservation)
 			.containsOnlyOnce(new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE));
 		
-		verify(view, times(NUM_OF_THREADS-1)).showOperationError(anyString());
+		verify(view, times(NUM_OF_THREADS-1)).showOperationError(AdditionalMatchers.or(
+				contains(" already exists."), contains("Something went wrong while rescheduling ")));
 	}
 
 	private List<Client> readAllClientsFromDatabase() {
