@@ -139,25 +139,6 @@ class TransactionMongoHandlerTest {
 		}
 	}
 
-	@Nested
-	@DisplayName("Tests for 'hasActiveTransaction'")
-	class HasActiveTransactionTest {
-
-		@Test
-		@DisplayName("Active transaction")
-		void testHasActiveTransactionWhenThereIAnActiveTransactionShouldReturnTrue() {
-			startATransaction();
-			
-			assertThat(transactionMongoHandler.hasActiveTransaction()).isTrue();
-		}
-
-		@Test
-		@DisplayName("No active transaction")
-		void testHasActiveTransactionWhenThereIsNoActiveTransactionShouldReturnFalse() {
-			assertThat(transactionMongoHandler.hasActiveTransaction()).isFalse();
-		}
-	}
-
 	private void startATransaction() {
 		session.startTransaction();
 	}

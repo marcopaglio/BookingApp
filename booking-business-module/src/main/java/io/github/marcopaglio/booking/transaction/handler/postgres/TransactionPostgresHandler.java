@@ -24,7 +24,7 @@ public class TransactionPostgresHandler extends TransactionHandler<EntityManager
 	 */
 	@Override
 	public void startTransaction() {
-		if (!handler.getTransaction().isActive())
+		if (!hasActiveTransaction())
 			handler.getTransaction().begin();
 	}
 
@@ -33,7 +33,7 @@ public class TransactionPostgresHandler extends TransactionHandler<EntityManager
 	 */
 	@Override
 	public void commitTransaction() {
-		if (handler.getTransaction().isActive())
+		if (hasActiveTransaction())
 			handler.getTransaction().commit();
 	}
 
@@ -43,7 +43,7 @@ public class TransactionPostgresHandler extends TransactionHandler<EntityManager
 	 */
 	@Override
 	public void rollbackTransaction() {
-		if (handler.getTransaction().isActive())
+		if (hasActiveTransaction())
 			handler.getTransaction().rollback();
 	}
 
@@ -53,8 +53,7 @@ public class TransactionPostgresHandler extends TransactionHandler<EntityManager
 	 * @return	{@code true} if there is an active transaction on the entity manager;
 	 * 			{@code false} otherwise.
 	 */
-	@Override
-	public boolean hasActiveTransaction() {
+	private boolean hasActiveTransaction() {
 		return handler.getTransaction().isActive();
 	}
 }

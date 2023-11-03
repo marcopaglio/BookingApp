@@ -135,25 +135,6 @@ class TransactionPostgresHandlerTest {
 		}
 	}
 
-	@Nested
-	@DisplayName("Tests for 'hasActiveTransaction'")
-	class HasActiveTransactionTest {
-
-		@Test
-		@DisplayName("Active transaction")
-		void testHasActiveTransactionWhenThereIAnActiveTransactionShouldReturnTrue() {
-			startATransaction();
-			
-			assertThat(transactionPostgresHandler.hasActiveTransaction()).isTrue();
-		}
-
-		@Test
-		@DisplayName("No active transaction")
-		void testHasActiveTransactionWhenThereIsNoActiveTransactionShouldReturnFalse() {
-			assertThat(transactionPostgresHandler.hasActiveTransaction()).isFalse();
-		}
-	}
-
 	private void startATransaction() {
 		em.getTransaction().begin();
 	}

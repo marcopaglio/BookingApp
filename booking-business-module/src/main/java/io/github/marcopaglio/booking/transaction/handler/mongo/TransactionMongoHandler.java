@@ -34,7 +34,7 @@ public class TransactionMongoHandler extends TransactionHandler<ClientSession> {
 	 */
 	@Override
 	public void startTransaction() {
-		if (!handler.hasActiveTransaction()) {
+		if (!hasActiveTransaction()) {
 			if (txnOptions == null)
 				handler.startTransaction();
 			else
@@ -47,7 +47,7 @@ public class TransactionMongoHandler extends TransactionHandler<ClientSession> {
 	 */
 	@Override
 	public void commitTransaction() {
-		if (handler.hasActiveTransaction())
+		if (hasActiveTransaction())
 			handler.commitTransaction();
 	}
 
@@ -57,7 +57,7 @@ public class TransactionMongoHandler extends TransactionHandler<ClientSession> {
 	 */
 	@Override
 	public void rollbackTransaction() {
-		if (handler.hasActiveTransaction())
+		if (hasActiveTransaction())
 			handler.abortTransaction();
 	}
 
@@ -67,8 +67,7 @@ public class TransactionMongoHandler extends TransactionHandler<ClientSession> {
 	 * @return	{@code true} if there is an active transaction on the session;
 	 * 			{@code false} otherwise.
 	 */
-	@Override
-	public boolean hasActiveTransaction() {
+	private boolean hasActiveTransaction() {
 		return handler.hasActiveTransaction();
 	}
 }

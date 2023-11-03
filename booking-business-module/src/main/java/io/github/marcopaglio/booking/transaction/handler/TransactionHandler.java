@@ -49,12 +49,4 @@ public abstract class TransactionHandler<T> {
 	 * Note: an already committed transaction cannot be rolled back.
 	 */
 	public abstract void rollbackTransaction();
-
-	/**
-	 * Indicates whether a transaction is active on this handler.
-	 * 
-	 * @return	{@code true} if there is an active transaction on the handler;
-	 * 			{@code false} otherwise.
-	 */
-	public abstract boolean hasActiveTransaction();
 }
