@@ -152,6 +152,7 @@ public abstract class TransactionManager {
 					transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT), e.getCause());
 		} finally {
 			handler.rollbackTransaction();
+			handler.closeHandler();
 		}
 	}
 
@@ -193,6 +194,7 @@ public abstract class TransactionManager {
 					transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT), e.getCause());
 		} finally {
 			handler.rollbackTransaction();
+			handler.closeHandler();
 		}
 	}
 
@@ -237,6 +239,7 @@ public abstract class TransactionManager {
 					transactionFailureMsg(VIOLATION_OF_UNIQUENESS_CONSTRAINT), e.getCause());
 		} finally {
 			handler.rollbackTransaction();
+			handler.closeHandler();
 		}
 	}
 

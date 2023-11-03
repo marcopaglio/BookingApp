@@ -119,6 +119,7 @@ class TransactionMongoManagerTest {
 			inOrder.verify(transactionMongoHandler).startTransaction();
 			inOrder.verify(clientMongoRepository).findAll();
 			inOrder.verify(transactionMongoHandler).commitTransaction();
+			inOrder.verify(transactionMongoHandler).closeHandler();
 			
 			verifyNoMoreInteractions(clientMongoRepository);
 		}
@@ -139,6 +140,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -156,6 +158,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -173,6 +176,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -190,6 +194,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -205,6 +210,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -222,6 +228,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).commitTransaction();
 			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 	}
 
@@ -251,6 +258,7 @@ class TransactionMongoManagerTest {
 			inOrder.verify(transactionMongoHandler).startTransaction();
 			inOrder.verify(reservationMongoRepository).findAll();
 			inOrder.verify(transactionMongoHandler).commitTransaction();
+			inOrder.verify(transactionMongoHandler).closeHandler();
 			
 			verifyNoMoreInteractions(reservationMongoRepository);
 		}
@@ -271,6 +279,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -289,6 +298,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -307,6 +317,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -325,6 +336,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -340,6 +352,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -357,6 +370,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).commitTransaction();
 			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 	}
 
@@ -393,6 +407,7 @@ class TransactionMongoManagerTest {
 			inOrder.verify(clientMongoRepository).findAll();
 			inOrder.verify(reservationMongoRepository).findAll();
 			inOrder.verify(transactionMongoHandler).commitTransaction();
+			inOrder.verify(transactionMongoHandler).closeHandler();
 			
 			verifyNoMoreInteractions(clientMongoRepository, reservationMongoRepository);
 		}
@@ -415,6 +430,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -435,6 +451,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -455,6 +472,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -476,6 +494,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -497,6 +516,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -518,6 +538,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -539,6 +560,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -560,6 +582,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -576,6 +599,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 
 		@Test
@@ -596,6 +620,7 @@ class TransactionMongoManagerTest {
 			
 			verify(transactionMongoHandler).commitTransaction();
 			verify(transactionMongoHandler).rollbackTransaction();
+			verify(transactionMongoHandler).closeHandler();
 		}
 	}
 }

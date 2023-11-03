@@ -115,6 +115,7 @@ class TransactionPostgresManagerTest {
 			inOrder.verify(transactionPostgresHandler).startTransaction();
 			inOrder.verify(clientPostgresRepository).findAll();
 			inOrder.verify(transactionPostgresHandler).commitTransaction();
+			inOrder.verify(transactionPostgresHandler).closeHandler();
 			
 			verifyNoMoreInteractions(clientPostgresRepository);
 		}
@@ -135,6 +136,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -152,6 +154,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -169,6 +172,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -186,6 +190,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -201,6 +206,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -218,6 +224,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).commitTransaction();
 			verify(transactionPostgresHandler).rollbackTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 	}
 
@@ -247,6 +254,7 @@ class TransactionPostgresManagerTest {
 			inOrder.verify(transactionPostgresHandler).startTransaction();
 			inOrder.verify(reservationPostgresRepository).findAll();
 			inOrder.verify(transactionPostgresHandler).commitTransaction();
+			inOrder.verify(transactionPostgresHandler).closeHandler();
 			
 			verifyNoMoreInteractions(reservationPostgresRepository);
 		}
@@ -267,6 +275,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -285,6 +294,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -303,6 +313,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -321,6 +332,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -336,6 +348,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -353,6 +366,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).commitTransaction();
 			verify(transactionPostgresHandler).rollbackTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 	}
 
@@ -389,6 +403,7 @@ class TransactionPostgresManagerTest {
 			inOrder.verify(clientPostgresRepository).findAll();
 			inOrder.verify(reservationPostgresRepository).findAll();
 			inOrder.verify(transactionPostgresHandler).commitTransaction();
+			inOrder.verify(transactionPostgresHandler).closeHandler();
 			
 			verifyNoMoreInteractions(clientPostgresRepository, reservationPostgresRepository);
 		}
@@ -411,6 +426,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -431,6 +447,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -451,6 +468,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -472,6 +490,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -493,6 +512,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -514,6 +534,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -535,6 +556,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -556,6 +578,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -572,6 +595,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).rollbackTransaction();
 			verify(transactionPostgresHandler, never()).commitTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 
 		@Test
@@ -592,6 +616,7 @@ class TransactionPostgresManagerTest {
 			
 			verify(transactionPostgresHandler).commitTransaction();
 			verify(transactionPostgresHandler).rollbackTransaction();
+			verify(transactionPostgresHandler).closeHandler();
 		}
 	}
 }
