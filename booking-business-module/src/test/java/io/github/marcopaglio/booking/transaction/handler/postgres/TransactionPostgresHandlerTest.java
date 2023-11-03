@@ -65,11 +65,11 @@ class TransactionPostgresHandlerTest {
 		@Test
 		@DisplayName("No active transaction")
 		void testStartTransactionWhenThereAreNoActiveTransactionShouldStart() {
-			assertThat(em.getTransaction().isActive()).isFalse();
+			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 			
 			transactionPostgresHandler.startTransaction();
 			
-			assertThat(em.getTransaction().isActive()).isTrue();
+			assertThat(hasHandlerAnActiveTransaction()).isTrue();
 		}
 
 		@Test
@@ -79,7 +79,7 @@ class TransactionPostgresHandlerTest {
 			
 			assertThatNoException().isThrownBy(() -> transactionPostgresHandler.startTransaction());
 			
-			assertThat(em.getTransaction().isActive()).isTrue();
+			assertThat(hasHandlerAnActiveTransaction()).isTrue();
 		}
 	}
 
@@ -89,23 +89,23 @@ class TransactionPostgresHandlerTest {
 
 		@Test
 		@DisplayName("Active transaction")
-		void testCommitTransactionWhenThereIAnActiveTransactionShouldClose() {
+		void testCommitTransactionWhenThereIsAnActiveTransactionShouldClose() {
 			startATransaction();
 			
 			transactionPostgresHandler.commitTransaction();
 			
-			assertThat(em.getTransaction().isActive()).isFalse();
+			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 		}
 
 		@Test
 		@DisplayName("No active transaction")
 		void testCommitTransactionWhenThereIsNoActiveTransactionShouldNotThrowAndMaintainItClose() {
-			assertThat(em.getTransaction().isActive()).isFalse();
+			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 			
 			assertThatNoException().isThrownBy(
 					() -> transactionPostgresHandler.commitTransaction());
 			
-			assertThat(em.getTransaction().isActive()).isFalse();
+			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 		}
 	}
 
@@ -115,27 +115,62 @@ class TransactionPostgresHandlerTest {
 
 		@Test
 		@DisplayName("Active transaction")
-		void testRollbackTransactionWhenThereIAnActiveTransactionShouldClose() {
+		void testRollbackTransactionWhenThereIsAnActiveTransactionShouldClose() {
 			startATransaction();
 			
 			transactionPostgresHandler.rollbackTransaction();
 			
-			assertThat(em.getTransaction().isActive()).isFalse();
+			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 		}
 
 		@Test
 		@DisplayName("No active transaction")
 		void testRollbackTransactionWhenThereIsNoActiveTransactionShouldNotThrowAndMaintainItClose() {
-			assertThat(em.getTransaction().isActive()).isFalse();
+			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 			
 			assertThatNoException().isThrownBy(
 					() -> transactionPostgresHandler.rollbackTransaction());
 			
-			assertThat(em.getTransaction().isActive()).isFalse();
+			assertThat(hasHandlerAnActiveTransaction()).isFalse();
+		}
+	}
+
+	@Nested
+	@DisplayName("Tests for 'closeHandler'")
+	class CloseHandlerTest {
+
+		@Test
+		@DisplayName("Open handler")
+		void testCloseHandlerWhenIsOpenShouldClose() {
+			assertThat(isHandlerOpen()).isTrue();
+			
+			transactionPostgresHandler.closeHandler();
+			
+			assertThat(isHandlerOpen()).isFalse();
+		}
+
+		@Test
+		@DisplayName("Already closed handler")
+		void testCloseHandlerWhenIsAlreadyClosedShouldReturnNotThrow() {
+			closeTheHandler();
+			
+			assertThatNoException().isThrownBy(() -> transactionPostgresHandler.closeHandler());
 		}
 	}
 
 	private void startATransaction() {
 		em.getTransaction().begin();
+	}
+
+	private boolean hasHandlerAnActiveTransaction() {
+		return em.getTransaction().isActive();
+	}
+
+	private void closeTheHandler() {
+		em.close();
+	}
+
+	private boolean isHandlerOpen() {
+		return em.isOpen();
 	}
 }

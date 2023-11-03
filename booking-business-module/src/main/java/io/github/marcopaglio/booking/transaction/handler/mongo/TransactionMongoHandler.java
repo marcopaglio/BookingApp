@@ -62,6 +62,14 @@ public class TransactionMongoHandler extends TransactionHandler<ClientSession> {
 	}
 
 	/**
+	 * Closes the session, if still open.
+	 */
+	@Override
+	public void closeHandler() {
+		handler.close();
+	}
+
+	/**
 	 * Indicates whether a transaction is active on this session.
 	 * 
 	 * @return	{@code true} if there is an active transaction on the session;

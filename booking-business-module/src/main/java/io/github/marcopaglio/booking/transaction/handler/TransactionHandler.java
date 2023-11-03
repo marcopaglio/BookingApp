@@ -49,4 +49,9 @@ public abstract class TransactionHandler<T> {
 	 * Note: an already committed transaction cannot be rolled back.
 	 */
 	public abstract void rollbackTransaction();
+
+	/**
+	 * Closes the handler connection, if still open.
+	 */
+	public abstract void closeHandler();
 }

@@ -48,6 +48,14 @@ public class TransactionPostgresHandler extends TransactionHandler<EntityManager
 	}
 
 	/**
+	 * Closes the entity manager, if still open.
+	 */
+	@Override
+	public void closeHandler() {
+		handler.close();
+	}
+
+	/**
 	 * Indicates whether a transaction is active on this entity manager.
 	 * 
 	 * @return	{@code true} if there is an active transaction on the entity manager;
