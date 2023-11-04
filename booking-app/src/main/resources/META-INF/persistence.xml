@@ -17,8 +17,8 @@ version="3.0">
       <!-- Jakarta Datasource Properties -->
       <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />
       <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/BookingApp_db" />
-      <property name="jakarta.persistence.jdbc.user" value="postgres-app" />
-      <property name="jakarta.persistence.jdbc.password" value="postgres-app" />
+      <property name="jakarta.persistence.jdbc.user" value="postgres-user" />
+      <property name="jakarta.persistence.jdbc.password" value="postgres-pswd" />
       
       <!-- Hibernate Configuration Properties -->
       <!-- DEFAULT <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/> -->

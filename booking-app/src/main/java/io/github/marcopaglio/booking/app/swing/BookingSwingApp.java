@@ -67,11 +67,11 @@ public class BookingSwingApp implements Callable<Void> {
 
 	// Ignored by MongoDB
 	@Option(names = { "--user", "-user", }, description = "Username for loggin into the database")
-	private String user = "postgres-app";
+	private String user = "postgres-user";
 
 	// Ignored by MongoDB
 	@Option(names = { "--pswd", "-pswd", }, description = "Password for logging into the database")
-	private String pswd = "postgres-app";
+	private String pswd = "postgres-pswd";
 
 	private EntityManagerFactory emf;
 	private MongoClient mongoClient;
@@ -95,7 +95,7 @@ public class BookingSwingApp implements Callable<Void> {
 				ClientValidator clientValidator = new RestrictedClientValidator();
 				ReservationValidator reservationValidator = new RestrictedReservationValidator();
 				
-				BookingSwingView bookingView = new BookingSwingView(); //TODO: use BookingView
+				BookingSwingView bookingView = new BookingSwingView();
 				BookingPresenter bookingPresenter = new ServedBookingPresenter(bookingView,
 						bookingService, clientValidator, reservationValidator);
 				bookingView.setBookingPresenter(bookingPresenter);
@@ -110,14 +110,10 @@ public class BookingSwingApp implements Callable<Void> {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				if (dbms == DBMS.MONGO) {
-					if (mongoClient != null)
+				if (dbms == DBMS.MONGO && mongoClient != null)
 						mongoClient.close();
-				}
-				if (dbms == DBMS.POSTGRES) {
-					if (emf != null && emf.isOpen())
+				if (dbms == DBMS.POSTGRES && emf != null && emf.isOpen())
 						emf.close();
-				}
 			}
 		});
 		
