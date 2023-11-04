@@ -1,7 +1,6 @@
 package io.github.marcopaglio.booking.repository.mongo;
 
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
-import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOOKING_DB_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -66,6 +65,8 @@ class ReservationMongoRepositoryTest {
 	@Container
 	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
 
+	private static final String BOOKING_DB_NAME = "ReservationMongoRepositoryTest_db";
+
 	private static MongoClient mongoClient;
 	private static MongoDatabase database;
 	private ClientSession session;
@@ -110,7 +111,7 @@ class ReservationMongoRepositoryTest {
 		database.drop();
 		
 		// repository creation after drop because it removes configurations on collections
-		reservationRepository = new ReservationMongoRepository(mongoClient, session);
+		reservationRepository = new ReservationMongoRepository(mongoClient, session, BOOKING_DB_NAME);
 		
 		// get a MongoCollection suited for your POJO class
 		reservationCollection = reservationRepository.getCollection();

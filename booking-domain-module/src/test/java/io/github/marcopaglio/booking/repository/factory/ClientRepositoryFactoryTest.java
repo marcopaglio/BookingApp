@@ -29,6 +29,8 @@ import jakarta.persistence.Persistence;
 @Testcontainers
 class ClientRepositoryFactoryTest {
 
+	private static final String BOOKING_DB_NAME = "ClientRepositoryFactoryTest_db";
+
 	@Container
 	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
 	private static MongoClient mongoClient;
@@ -36,7 +38,7 @@ class ClientRepositoryFactoryTest {
 
 	@Container
 	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.2")
-		.withDatabaseName("ClientRepositoryFactoryTest_db")
+		.withDatabaseName(BOOKING_DB_NAME)
 		.withUsername("postgres-test")
 		.withPassword("postgres-test");
 	private static EntityManagerFactory emf;
@@ -86,14 +88,15 @@ class ClientRepositoryFactoryTest {
 			@Test
 			@DisplayName("Valid parameters")
 			void testCreateClientRepositoryWhenParametersAreValidShouldReturnClientMongoRepository() {
-				assertThat(clientRepositoryFactory.createClientRepository(mongoClient, session))
+				assertThat(clientRepositoryFactory.createClientRepository(mongoClient, session, BOOKING_DB_NAME))
 					.isInstanceOf(ClientMongoRepository.class);
 			}
 
 			@Test
 			@DisplayName("Null mongoClient")
 			void testCreateClientRepositoryWhenMongoClientIsNullShouldThrow() {
-				assertThatThrownBy(() -> clientRepositoryFactory.createClientRepository(null, session))
+				assertThatThrownBy(
+						() -> clientRepositoryFactory.createClientRepository(null, session, BOOKING_DB_NAME))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Cannot create a ClientMongoRepository from a null Mongo client.");
 			}
@@ -102,7 +105,7 @@ class ClientRepositoryFactoryTest {
 			@DisplayName("Null session")
 			void testCreateClientRepositoryWhenSessionIsNullShouldThrow() {
 				assertThatThrownBy(
-						() -> clientRepositoryFactory.createClientRepository(mongoClient, null))
+						() -> clientRepositoryFactory.createClientRepository(mongoClient, null, BOOKING_DB_NAME))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Cannot create a ClientMongoRepository from a null Mongo client session.");
 			}

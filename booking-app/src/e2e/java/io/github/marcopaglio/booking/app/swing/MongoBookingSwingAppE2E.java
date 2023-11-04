@@ -6,7 +6,6 @@ import static io.github.marcopaglio.booking.model.Client.FIRSTNAME_DB;
 import static io.github.marcopaglio.booking.model.Client.LASTNAME_DB;
 import static io.github.marcopaglio.booking.model.Reservation.DATE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
-import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOOKING_DB_NAME;
 import static org.bson.UuidRepresentation.STANDARD;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
@@ -46,6 +45,7 @@ import io.github.marcopaglio.booking.model.Reservation;
 public class MongoBookingSwingAppE2E extends BookingSwingAppE2E {
 	private static final String DBMS = "MONGO";
 
+	private static final String MONGODB_NAME = "ITandE2ETest_db";
 	private static String mongoHost = System.getProperty("mongo.host", "localhost");
 	private static int mongoPort = Integer.parseInt(System.getProperty("mongo.port", "27017"));
 
@@ -57,7 +57,7 @@ public class MongoBookingSwingAppE2E extends BookingSwingAppE2E {
 	@BeforeClass
 	public static void setupClient() throws Exception {
 		mongoClient = getClient(String.format("mongodb://%s:%d", mongoHost, mongoPort));
-		database = mongoClient.getDatabase(BOOKING_DB_NAME);
+		database = mongoClient.getDatabase(MONGODB_NAME);
 		clientCollection = database.getCollection(CLIENT_TABLE_DB, Client.class);
 		reservationCollection = database.getCollection(RESERVATION_TABLE_DB, Reservation.class);
 	}
@@ -97,7 +97,8 @@ public class MongoBookingSwingAppE2E extends BookingSwingAppE2E {
 			.withArgs(
 					"--dbms=" + DBMS,
 					"--host=" + mongoHost,
-					"--port=" + mongoPort
+					"--port=" + mongoPort,
+					"--name=" + MONGODB_NAME
 			).start();
 		
 		super.onSetUp();

@@ -48,21 +48,28 @@ public class TransactionMongoManager extends TransactionManager {
 	private MongoClient mongoClient;
 
 	/**
+	 * Name of the mongoDB database in which the repository works.
+	 */
+	private String databaseName;
+
+	/**
 	 * Constructs a manager for applying code that uses entity repositories 
 	 * using MongoDB transactions.
 	 * 
 	 * @param mongoClient					the client connected to the MongoDB database.
+	 * @param databaseName					the name of the MongoDB database.
 	 * @param transactionHandlerFactory		the factory to create {@code ClientSession} instances.
 	 * @param clientRepositoryFactory		the factory to create
 	 * 										{@code ClientMongoRepository} instances.
 	 * @param reservationRepositoryFactory	the factory to create
 	 * 										{@code ReservationMongoRepository} instances.
 	 */
-	public TransactionMongoManager(MongoClient mongoClient,
+	public TransactionMongoManager(MongoClient mongoClient, String databaseName,
 			TransactionHandlerFactory transactionHandlerFactory,
 			ClientRepositoryFactory clientRepositoryFactory,
 			ReservationRepositoryFactory reservationRepositoryFactory) {
 		super(transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
+		this.databaseName = databaseName;
 		this.mongoClient = mongoClient;
 	}
 
@@ -83,7 +90,7 @@ public class TransactionMongoManager extends TransactionManager {
 		TransactionMongoHandler sessionHandler =
 				transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS);
 		ClientMongoRepository clientRepository = clientRepositoryFactory
-				.createClientRepository(mongoClient, sessionHandler.getHandler());
+				.createClientRepository(mongoClient, sessionHandler.getHandler(), databaseName);
 		try {
 			return executeInTransaction(code, sessionHandler, clientRepository);
 		} catch(MongoCommandException e) {
@@ -110,7 +117,7 @@ public class TransactionMongoManager extends TransactionManager {
 		TransactionMongoHandler sessionHandler =
 				transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS);
 		ReservationMongoRepository reservationRepository = reservationRepositoryFactory
-				.createReservationRepository(mongoClient, sessionHandler.getHandler());
+				.createReservationRepository(mongoClient, sessionHandler.getHandler(), databaseName);
 		try {
 			return executeInTransaction(code, sessionHandler, reservationRepository);
 		} catch(MongoCommandException e) {
@@ -137,9 +144,9 @@ public class TransactionMongoManager extends TransactionManager {
 		TransactionMongoHandler sessionHandler =
 				transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS);
 		ClientMongoRepository clientRepository = clientRepositoryFactory
-				.createClientRepository(mongoClient, sessionHandler.getHandler());
+				.createClientRepository(mongoClient, sessionHandler.getHandler(), databaseName);
 		ReservationMongoRepository reservationRepository = reservationRepositoryFactory
-				.createReservationRepository(mongoClient, sessionHandler.getHandler());
+				.createReservationRepository(mongoClient, sessionHandler.getHandler(), databaseName);
 		try {
 			return executeInTransaction(code, sessionHandler, clientRepository, reservationRepository);
 		} catch(MongoCommandException e) {

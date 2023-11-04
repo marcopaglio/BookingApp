@@ -61,7 +61,6 @@ public class BookingSwingApp implements Callable<Void> {
 	@Option(names = { "--port", "-port", "-p" }, description = "Port number of the database to connect to")
 	private int port = 27017;
 
-	//TODO: al momento questa option è ignorata da mongo
 	@Option(names = { "--name", "-name", "-n" }, description = "Name of the database to connect to")
 	private String name = "BookingApp_db";
 
@@ -126,8 +125,8 @@ public class BookingSwingApp implements Callable<Void> {
 		TransactionManager transactionManager = null;
 		if (dbms == DBMS.MONGO) {
 			mongoClient = getClient(String.format("mongodb://%s:%d", host, port));
-			transactionManager = new TransactionMongoManager(mongoClient, transactionHandlerFactory,
-					clientRepositoryFactory, reservationRepositoryFactory);
+			transactionManager = new TransactionMongoManager(mongoClient, name,
+					transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
 		}
 		if (dbms == DBMS.POSTGRES) {
 			emf = Persistence.createEntityManagerFactory("postgres-app", Map.of(

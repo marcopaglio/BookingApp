@@ -59,6 +59,7 @@ class TransactionMongoManagerTest {
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2022-12-22");
 	private static final Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 
+	private static final String BOOKING_DB_NAME = "TransactionMongoManager_db";
 	private MongoClient mongoClient;
 	private ClientSession session;
 
@@ -84,8 +85,8 @@ class TransactionMongoManagerTest {
 
 	@BeforeEach
 	void setUp() throws Exception {
-		transactionManager = new TransactionMongoManager(mongoClient, transactionHandlerFactory,
-				clientRepositoryFactory, reservationRepositoryFactory);
+		transactionManager = new TransactionMongoManager(mongoClient, BOOKING_DB_NAME,
+				transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
 		
 		// stubbing
 		when(transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS))
@@ -99,7 +100,7 @@ class TransactionMongoManagerTest {
 
 		@BeforeEach
 		void doStubbing() throws Exception {
-			when(clientRepositoryFactory.createClientRepository(mongoClient, session))
+			when(clientRepositoryFactory.createClientRepository(mongoClient, session, BOOKING_DB_NAME))
 				.thenReturn(clientMongoRepository);
 		}
 
@@ -238,7 +239,7 @@ class TransactionMongoManagerTest {
 
 		@BeforeEach
 		void doStubbing() throws Exception {
-			when(reservationRepositoryFactory.createReservationRepository(mongoClient, session))
+			when(reservationRepositoryFactory.createReservationRepository(mongoClient, session, BOOKING_DB_NAME))
 				.thenReturn(reservationMongoRepository);
 		}
 
@@ -380,9 +381,9 @@ class TransactionMongoManagerTest {
 
 		@BeforeEach
 		void doStubbing() throws Exception {
-			when(clientRepositoryFactory.createClientRepository(mongoClient, session))
+			when(clientRepositoryFactory.createClientRepository(mongoClient, session, BOOKING_DB_NAME))
 				.thenReturn(clientMongoRepository);
-			when(reservationRepositoryFactory.createReservationRepository(mongoClient, session))
+			when(reservationRepositoryFactory.createReservationRepository(mongoClient, session, BOOKING_DB_NAME))
 				.thenReturn(reservationMongoRepository);
 		}
 

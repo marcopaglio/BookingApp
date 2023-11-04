@@ -24,12 +24,13 @@ public class ReservationRepositoryFactory {
 	 * 
 	 * @param mongoClient				the client using the MongoDB database.
 	 * @param session					the session in which database operations are performed.
+	 * @param databaseName				the name of the database in which the repository works.
 	 * @return							a new {@code ReservationMongoRepository}
 	 * 									for facing the MongoDB database.
 	 * @throws IllegalArgumentException	if at least {@code mongoClient} or {@code session} is null.
 	 */
-	public ReservationMongoRepository createReservationRepository(MongoClient mongoClient, ClientSession session)
-			throws IllegalArgumentException {
+	public ReservationMongoRepository createReservationRepository(MongoClient mongoClient,
+			ClientSession session, String databaseName) throws IllegalArgumentException {
 		if (mongoClient == null)
 			throw new IllegalArgumentException(
 					"Cannot create a ReservationMongoRepository from a null Mongo client.");
@@ -37,7 +38,7 @@ public class ReservationRepositoryFactory {
 			throw new IllegalArgumentException(
 					"Cannot create a ReservationMongoRepository from a null Mongo client session.");
 		
-		return new ReservationMongoRepository(mongoClient, session);
+		return new ReservationMongoRepository(mongoClient, session, databaseName);
 	}
 
 	/**

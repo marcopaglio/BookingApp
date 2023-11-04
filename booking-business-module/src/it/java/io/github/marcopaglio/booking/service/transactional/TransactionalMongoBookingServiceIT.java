@@ -1,7 +1,6 @@
 package io.github.marcopaglio.booking.service.transactional;
 
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
-import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOOKING_DB_NAME;
 import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_ALREADY_EXISTS_ERROR_MSG;
 import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_NOT_FOUND_ERROR_MSG;
 import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_ALREADY_EXISTS_ERROR_MSG;
@@ -64,6 +63,7 @@ class TransactionalMongoBookingServiceIT {
 	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse("2023-09-05");
 	private static final UUID ANOTHER_RESERVATION_UUID = UUID.fromString("f9e3dd0c-c3ff-4d4f-a3d1-108fcb3a697d");
 
+	private static final String MONGODB_NAME = "ITandE2ETest_db";
 	private static String mongoHost = System.getProperty("mongo.host", "localhost");
 	private static int mongoPort = Integer.parseInt(System.getProperty("mongo.port", "27017"));
 
@@ -85,7 +85,7 @@ class TransactionalMongoBookingServiceIT {
 	@BeforeAll
 	static void setupClient() throws Exception {
 		mongoClient = getClient(String.format("mongodb://%s:%d", mongoHost, mongoPort));
-		database = mongoClient.getDatabase(BOOKING_DB_NAME);
+		database = mongoClient.getDatabase(MONGODB_NAME);
 		clientCollection = database.getCollection(CLIENT_TABLE_DB, Client.class);
 		reservationCollection = database.getCollection(RESERVATION_TABLE_DB, Reservation.class);
 	}
@@ -116,8 +116,8 @@ class TransactionalMongoBookingServiceIT {
 		transactionHandlerFactory = new TransactionHandlerFactory();
 		clientRepositoryFactory = new ClientRepositoryFactory();
 		reservationRepositoryFactory = new ReservationRepositoryFactory();
-		transactionManager = new TransactionMongoManager(mongoClient, transactionHandlerFactory,
-				clientRepositoryFactory, reservationRepositoryFactory);
+		transactionManager = new TransactionMongoManager(mongoClient, MONGODB_NAME,
+				transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
 		
 		service = new TransactionalBookingService(transactionManager);
 		

@@ -6,7 +6,6 @@ import static io.github.marcopaglio.booking.model.Client.FIRSTNAME_DB;
 import static io.github.marcopaglio.booking.model.Client.LASTNAME_DB;
 import static io.github.marcopaglio.booking.model.Reservation.DATE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
-import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOOKING_DB_NAME;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -83,6 +82,7 @@ class ServedMongoBookingPresenterRaceConditionIT {
 	private static final String CLIENT_STRING = "Client named " + A_FIRSTNAME + " " + A_LASTNAME;
 	final static private String RESERVATION_STRING = "Reservation on " + A_DATE;
 
+	private static final String MONGODB_NAME = "ITandE2ETest_db";
 	private static String mongoHost = System.getProperty("mongo.host", "localhost");
 	private static int mongoPort = Integer.parseInt(System.getProperty("mongo.port", "27017"));
 
@@ -116,7 +116,7 @@ class ServedMongoBookingPresenterRaceConditionIT {
 	@BeforeAll
 	static void setupClient() throws Exception {
 		mongoClient = getClient(String.format("mongodb://%s:%d", mongoHost, mongoPort));
-		database = mongoClient.getDatabase(BOOKING_DB_NAME);
+		database = mongoClient.getDatabase(MONGODB_NAME);
 		clientCollection = database.getCollection(CLIENT_TABLE_DB, Client.class);
 		reservationCollection = database.getCollection(RESERVATION_TABLE_DB, Reservation.class);
 	}
@@ -149,8 +149,8 @@ class ServedMongoBookingPresenterRaceConditionIT {
 		transactionHandlerFactory = new TransactionHandlerFactory();
 		clientRepositoryFactory = new ClientRepositoryFactory();
 		reservationRepositoryFactory = new ReservationRepositoryFactory();
-		transactionMongoManager = new TransactionMongoManager(mongoClient, transactionHandlerFactory,
-				clientRepositoryFactory, reservationRepositoryFactory);
+		transactionMongoManager = new TransactionMongoManager(mongoClient, MONGODB_NAME,
+				transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
 		
 		transactionalBookingService = new TransactionalBookingService(transactionMongoManager);
 		
