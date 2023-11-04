@@ -184,7 +184,10 @@
               </goals>
               <configuration>
                 <excludes>
+                  <!-- Exclude integration test default patterns -->
+                  <exclude>**/IT*.java</exclude>
                   <exclude>**/*IT.java</exclude>
+                  <exclude>**/*ITCase.java</exclude>
                 </excludes>
                 <includes>
                   <include>**/*E2E.java</include>
