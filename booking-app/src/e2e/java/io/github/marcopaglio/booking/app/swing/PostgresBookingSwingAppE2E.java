@@ -37,6 +37,9 @@ public class PostgresBookingSwingAppE2E extends BookingSwingAppE2E {
 
 	@BeforeClass
 	public static void setupEmf() throws Exception {
+		// ATTENTION: number of max connection for PostgreSQL database is settled in
+		// docker-maven-plugin (pom.xml) and is strictly related to the number of current tests.
+		// Increasing the number of e2e tests requires more connections.
 		String jdbcUrl = String.format("jdbc:postgresql://%s:%d/%s",
 				postgresHost, postgresPort, postgresName);
 		emf = Persistence.createEntityManagerFactory("postgres-app", Map.of(

@@ -30,6 +30,13 @@ version="3.0">
       <!-- When references are fetched from the cache without having a record in the DB an exception is thrown -->
       <property name="hibernate.jpa.compliance.proxy" value="true"/>
       
+      <!-- HikariCP Configuration Properties -->
+      <!-- With HikariCP each new connection to PostgreSQL takes a pool of (max) 10 available connections. -->
+      <!-- So the real value of possible concorrent connection is: ceil(max_connection / 10) -->
+      <!-- Setting up value of maxPoolSize of HikariCP in persistence.xml: default=10 -->
+      <!-- Setting up value of max_connections of PostgreSQL with Docker: default=100 -->
+      <property name="hibernate.hikari.maximumPoolSize" value="10" />
+      
       <!-- Hibernate Debugging Properties -->
       <property name="hibernate.show_sql" value="true" />
       <property name="hibernate.format_sql" value="true" />
