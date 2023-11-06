@@ -40,20 +40,22 @@ public class ServedBookingPresenter implements BookingPresenter {
 	private BookingService bookingService;
 
 	/**
-	 * Validates inputs for creating Client entities.
+	 * Validates inputs for creating {@code Client} entities.
 	 */
 	private ClientValidator clientValidator;
 
 	/**
-	 * Validates inputs for creating Reservation entities.
+	 * Validates inputs for creating {@code Reservation} entities.
 	 */
 	private ReservationValidator reservationValidator;
 
 	/**
 	 * Constructs a presenter for the booking application with a view and a service.
 	 * 
-	 * @param view				the {@code View} used to show the user interface.
-	 * @param bookingService	the {@code BookingService} used to interact with repositories.
+	 * @param view					the {@code View} used to show the user interface.
+	 * @param bookingService		the {@code BookingService} used to interact with repositories.
+	 * @param clientValidator		the inputs checker for {@code Client} entities. 
+	 * @param reservationValidator	the inputs checker for {@code Reservation} entities.
 	 */
 	public ServedBookingPresenter(BookingView view, BookingService bookingService,
 			ClientValidator clientValidator, ReservationValidator reservationValidator) {
