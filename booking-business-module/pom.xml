@@ -128,7 +128,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <!-- version taken from the bom -->
+        <!-- version taken from the parent -->
       </plugin>
       <plugin>
         <groupId>io.fabric8</groupId>

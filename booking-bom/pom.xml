@@ -33,7 +33,7 @@
 
     <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
     <maven.antrun.version>3.1.0</maven.antrun.version>
-    <maven.assembly.version>3.5.0</maven.assembly.version>
+    <maven.assembly.version>3.6.0</maven.assembly.version>
     <maven.dependency.version>3.5.0</maven.dependency.version>
     <maven.release.version>3.0.0-M7</maven.release.version>
     <maven.clean.version>3.2.0</maven.clean.version>
@@ -139,14 +139,6 @@
         <plugin>
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>${maven.reports.version}</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>${maven.surefire.version}</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-failsafe-plugin</artifactId>
-          <version>${maven.surefire.version}</version>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-report-plugin</artifactId>

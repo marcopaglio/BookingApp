@@ -23,12 +23,10 @@
     
     <!-- MONGODB PROPERTIES -->
     <mongo.mapped.host>localhost</mongo.mapped.host>
-    <mongo.mapped.port>27017</mongo.mapped.port>
     <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
     
     <!-- POSTGRESQL PROPERTIES -->
     <postgres.mapped.host>localhost</postgres.mapped.host>
-    <postgres.mapped.port>5432</postgres.mapped.port>
     <postgres.database.name>ITandE2ETest_db</postgres.database.name>
     <postgres.database.user>postgres-it-e2e</postgres.database.user>
     <postgres.database.pswd>postgres-it-e2e</postgres.database.pswd>
@@ -48,6 +46,8 @@
     <maven.compiler.version>3.11.0</maven.compiler.version>
     <maven.resources.version>3.3.0</maven.resources.version>
     <maven.jar.version>3.3.0</maven.jar.version>
+    <maven.javadoc.version>3.6.0</maven.javadoc.version>
+    <maven.source.version>3.3.0</maven.source.version>
 
     <!-- VERSIONS FOR OTHER PLUGINS -->
     <jacoco.version>0.8.8</jacoco.version>
@@ -58,6 +58,7 @@
     <sonar.version>3.9.1.2184</sonar.version>
     <build.helper.version>3.4.0</build.helper.version>
     <docker.version>0.43.4</docker.version>
+    <exec.version>3.1.0</exec.version>
   </properties>
   
   <dependencyManagement>
@@ -150,12 +151,12 @@
           <version>${maven.resources.version}</version>
         </plugin>
         <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>${maven.jar.version}</version>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven.surefire.version}</version>
         </plugin>
         <plugin>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <!-- version taken from the bom -->
+          <version>${maven.surefire.version}</version>
           <configuration>
             <systemPropertyVariables>
               <mongo.host>${mongo.mapped.host}</mongo.host>
@@ -195,6 +196,18 @@
               </configuration>
             </execution>
           </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${maven.jar.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${maven.javadoc.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${maven.source.version}</version>
         </plugin>
 
         <!-- OTHER PLUGINS -->
@@ -370,6 +383,11 @@
               </goals>
             </execution>
           </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>${exec.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
