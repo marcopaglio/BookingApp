@@ -42,8 +42,9 @@ services:
     depends_on:
       - mongodb
     restart: "no"
+    # sleep few seconds ensures connectivity
     # here 'mongo' hostname is used for configuration
-    entrypoint: [ "bash", "-c", "mongosh --host mongo:27017 --eval 'rs.initiate()'"]
+    entrypoint: [ "bash", "-c", "sleep 5 && mongosh --host mongo:27017 --eval 'if(!rs.status().ok) {rs.initiate()}'"]
 
 volumes:
   mongo_conf:
