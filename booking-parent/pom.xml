@@ -349,6 +349,11 @@
                   <ports>
                     <port>postgres.mapped.port:5432</port>
                   </ports>
+                  <!-- With HikariCP each new connection to PostgreSQL takes a pool of (max) 10 available connections. -->
+                  <!-- So the real value of possible concorrent connection is: ceil(max_connection / 10) -->
+                  <!-- Setting up value of maxPoolSize of HikariCP in persistence.xml: default=10 -->
+                  <!-- Setting up value of max_connections of PostgreSQL with Docker: default=100 -->
+                  <cmd>postgres -c max_connections=221</cmd>
                   <env>
                     <POSTGRES_DB>${postgres.database.name}</POSTGRES_DB>
                     <POSTGRES_USER>${postgres.database.user}</POSTGRES_USER>
@@ -358,11 +363,6 @@
                     <log>\[1\] LOG:  database system is ready to accept connections</log>
                     <time>20000</time>
                   </wait>
-                  <!-- With HikariCP each new connection to PostgreSQL takes a pool of (max) 10 available connections. -->
-                  <!-- So the real value of possible concorrent connection is: ceil(max_connection / 10) -->
-                  <!-- Setting up value of maxPoolSize of HikariCP in persistence.xml: default=10 -->
-                  <!-- Setting up value of max_connections of PostgreSQL with Docker: default=100 -->
-                  <cmd>postgres -c max_connections=221</cmd>
                 </run>
               </image>
             </images>
