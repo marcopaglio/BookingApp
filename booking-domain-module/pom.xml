@@ -35,15 +35,16 @@
     <dependency>
       <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-hikaricp</artifactId>
-      <!-- version taken from the parent -->
+      <!-- version taken from the bom -->
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <!-- version taken from the parent -->
+      <!-- version taken from the bom -->
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>

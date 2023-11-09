@@ -38,7 +38,6 @@
     <mockito.version>5.1.1</mockito.version>
     <testcontainers.version>1.18.3</testcontainers.version>
     <logback.version>1.2.12</logback.version>
-    <postgresql.version>42.6.0</postgresql.version>
     <awaitility.version>4.2.0</awaitility.version>
 
 
@@ -63,25 +62,6 @@
   
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.hibernate.orm</groupId>
-        <artifactId>hibernate-hikaricp</artifactId>
-        <version>${hibernate.version}</version>
-        <!-- version defined in the bom -->
-      </dependency>
-      <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>${postgresql.version}</version>
-      </dependency>
-      <dependency>
-        <!-- required to see Testcontainers logs -->
-        <!-- required to see Mongo Java Driver logs -->
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>${logback.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
@@ -114,6 +94,14 @@
         <version>${testcontainers.version}</version>
         <scope>import</scope>
         <type>pom</type>
+      </dependency>
+      <dependency>
+        <!-- required to see Testcontainers logs -->
+        <!-- required to see Mongo Driver Sync logs -->
+        <!-- required to see Hibernate with HikariCP logs -->
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
       </dependency>
       <dependency>
         <groupId>org.awaitility</groupId>
