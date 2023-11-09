@@ -1,0 +1,50 @@
+# This docker-compose is used to run locally MongoDB.
+# From the local directory of this file, run the following command on the terminal:
+# $ docker-compose up
+
+# This can be reproduce using the command line in 2 steps:
+# 1) $ docker run -d --name mongo-set -p 27017:27017 --rm mongo:6.0.7 mongod --replSet rs0
+# 2) $ docker exec -it mongo-set mongosh --eval "rs.initiate()"
+
+# Below is a brief explanation of the arguments used:
+# -d                  execute in detached mode.
+# --name <hostname>   container name, also used as hostname.
+# -p <port>:27017     container port mapping.
+# --rm                for removing container at its end.
+# mongo:<tag>         MongoDB image.
+# 
+# mongod              mongo daemon.
+# --replSet <setName> define cluster name that the database will join.
+# -it                 for interactive execution.
+# <hostname>          container hostname on which the command will be executed.
+# <cmd>               command
+# --eval              built-in shell command for evaluating and executing strings as Bash command.
+# "<string_cmd>"      string command.
+
+version: "3"
+
+services:
+  mongodb:
+    image: mongo:6.0.7
+    container_name: mongo-set
+    ports:
+    - "27017:27017"
+    # hostname has to be different from 'localhost'
+    hostname: mongo
+    # binding 'mongo' hostname necessary for mongo-setup service
+    entrypoint: ["/usr/bin/mongod", "--bind_ip", "mongo", "--replSet", "rsOneNode"]
+    volumes:
+    - mongo_conf:/data/configdb
+    - mongo_data:/data/db
+  
+  mongo-setup:
+    image: mongo:6.0.7
+    depends_on:
+      - mongodb
+    restart: "no"
+    # here 'mongo' hostname is used for configuration
+    entrypoint: [ "bash", "-c", "mongosh --host mongo:27017 --eval 'rs.initiate()'"]
+
+volumes:
+  mongo_conf:
+  mongo_data:
