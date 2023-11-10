@@ -44,6 +44,9 @@ import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+/**
+ * Implementation of BookingApp using Java Swing as GUI and MongoDB or PostgreSQL as DBMS.
+ */
 @Command(mixinStandardHelpOptions = true)
 public class BookingSwingApp implements Callable<Void> {
 	/**
@@ -51,34 +54,66 @@ public class BookingSwingApp implements Callable<Void> {
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(BookingSwingApp.class);
 
-	@Option(names = { "--dbms", "-dbms" },
-			description = "Name of the DBMS accepted: ${COMPLETION-CANDIDATES}")
+	/**
+	 * Argument value for DBMS choice. By default 'MongoDB' is used.
+	 */
+	@Option(names = { "--dbms", "-dbms" }, description = "Name of the DBMS accepted: ${COMPLETION-CANDIDATES}")
 	private DBMS dbms = DBMS.MONGO;
 
+	/**
+	 * Argument value for host name choice. By default 'localhost' is used.
+	 */
 	@Option(names = { "--host", "-host", "-h" }, description = "Host name of the database to connect to")
 	private String host = "localhost";
 
+	/**
+	 * Argument value for port number choice. By default '27017' is used.
+	 */
 	@Option(names = { "--port", "-port", "-p" }, description = "Port number of the database to connect to")
 	private int port = 27017;
 
+	/**
+	 * Argument value for database name choice. By default 'BookingApp_db' is used.
+	 */
 	@Option(names = { "--name", "-name", "-n" }, description = "Name of the database to connect to")
 	private String name = "BookingApp_db";
 
-	// Ignored by MongoDB
-	@Option(names = { "--user", "-user", }, description = "Username for loggin into the database")
+	/**
+	 * Argument value for user name choice for logging into the database. By default 'postgres-user' is used.
+	 * Note: currently ignored by MongoDB.
+	 */
+	@Option(names = { "--user", "-user", }, description = "Username for logging into the database")
 	private String user = "postgres-user";
 
-	// Ignored by MongoDB
+	/**
+	 * Argument value for password choice for logging into the database. By default 'postgres-pswd' is used.
+	 * Note: currently ignored by MongoDB.
+	 */
 	@Option(names = { "--pswd", "-pswd", }, description = "Password for logging into the database")
 	private String pswd = "postgres-pswd";
 
+	/**
+	 * The entity manager factory used to interact with the persistence provider.
+	 */
 	private EntityManagerFactory emf;
+
+	/**
+	 * The client for connecting to the MongoDB database.
+	 */
 	private MongoClient mongoClient;
 
+	/**
+	 * Main method using Picocli framework for managing arguments.
+	 * 
+	 * @param args	arguments needed for starting the application.
+	 */
 	public static void main(String[] args) {
 		new CommandLine(new BookingSwingApp()).execute(args);
 	}
 
+	/**
+	 * Main content of the application.
+	 */
 	@Override
 	public Void call() throws Exception {
 		EventQueue.invokeLater(() -> {
@@ -87,8 +122,10 @@ public class BookingSwingApp implements Callable<Void> {
 				ClientRepositoryFactory clientRepositoryFactory = new ClientRepositoryFactory();
 				ReservationRepositoryFactory reservationRepositoryFactory = new ReservationRepositoryFactory();
 				
+				LOGGER.info(() -> String.format("The application starts the connection with %s.", dbms));
 				TransactionManager transactionManager = createTransactionManager(transactionHandlerFactory,
 						clientRepositoryFactory, reservationRepositoryFactory);
+				LOGGER.info(() -> String.format("The application is connected to %s.", dbms));
 				
 				BookingService bookingService = new TransactionalBookingService(transactionManager);
 				ClientValidator clientValidator = new RestrictedClientValidator();
@@ -101,24 +138,40 @@ public class BookingSwingApp implements Callable<Void> {
 				bookingView.setVisible(true);
 				bookingPresenter.allClients();
 				bookingPresenter.allReservations();
+				LOGGER.info(() -> "The application is ready to be used.");
 			} catch(Exception e) {
-				LOGGER.error(() -> "The application terminates due to an unexpected error.");
+				LOGGER.error(() -> "The application encountered an unexpected error.");
+				LOGGER.debug(() -> String.format("The application encounteredthe following error: %s \n"
+						+ "with the following message: %s", e.getClass(), e.getMessage()));
 			}
 		});
 		
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
+				LOGGER.info(() -> String.format("The application is closing the connection with %s.", dbms));
 				if (dbms == DBMS.MONGO && mongoClient != null)
-						mongoClient.close();
+					mongoClient.close();
 				if (dbms == DBMS.POSTGRES && emf != null && emf.isOpen())
-						emf.close();
+					emf.close();
+				LOGGER.info(() -> String.format("The application closed the connection with %s.", dbms));
 			}
 		});
 		
 		return null;
 	}
 
+	/**
+	 * Starts connection to the chosen database and returns its transaction manager.
+	 * 
+	 * @param transactionHandlerFactory		the factory of {@code TransactionHandler} needed
+	 * 										for the transaction manager.
+	 * @param clientRepositoryFactory		the factory of {@code ClientRepository} needed
+	 * 										for the transaction manager.
+	 * @param reservationRepositoryFactory	the factory of {@code ReservationRepository} needed
+	 * 										for the transaction manager.
+	 * @return								a {@code TransactionManager} for the chosen database.
+	 */
 	private TransactionManager createTransactionManager(TransactionHandlerFactory transactionHandlerFactory,
 			ClientRepositoryFactory clientRepositoryFactory,
 			ReservationRepositoryFactory reservationRepositoryFactory) {
@@ -139,6 +192,12 @@ public class BookingSwingApp implements Callable<Void> {
 		return transactionManager;
 	}
 
+	/**
+	 * Returns a client connected to the MongoDB database.
+	 * 
+	 * @param connectionString	the MongoDB URL used for the connection.
+	 * @return					a {@code MongoClient} connected to MongoDB.
+	 */
 	private static MongoClient getClient(String connectionString) {
 		// define the CodecProvider for POJO classes
 		CodecProvider pojoCodecProvider = PojoCodecProvider.builder()
