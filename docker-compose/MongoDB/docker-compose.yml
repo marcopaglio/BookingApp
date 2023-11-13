@@ -29,10 +29,8 @@ services:
     container_name: mongoDB
     ports:
     - "27017:27017"
-    # hostname has to be different from 'localhost'
-    hostname: mongo
-    # binding 'mongo' hostname necessary for mongo-setup service
-    entrypoint: ["/usr/bin/mongod", "--bind_ip", "mongo", "--replSet", "rsOneNode"]
+    # binding container (or service)'s name is necessary for mongo-setup service
+    entrypoint: ["/usr/bin/mongod", "--bind_ip", "mongodb", "--replSet", "rsOneNode"]
     healthcheck:
       test: ["CMD-SHELL", "echo 'db.runCommand(\"ping\").ok'"]
       # equivalent to
@@ -43,16 +41,16 @@ services:
     volumes:
     - mongo_conf:/data/configdb
     - mongo_data:/data/db
-  
+
   mongo-setup:
     image: mongo:6.0.7
     depends_on:
       mongodb:
         condition: service_healthy
     restart: "no"
-    # here 'mongo' hostname is used for configuration
+    # here 'mongodb' is used for configuration
     # check rs.status().ok is useful when the container is re-run with the same volumes
-    entrypoint: [ "bash", "-c", "mongosh --host mongo:27017 --eval \"try { rs.status().ok } catch (e) { rs.initiate() }\""]
+    entrypoint: [ "bash", "-c", "mongosh --host mongodb:27017 --eval \"try { rs.status().ok } catch (e) { rs.initiate() }\""]
     volumes:
     - mongo_conf:/data/configdb
     - mongo_data:/data/db
