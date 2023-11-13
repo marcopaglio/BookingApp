@@ -33,6 +33,13 @@ services:
     hostname: mongo
     # binding 'mongo' hostname necessary for mongo-setup service
     entrypoint: ["/usr/bin/mongod", "--bind_ip", "mongo", "--replSet", "rsOneNode"]
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'db.runCommand(\"ping\").ok'"]
+      # equivalent to
+      #test: ["CMD-SHELL", "mongosh mongo:27017/test --quiet"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
     volumes:
     - mongo_conf:/data/configdb
     - mongo_data:/data/db
@@ -40,12 +47,12 @@ services:
   mongo-setup:
     image: mongo:6.0.7
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     restart: "no"
-    # sleep few seconds ensures connectivity
     # here 'mongo' hostname is used for configuration
     # check rs.status().ok is useful when the container is re-run with the same volumes
-    entrypoint: [ "bash", "-c", "sleep 5 && mongosh --host mongo:27017 --eval \"try { rs.status().ok } catch (e) { rs.initiate() }\""]
+    entrypoint: [ "bash", "-c", "mongosh --host mongo:27017 --eval \"try { rs.status().ok } catch (e) { rs.initiate() }\""]
     volumes:
     - mongo_conf:/data/configdb
     - mongo_data:/data/db
