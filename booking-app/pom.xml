@@ -45,6 +45,11 @@
       <!-- version taken from the bom -->
     </dependency>
     <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
       <groupId>info.picocli</groupId>
       <artifactId>picocli</artifactId>
       <!-- version taken from the bom -->
@@ -71,12 +76,6 @@
     <dependency>
       <groupId>org.junit.vintage</groupId>
       <artifactId>junit-vintage-engine</artifactId>
-      <!-- version taken from the parent -->
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
       <!-- version taken from the parent -->
       <scope>test</scope>
     </dependency>
@@ -124,8 +123,10 @@
                   <argument>-jar</argument>
                   <argument>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</argument>
                 </arguments>
-                <async>true</async>
-                <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
+                <successCodes>
+                  <!-- Execution not include server, so startup will have to fail with exiting code -1 -->
+                  <successCode>-1</successCode>
+                </successCodes>
               </configuration>
             </execution>
           </executions>

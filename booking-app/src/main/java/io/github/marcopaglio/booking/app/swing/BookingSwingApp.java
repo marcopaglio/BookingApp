@@ -8,6 +8,7 @@ import static org.bson.codecs.pojo.Conventions.ANNOTATION_CONVENTION;
 import static org.bson.codecs.pojo.Conventions.USE_GETTERS_FOR_SETTERS;
 
 import java.awt.EventQueue;
+import java.awt.Frame;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -53,6 +54,11 @@ public class BookingSwingApp implements Callable<Void> {
 	 * Creates meaningful logs on behalf of the class.
 	 */
 	private static final Logger LOGGER = LogManager.getLogger(BookingSwingApp.class);
+
+	/**
+	 * Status exit code indicating startup failure.
+	 */
+	private static final int STARTUP_FAILURE_STATUS = -1;
 
 	/**
 	 * Argument value for DBMS choice. By default 'MongoDB' is used.
@@ -116,16 +122,17 @@ public class BookingSwingApp implements Callable<Void> {
 	 */
 	@Override
 	public Void call() throws Exception {
+		LOGGER.info("BookingApp is starting...");
 		EventQueue.invokeLater(() -> {
 			try {
 				TransactionHandlerFactory transactionHandlerFactory = new TransactionHandlerFactory();
 				ClientRepositoryFactory clientRepositoryFactory = new ClientRepositoryFactory();
 				ReservationRepositoryFactory reservationRepositoryFactory = new ReservationRepositoryFactory();
 				
-				LOGGER.info(() -> String.format("The application starts the connection with %s.", dbms));
+				LOGGER.info(String.format("BookingApp is connecting with %s...", dbms));
 				TransactionManager transactionManager = createTransactionManager(transactionHandlerFactory,
 						clientRepositoryFactory, reservationRepositoryFactory);
-				LOGGER.info(() -> String.format("The application is connected to %s.", dbms));
+				LOGGER.info(String.format("The connection to %s has been established.", dbms));
 				
 				BookingService bookingService = new TransactionalBookingService(transactionManager);
 				ClientValidator clientValidator = new RestrictedClientValidator();
@@ -138,23 +145,28 @@ public class BookingSwingApp implements Callable<Void> {
 				bookingView.setVisible(true);
 				bookingPresenter.allClients();
 				bookingPresenter.allReservations();
-				LOGGER.info(() -> "The application is ready to be used.");
+				LOGGER.info("BookingApp is ready to be used.");
 			} catch(Exception e) {
-				LOGGER.error(() -> "The application encountered an unexpected error.");
-				LOGGER.debug(() -> String.format("The application encounteredthe following error: %s \n"
-						+ "with the following message: %s", e.getClass(), e.getMessage()));
+				LOGGER.error(() -> "BookingApp startup fails due to an unexpected error.");
+				LOGGER.debug(() -> String.format("BookingApp startup fails due to %s: %s", e.getClass(), e.getMessage()));
+				
+				LOGGER.info(() -> "BookingApp is closing windows...");
+				closeWindows();
+				LOGGER.info(() -> "All windows are closed.");
+				
+				System.exit(STARTUP_FAILURE_STATUS);
 			}
 		});
 		
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				LOGGER.info(() -> String.format("The application is closing the connection with %s.", dbms));
+				LOGGER.info(String.format("BookingApp is closing connection with %s...", dbms));
 				if (dbms == DBMS.MONGO && mongoClient != null)
 					mongoClient.close();
 				if (dbms == DBMS.POSTGRES && emf != null && emf.isOpen())
 					emf.close();
-				LOGGER.info(() -> String.format("The application closed the connection with %s.", dbms));
+				LOGGER.info(String.format("BookingApp is no longer connected to %s.", dbms));
 			}
 		});
 		
@@ -217,6 +229,18 @@ public class BookingSwingApp implements Callable<Void> {
 				.codecRegistry(pojoCodecRegistry)
 				.build();
 		return MongoClients.create(settings);
+	}
+
+	/**
+	 * Closes and cleans all displayable frames.
+	 */
+	private void closeWindows() {
+		for (Frame f: Frame.getFrames()) {
+			if (f.isDisplayable()) {
+				f.setVisible(false);
+				f.dispose();
+			}
+		}
 	}
 
 	/**

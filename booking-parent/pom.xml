@@ -37,7 +37,6 @@
     <assertj.swing.version>3.17.1</assertj.swing.version>
     <mockito.version>5.1.1</mockito.version>
     <testcontainers.version>1.18.3</testcontainers.version>
-    <logback.version>1.2.12</logback.version>
     <awaitility.version>4.2.0</awaitility.version>
 
 
@@ -94,14 +93,6 @@
         <version>${testcontainers.version}</version>
         <scope>import</scope>
         <type>pom</type>
-      </dependency>
-      <dependency>
-        <!-- required to see Testcontainers logs -->
-        <!-- required to see Mongo Driver Sync logs -->
-        <!-- required to see Hibernate with HikariCP logs -->
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>${logback.version}</version>
       </dependency>
       <dependency>
         <groupId>org.awaitility</groupId>
@@ -306,55 +297,6 @@
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
           <version>${docker.version}</version>
-          <configuration>
-            <containerNamePattern>%a</containerNamePattern> <!-- %a = <alias>'s value-->
-            <images>
-              <image>
-                <name>mongo:6.0.7</name>
-                <alias>mongo</alias>
-                <run>
-                  <ports>
-                    <port>mongo.mapped.port:27017</port>
-                  </ports>
-                  <cmd>mongod --replSet ${mongo.replicaSet.name}</cmd>
-                  <wait>
-                    <http>
-                      <url>http://${mongo.mapped.host}:${mongo.mapped.port}</url>
-                      <method>GET</method>
-                      <status>200</status>
-                    </http>
-                    <time>10000</time>
-                    <exec>
-                      <postStart>mongosh --eval "rs.initiate();"</postStart>
-                    </exec>
-                  </wait>
-                </run>
-              </image>
-              <image>
-                <name>postgres:15.3</name>
-                <alias>postgres</alias>
-                <run>
-                  <ports>
-                    <port>postgres.mapped.port:5432</port>
-                  </ports>
-                  <!-- With HikariCP each new connection to PostgreSQL takes a pool of (max) 10 available connections. -->
-                  <!-- So the real value of possible concorrent connection is: ceil(max_connection / 10) -->
-                  <!-- Setting up value of maxPoolSize of HikariCP in persistence.xml: default=10 -->
-                  <!-- Setting up value of max_connections of PostgreSQL with Docker: default=100 -->
-                  <cmd>postgres -c max_connections=221</cmd>
-                  <env>
-                    <POSTGRES_DB>${postgres.database.name}</POSTGRES_DB>
-                    <POSTGRES_USER>${postgres.database.user}</POSTGRES_USER>
-                    <POSTGRES_PASSWORD>${postgres.database.pswd}</POSTGRES_PASSWORD>
-                  </env>
-                  <wait>
-                    <log>\[1\] LOG:  database system is ready to accept connections</log>
-                    <time>20000</time>
-                  </wait>
-                </run>
-              </image>
-            </images>
-          </configuration>
           <executions>
             <execution>
               <id>docker-start</id>
@@ -362,12 +304,63 @@
               <goals>
                 <goal>start</goal>
               </goals>
+              <configuration>
+                <containerNamePattern>%a</containerNamePattern> <!-- %a = <alias>'s value-->
+                <images>
+                  <image>
+                    <name>mongo:6.0.7</name>
+                    <alias>mongo</alias>
+                    <run>
+                      <ports>
+                        <port>mongo.mapped.port:27017</port>
+                      </ports>
+                      <cmd>mongod --replSet ${mongo.replicaSet.name}</cmd>
+                      <wait>
+                        <http>
+                          <url>http://${mongo.mapped.host}:${mongo.mapped.port}</url>
+                          <method>GET</method>
+                          <status>200</status>
+                        </http>
+                        <time>10000</time>
+                        <exec>
+                          <postStart>mongosh --eval "rs.initiate();"</postStart>
+                        </exec>
+                      </wait>
+                    </run>
+                  </image>
+                  <image>
+                    <name>postgres:15.3</name>
+                    <alias>postgres</alias>
+                    <run>
+                      <ports>
+                        <port>postgres.mapped.port:5432</port>
+                      </ports>
+                      <!-- With HikariCP each new connection to PostgreSQL takes a pool of (max) 10 available connections. -->
+                      <!-- So the real value of possible concorrent connection is: ceil(max_connection / 10) -->
+                      <!-- Setting up value of maxPoolSize of HikariCP in persistence.xml: default=10 -->
+                      <!-- Setting up value of max_connections of PostgreSQL with Docker: default=100 -->
+                      <cmd>postgres -c max_connections=221</cmd>
+                      <env>
+                        <POSTGRES_DB>${postgres.database.name}</POSTGRES_DB>
+                        <POSTGRES_USER>${postgres.database.user}</POSTGRES_USER>
+                        <POSTGRES_PASSWORD>${postgres.database.pswd}</POSTGRES_PASSWORD>
+                      </env>
+                      <wait>
+                        <log>\[1\] LOG:  database system is ready to accept connections</log>
+                        <time>20000</time>
+                      </wait>
+                    </run>
+                  </image>
+                </images>
+              </configuration>
             </execution>
             <execution>
               <id>docker-stop</id>
               <phase>post-integration-test</phase>
               <goals>
                 <goal>stop</goal>
+                <!-- If this goal is called standalone, then all containers are stopped,
+                for which images has been configured in the pom.xml -->
               </goals>
             </execution>
           </executions>

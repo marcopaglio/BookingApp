@@ -30,6 +30,7 @@
     <mongo.version>4.9.1</mongo.version>
     <hibernate.version>6.3.0.CR1</hibernate.version>
     <postgresql.version>42.6.0</postgresql.version>
+    <logback.version>1.2.12</logback.version>
     <picocli.version>4.7.5</picocli.version>
 
     <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
@@ -97,6 +98,14 @@
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
         <version>${postgresql.version}</version>
+      </dependency>
+      <dependency>
+        <!-- required to see Testcontainers logs -->
+        <!-- required to see Mongo Driver Sync logs -->
+        <!-- required to see Hibernate with HikariCP logs -->
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
       </dependency>
       <dependency>
         <groupId>info.picocli</groupId>
