@@ -61,38 +61,38 @@ public class BookingSwingApp implements Callable<Void> {
 	private static final int STARTUP_FAILURE_STATUS = -1;
 
 	/**
-	 * Argument value for DBMS choice. By default 'MongoDB' is used.
+	 * Argument value for DBMS choice. By default {@code MONGO} is used.
 	 */
 	@Option(names = { "--dbms", "-dbms" }, description = "Name of the DBMS accepted: ${COMPLETION-CANDIDATES}")
 	private DBMS dbms = DBMS.MONGO;
 
 	/**
-	 * Argument value for host name choice. By default 'localhost' is used.
+	 * Argument value for host name choice. By default {@code localhost} is used.
 	 */
 	@Option(names = { "--host", "-host", "-h" }, description = "Host name of the database to connect to")
 	private String host = "localhost";
 
 	/**
-	 * Argument value for port number choice. By default '27017' is used.
+	 * Argument value for port number choice. By default {@code 27017} is used.
 	 */
 	@Option(names = { "--port", "-port", "-p" }, description = "Port number of the database to connect to")
 	private int port = 27017;
 
 	/**
-	 * Argument value for database name choice. By default 'BookingApp_db' is used.
+	 * Argument value for database name choice. By default {@code BookingApp_db} is used.
 	 */
 	@Option(names = { "--name", "-name", "-n" }, description = "Name of the database to connect to")
 	private String name = "BookingApp_db";
 
 	/**
-	 * Argument value for user name choice for logging into the database. By default 'postgres-user' is used.
+	 * Argument value for user name choice for logging into the database. By default {@code postgres-user} is used.
 	 * Note: currently ignored by MongoDB.
 	 */
 	@Option(names = { "--user", "-user", }, description = "Username for logging into the database")
 	private String user = "postgres-user";
 
 	/**
-	 * Argument value for password choice for logging into the database. By default 'postgres-pswd' is used.
+	 * Argument value for password choice for logging into the database. By default {@code postgres-pswd} is used.
 	 * Note: currently ignored by MongoDB.
 	 */
 	@Option(names = { "--pswd", "-pswd", }, description = "Password for logging into the database")
@@ -152,7 +152,7 @@ public class BookingSwingApp implements Callable<Void> {
 				
 				LOGGER.info(() -> "BookingApp is closing windows...");
 				closeWindows();
-				LOGGER.info(() -> "All windows are closed.");
+				LOGGER.info(() -> "All windows are now closed.");
 				
 				System.exit(STARTUP_FAILURE_STATUS);
 			}
