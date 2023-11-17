@@ -235,19 +235,39 @@
                 </configuration>
               </execution>
               <execution>
-                <id>docker-compose-mongo</id>
+                <id>docker-compose-verify</id>
                 <phase>verify</phase>
                 <goals>
+                  <goal>volume-create</goal>
                   <goal>start</goal>
                   <goal>stop</goal>
+                  <goal>volume-remove</goal>
                 </goals>
                 <configuration>
+                  <volumes>
+                    <volume>
+                      <name>${mongo.conf.volume}</name>
+                      <driver>local</driver>
+                    </volume>
+                    <volume>
+                      <name>${mongo.data.volume}</name>
+                      <driver>local</driver>
+                    </volume>
+                    <volume>
+                      <name>${postgres.data.volume}</name>
+                      <driver>local</driver>
+                    </volume>
+                  </volumes>
                   <autoCreateCustomNetworks>true</autoCreateCustomNetworks>
                   <images>
+                    <!-- docker-compose with mongo -->
                     <image>
                       <name>%a:${project.version}</name>
                       <alias>${project.artifactId}</alias>
                       <run>
+                        <dependsOn>
+                          <container>mongo</container>
+                        </dependsOn>
                         <network>
                           <mode>custom</mode>
                           <name>booking-mongo-network</name>
@@ -262,17 +282,12 @@
                           <HOST>mongodb</HOST>
                           <PORT>27017</PORT>
                           <DB_NAME>BookingApp_db</DB_NAME>
-                          <USER>none</USER>
-                          <PSWD>none</PSWD>
                           <DISPLAY>:0</DISPLAY>
-                      </env>
+                        </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
                           <time>60000</time>
                         </wait>
-                        <dependsOn>
-                          <container>mongo</container>
-                        </dependsOn>
                       </run>
                     </image>
                     <image>
@@ -284,6 +299,12 @@
                           <name>booking-mongo-network</name>
                           <alias>mongodb</alias>
                         </network>
+                        <volumes>
+                          <bind>
+                            <volume>${mongo.conf.volume}:/data/configdb</volume>
+                            <volume>${mongo.data.volume}:/data/db</volume>
+                          </bind>
+                        </volumes>
                         <ports>
                           <port>mongo.mapped.port:27017</port>
                         </ports>
@@ -301,23 +322,14 @@
                         </wait>
                       </run>
                     </image>
-                  </images>
-                </configuration>
-              </execution>
-              <execution>
-                <id>docker-compose-postgres</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>start</goal>
-                  <goal>stop</goal>
-                </goals>
-                <configuration>
-                  <autoCreateCustomNetworks>true</autoCreateCustomNetworks>
-                  <images>
+                    <!-- docker-compose with postgres -->
                     <image>
                       <name>%a:${project.version}</name>
                       <alias>${project.artifactId}</alias>
                       <run>
+                        <dependsOn>
+                          <container>postgres</container>
+                        </dependsOn>
                         <network>
                           <mode>custom</mode>
                           <name>booking-postgres-network</name>
@@ -335,14 +347,11 @@
                           <USER>postgres-user</USER>
                           <PSWD>postgres-pswd</PSWD>
                           <DISPLAY>:0</DISPLAY>
-                      </env>
+                        </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
                           <time>60000</time>
                         </wait>
-                        <dependsOn>
-                          <container>postgres</container>
-                        </dependsOn>
                       </run>
                     </image>
                     <image>
@@ -354,6 +363,11 @@
                           <name>booking-postgres-network</name>
                           <alias>postgresql</alias>
                         </network>
+                        <volumes>
+                          <bind>
+                            <volume>${postgres.data.volume}:/var/lib/postgresql/data</volume>
+                          </bind>
+                        </volumes>
                         <ports>
                           <port>postgres.mapped.port:5432</port>
                         </ports>

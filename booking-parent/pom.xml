@@ -22,10 +22,13 @@
     <maven.compiler.target>11</maven.compiler.target>
     
     <!-- MONGODB PROPERTIES -->
+    <mongo.conf.volume>mongo_conf</mongo.conf.volume>
+    <mongo.data.volume>mongo_data</mongo.data.volume>
     <mongo.mapped.host>localhost</mongo.mapped.host>
     <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
     
     <!-- POSTGRESQL PROPERTIES -->
+    <postgres.data.volume>postgresql_data</postgres.data.volume>
     <postgres.mapped.host>localhost</postgres.mapped.host>
     <postgres.database.name>ITandE2ETest_db</postgres.database.name>
     <postgres.database.user>postgres-it-e2e</postgres.database.user>
@@ -302,15 +305,36 @@
               <id>docker-start</id>
               <phase>pre-integration-test</phase>
               <goals>
+                <goal>volume-create</goal>
                 <goal>start</goal>
               </goals>
               <configuration>
+                <volumes>
+                  <volume>
+                    <name>${mongo.conf.volume}</name>
+                    <driver>local</driver>
+                  </volume>
+                  <volume>
+                    <name>${mongo.data.volume}</name>
+                    <driver>local</driver>
+                  </volume>
+                  <volume>
+                    <name>${postgres.data.volume}</name>
+                    <driver>local</driver>
+                  </volume>
+                </volumes>
                 <containerNamePattern>%a</containerNamePattern> <!-- %a = <alias>'s value-->
                 <images>
                   <image>
                     <name>mongo:6.0.7</name>
                     <alias>mongo</alias>
                     <run>
+                      <volumes>
+                        <bind>
+                          <volume>${mongo.conf.volume}:/data/configdb</volume>
+                          <volume>${mongo.data.volume}:/data/db</volume>
+                        </bind>
+                      </volumes>
                       <ports>
                         <port>mongo.mapped.port:27017</port>
                       </ports>
@@ -332,6 +356,11 @@
                     <name>postgres:15.3</name>
                     <alias>postgres</alias>
                     <run>
+                      <volumes>
+                        <bind>
+                          <volume>${postgres.data.volume}:/var/lib/postgresql/data</volume>
+                        </bind>
+                      </volumes>
                       <ports>
                         <port>postgres.mapped.port:5432</port>
                       </ports>
@@ -359,9 +388,21 @@
               <phase>post-integration-test</phase>
               <goals>
                 <goal>stop</goal>
-                <!-- If this goal is called standalone, then all containers are stopped,
-                for which images has been configured in the pom.xml -->
+                <goal>volume-remove</goal>
               </goals>
+              <configuration>
+                <volumes>
+                  <volume>
+                    <name>${mongo.conf.volume}</name>
+                  </volume>
+                  <volume>
+                    <name>${mongo.data.volume}</name>
+                  </volume>
+                  <volume>
+                    <name>${postgres.data.volume}</name>
+                  </volume>
+                </volumes>
+              </configuration>
             </execution>
           </executions>
         </plugin>
