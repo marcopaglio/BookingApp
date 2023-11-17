@@ -1,0 +1,61 @@
+# $ docker compose -f docker-compose-mongo.yml
+version: "3"
+
+services:
+  app:
+    image: booking-app:0.0.1-SNAPSHOT
+    depends_on: 
+      mongo-setup:
+        condition: service_completed_successfully
+    environment: 
+    - DBMS=MONGO
+    - HOST=mongodb
+    - PORT=27017
+    - DB_NAME=BookingApp_db
+    - DISPLAY=$DISPLAY
+    networks: 
+    - booking-network
+    volumes:
+    - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
+
+  mongodb:
+    image: mongo:6.0.7
+    ports:
+    - "27017:27017"
+    # binding 'mongodb' (service's name) is necessary for mongo-setup service
+    entrypoint: ["/usr/bin/mongod", "--bind_ip", "mongodb", "--replSet", "rsOneNode"]
+    healthcheck:
+      test: ["CMD-SHELL", "echo 'db.runCommand(\"ping\").ok'"]
+      # equivalent to
+      #test: ["CMD-SHELL", "mongosh mongo:27017/test --quiet"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks: 
+    - booking-network
+    volumes:
+    - mongo_conf:/data/configdb
+    - mongo_data:/data/db
+
+  mongo-setup:
+    image: mongo:6.0.7
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: "no"
+    # here 'mongodb' (service's name) is used for configuration
+    # check rs.status().ok is useful when the container is re-run with the same volumes
+    entrypoint: [ "bash", "-c", "mongosh --host mongodb:27017 --eval \"try { rs.status().ok } catch (e) { rs.initiate() }\""]
+    networks: 
+    - booking-network
+    volumes:
+    - mongo_conf:/data/configdb
+    - mongo_data:/data/db
+
+networks:
+  booking-network:
+    driver: bridge
+
+volumes:
+  mongo_conf:
+  mongo_data:

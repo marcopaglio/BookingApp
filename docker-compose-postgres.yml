@@ -1,0 +1,49 @@
+# $ docker compose -f docker-compose-postgres.yml
+version: "3"
+
+services:
+  app:
+    image: booking-app:0.0.1-SNAPSHOT
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment: 
+    - DBMS=POSTGRES
+    - HOST=postgres
+    - PORT=5432
+    - DB_NAME=BookingApp_db
+    - USER=postgres-user
+    - PSWD=postgres-pswd
+    - DISPLAY=:0
+    networks: 
+    - booking-network
+    volumes:
+    - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
+
+  postgres:
+    image: postgres:15.3
+    ports:
+    - "5432:5432"
+    command: -c 'max_connections=221'
+    environment:
+    # If you change these values, you must delete the old volumes (not only the old container!)
+    # before running $ docker-compose up; otherwise, they will remain the same as before.
+    - POSTGRES_DB=BookingApp_db
+    - POSTGRES_USER=postgres-user
+    - POSTGRES_PASSWORD=postgres-pswd
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d BookingApp_db -U postgres-user"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks: 
+    - booking-network
+    volumes:
+    - postgresql_data:/var/lib/postgresql/data
+
+networks:
+  booking-network:
+    driver: bridge
+
+volumes:
+    postgresql_data:

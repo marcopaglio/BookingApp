@@ -50,5 +50,15 @@
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/mvnw.cmd</locationURI>
 		</link>
+		<link>
+			<name>docker-compose-mongo.yml</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/docker-compose-mongo.yml</locationURI>
+		</link>
+		<link>
+			<name>docker-compose-postgres.yml</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/docker-compose-postgres.yml</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>
