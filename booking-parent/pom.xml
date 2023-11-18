@@ -59,7 +59,6 @@
     <sonar.version>3.9.1.2184</sonar.version>
     <build.helper.version>3.4.0</build.helper.version>
     <docker.version>0.43.4</docker.version>
-    <exec.version>3.1.0</exec.version>
   </properties>
   
   <dependencyManagement>
@@ -405,11 +404,6 @@
               </configuration>
             </execution>
           </executions>
-        </plugin>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>${exec.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>

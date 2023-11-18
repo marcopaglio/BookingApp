@@ -13,6 +13,17 @@
     The application itself that contains everything you need to start a new instance of BookingApp.
   </description>
   
+  <properties>
+    <!-- PROJECT PROPERTIES -->
+    <fatjar.name>${project.artifactId}-${project.version}-jar-with-dependencies</fatjar.name>
+
+    <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
+    <maven.shade.version>3.5.1</maven.shade.version>
+
+    <!-- VERSIONS FOR OTHER PLUGINS -->
+    <exec.version>3.1.0</exec.version>
+  </properties>
+  
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -84,32 +95,34 @@
   <build>
     <pluginManagement>
       <plugins>
+        <!-- ADDED MAVEN PLUGINS -->
         <plugin>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <!-- version taken from the bom -->
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${maven.shade.version}</version>
+          <configuration>
+            <finalName>${fatjar.name}</finalName>
+            <transformers>
+              <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                <mainClass>io.github.marcopaglio.booking.app.swing.BookingSwingApp</mainClass>
+              </transformer>
+            </transformers>
+            <createDependencyReducedPom>false</createDependencyReducedPom>
+          </configuration>
           <executions>
             <execution>
               <phase>package</phase>
               <goals>
-                <goal>single</goal>
+                <goal>shade</goal>
               </goals>
-              <configuration>
-                <descriptorRefs>
-                  <descriptorRef>jar-with-dependencies</descriptorRef>
-                </descriptorRefs>
-                <archive>
-                  <manifest>
-                    <mainClass>io.github.marcopaglio.booking.app.swing.BookingSwingApp</mainClass>
-                  </manifest>
-                </archive>
-              </configuration>
             </execution>
           </executions>
         </plugin>
+
+        <!-- OTHER PLUGINS -->
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>exec-maven-plugin</artifactId>
-          <!-- version taken from the parent -->
+          <version>${exec.version}</version>
           <executions>
             <execution>
               <id>run-jar-with-dependencies</id>
@@ -131,7 +144,6 @@
             </execution>
           </executions>
         </plugin>
-        
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
@@ -153,13 +165,13 @@
     
     <plugins>
       <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <!-- version taken from the bom -->
+        <artifactId>maven-shade-plugin</artifactId>
+        <!-- version taken from pluginManagement -->
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <!-- version taken from the parent -->
+        <!-- version taken from the pluginManagement -->
       </plugin>
       
       <plugin>
