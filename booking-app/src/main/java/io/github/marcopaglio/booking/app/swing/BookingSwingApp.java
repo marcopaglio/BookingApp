@@ -61,10 +61,10 @@ public class BookingSwingApp implements Callable<Void> {
 	private static final int STARTUP_FAILURE_STATUS = -1;
 
 	/**
-	 * Argument value for DBMS choice. By default {@code MONGO} is used.
+	 * Argument value for DBMS choice. By default {@code POSTGRES} is used.
 	 */
 	@Option(names = { "--dbms", "-dbms" }, description = "Name of the DBMS accepted: ${COMPLETION-CANDIDATES}")
-	private DBMS dbms = DBMS.MONGO;
+	private DBMS dbms = DBMS.POSTGRES;
 
 	/**
 	 * Argument value for host name choice. By default {@code localhost} is used.
@@ -73,10 +73,10 @@ public class BookingSwingApp implements Callable<Void> {
 	private String host = "localhost";
 
 	/**
-	 * Argument value for port number choice. By default {@code 27017} is used.
+	 * Argument value for port number choice. By default {@code 5432} is used.
 	 */
 	@Option(names = { "--port", "-port", "-p" }, description = "Port number of the database to connect to")
-	private int port = 27017;
+	private int port = 5432;
 
 	/**
 	 * Argument value for database name choice. By default {@code BookingApp_db} is used.
