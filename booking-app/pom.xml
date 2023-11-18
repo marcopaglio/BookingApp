@@ -197,6 +197,13 @@
 
     <profile>
       <id>docker</id>
+      <properties>
+        <database.name>BookingApp_db</database.name>
+        <database.username>postgres-user</database.username>
+        <database.password>postgres-pswd</database.password>
+        <mongo.hostname>mongodb</mongo.hostname>
+        <postgres.hostname>postgresql</postgres.hostname>
+      </properties>
       <build>
         <plugins>
           <plugin>
@@ -244,6 +251,7 @@
                   <goal>volume-remove</goal>
                 </goals>
                 <configuration>
+                  <autoCreateCustomNetworks>true</autoCreateCustomNetworks>
                   <volumes>
                     <volume>
                       <name>${mongo.conf.volume}</name>
@@ -258,7 +266,6 @@
                       <driver>local</driver>
                     </volume>
                   </volumes>
-                  <autoCreateCustomNetworks>true</autoCreateCustomNetworks>
                   <images>
                     <!-- docker-compose with mongo -->
                     <image>
@@ -279,14 +286,14 @@
                         </volumes>
                         <env>
                           <DBMS>MONGO</DBMS>
-                          <HOST>mongodb</HOST>
+                          <HOST>${mongo.hostname}</HOST>
                           <PORT>27017</PORT>
-                          <DB_NAME>BookingApp_db</DB_NAME>
+                          <DB_NAME>${database.name}</DB_NAME>
                           <DISPLAY>:0</DISPLAY>
                         </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
-                          <time>60000</time>
+                          <time>30000</time>
                         </wait>
                       </run>
                     </image>
@@ -297,7 +304,7 @@
                         <network>
                           <mode>custom</mode>
                           <name>booking-mongo-network</name>
-                          <alias>mongodb</alias>
+                          <alias>${mongo.hostname}</alias>
                         </network>
                         <volumes>
                           <bind>
@@ -341,16 +348,16 @@
                         </volumes>
                         <env>
                           <DBMS>POSTGRES</DBMS>
-                          <HOST>postgresql</HOST>
+                          <HOST>${postgres.hostname}</HOST>
                           <PORT>5432</PORT>
-                          <DB_NAME>BookingApp_db</DB_NAME>
-                          <USER>postgres-user</USER>
-                          <PSWD>postgres-pswd</PSWD>
+                          <DB_NAME>${database.name}</DB_NAME>
+                          <USER>${database.username}</USER>
+                          <PSWD>${database.password}</PSWD>
                           <DISPLAY>:0</DISPLAY>
                         </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
-                          <time>60000</time>
+                          <time>30000</time>
                         </wait>
                       </run>
                     </image>
@@ -361,7 +368,7 @@
                         <network>
                           <mode>custom</mode>
                           <name>booking-postgres-network</name>
-                          <alias>postgresql</alias>
+                          <alias>${postgres.hostname}</alias>
                         </network>
                         <volumes>
                           <bind>
@@ -373,9 +380,9 @@
                         </ports>
                         <cmd>postgres -c max_connections=221</cmd>
                         <env>
-                          <POSTGRES_DB>BookingApp_db</POSTGRES_DB>
-                          <POSTGRES_USER>postgres-user</POSTGRES_USER>
-                          <POSTGRES_PASSWORD>postgres-pswd</POSTGRES_PASSWORD>
+                          <POSTGRES_DB>${database.name}</POSTGRES_DB>
+                          <POSTGRES_USER>${database.username}</POSTGRES_USER>
+                          <POSTGRES_PASSWORD>${database.password}</POSTGRES_PASSWORD>
                         </env>
                         <wait>
                           <log>\[1\] LOG:  database system is ready to accept connections</log>
