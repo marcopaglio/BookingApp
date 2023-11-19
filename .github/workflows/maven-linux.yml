@@ -35,46 +35,10 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
         restore-keys: ${{ runner.os }}-m2-
 
+    - name: Display
+      run: echo $DISPLAY
+
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
       run: xvfb-run ../mvnw install -Pdocker
       working-directory: ${{ env.workdir }}
-
-    - name: Generate JUnit Report
-      id: test-report
-      if: ${{ failure() && steps.maven-build.conclusion != 'skipped' }}
-      run: ../mvnw surefire-report:report-only surefire-report:failsafe-report-only site:site -DgenerateReports=false -Daggregate=true
-      working-directory: ${{ env.workdir }}
-
-    - name: Archive JUnit Report
-      if: ${{ failure() && steps.test-report.outcome == 'success' }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: surefire-report-jdk-11
-        path: ${{ env.workdir }}/target/site/
-        if-no-files-found: error
-        retention-days: 30
-
-    - name: Archive failed GUI tests screenshots
-      if: ${{ failure() && steps.maven-build.conclusion != 'skipped' }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: failed-gui-tests-screenshots
-        path: '**/failed-gui-tests/'
-        if-no-files-found: ignore
-        retention-days: 30
-
-    - name: Generate Pitest Report
-      id: pitest-report
-      if: ${{ failure() && steps.maven-build.conclusion != 'skipped' }}
-      run: ../mvnw org.pitest:pitest-maven:report-aggregate-module
-      working-directory: ${{ env.workdir }}
-
-    - name: Archive Pitest Report
-      if: ${{ failure() && steps.pitest-report.outcome == 'success' }}
-      uses: actions/upload-artifact@v3
-      with:
-        name: pitest-report-jdk-11
-        path: '**/target/pit-reports/'
-        if-no-files-found: error
-        retention-days: 30

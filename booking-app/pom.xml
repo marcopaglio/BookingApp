@@ -59,6 +59,7 @@
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <!-- version taken from the bom -->
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>info.picocli</groupId>
@@ -294,6 +295,7 @@
                         <volumes>
                           <bind>
                             <volume>/run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix</volume>
+                            <volume>/tmp/.X11-unix:/tmp/.X11-unix</volume>
                           </bind>
                         </volumes>
                         <env>
@@ -301,6 +303,7 @@
                           <HOST>${mongo.hostname}</HOST>
                           <PORT>27017</PORT>
                           <DB_NAME>${database.name}</DB_NAME>
+                          <DISPLAY></DISPLAY>
                         </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
@@ -355,6 +358,7 @@
                         <volumes>
                           <bind>
                             <volume>/run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix</volume>
+                            <volume>/tmp/.X11-unix:/tmp/.X11-unix</volume>
                           </bind>
                         </volumes>
                         <env>
@@ -364,6 +368,7 @@
                           <DB_NAME>${database.name}</DB_NAME>
                           <USER>${database.username}</USER>
                           <PSWD>${database.password}</PSWD>
+                          <DISPLAY></DISPLAY>
                         </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
