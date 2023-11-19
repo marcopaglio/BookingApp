@@ -37,7 +37,7 @@ jobs:
 
     - name: Enable X
       run: |
-        apt-get install x11-xserver-utils
+        sudo apt-get install x11-xserver-utils
         xhost +
 
     - name: Build with Maven Wrapper and SonarCloud
