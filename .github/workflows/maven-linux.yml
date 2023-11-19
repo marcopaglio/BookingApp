@@ -37,7 +37,7 @@ jobs:
 
     - name: Enable X
       run: |
-        xvfb
+        Xvfb
         sudo apt-get install x11-xserver-utils
         xhost +
 
