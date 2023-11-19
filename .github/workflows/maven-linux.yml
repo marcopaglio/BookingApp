@@ -39,6 +39,8 @@ jobs:
       run: |
         Xvfb&
         export DISPLAY=:0
+        sudo apt-get install x11-xserver-utils
+        xhost +
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
