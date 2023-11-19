@@ -37,10 +37,11 @@ jobs:
 
     - name: Enable X
       run: |
+        xvfb-run
         sudo apt-get install x11-xserver-utils
         xhost +
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
-      run: xvfb-run ../mvnw install -Pdocker
+      run: ../mvnw install -Pdocker
       working-directory: ${{ env.workdir }}
