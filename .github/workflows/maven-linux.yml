@@ -40,7 +40,7 @@ jobs:
         Xvfb :0 -ac -screen 0 1024x768x24 &
         export DISPLAY=:0
         sudo apt-get install x11-xserver-utils
-        xhost +local:
+        xhost +
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
