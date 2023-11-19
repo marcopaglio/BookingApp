@@ -37,7 +37,7 @@ jobs:
 
     - name: Enable X
       run: |
-        XvfbXvfb :0 -ac &
+        Xvfb :0 -ac &
         export DISPLAY=:0
 
     - name: Build with Maven Wrapper and SonarCloud
