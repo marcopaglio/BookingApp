@@ -36,7 +36,10 @@ jobs:
         restore-keys: ${{ runner.os }}-m2-
 
     - name: Display
-      run: echo $DISPLAY
+      run: echo "$GITHUB_CONTEXT"
+
+    - name: Enable X
+      run: xhost +
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
