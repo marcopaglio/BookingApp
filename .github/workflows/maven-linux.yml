@@ -44,5 +44,5 @@ jobs:
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
-      run: xvfb-run --server-args=":0 -ac -screen 0 1024x768x24" ../mvnw install -Pdocker
+      run: ../mvnw install -Pdocker
       working-directory: ${{ env.workdir }}
