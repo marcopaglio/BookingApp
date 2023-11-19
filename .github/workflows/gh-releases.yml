@@ -43,7 +43,7 @@ jobs:
         restore-keys:  ${{ runner.os }}-m2-
 
     - name: Build with Maven Wrapper
-      run: xvfb-run ../mvnw install -Ppitest
+      run: xvfb-run ../mvnw install -Ppitest,docker
       working-directory: ${{ env.workdir }}
 
     - name: Archive FatJar

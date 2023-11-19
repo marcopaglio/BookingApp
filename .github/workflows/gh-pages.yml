@@ -47,7 +47,7 @@ jobs:
         restore-keys:  ${{ runner.os }}-m2-
 
     - name: Build with Maven Wrapper
-      run: xvfb-run ../mvnw verify site site:stage -Ppitest
+      run: xvfb-run ../mvnw verify site site:stage -Ppitest,docker
       working-directory: ${{ env.workdir }}
 
     - name: Configure GitHub Pages

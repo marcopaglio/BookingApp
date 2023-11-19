@@ -37,7 +37,7 @@ jobs:
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
-      run: xvfb-run ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Ppitest -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER
+      run: xvfb-run ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Ppitest -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER -Pdocker
       working-directory: ${{ env.workdir }}
       env:
         ADDITIONAL_COVERALLS_ARGS: -DrepoToken=${{ secrets.COVERALLS_TOKEN }}
