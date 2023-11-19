@@ -57,8 +57,10 @@ public class BookingSwingApp implements Callable<Void> {
 
 	/**
 	 * Status exit code indicating startup failure.
+	 * Exit codes must be in the range [0;255] to work the same across all operating systems;
+	 * otherwise some operating systems, such as Unix, may convert them with the 256 module.
 	 */
-	private static final int STARTUP_FAILURE_STATUS = -1;
+	private static final int STARTUP_FAILURE_STATUS = 255;
 
 	/**
 	 * Argument value for DBMS choice. By default {@code POSTGRES} is used.

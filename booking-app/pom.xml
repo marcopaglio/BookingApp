@@ -137,8 +137,8 @@
                   <argument>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</argument>
                 </arguments>
                 <successCodes>
-                  <!-- Execution not include server, so startup will have to fail with exiting code -1 -->
-                  <successCode>-1</successCode>
+                  <!-- Execution not include server, so startup will have to fail with exiting code 255 -->
+                  <successCode>255</successCode>
                 </successCodes>
               </configuration>
             </execution>
