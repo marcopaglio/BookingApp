@@ -36,11 +36,9 @@ jobs:
         restore-keys: ${{ runner.os }}-m2-
 
     - name: Enable X
-      run: |
-        Xvfb :0 -ac &
-        export DISPLAY=:0
+      run: export DISPLAY=:0
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
-      run: xvfb-run ../mvnw install -Pdocker
+      run: xvfb-run --server-args=":0 -ac -screen 0 1024x768x24" ../mvnw install -Pdocker
       working-directory: ${{ env.workdir }}
