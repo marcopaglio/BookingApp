@@ -37,5 +37,5 @@ jobs:
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
-      run: xvfb-run ../mvnw install -Pdocker -Djava.awt.headless=true
+      run: xvfb-run ../mvnw install -Pdocker
       working-directory: ${{ env.workdir }}
