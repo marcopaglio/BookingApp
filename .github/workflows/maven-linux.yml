@@ -35,6 +35,14 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
         restore-keys: ${{ runner.os }}-m2-
 
+    - name: Enable X
+      run: |
+        ipconfig
+        Xvfb :0 -ac -screen 0 1024x768x24 &
+        export DISPLAY=:0
+        sudo apt-get install x11-xserver-utils
+        xhost +
+
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
       run: xvfb-run ../mvnw install -Pdocker
