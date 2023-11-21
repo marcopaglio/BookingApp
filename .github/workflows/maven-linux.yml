@@ -35,8 +35,16 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
         restore-keys: ${{ runner.os }}-m2-
 
-    - name: Run headless test
-      uses: coactions/setup-xvfb@v1
-      with:
-        run: ../mvnw install -Pdocker
-        working-directory: ${{ env.workdir }}
+    - name: Enable X
+      run: |
+        hostname -I
+        ifconfig
+        Xvfb :0 -ac -screen 0 1024x768x24 &
+        export DISPLAY=:0
+        sudo apt-get install x11-xserver-utils
+        xhost +
+
+    - name: Build with Maven Wrapper and SonarCloud
+      id: maven-build
+      run: xvfb-run ../mvnw install -Pdocker
+      working-directory: ${{ env.workdir }}
