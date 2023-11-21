@@ -37,8 +37,6 @@ jobs:
 
     - name: Enable X
       run: |
-        Xvfb :0 -ac -screen 0 1024x768x24 &
-        export DISPLAY=:0
         sudo apt-get install x11-xserver-utils
         xhost +
 # se xhost non fa è perchè non è settato DISPLAY. se DISPLAY è impostato con un valore che non è un display allora xhost non fa
