@@ -301,7 +301,7 @@
                           <HOST>${mongo.hostname}</HOST>
                           <PORT>27017</PORT>
                           <DB_NAME>${database.name}</DB_NAME>
-                          <DISPLAY>172.17.0.1:0</DISPLAY> <!-- ${docker.host.address}-->
+                          <DISPLAY>10.1.0.5:0</DISPLAY> <!-- ${docker.host.address} 172.17.0.1-->
                         </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
@@ -365,7 +365,7 @@
                           <DB_NAME>${database.name}</DB_NAME>
                           <USER>${database.username}</USER>
                           <PSWD>${database.password}</PSWD>
-                          <DISPLAY>172.17.0.1:0</DISPLAY>
+                          <DISPLAY>10.1.0.5:0</DISPLAY>
                         </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
