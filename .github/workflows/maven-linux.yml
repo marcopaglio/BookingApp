@@ -39,8 +39,8 @@ jobs:
       run: |
         hostname -I
         ifconfig
-        Xvfb :10.0 -ac -screen 0 1024x768x24 &
-        export DISPLAY=:10.0
+        Xvfb :0 -ac -screen 0 1024x768x24 &
+        export DISPLAY=:0
         sudo apt-get install x11-xserver-utils
         xhost +
 
