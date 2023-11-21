@@ -2,6 +2,7 @@
 name: Java CI with Maven in MacOS
 
 on:
+  push:
   pull_request:
     branches: [ "main" ]
 
@@ -31,8 +32,9 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
         restore-keys: ${{ runner.os }}-m2-
 
-    - name: Enable X
+    - name: Install X11 dependencies
       run: |
+        brew install --cask xquartz
         export DISPLAY=:0
         xhost +
 
