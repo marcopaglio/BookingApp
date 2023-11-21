@@ -37,9 +37,10 @@ jobs:
 
     - name: Enable X
       run: |
+        hostname -I
         ifconfig
-        Xvfb :0 -ac -screen 0 1024x768x24 &
-        export DISPLAY=:0
+        Xvfb 172.17.0.1:0 -ac -screen 0 1024x768x24 &
+        export DISPLAY=172.17.0.1:0
         sudo apt-get install x11-xserver-utils
         xhost +
 
