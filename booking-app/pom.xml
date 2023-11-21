@@ -317,7 +317,7 @@
                           <HOST>${mongo.hostname}</HOST>
                           <PORT>27017</PORT>
                           <DB_NAME>${database.name}</DB_NAME>
-                          <DISPLAY>${docker.host.address}:0.0</DISPLAY> <!-- ${docker.host.address} 172.17.0.1 127.0.0.1 ${local.ip}-->
+                          <DISPLAY>:0</DISPLAY> <!-- va bene anche :0.0 --><!-- Non vanno bene: ${docker.host.address} 172.17.0.1 127.0.0.1 ${local.ip}-->
                         </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
@@ -381,7 +381,7 @@
                           <DB_NAME>${database.name}</DB_NAME>
                           <USER>${database.username}</USER>
                           <PSWD>${database.password}</PSWD>
-                          <DISPLAY>${docker.host.address}:0.0</DISPLAY>
+                          <DISPLAY>:0</DISPLAY>
                         </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
