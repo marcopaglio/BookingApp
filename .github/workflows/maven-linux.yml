@@ -39,12 +39,6 @@ jobs:
       run: |
         hostname -I
         ifconfig
-        sudo apt-get install x11-xserver-utils
-        export DISPLAY=:0
-        xhost +
+        set
 # se xhost non fa è perchè non è settato DISPLAY. se DISPLAY è impostato con un valore che non è un display allora xhost non fa
-
-    - name: Build with Maven Wrapper and SonarCloud
-      id: maven-build
-      run: xvfb-run ../mvnw install -Pdocker
-      working-directory: ${{ env.workdir }}
+# export serve per impostare var env per linux
