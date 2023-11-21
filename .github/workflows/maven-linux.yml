@@ -34,11 +34,10 @@ jobs:
           ~/.sonar/cache
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
         restore-keys: ${{ runner.os }}-m2-
-
-    - name: Enable X
-      run: |
-        hostname -I
-        ifconfig
-        set
 # se xhost non fa è perchè non è settato DISPLAY. se DISPLAY è impostato con un valore che non è un display allora xhost non fa
 # export serve per impostare var env per linux
+
+    - name: Build with Maven Wrapper and SonarCloud
+      id: maven-build
+      run: xvfb-run ../mvnw install -Pdocker
+      working-directory: ${{ env.workdir }}
