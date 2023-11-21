@@ -2,7 +2,6 @@
 name: Java CI with Maven and SonarCloud in Linux
 
 on:
-  push:
   pull_request:
     branches: [ "main" ]
 
@@ -43,6 +42,8 @@ jobs:
         export DISPLAY=:0
         sudo apt-get install x11-xserver-utils
         xhost +
+# se xhost non fa è perchè non è settato DISPLAY. se DISPLAY è impostato con un valore che non è un display allora xhost non fa
+
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
       run: xvfb-run ../mvnw install -Pdocker

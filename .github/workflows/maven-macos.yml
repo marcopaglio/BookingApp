@@ -2,6 +2,7 @@
 name: Java CI with Maven in MacOS
 
 on:
+  push:
   pull_request:
     branches: [ "main" ]
 
@@ -30,9 +31,6 @@ jobs:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
         restore-keys: ${{ runner.os }}-m2-
-
-    - name: Display
-      run: echo $DISPLAY
 
     - name: Build with Maven Wrapper
       id: maven-build
