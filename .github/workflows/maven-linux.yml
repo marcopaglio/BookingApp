@@ -37,6 +37,7 @@ jobs:
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
-      # default --server-num=99 (or -n 99)
-      run: xvfb-run --listen-tcp ../mvnw install -Pdocker
+      run: xvfb-run --server-num=0 --server-args="-ac" ../mvnw install -Pdocker
+      # --server-num=99 (or -n 99) as default
+      # --server-args="-ac" (or -s "-ac") needed for allowing access of Xvfb from docker containers
       working-directory: ${{ env.workdir }}
