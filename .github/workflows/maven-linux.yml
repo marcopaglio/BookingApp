@@ -39,13 +39,14 @@ jobs:
       run: |
         hostname -I
         ifconfig
-        Xvfb :99 -screen 0 1024x768x24 &
-#        export DISPLAY=:99
+        export DISPLAY=:0
+        sudo apt-get install x11-xserver-utils
+        xhost +
 # se xhost non fa è perchè non è settato DISPLAY. se DISPLAY è impostato con un valore che non è un display allora xhost non fa
 # export serve per impostare var env per linux
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
       # default --server-num=99 (or -n 99)
-      run: ../mvnw install -Pdocker
+      run: xvfb-run --server-num=0 ../mvnw install -Pdocker
       working-directory: ${{ env.workdir }}
