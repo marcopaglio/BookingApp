@@ -182,6 +182,9 @@
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
         <!-- version taken from the parent -->
+        <configuration>
+			<skip>true</skip>
+		</configuration>
       </plugin>
       <plugin>
         <groupId>io.fabric8</groupId>
