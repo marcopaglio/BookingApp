@@ -16,6 +16,7 @@
   <properties>
     <!-- PROJECT PROPERTIES -->
     <fatjar.name>${project.artifactId}-${project.version}-jar-with-dependencies</fatjar.name>
+    <xserver.socket.location>/tmp/.X11-unix</xserver.socket.location>
 
     <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
     <maven.shade.version>3.5.1</maven.shade.version>
@@ -293,7 +294,7 @@
                         </network>
                         <volumes>
                           <bind>
-                            <volume>/run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix</volume>
+                            <volume>${xserver.socket.location}:/tmp/.X11-unix</volume>
                           </bind>
                         </volumes>
                         <env>
@@ -355,7 +356,7 @@
                         </network>
                         <volumes>
                           <bind>
-                            <volume>/run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix</volume>
+                            <volume>${xserver.socket.location}:/tmp/.X11-unix</volume>
                           </bind>
                         </volumes>
                         <env>
@@ -409,6 +410,18 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <profile>
+      <!-- Profile used to properly set X11 socket location when Docker WSLg is used -->
+      <activation>
+        <file>
+          <exists>\\wsl.localhost\docker-desktop\mnt\host\wslg\.X11-unix\X0</exists>
+        </file>
+      </activation>
+      <properties>
+        <xserver.socket.location>/run/desktop/mnt/host/wslg/.X11-unix/</xserver.socket.location>
+      </properties>
     </profile>
   </profiles>
 </project>

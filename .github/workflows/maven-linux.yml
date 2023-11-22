@@ -37,9 +37,14 @@ jobs:
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
-      run: xvfb-run ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Ppitest -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER -Pdocker
+      # --server-num=99 (or -n 99) as default
+      # --server-args="-ac" (or -s "-ac") needed for allowing access of Xvfb from docker containers
+      run: xvfb-run $ADDITIONAL_XVFB_ARGS ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Ppitest -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER -Pdocker
       working-directory: ${{ env.workdir }}
       env:
+        ADDITIONAL_XVFB_ARGS: --server-num=0 --server-args="-ac"
+        # default server number: 99
+        # -ac needed for allowing access of Xvfb from docker containers
         ADDITIONAL_COVERALLS_ARGS: -DrepoToken=${{ secrets.COVERALLS_TOKEN }}
         ADDITIONAL_SONAR_ARGS: -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=marcopaglio -Dsonar.projectKey=marcopaglio_BookingApp
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
