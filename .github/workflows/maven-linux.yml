@@ -39,11 +39,12 @@ jobs:
       run: |
         Xvfb :99 -ac -screen 0 1024x768x24 &
         export DISPLAY=:99
+        echo "display=:99" >> "$GITHUB_ENV"
       working-directory: ${{ env.workdir }}
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
-      run: ../mvnw install -Pdocker -Ddisplay="$DISPLAY"
+      run: ../mvnw install -Pdocker -Ddisplay="$display"
       # --server-num=99 (or -n 99) as default
       # --server-args="-ac" (or -s "-ac") needed for allowing access of Xvfb from docker containers
       working-directory: ${{ env.workdir }}
