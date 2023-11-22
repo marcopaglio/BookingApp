@@ -49,5 +49,5 @@ jobs:
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
       # default --server-num=99 (or -n 99)
-      run: xvfb-run ../mvnw install -Pdocker
+      run: ../mvnw install -Pdocker
       working-directory: ${{ env.workdir }}
