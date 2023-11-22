@@ -2,6 +2,7 @@
 name: Java CI with Maven and SonarCloud in Linux
 
 on:
+  push:
   pull_request:
     branches: [ "main" ]
 
@@ -34,12 +35,15 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
         restore-keys: ${{ runner.os }}-m2-
 
-    - name: Build with Maven Wrapper and SonarCloud
-      id: maven-build
+    - name: Enable X
       run: |
         Xvfb :99 -ac -screen 0 1024x768x24 &
         export DISPLAY=:99
-        ../mvnw install -Pdocker -Ddisplay=$DISPLAY
+      working-directory: ${{ env.workdir }}
+
+    - name: Build with Maven Wrapper and SonarCloud
+      id: maven-build
+      run: ../mvnw install -Pdocker -Ddisplay=$DISPLAY
       # --server-num=99 (or -n 99) as default
       # --server-args="-ac" (or -s "-ac") needed for allowing access of Xvfb from docker containers
       working-directory: ${{ env.workdir }}
