@@ -16,6 +16,7 @@
   <properties>
     <!-- PROJECT PROPERTIES -->
     <fatjar.name>${project.artifactId}-${project.version}-jar-with-dependencies</fatjar.name>
+    <display.host.port>:0</display.host.port>
 
     <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
     <maven.shade.version>3.5.1</maven.shade.version>
@@ -317,7 +318,7 @@
                           <HOST>${mongo.hostname}</HOST>
                           <PORT>27017</PORT>
                           <DB_NAME>${database.name}</DB_NAME>
-                          <DISPLAY>:0</DISPLAY> <!-- va bene anche :0.0 --><!-- Non vanno bene: ${docker.host.address} 172.17.0.1 127.0.0.1 ${local.ip}-->
+                          <DISPLAY>${display.host.port}</DISPLAY> <!-- va bene anche :0.0 --><!-- Non vanno bene: ${docker.host.address} 172.17.0.1 127.0.0.1 ${local.ip}-->
                         </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
@@ -381,7 +382,7 @@
                           <DB_NAME>${database.name}</DB_NAME>
                           <USER>${database.username}</USER>
                           <PSWD>${database.password}</PSWD>
-                          <DISPLAY>:0</DISPLAY>
+                          <DISPLAY>${display.host.port}</DISPLAY>
                         </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
@@ -426,5 +427,16 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+		<activation>
+			<property>
+				<name>display</name>
+			</property>
+		</activation>
+		<properties>
+			<display.host.port>${display}</display.host.port>
+		</properties>
+	</profile>
   </profiles>
 </project>
