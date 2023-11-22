@@ -2,6 +2,7 @@
 name: Java CI with Maven in MacOS
 
 on:
+  push:
   pull_request:
     branches: [ "main" ]
 
@@ -35,10 +36,19 @@ jobs:
       run: |
         printenv
         brew install --cask xquartz
-        export DISPLAY=:0
-        /opt/X11/bin/xhost +
+        ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
+        display_number=`ps -ef | grep "Xquartz :\d" | grep -v xinit | awk '{ print $9; }'`
+        export DISPLAY=$ip:$display_number
+        /opt/X11/bin/xhost + $ip
 
     - name: Build with Maven Wrapper
       id: maven-build
-      run: ../mvnw install -Pdocker
+      run: |
+        ifconfig
+        brew install --cask xquartz
+        ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
+        display_number=`ps -ef | grep "Xquartz :\d" | grep -v xinit | awk '{ print $9; }'`
+        export DISPLAY=$ip:$display_number
+        /opt/X11/bin/xhost + $ip
+        ../mvnw install -Pdocker -Ddisplay=$DISPLAY
       working-directory: ${{ env.workdir }}
