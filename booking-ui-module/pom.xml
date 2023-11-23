@@ -144,13 +144,6 @@
 		</configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <!-- version taken from the parent -->
-        <configuration>
-			<skip>true</skip>
-		</configuration>
-      </plugin>
-      <plugin>
         <groupId>io.fabric8</groupId>
         <artifactId>docker-maven-plugin</artifactId>
         <!-- version taken from the parent -->
