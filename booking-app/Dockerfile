@@ -2,7 +2,8 @@ FROM eclipse-temurin:11
 
 ARG jarToCopy
 
-ENV DISPLAY=docker.for.mac.host.internal:0
+#ENV DISPLAY=host.docker.internal:0.0 #Windwos
+#ENV DISPLAY=docker.for.mac.host.internal:0 #Macos
 
 COPY /target/$jarToCopy /app/app.jar
 
