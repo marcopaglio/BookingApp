@@ -48,7 +48,7 @@ jobs:
     - name: Build with Maven Wrapper
       id: maven-build
       run: |
-        export DISPLAY=:0
+        export DISPLAY=:99
         ../mvnw test -Pskip-testcontainers
       working-directory: ${{ env.workdir }}
 #    - name: Build with Maven Wrapper
