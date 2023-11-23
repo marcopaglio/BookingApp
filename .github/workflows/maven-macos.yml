@@ -22,19 +22,10 @@ jobs:
         distribution: 'temurin'
         java-version: '11'
 
-    - name: Install Docker
-      uses: docker-practice/actions-setup-docker@master
-
-    - name: Cache Maven packages
-      uses: actions/cache@v3
-      with:
-        path: ~/.m2
-        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
-        restore-keys: ${{ runner.os }}-m2-
-
     - name: Install X11 dependencies
       run: |
         brew install --cask xquartz
+        sudo shutdown -r now
         open -a XQuartz
         ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
         /opt/X11/bin/xhost +$ip
@@ -44,6 +35,16 @@ jobs:
 #        display_number=$(ps -ef | grep "Xquartz :\d" | grep -v xinit | awk '{ print $9; }')
 #        export DISPLAY=$ip:$display_number
 #        echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
+
+    - name: Install Docker
+      uses: docker-practice/actions-setup-docker@master
+
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
+        restore-keys: ${{ runner.os }}-m2-
 
     - name: Build with Maven Wrapper
       id: maven-build
