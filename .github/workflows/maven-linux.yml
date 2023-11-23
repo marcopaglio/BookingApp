@@ -41,7 +41,6 @@ jobs:
         export DISPLAY=:99
         printenv
         echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
-      working-directory: ${{ env.workdir }}
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
