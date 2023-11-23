@@ -2,6 +2,8 @@ FROM eclipse-temurin:11
 
 ARG jarToCopy
 
+ENV DISPLAY=docker.for.mac.host.internal:0
+
 COPY /target/$jarToCopy /app/app.jar
 
 RUN apt-get update
