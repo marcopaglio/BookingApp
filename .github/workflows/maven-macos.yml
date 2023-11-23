@@ -25,7 +25,7 @@ jobs:
     - name: Install X11 dependencies
       run: |
         brew install --cask xquartz
-        sudo shutdown -r now
+        sudo launchctl bootout
         open -a XQuartz
         ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
         /opt/X11/bin/xhost +$ip
