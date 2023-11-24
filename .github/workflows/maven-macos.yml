@@ -28,7 +28,11 @@ jobs:
         brew install xorg-server
         type -a Xvfb
         sudo /usr/local/bin/Xvfb :99 -ac -screen 0 1024x768x24 &
-        export DISPLAY=:99
+        ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
+        display_number=$(ps -ef | grep "Xquartz :\d" | grep -v xinit | awk '{ print $9; }')
+        export DISPLAY=$ip:$display_number
+        /opt/X11/bin/xhost +$ip
+        type -a xhost
         echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
 #        plutil -p ~/Library/Preferences/com.apple.spaces.plist
 #        brew install --cask xquartz
