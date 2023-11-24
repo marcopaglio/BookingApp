@@ -31,7 +31,7 @@ jobs:
         chmod +X /tmp/.X11-unix
         chown root /tmp/.X11-unix/
         /usr/local/bin/Xvfb :1 -ac -screen 0 1024x768x24 &
-        cat /tmp/.X11-unix/
+        ls /tmp/.X11-unix/
         export DISPLAY=:1
         /usr/X11/bin/xhost +
         echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
