@@ -24,10 +24,10 @@ jobs:
 
     - name: Install X11 dependencies
       run: |
-        brew install xinit
-        brew install xorg-server
+        sudo brew install xinit
+        sudo brew install xorg-server
         type -a Xvfb
-        /usr/local/bin/Xvfb :99 -ac -screen 0 1024x768x24 &
+        sudo /usr/local/bin/Xvfb :99 -ac -screen 0 1024x768x24 &
         export DISPLAY=:99
         echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
 #        plutil -p ~/Library/Preferences/com.apple.spaces.plist
