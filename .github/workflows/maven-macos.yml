@@ -26,10 +26,15 @@ jobs:
       run: |
          brew install xinit
          brew install xorg-server
-         export DISPLAY=:1
-         startx /usr/local/bin/Xvfb :1 -ac -screen 0 1024x768x24 &
-         echo "After startx: "
+         mkdir /tmp/.X11-unix
+         sudo chmod 1777 /tmp/.X11-unix
+         sudo chown root /tmp/.X11-unix/
+         echo "After mkdir: "
          ls /tmp/.X11-unix/
+         sudo /usr/local/bin/Xvfb :1 -ac −fbdir /tmp/.X11-unix/ -screen 0 1024x768x24 -displayfd /tmp/.X11-unix/ &
+         echo "After Xvfb: "
+         ls /tmp/.X11-unix/
+         export DISPLAY=:1
          echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
 #        brew install xinit
 #        brew install xorg-server
