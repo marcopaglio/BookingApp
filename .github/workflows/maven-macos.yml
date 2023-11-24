@@ -31,7 +31,7 @@ jobs:
          sudo chown root /tmp/.X11-unix/
          echo "After mkdir: "
          ls /tmp/.X11-unix/
-         sudo /usr/local/bin/Xvfb :1 -ac −fbdir /tmp/.X11-unix/ -screen 0 1024x768x24 -displayfd /tmp/.X11-unix/ &
+         sudo /usr/local/bin/Xvfb :1 -ac -screen 0 1024x768x24 -displayfd /tmp/.X11-unix/ &
          echo "After Xvfb: "
          ls /tmp/.X11-unix/
          export DISPLAY=:1
