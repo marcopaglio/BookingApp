@@ -27,6 +27,7 @@ jobs:
         brew install xinit
         brew install xorg-server
         brew install --cask xquartz
+        open -a XQuartz
         sudo /usr/local/bin/Xvfb :99 -ac -screen 0 1024x768x24 &
         export DISPLAY=:99
         /usr/X11/bin/xhost +
