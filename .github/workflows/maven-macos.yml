@@ -29,7 +29,7 @@ jobs:
         brew install --cask xquartz
         sudo /usr/local/bin/Xvfb :99 -ac -screen 0 1024x768x24 &
         export DISPLAY=:99
-        /opt/X11/bin/xhost +
+        /usr/X11/bin/xhost +
         echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
 #        plutil -p ~/Library/Preferences/com.apple.spaces.plist
 #        brew install --cask xquartz
