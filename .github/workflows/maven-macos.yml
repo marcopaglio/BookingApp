@@ -24,6 +24,8 @@ jobs:
 
     - name: Install X11 dependencies
       run: |
+        which Xvfb
+        where Xvfb
         /opt/X11/bin/Xvfb :99 -ac -screen 0 1024x768x24 &
         export DISPLAY=:99
         echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
