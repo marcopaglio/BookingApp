@@ -30,6 +30,7 @@ jobs:
         open -a XQuartz
         chmod +X /tmp/.X11-unix
         chown root /tmp/.X11-unix/
+        ls /tmp/.X11-unix/
         /usr/local/bin/Xvfb :1 -ac -screen 0 1024x768x24 &
         ls /tmp/.X11-unix/
         export DISPLAY=:1
