@@ -28,9 +28,9 @@ jobs:
         brew install xorg-server
         brew install --cask xquartz
         open -a XQuartz
-        type -a xvfb-run
-        type -a Xvfb
-        sudo /usr/X11/bin/Xvfb :99 -ac -screen 0 1024x768x24 &
+        cat /opt/X11/lib/X11/xinit/privileged_startx.d/10-tmpdirs
+        chmod +X /tmp/.X11-unix
+        /usr/local/bin/Xvfb :99 -ac -screen 0 1024x768x24 &
         export DISPLAY=:99
         /usr/X11/bin/xhost +
         echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
