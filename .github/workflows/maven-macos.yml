@@ -26,15 +26,21 @@ jobs:
       run: |
         brew install xinit
         brew install xorg-server
+        echo "Before installing XQuartz: "
         ls /tmp/.X11-unix/
         brew install --cask xquartz
         open -a XQuartz
         sudo chmod 1777 /tmp/.X11-unix
         sudo chown root /tmp/.X11-unix/
+        echo "Before running Xvfb: "
+        ls /tmp/.X11-unix/
         sudo /usr/local/bin/Xvfb :1 -ac -screen 0 1024x768x24 &
+        echo "After Xvfb: "
         ls /tmp/.X11-unix/
         export DISPLAY=:1
         /usr/X11/bin/xhost +
+        echo "After XHost: "
+        ls /tmp/.X11-unix/
         echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
 #        plutil -p ~/Library/Preferences/com.apple.spaces.plist
 #        brew install --cask xquartz
