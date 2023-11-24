@@ -24,7 +24,32 @@ jobs:
 
     - name: Install X11 dependencies
       run: |
-        type -a printf
-        type -a Xvfb
-        type -a xvfb-run
-        type -a libx11
+        brew install xorg-server
+        /opt/X11/bin/Xvfb :99 -ac -screen 0 1024x768x24 &
+        export DISPLAY=:99
+        echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
+#        plutil -p ~/Library/Preferences/com.apple.spaces.plist
+#        brew install --cask xquartz
+#        sudo shutdown -r now
+#        open -a XQuartz
+#        plutil -p ~/Library/Preferences/org.macosforge.xquartz.X11.plist
+#        ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
+#        display_number=$(ps -ef | grep "Xquartz :\d" | grep -v xinit | awk '{ print $9; }')
+#        export DISPLAY=$ip:$display_number
+#        /opt/X11/bin/xhost +$ip
+#        echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
+
+    - name: Install Docker
+      uses: docker-practice/actions-setup-docker@master
+
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
+        restore-keys: ${{ runner.os }}-m2-
+
+    - name: Build with Maven Wrapper
+      id: maven-build
+      run: ../mvnw install -Pdocker -Ddisplay=$DISPLAY
+      working-directory: ${{ env.workdir }}
