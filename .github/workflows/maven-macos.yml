@@ -28,7 +28,7 @@ jobs:
         brew install xorg-server
         brew install --cask xquartz
         open -a XQuartz
-        chmod +X tmp/.X11-unix
+        chmod +X /tmp/.X11-unix
         chown root /tmp/.X11-unix/
         /usr/local/bin/Xvfb :99 -ac -screen 0 1024x768x24 &
         export DISPLAY=:99
