@@ -27,9 +27,8 @@ jobs:
         brew install xinit
         brew install xorg-server
         brew install --cask xquartz
-        ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
         sudo /usr/local/bin/Xvfb :99 -ac -screen 0 1024x768x24 &
-        export DISPLAY=$ip:99
+        export DISPLAY=:99
         /opt/X11/bin/xhost +$ip
         echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
 #        plutil -p ~/Library/Preferences/com.apple.spaces.plist
