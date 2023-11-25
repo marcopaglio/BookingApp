@@ -60,5 +60,10 @@
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/docker-compose-postgres.yml</locationURI>
 		</link>
+		<link>
+			<name>execute-on-vnc.sh</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/execute-on-vnc.sh</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>

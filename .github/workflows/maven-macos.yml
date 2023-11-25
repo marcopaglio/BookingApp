@@ -22,14 +22,10 @@ jobs:
         distribution: 'temurin'
         java-version: '11'
 
-    - name: Install X11 dependencies
-      run: |
-        aria2c https://github.com/macports/macports-base/releases/download/v2.7.1/MacPorts-2.7.1-12-Monterey.pkg
-        sudo installer -pkg MacPorts-2.7.1-12-Monterey.pkg -target /
-        sudo /opt/local/bin/port install xorg-server
-        type -a Xvfb
-        echo "After xorg: "
-        ls /tmp/.X11-unix/
+#    - name: Install X11 dependencies
+#      run: |
+#        brew install x11vnc
+        
 #         brew install xinit
 #         brew install xorg-server
 #         mkdir /tmp/.X11-unix
@@ -72,6 +68,11 @@ jobs:
 #        export DISPLAY=$ip:$display_number
 #        /opt/X11/bin/xhost +$ip
 #        echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
+    - name: Install vncserver
+      run: |
+        brew install x11vnc
+        brew install --cask vnc-server
+        brew install blackbox
 
     - name: Install Docker
       uses: docker-practice/actions-setup-docker@master
@@ -85,5 +86,7 @@ jobs:
 
     - name: Build with Maven Wrapper
       id: maven-build
-      run: ../mvnw install -Pdocker -Ddisplay=$DISPLAY
+      run: |
+        chmod +x ../execute-on-vnc.sh
+        ../execute-on-vnc.sh ../mvnw install -Pdocker
       working-directory: ${{ env.workdir }}
