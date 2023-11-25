@@ -71,11 +71,8 @@ jobs:
     - name: Install vncserver
       run: |
         brew install x11vnc
-        brew install blackbox
-        type -a blackbox
         type -a x11vnc
-        type -a vncpasswd
-        type -a vncserver
+        x11vnc -display :0 -noxrecord -noxfixes -noxdamage -forever -passwd 123456
 
     - name: Install Docker
       uses: docker-practice/actions-setup-docker@master
@@ -91,5 +88,5 @@ jobs:
       id: maven-build
       run: |
         chmod +x ../execute-on-vnc.sh
-        ../execute-on-vnc.sh ../mvnw install -Pdocker
+        ../execute-on-vnc.sh ../mvnw install -Pdocker -Ddisplay=:0
       working-directory: ${{ env.workdir }}
