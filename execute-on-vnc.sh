@@ -1,9 +1,3 @@
-# Configure VNC password otherwise doesn't access correctly the graphical environment
-umask 0077
-mkdir -p "$HOME/.vnc"
-chmod go-rwx "$HOME/.vnc"
-vncpasswd -f <<<"just-a-pw" >"$HOME/.vnc/passwd"
-
 #/bin/bash
 NEW_DISPLAY=42
 DONE="no"
@@ -24,13 +18,11 @@ done
 echo "Using first available display :${NEW_DISPLAY}"
 
 OLD_DISPLAY=${DISPLAY}
-vncserver ":${NEW_DISPLAY}" -localhost -geometry 1600x1200 -depth 16
+x11vnc -display :${NEW_DISPLAY} -noxrecord -noxfixes -noxdamage -forever -passwd 123456 &
 export DISPLAY=:${NEW_DISPLAY}
-
-# Start WM
-blackbox &
 
 "$@"
 EXIT_CODE=$?
+
 export DISPLAY=${OLD_DISPLAY}
-vncserver -kill ":${NEW_DISPLAY}"
+x11vnc -R stop

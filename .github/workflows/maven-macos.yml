@@ -71,8 +71,8 @@ jobs:
     - name: Install vncserver
       run: |
         brew install x11vnc
-        type -a x11vnc
-        x11vnc -display :0 -noxrecord -noxfixes -noxdamage -forever -passwd 123456 &
+#        type -a x11vnc
+#        x11vnc -display :0 -noxrecord -noxfixes -noxdamage -forever -passwd 123456 &
 
     - name: Install Docker
       uses: docker-practice/actions-setup-docker@master
@@ -88,5 +88,5 @@ jobs:
       id: maven-build
       run: |
         chmod +x ../execute-on-vnc.sh
-        ../execute-on-vnc.sh ../mvnw install -Pdocker -Ddisplay=:0
+        ../execute-on-vnc.sh ../mvnw install -Pdocker -Ddisplay=:42
       working-directory: ${{ env.workdir }}
