@@ -70,9 +70,9 @@ jobs:
 #        echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
     - name: Install vncserver
       run: |
-        brew install x11vnc
-        type -a x11vnc
-        x11vnc -display :0 -noxfixes -passwd 123456
+        brew install --cask vnc-server
+        type -a vncserver-root
+        /Library/vnc/vncserver-root
 
     - name: Install Docker
       uses: docker-practice/actions-setup-docker@master
