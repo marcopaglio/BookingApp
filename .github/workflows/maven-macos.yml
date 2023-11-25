@@ -68,13 +68,12 @@ jobs:
 #        export DISPLAY=$ip:$display_number
 #        /opt/X11/bin/xhost +$ip
 #        echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
-    - name: Install vncserver with macports
+    - name: Install vncserver
       run: |
-        aria2c https://github.com/macports/macports-base/releases/download/v2.7.1/MacPorts-2.7.1-12-Monterey.pkg
-        sudo installer -pkg MacPorts-2.7.1-12-Monterey.pkg -target /
-        sudo /opt/local/bin/port install tightvnc
-        sudo /opt/local/bin/port install blackbox
+        brew install x11vnc
+        brew install blackbox
         type -a blackbox
+        type -a x11vnc
         type -a vncpasswd
         type -a vncserver
 
