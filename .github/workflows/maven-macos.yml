@@ -26,7 +26,6 @@ jobs:
       run: |
         aria2c https://github.com/macports/macports-base/releases/download/v2.7.1/MacPorts-2.7.1-12-Monterey.pkg
         sudo installer -pkg MacPorts-2.7.1-12-Monterey.pkg -target /
-        type -a port
         sudo /opt/local/bin/port install xorg-server
         type -a Xvfb
         echo "After xorg: "
