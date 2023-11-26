@@ -71,8 +71,7 @@ jobs:
     - name: Install vncserver
       run: |
         brew install tiger-vnc
-        where tiger-vnc
-        type -a Xvnc
+        /usr/local/bin/Xvnc :0
         type -a vncpasswd
 
     - name: Install Docker
