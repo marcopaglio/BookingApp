@@ -70,15 +70,16 @@ jobs:
 #        echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
     - name: Install vncserver
       run: |
+        ls /usr/local/bin/
         brew install xorg-server
         brew install blackbox
         brew install x11vnc
-        ls /usr/local/bin/
         mkdir /tmp/.X11-unix
         sudo chmod 1777 /tmp/.X11-unix
         sudo chown root /tmp/.X11-unix/
         sudo /usr/local/bin/Xvfb :42 -ac -screen 0 1024x768x24 &
-        sudo /usr/local/bin/blackbox
+        sudo chmod +/usr/local/bin/_blackbox_common.sh
+        sudo /usr/local/bin/_blackbox_common.sh
         export DISPLAY=:42
         sudo x11vnc -display :42 -passwd 123456
         echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
