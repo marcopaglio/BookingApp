@@ -70,7 +70,7 @@ jobs:
 #        echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
     - name: Install vncserver
       run: |
-        ls /usr/local/bin/
+        brew install xinit
         brew install xorg-server
         brew install blackbox
         brew install x11vnc
