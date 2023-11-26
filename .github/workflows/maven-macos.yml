@@ -75,7 +75,7 @@ jobs:
         mkdir /tmp/.X11-unix
         sudo chmod 1777 /tmp/.X11-unix
         sudo chown root /tmp/.X11-unix/
-        sudo /usr/local/bin/Xvfb :42 -ac -screen 0 1024x768x24 -displayfd /tmp/.X11-unix/X42 &
+        sudo /usr/local/bin/Xvfb :42 -ac -screen 0 1024x768x24 &
         export DISPLAY=:42
         sudo x11vnc -display :42 -passwd 123456
         echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
