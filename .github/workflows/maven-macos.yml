@@ -70,7 +70,7 @@ jobs:
 #        echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
     - name: Install vncserver
       run: |
-        brew install tiger-vnc
+        brew install --cask vnc-server
         type -a vncserver
 
     - name: Install Docker
