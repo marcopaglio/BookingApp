@@ -71,6 +71,7 @@ jobs:
     - name: Install vncserver
       run: |
         brew install tiger-vnc
+        where tiger-vnc
         type -a Xvnc
         type -a vncpasswd
 
