@@ -69,7 +69,9 @@ jobs:
 #        /opt/X11/bin/xhost +$ip
 #        echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
     - name: Install vncserver
-      run: brew install x11vnc
+      run: |
+        brew install x11vnc
+        x11vnc -display :0 -noxrecord -noxfixes -noxdamage -forever -passwd 123456
 
     - name: Install Docker
       uses: docker-practice/actions-setup-docker@master
