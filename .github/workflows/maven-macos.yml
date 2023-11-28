@@ -71,7 +71,7 @@ jobs:
         brew install xinit
         brew install xorg-server
         brew install x11vnc
-        sudo /usr/local/bin/Xvfb &
+        sudo /usr/local/bin/Xvfb :0 &
         chmod +x ../execute-on-vnc.sh
         ../execute-on-vnc.sh
         echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
