@@ -75,6 +75,7 @@ jobs:
         chmod +x ../execute-on-vnc.sh
         ../execute-on-vnc.sh
         echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
+      working-directory: ${{ env.workdir }}
 
     - name: Install Docker
       uses: docker-practice/actions-setup-docker@master
