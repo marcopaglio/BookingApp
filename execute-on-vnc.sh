@@ -20,3 +20,9 @@ echo "Using first available display :${NEW_DISPLAY}"
 OLD_DISPLAY=${DISPLAY}
 x11vnc -display :${NEW_DISPLAY} -noxrecord -noxfixes -noxdamage -forever -passwd 123456 &
 export DISPLAY=:${NEW_DISPLAY}
+echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
+
+"$@"
+
+export DISPLAY=${OLD_DISPLAY}
+x11vnc -R stop

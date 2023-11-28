@@ -85,8 +85,5 @@ jobs:
       id: maven-build
       run: |
         chmod +x ../execute-on-vnc.sh
-        ../execute-on-vnc.sh
-        echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
-        ../mvnw install -Pdocker -Ddisplay=:$DISPLAY
-        x11vnc -R stop
+        ../execute-on-vnc.sh ../mvnw install -Pdocker -Ddisplay=:$DISPLAY
       working-directory: ${{ env.workdir }}
