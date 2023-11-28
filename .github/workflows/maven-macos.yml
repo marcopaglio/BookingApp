@@ -69,18 +69,7 @@ jobs:
 #        /opt/X11/bin/xhost +$ip
 #        echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
     - name: Install vncserver
-      run: |
-        brew install xinit
-        brew install xorg-server
-        brew install blackbox
-        brew install x11vnc
-        mkdir /tmp/.X11-unix
-        sudo chmod 1777 /tmp/.X11-unix
-        sudo chown root /tmp/.X11-unix/
-        sudo /usr/local/bin/Xvfb &
-        sudo /usr/local/bin/blackbox_view
-        sudo x11vnc -passwd 123456
-        echo "DISPLAY=$DISPLAY" >> "$GITHUB_ENV"
+      run: brew install x11vnc
 
     - name: Install Docker
       uses: docker-practice/actions-setup-docker@master
@@ -96,5 +85,5 @@ jobs:
       id: maven-build
       run: |
         chmod +x ../execute-on-vnc.sh
-        ../execute-on-vnc.sh ../mvnw install -Pdocker -Ddisplay=:42
+        ../execute-on-vnc.sh ../mvnw install -Pdocker -Ddisplay=:$DISPLAY
       working-directory: ${{ env.workdir }}
