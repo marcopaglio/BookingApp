@@ -37,4 +37,45 @@ version="3.0">
       <property name="hibernate.use_sql_comments" value="false" />
     </properties>
   </persistence-unit>
+
+  <persistence-unit name="postgres-e2e">
+    <description>Persistence unit used in end-to-end tests.</description>
+
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+    <class>io.github.marcopaglio.booking.model.Client</class>
+    <class>io.github.marcopaglio.booking.model.Reservation</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+    <properties>
+      <!-- Jakarta Datasource Properties -->
+      <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />
+      <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/BookingApp_db" />
+      <property name="jakarta.persistence.jdbc.user" value="postgres-user" />
+      <property name="jakarta.persistence.jdbc.password" value="postgres-pswd" />
+      
+      <!-- Hibernate Configuration Properties -->
+      <!-- DEFAULT <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/> -->
+      <property name="hibernate.connection.provider_class" value="org.hibernate.hikaricp.internal.HikariCPConnectionProvider" />
+      <property name="hibernate.hbm2ddl.auto" value="update" />
+      <property name="hibernate.hbm2ddl.halt_on_error" value="true" />
+      <!-- DEFAULT <property name="org.hibernate.flushMode" value="AUTO" /> -->
+      
+      <!-- When references are fetched from the cache without having a record in the DB an exception is thrown -->
+      <property name="hibernate.jpa.compliance.proxy" value="true"/>
+      
+      <!-- HikariCP Configuration Properties -->
+      <!-- With HikariCP each new connection to PostgreSQL takes a pool of (max) 10 available connections. -->
+      <!-- So the real value of possible concorrent connection is: ceil(max_connection / 10) -->
+      <!-- Setting up value of maxPoolSize of HikariCP in persistence.xml: default=10 -->
+      <!-- Setting up value of max_connections of PostgreSQL with Docker: default=100 -->
+      <property name="hibernate.hikari.maximumPoolSize" value="10" />
+      
+      <!-- Hibernate Debugging Properties -->
+      <property name="hibernate.show_sql" value="true" />
+      <property name="hibernate.format_sql" value="true" />
+      <property name="hibernate.highlight_sql" value="true" />
+      <property name="hibernate.use_sql_comments" value="false" />
+    </properties>
+  </persistence-unit>
 </persistence>
