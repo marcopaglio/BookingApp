@@ -158,87 +158,102 @@ public class MongoBookingSwingViewE2E extends BookingSwingViewE2E {
 		reservationCollection.deleteOne(session, Filters.eq(DATE_DB, LocalDate.parse(date)));
 		session.close();
 	}
+}
 
-	static class MongoBookingSwingApp {
-		private static final int STARTUP_FAILURE_STATUS = 255;
+class MongoBookingSwingApp {
+	private static final int STARTUP_FAILURE_STATUS = 255;
 
-		private static MongoClient mongoAppClient;
+	private static MongoClient mongoAppClient;
 
-		public static void main(String[] args) {
-			EventQueue.invokeLater(() -> {
-				try {
-					String mongoHost = "localhost";
-					int mongoPort = 27017;
-					String mongoName = "BookingApp_MongoDB";
-					if (args.length > 0)
-						mongoHost = args[0];
-					if (args.length > 1)
-						mongoPort = Integer.parseInt(args[1]);
-					if (args.length > 2)
-						mongoName = args[2];
-					
-					TransactionHandlerFactory transactionHandlerFactory = new TransactionHandlerFactory();
-					ClientRepositoryFactory clientRepositoryFactory = new ClientRepositoryFactory();
-					ReservationRepositoryFactory reservationRepositoryFactory = new ReservationRepositoryFactory();
-					
-					mongoAppClient = getClient(String.format("mongodb://%s:%d", mongoHost, mongoPort));
-					TransactionManager transactionManager = new TransactionMongoManager(mongoAppClient, mongoName,
-							transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
-					
-					BookingService bookingService = new TransactionalBookingService(transactionManager);
-					ClientValidator clientValidator = new RestrictedClientValidator();
-					ReservationValidator reservationValidator = new RestrictedReservationValidator();
-					
-					BookingSwingView bookingSwingView = new BookingSwingView();
-					BookingPresenter bookingPresenter = new ServedBookingPresenter(bookingSwingView,
-							bookingService, clientValidator, reservationValidator);
-					bookingSwingView.setBookingPresenter(bookingPresenter);
-					bookingSwingView.setVisible(true);
-					bookingPresenter.allClients();
-					bookingPresenter.allReservations();
-				} catch(Exception e) {
-					closeWindows();
-					System.exit(STARTUP_FAILURE_STATUS);
-				}
-			});
-			
-			Runtime.getRuntime().addShutdownHook(new Thread() {
-				@Override
-				public void run() {
-					if (mongoAppClient != null)
-						mongoAppClient.close();
-				}
-			});
-		}
+	public static void main(String[] args) {
+		EventQueue.invokeLater(() -> {
+			try {
+				String mongoHost = "localhost";
+				int mongoPort = 27017;
+				String mongoName = "BookingApp_MongoDB";
+				if (args.length > 0)
+					mongoHost = args[0];
+				if (args.length > 1)
+					mongoPort = Integer.parseInt(args[1]);
+				if (args.length > 2)
+					mongoName = args[2];
+				
+				TransactionHandlerFactory transactionHandlerFactory = new TransactionHandlerFactory();
+				ClientRepositoryFactory clientRepositoryFactory = new ClientRepositoryFactory();
+				ReservationRepositoryFactory reservationRepositoryFactory = new ReservationRepositoryFactory();
+				
+				openDatabaseConnection(mongoHost, mongoPort);
+				TransactionManager transactionManager = createTransactionManager(mongoName, transactionHandlerFactory, clientRepositoryFactory,
+						reservationRepositoryFactory);
+				
+				BookingService bookingService = new TransactionalBookingService(transactionManager);
+				ClientValidator clientValidator = new RestrictedClientValidator();
+				ReservationValidator reservationValidator = new RestrictedReservationValidator();
+				
+				BookingSwingView bookingSwingView = new BookingSwingView();
+				BookingPresenter bookingPresenter = new ServedBookingPresenter(bookingSwingView,
+						bookingService, clientValidator, reservationValidator);
+				bookingSwingView.setBookingPresenter(bookingPresenter);
+				bookingSwingView.setVisible(true);
+				bookingPresenter.allClients();
+				bookingPresenter.allReservations();
+			} catch(Exception e) {
+				closeWindows();
+				System.exit(STARTUP_FAILURE_STATUS);
+			}
+		});
+		
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				closeDatabaseConnection();
+			}
+		});
+	}
 
-		private static MongoClient getClient(String connectionString) {
-			// define the CodecProvider for POJO classes
-			CodecProvider pojoCodecProvider = PojoCodecProvider.builder()
-					.conventions(Arrays.asList(ANNOTATION_CONVENTION, USE_GETTERS_FOR_SETTERS))
-					.automatic(true)
-					.build();
-			
-			// define the CodecRegistry as codecs and other related information
-			CodecRegistry pojoCodecRegistry =
-					fromRegistries(getDefaultCodecRegistry(),
-					fromProviders(pojoCodecProvider));
-			
-			// configure the MongoClient for using the CodecRegistry
-			MongoClientSettings settings = MongoClientSettings.builder()
-					.applyConnectionString(new ConnectionString(connectionString))
-					.uuidRepresentation(STANDARD)
-					.codecRegistry(pojoCodecRegistry)
-					.build();
-			return MongoClients.create(settings);
-		}
+	private static TransactionMongoManager createTransactionManager(String mongoName,
+			TransactionHandlerFactory transactionHandlerFactory, ClientRepositoryFactory clientRepositoryFactory,
+			ReservationRepositoryFactory reservationRepositoryFactory) {
+		return new TransactionMongoManager(mongoAppClient, mongoName,
+				transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
+	}
 
-		private static void closeWindows() {
-			for (Frame f: Frame.getFrames()) {
-				if (f.isDisplayable()) {
-					f.setVisible(false);
-					f.dispose();
-				}
+	private static void openDatabaseConnection(String mongoHost, int mongoPort) {
+		mongoAppClient = getClient(String.format("mongodb://%s:%d", mongoHost, mongoPort));
+	}
+
+	private static MongoClient getClient(String connectionString) {
+		// define the CodecProvider for POJO classes
+		CodecProvider pojoCodecProvider = PojoCodecProvider.builder()
+				.conventions(Arrays.asList(ANNOTATION_CONVENTION, USE_GETTERS_FOR_SETTERS))
+				.automatic(true)
+				.build();
+		
+		// define the CodecRegistry as codecs and other related information
+		CodecRegistry pojoCodecRegistry =
+				fromRegistries(getDefaultCodecRegistry(),
+				fromProviders(pojoCodecProvider));
+		
+		// configure the MongoClient for using the CodecRegistry
+		MongoClientSettings settings = MongoClientSettings.builder()
+				.applyConnectionString(new ConnectionString(connectionString))
+				.uuidRepresentation(STANDARD)
+				.codecRegistry(pojoCodecRegistry)
+				.build();
+		return MongoClients.create(settings);
+	}
+
+	private static void closeWindows() {
+		for (Frame f: Frame.getFrames()) {
+			if (f.isDisplayable()) {
+				f.setVisible(false);
+				f.dispose();
 			}
 		}
+	}
+
+	private static void closeDatabaseConnection() {
+		if (mongoAppClient != null)
+			mongoAppClient.close();
 	}
 }

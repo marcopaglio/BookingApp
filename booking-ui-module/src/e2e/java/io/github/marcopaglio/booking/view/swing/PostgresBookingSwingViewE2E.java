@@ -138,75 +138,91 @@ public class PostgresBookingSwingViewE2E extends BookingSwingViewE2E {
 		em.getTransaction().commit();
 		em.close();
 	}
+}
 
-	static class PostgresBookingSwingApp {
-		private static final int STARTUP_FAILURE_STATUS = 255;
+class PostgresBookingSwingApp {
+	private static final int STARTUP_FAILURE_STATUS = 255;
 
-		private static EntityManagerFactory entityManagerAppFactory;
+	private static EntityManagerFactory entityManagerAppFactory;
 
-		public static void main(String[] args) {
-			EventQueue.invokeLater(() -> {
-				try {
-					String postgresHost = "localhost";
-					int postgresPort = 5432;
-					String postgresName = "BookingApp_PostgreSQL";
-					String postgresUser = "postgres-user";
-					String postgresPswd = "postgres-pswd";
-					if (args.length > 0)
-						postgresHost = args[0];
-					if (args.length > 1)
-						postgresPort = Integer.parseInt(args[1]);
-					if (args.length > 2)
-						postgresName = args[2];
-					if (args.length > 3)
-						postgresUser = args[3];
-					if (args.length > 4)
-						postgresPswd = args[4];
-					
-					TransactionHandlerFactory transactionHandlerFactory = new TransactionHandlerFactory();
-					ClientRepositoryFactory clientRepositoryFactory = new ClientRepositoryFactory();
-					ReservationRepositoryFactory reservationRepositoryFactory = new ReservationRepositoryFactory();
-					
-					entityManagerAppFactory = Persistence.createEntityManagerFactory("postgres-e2e", Map.of(
-							"jakarta.persistence.jdbc.url", String.format("jdbc:postgresql://%s:%d/%s", postgresHost, postgresPort, postgresName),
-							"jakarta.persistence.jdbc.user", postgresUser,
-							"jakarta.persistence.jdbc.password", postgresPswd));
-					TransactionManager transactionManager = new TransactionPostgresManager(entityManagerAppFactory,
-							transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
-					
-					BookingService bookingService = new TransactionalBookingService(transactionManager);
-					ClientValidator clientValidator = new RestrictedClientValidator();
-					ReservationValidator reservationValidator = new RestrictedReservationValidator();
-					
-					BookingSwingView bookingSwingView = new BookingSwingView();
-					BookingPresenter bookingPresenter = new ServedBookingPresenter(bookingSwingView,
-							bookingService, clientValidator, reservationValidator);
-					bookingSwingView.setBookingPresenter(bookingPresenter);
-					bookingSwingView.setVisible(true);
-					bookingPresenter.allClients();
-					bookingPresenter.allReservations();
-				} catch(Exception e) {
-					closeWindows();
-					System.exit(STARTUP_FAILURE_STATUS);
-				}
-			});
-			
-			Runtime.getRuntime().addShutdownHook(new Thread() {
-				@Override
-				public void run() {
-					if (entityManagerAppFactory != null && entityManagerAppFactory.isOpen())
-						entityManagerAppFactory.close();
-				}
-			});
-		}
+	public static void main(String[] args) {
+		EventQueue.invokeLater(() -> {
+			try {
+				String postgresHost = "localhost";
+				int postgresPort = 5432;
+				String postgresName = "BookingApp_PostgreSQL";
+				String postgresUser = "postgres-user";
+				String postgresPswd = "postgres-pswd";
+				if (args.length > 0)
+					postgresHost = args[0];
+				if (args.length > 1)
+					postgresPort = Integer.parseInt(args[1]);
+				if (args.length > 2)
+					postgresName = args[2];
+				if (args.length > 3)
+					postgresUser = args[3];
+				if (args.length > 4)
+					postgresPswd = args[4];
+				
+				TransactionHandlerFactory transactionHandlerFactory = new TransactionHandlerFactory();
+				ClientRepositoryFactory clientRepositoryFactory = new ClientRepositoryFactory();
+				ReservationRepositoryFactory reservationRepositoryFactory = new ReservationRepositoryFactory();
+				
+				openDatabaseConnection(postgresHost, postgresPort, postgresName, postgresUser, postgresPswd);
+				TransactionManager transactionManager = createTransactionManager(transactionHandlerFactory, clientRepositoryFactory,
+						reservationRepositoryFactory);
+				
+				BookingService bookingService = new TransactionalBookingService(transactionManager);
+				ClientValidator clientValidator = new RestrictedClientValidator();
+				ReservationValidator reservationValidator = new RestrictedReservationValidator();
+				
+				BookingSwingView bookingSwingView = new BookingSwingView();
+				BookingPresenter bookingPresenter = new ServedBookingPresenter(bookingSwingView,
+						bookingService, clientValidator, reservationValidator);
+				bookingSwingView.setBookingPresenter(bookingPresenter);
+				bookingSwingView.setVisible(true);
+				bookingPresenter.allClients();
+				bookingPresenter.allReservations();
+			} catch(Exception e) {
+				closeWindows();
+				System.exit(STARTUP_FAILURE_STATUS);
+			}
+		});
+		
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				closeDatabaseConnection();
+			}
+		});
+	}
 
-		private static void closeWindows() {
-			for (Frame f: Frame.getFrames()) {
-				if (f.isDisplayable()) {
-					f.setVisible(false);
-					f.dispose();
-				}
+	private static void openDatabaseConnection(String postgresHost, int postgresPort, String postgresName,
+			String postgresUser, String postgresPswd) {
+		entityManagerAppFactory = Persistence.createEntityManagerFactory("postgres-e2e", Map.of(
+				"jakarta.persistence.jdbc.url", String.format("jdbc:postgresql://%s:%d/%s", postgresHost, postgresPort, postgresName),
+				"jakarta.persistence.jdbc.user", postgresUser,
+				"jakarta.persistence.jdbc.password", postgresPswd));
+	}
+
+	private static TransactionPostgresManager createTransactionManager(
+			TransactionHandlerFactory transactionHandlerFactory, ClientRepositoryFactory clientRepositoryFactory,
+			ReservationRepositoryFactory reservationRepositoryFactory) {
+		return new TransactionPostgresManager(entityManagerAppFactory,
+				transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
+	}
+
+	private static void closeWindows() {
+		for (Frame f: Frame.getFrames()) {
+			if (f.isDisplayable()) {
+				f.setVisible(false);
+				f.dispose();
 			}
 		}
+	}
+
+	private static void closeDatabaseConnection() {
+		if (entityManagerAppFactory != null && entityManagerAppFactory.isOpen())
+			entityManagerAppFactory.close();
 	}
 }
