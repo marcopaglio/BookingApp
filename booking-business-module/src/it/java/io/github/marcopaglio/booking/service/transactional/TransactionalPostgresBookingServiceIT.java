@@ -60,6 +60,7 @@ class TransactionalPostgresBookingServiceIT {
 
 	@BeforeAll
 	static void setupEmf() throws Exception {
+		System.setProperty("db.host", System.getProperty("postgres.host", "localhost"));
 		System.setProperty("db.port", System.getProperty("postgres.port", "5432"));
 		System.setProperty("db.name", System.getProperty("postgres.name", "ITandE2ETest_db"));
 		emf = Persistence.createEntityManagerFactory("postgres-it");

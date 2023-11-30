@@ -24,12 +24,12 @@
     <!-- MONGODB PROPERTIES -->
     <mongo.conf.volume>mongo_conf</mongo.conf.volume>
     <mongo.data.volume>mongo_data</mongo.data.volume>
-    <mongo.mapped.host>localhost</mongo.mapped.host> <!-- TODO: change name or totally remove -->
+    <mongo.host.name>localhost</mongo.host.name>
     <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
     
     <!-- POSTGRESQL PROPERTIES -->
     <postgres.data.volume>postgresql_data</postgres.data.volume>
-    <postgres.mapped.host>localhost</postgres.mapped.host><!-- TODO: change name or totally remove -->
+    <postgres.host.name>localhost</postgres.host.name>
     <postgres.database.name>ITandE2ETest_db</postgres.database.name>
     <postgres.database.user>postgres-it-e2e</postgres.database.user>
     <postgres.database.pswd>postgres-it-e2e</postgres.database.pswd>
@@ -140,10 +140,10 @@
           <version>${maven.surefire.version}</version>
           <configuration>
             <systemPropertyVariables>
-              <mongo.host>${mongo.mapped.host}</mongo.host>
+              <mongo.host>${mongo.host.name}</mongo.host>
               <mongo.port>${mongo.mapped.port}</mongo.port>
               
-              <postgres.host>${postgres.mapped.host}</postgres.host>
+              <postgres.host>${postgres.host.name}</postgres.host>
               <postgres.port>${postgres.mapped.port}</postgres.port>
               <postgres.name>${postgres.database.name}</postgres.name>
               <postgres.user>${postgres.database.user}</postgres.user>
@@ -299,7 +299,81 @@
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
           <version>${docker.version}</version>
-          <executions> <!-- TODO: in CONFIGURATION -->
+          <configuration>
+            <volumes>
+              <volume>
+                <name>${mongo.conf.volume}</name>
+                <driver>local</driver>
+              </volume>
+              <volume>
+                <name>${mongo.data.volume}</name>
+                <driver>local</driver>
+              </volume>
+              <volume>
+                <name>${postgres.data.volume}</name>
+                <driver>local</driver>
+              </volume>
+            </volumes>
+            <containerNamePattern>%a</containerNamePattern> <!-- %a = <alias>'s value-->
+            <images>
+              <image>
+                <name>mongo:6.0.7</name>
+                <alias>mongo</alias>
+                <run>
+                  <volumes>
+                    <bind>
+                      <volume>${mongo.conf.volume}:/data/configdb</volume>
+                      <volume>${mongo.data.volume}:/data/db</volume>
+                    </bind>
+                  </volumes>
+                  <ports>
+                    <port>mongo.mapped.port:27017</port>
+                  </ports>
+                  <cmd>mongod --replSet ${mongo.replicaSet.name}</cmd>
+                  <wait>
+                    <http>
+                      <url>http://${mongo.host.name}:${mongo.mapped.port}</url>
+                      <method>GET</method>
+                      <status>200</status>
+                    </http>
+                    <time>10000</time>
+                    <exec>
+                      <postStart>mongosh --eval "rs.initiate();"</postStart>
+                    </exec>
+                  </wait>
+                </run>
+              </image>
+              <image>
+                <name>postgres:15.3</name>
+                <alias>postgres</alias>
+                <run>
+                  <volumes>
+                    <bind>
+                      <volume>${postgres.data.volume}:/var/lib/postgresql/data</volume>
+                    </bind>
+                  </volumes>
+                  <ports>
+                    <port>postgres.mapped.port:5432</port>
+                  </ports>
+                  <!-- With HikariCP each new connection to PostgreSQL takes a pool of (max) 10 available connections. -->
+                  <!-- So the real value of possible concorrent connection is: ceil(max_connection / 10) -->
+                  <!-- Setting up value of maxPoolSize of HikariCP in persistence.xml: default=10 -->
+                  <!-- Setting up value of max_connections of PostgreSQL with Docker: default=100 -->
+                  <cmd>postgres -c max_connections=221</cmd>
+                  <env>
+                    <POSTGRES_DB>${postgres.database.name}</POSTGRES_DB>
+                    <POSTGRES_USER>${postgres.database.user}</POSTGRES_USER>
+                    <POSTGRES_PASSWORD>${postgres.database.pswd}</POSTGRES_PASSWORD>
+                  </env>
+                  <wait>
+                    <log>\[1\] LOG:  database system is ready to accept connections</log>
+                    <time>20000</time>
+                  </wait>
+                </run>
+              </image>
+            </images>
+          </configuration>
+          <executions>
             <execution>
               <id>docker-start</id>
               <phase>pre-integration-test</phase>
@@ -307,80 +381,6 @@
                 <goal>volume-create</goal>
                 <goal>start</goal>
               </goals>
-              <configuration>
-                <volumes>
-                  <volume>
-                    <name>${mongo.conf.volume}</name>
-                    <driver>local</driver>
-                  </volume>
-                  <volume>
-                    <name>${mongo.data.volume}</name>
-                    <driver>local</driver>
-                  </volume>
-                  <volume>
-                    <name>${postgres.data.volume}</name>
-                    <driver>local</driver>
-                  </volume>
-                </volumes>
-                <containerNamePattern>%a</containerNamePattern> <!-- %a = <alias>'s value-->
-                <images>
-                  <image>
-                    <name>mongo:6.0.7</name>
-                    <alias>mongo</alias>
-                    <run>
-                      <volumes>
-                        <bind>
-                          <volume>${mongo.conf.volume}:/data/configdb</volume>
-                          <volume>${mongo.data.volume}:/data/db</volume>
-                        </bind>
-                      </volumes>
-                      <ports>
-                        <port>mongo.mapped.port:27017</port>
-                      </ports>
-                      <cmd>mongod --replSet ${mongo.replicaSet.name}</cmd>
-                      <wait>
-                        <http>
-                          <url>http://${mongo.mapped.host}:${mongo.mapped.port}</url>
-                          <method>GET</method>
-                          <status>200</status>
-                        </http>
-                        <time>10000</time>
-                        <exec>
-                          <postStart>mongosh --eval "rs.initiate();"</postStart>
-                        </exec>
-                      </wait>
-                    </run>
-                  </image>
-                  <image>
-                    <name>postgres:15.3</name>
-                    <alias>postgres</alias>
-                    <run>
-                      <volumes>
-                        <bind>
-                          <volume>${postgres.data.volume}:/var/lib/postgresql/data</volume>
-                        </bind>
-                      </volumes>
-                      <ports>
-                        <port>postgres.mapped.port:5432</port>
-                      </ports>
-                      <!-- With HikariCP each new connection to PostgreSQL takes a pool of (max) 10 available connections. -->
-                      <!-- So the real value of possible concorrent connection is: ceil(max_connection / 10) -->
-                      <!-- Setting up value of maxPoolSize of HikariCP in persistence.xml: default=10 -->
-                      <!-- Setting up value of max_connections of PostgreSQL with Docker: default=100 -->
-                      <cmd>postgres -c max_connections=221</cmd>
-                      <env>
-                        <POSTGRES_DB>${postgres.database.name}</POSTGRES_DB>
-                        <POSTGRES_USER>${postgres.database.user}</POSTGRES_USER>
-                        <POSTGRES_PASSWORD>${postgres.database.pswd}</POSTGRES_PASSWORD>
-                      </env>
-                      <wait>
-                        <log>\[1\] LOG:  database system is ready to accept connections</log>
-                        <time>20000</time>
-                      </wait>
-                    </run>
-                  </image>
-                </images>
-              </configuration>
             </execution>
             <execution>
               <id>docker-stop</id>
