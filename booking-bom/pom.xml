@@ -31,7 +31,6 @@
     <hibernate.version>6.3.0.CR1</hibernate.version>
     <postgresql.version>42.6.0</postgresql.version>
     <logback.version>1.2.12</logback.version>
-    <picocli.version>4.7.5</picocli.version>
 
     <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
     <maven.antrun.version>3.1.0</maven.antrun.version>
@@ -64,11 +63,6 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>booking-ui-module</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>booking-app</artifactId>
         <version>${project.version}</version>
       </dependency>
       
@@ -106,11 +100,6 @@
         <groupId>ch.qos.logback</groupId>
         <artifactId>logback-classic</artifactId>
         <version>${logback.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>info.picocli</groupId>
-        <artifactId>picocli</artifactId>
-        <version>${picocli.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

@@ -24,12 +24,12 @@
     <!-- MONGODB PROPERTIES -->
     <mongo.conf.volume>mongo_conf</mongo.conf.volume>
     <mongo.data.volume>mongo_data</mongo.data.volume>
-    <mongo.mapped.host>localhost</mongo.mapped.host>
+    <mongo.mapped.host>localhost</mongo.mapped.host> <!-- TODO: change name or totally remove -->
     <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
     
     <!-- POSTGRESQL PROPERTIES -->
     <postgres.data.volume>postgresql_data</postgres.data.volume>
-    <postgres.mapped.host>localhost</postgres.mapped.host>
+    <postgres.mapped.host>localhost</postgres.mapped.host><!-- TODO: change name or totally remove -->
     <postgres.database.name>ITandE2ETest_db</postgres.database.name>
     <postgres.database.user>postgres-it-e2e</postgres.database.user>
     <postgres.database.pswd>postgres-it-e2e</postgres.database.pswd>
@@ -299,7 +299,7 @@
           <groupId>io.fabric8</groupId>
           <artifactId>docker-maven-plugin</artifactId>
           <version>${docker.version}</version>
-          <executions>
+          <executions> <!-- TODO: in CONFIGURATION -->
             <execution>
               <id>docker-start</id>
               <phase>pre-integration-test</phase>
