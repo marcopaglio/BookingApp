@@ -221,22 +221,7 @@
     </plugins>
   </build>
   
-  <profiles> <!-- TODO: serve ancora? -->
-    <profile>
-      <id>sonar</id>
-      <properties>
-        <sonar.coverage.exclusions>
-          **/app/swing/*.*
-        </sonar.coverage.exclusions>
-        
-        <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
-        <!-- Rule: "Test classes should comply with a naming convention"  -->
-        <!-- SonarQube considers only Test and IT as suffixes for tests, not E2E -->
-        <sonar.issue.ignore.multicriteria.e1.ruleKey>java:S3577</sonar.issue.ignore.multicriteria.e1.ruleKey>
-        <sonar.issue.ignore.multicriteria.e1.resourceKey>**/*E2E.java</sonar.issue.ignore.multicriteria.e1.resourceKey>
-      </properties>
-    </profile>
-
+  <profiles>
     <profile>
       <id>docker</id>
       <properties>
@@ -458,6 +443,15 @@
       </activation>
       <properties>
         <xserver.socket.location>/run/desktop/mnt/host/wslg/.X11-unix/</xserver.socket.location>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>sonar</id>
+      <properties>
+        <sonar.coverage.exclusions>
+          **/app/swing/*.*
+        </sonar.coverage.exclusions>
       </properties>
     </profile>
   </profiles>
