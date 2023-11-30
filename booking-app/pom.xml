@@ -31,9 +31,10 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>io.github.marcopaglio</groupId> <!-- TODO: PROPERTY?-->
+        <!-- Synchronizing groupId and version with BOM forces to be updated -->
+        <groupId>${project.groupId}</groupId>
         <artifactId>booking-bom</artifactId>
-        <version>0.0.1-SNAPSHOT</version><!-- TODO: PROPERTY?-->
+        <version>${project.version}</version>
         <scope>import</scope>
         <type>pom</type>
       </dependency>
@@ -47,17 +48,7 @@
   
   <dependencies>
     <dependency>
-      <groupId>${project.groupId}</groupId> <!-- TODO: PROPERTY?-->
-      <artifactId>booking-domain-module</artifactId>
-      <!-- version taken from the bom -->
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId> <!-- TODO: PROPERTY?-->
-      <artifactId>booking-business-module</artifactId>
-      <!-- version taken from the bom -->
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId> <!-- TODO: PROPERTY?-->
+      <groupId>${project.groupId}</groupId>
       <artifactId>booking-ui-module</artifactId>
       <!-- version taken from the bom -->
     </dependency>
@@ -231,7 +222,7 @@
                       <build>
                         <contextDir>${project.basedir}</contextDir>
                         <args>
-                          <jarToCopy>${project.artifactId}-${project.version}-jar-with-dependencies.jar</jarToCopy> <!-- fatjar.name .jar-->
+                          <jarToCopy>${fatjar.name}.jar</jarToCopy>
                         </args>
                         <tags>
                           <!-- %l (latest tag) is added by default -->
