@@ -497,11 +497,11 @@ public abstract class BookingSwingViewE2E extends AssertJSwingJUnitTestCase {
 	}
 	////////////// Remove reservation
 
-	abstract protected void addTestClientToDatabase(String name, String surname, UUID id);
+	protected abstract void addTestClientToDatabase(String name, String surname, UUID id);
 
-	abstract protected void removeTestClientFromDatabase(String name, String surname);
+	protected abstract void removeTestClientFromDatabase(String name, String surname);
 
-	abstract protected void addTestReservationToDatabase(UUID clientId, String date, UUID id);
+	protected abstract void addTestReservationToDatabase(UUID clientId, String date, UUID id);
 
-	abstract protected void removeTestReservationFromDatabase(String date);
+	protected abstract void removeTestReservationFromDatabase(String date);
 }
