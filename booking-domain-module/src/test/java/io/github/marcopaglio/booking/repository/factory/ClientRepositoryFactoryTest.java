@@ -50,6 +50,7 @@ class ClientRepositoryFactoryTest {
 	public static void setupServer() {
 		mongoClient = MongoClients.create(mongo.getConnectionString());
 		
+		System.setProperty("db.host", postgreSQLContainer.getHost());
 		System.setProperty("db.port", postgreSQLContainer.getFirstMappedPort().toString());
 		System.setProperty("db.name", postgreSQLContainer.getDatabaseName());
 		emf = Persistence.createEntityManagerFactory("postgres-test");

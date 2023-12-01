@@ -9,10 +9,10 @@
   <artifactId>booking-report</artifactId>
   <packaging>pom</packaging>
   
-  <name>BookingApp - Coverage Aggregate Report</name>
+  <name>BookingApp - Aggregate Reports</name>
   <description>
-    It produces aggregate report of JaCoCo for modules.
-    This report is also used for coverage monitoring in Coveralls.
+    It produces aggregate reports of Pitest (mutation testing) and JaCoCo (coverage) for modules.
+    Jacoco report is also used for coverage monitoring in Coveralls.
   </description>
   
   <dependencies>
@@ -31,11 +31,6 @@
       <artifactId>booking-ui-module</artifactId>
       <!-- version taken from the bom -->
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>booking-app</artifactId>
-      <!-- version taken from the bom -->
-    </dependency>
   </dependencies>
   
   <build>
@@ -45,56 +40,69 @@
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
           <!-- version taken from the parent -->
-            <configuration>
-              <excludes>
-                <!-- HERE FOR OTHER EXCLUSIONS -->
-                <exclude>**/model/*</exclude>
-                <exclude>**/annotation/*</exclude>
-                <exclude>**/exception/*</exclude>
-                <exclude>**/transaction/code/*</exclude>
-                <exclude>**/app/swing/*</exclude>
-              </excludes>
-            </configuration>
-            <executions>
-              <execution>
-                <id>report-aggregate</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>report-aggregate</goal>
-                </goals>
-              </execution>
-            </executions>
+          <configuration>
+            <excludes>
+              <!-- HERE FOR OTHER EXCLUSIONS -->
+              <exclude>**/model/*</exclude>
+              <exclude>**/annotation/*</exclude>
+              <exclude>**/exception/*</exclude>
+              <exclude>**/transaction/code/*</exclude>
+            </excludes>
+          </configuration>
+          <executions>
+            <execution>
+              <id>report-aggregate</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>report-aggregate</goal>
+              </goals>
+            </execution>
+          </executions>
         </plugin>
         <plugin>
-            <groupId>org.eluder.coveralls</groupId>
-            <artifactId>coveralls-maven-plugin</artifactId>
-            <!-- version taken from the parent -->
-            <configuration>
-              <jacocoReports>
-                <jacocoReport>${project.reporting.outputDirectory}/jacoco-aggregate/jacoco.xml</jacocoReport>
-              </jacocoReports>
-              <!-- scanForSources doesn't find sources from ../booking-domain-module/ directory -->
-              <sourceDirectories>
-                <!-- HERE FOR OTHER SOURCES -->
-                <!-- Path has to be in accord with source names in jacoco.xml file -->
-                <!-- Example: if name=io/github/marcopaglio/booking/model/Client -->
-                <!--          then: path is ../booking-domain-module/src/main/java/ -->
-                <sourceDirectory>../booking-domain-module/src/main/java/</sourceDirectory>
-                <sourceDirectory>../booking-business-module/src/main/java/</sourceDirectory>
-                <sourceDirectory>../booking-ui-module/src/main/java/</sourceDirectory>
-                <sourceDirectory>../booking-app/src/main/java/</sourceDirectory>
-              </sourceDirectories>
-            </configuration>
-            <executions>
-              <execution>
-                <id>coveralls-report-aggregate</id>
-                <phase>verify</phase>
-                <goals>
-                  <goal>report</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
+          <groupId>org.eluder.coveralls</groupId>
+          <artifactId>coveralls-maven-plugin</artifactId>
+          <!-- version taken from the parent -->
+          <configuration>
+            <jacocoReports>
+              <jacocoReport>${project.reporting.outputDirectory}/jacoco-aggregate/jacoco.xml</jacocoReport>
+            </jacocoReports>
+            <!-- scanForSources doesn't find sources from ../booking-domain-module/ directory -->
+            <sourceDirectories>
+              <!-- HERE FOR OTHER SOURCES -->
+              <!-- Path has to be in accord with source names in jacoco.xml file -->
+              <!-- Example: if name=io/github/marcopaglio/booking/model/Client -->
+              <!--          then: path is ../booking-domain-module/src/main/java/ -->
+              <sourceDirectory>../booking-domain-module/src/main/java/</sourceDirectory>
+              <sourceDirectory>../booking-business-module/src/main/java/</sourceDirectory>
+              <sourceDirectory>../booking-ui-module/src/main/java/</sourceDirectory>
+            </sourceDirectories>
+          </configuration>
+          <executions>
+            <execution>
+              <id>coveralls-report-aggregate</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>report</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.pitest</groupId>
+          <artifactId>pitest-maven</artifactId>
+          <!-- version taken from the parent -->
+          <executions>
+            <execution>
+              <id>pitest-report-aggregate</id>
+              <phase>verify</phase>
+              <goals>
+                <!-- Pitest XML report is required by pitest-maven -->
+                <goal>report-aggregate</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>

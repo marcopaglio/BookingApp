@@ -55,6 +55,7 @@ class ClientPostgresRepositoryTest {
 
 	@BeforeAll
 	static void setupServer() throws Exception {
+		System.setProperty("db.host", postgreSQLContainer.getHost());
 		System.setProperty("db.port", postgreSQLContainer.getFirstMappedPort().toString());
 		System.setProperty("db.name", postgreSQLContainer.getDatabaseName());
 		

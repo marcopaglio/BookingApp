@@ -16,7 +16,7 @@ version="3.0">
     <properties>
       <!-- Jakarta Datasource Properties -->
       <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />
-      <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:${db.port}/${db.name}" />
+      <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://${db.host}:${db.port}/${db.name}" />
       <property name="jakarta.persistence.jdbc.user" value="postgres-test" />
       <property name="jakarta.persistence.jdbc.password" value="postgres-test" />
       

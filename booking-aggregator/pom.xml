@@ -38,7 +38,7 @@
 
     <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
     <maven.antrun.version>3.1.0</maven.antrun.version>
-    <maven.assembly.version>3.5.0</maven.assembly.version>
+    <maven.assembly.version>3.6.0</maven.assembly.version>
     <maven.dependency.version>3.5.0</maven.dependency.version>
     <maven.release.version>3.0.0-M7</maven.release.version>
     <maven.clean.version>3.2.0</maven.clean.version>
@@ -106,6 +106,9 @@
         <plugin>
           <artifactId>maven-surefire-report-plugin</artifactId>
           <version>${maven.surefire.version}</version>
+          <configuration>
+            <aggregate>true</aggregate>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-jxr-plugin</artifactId>
@@ -133,16 +136,11 @@
           <groupId>org.pitest</groupId>
           <artifactId>pitest-maven</artifactId>
           <version>${pitest.version}</version>
-          <executions>
-            <execution>
-              <id>pitest-report-aggregate</id>
-              <phase>verify</phase>
-              <goals>
-                <!-- Pitest XML report is required by pitest-maven -->
-                <goal>report-aggregate-module</goal>
-              </goals>
-            </execution>
-          </executions>
+          <configuration>
+            <siteReportName>PIT Test Report</siteReportName>
+            <siteReportDescription>Report of the PIT mutation tests</siteReportDescription>
+            <reportsDirectory>${project.basedir}/../booking-report/target/pit-reports/</reportsDirectory>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.sonarsource.scanner.maven</groupId>
@@ -166,6 +164,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-project-info-reports-plugin</artifactId>
+        <!-- version taken from the pluginManagement -->
         <reportSets>
           <reportSet>
             <reports>
@@ -181,8 +180,8 @@
         </reportSets>
       </plugin>
       <plugin>
-        <artifactId>maven-jxr-plugin</artifactId>
         <!-- main configuration in pluginManagement -->
+        <artifactId>maven-jxr-plugin</artifactId>
         <reportSets>
           <reportSet>
             <id>aggregate</id>
@@ -195,8 +194,8 @@
         </reportSets>
       </plugin>
       <plugin>
-        <artifactId>maven-javadoc-plugin</artifactId>
         <!-- main configuration in pluginManagement -->
+        <artifactId>maven-javadoc-plugin</artifactId>
         <reportSets>
           <reportSet>
             <id>aggregate</id>
@@ -208,22 +207,13 @@
         </reportSets>
       </plugin>
       <plugin>
+        <!-- main configuration in pluginManagement -->
         <artifactId>maven-surefire-report-plugin</artifactId>
-        <configuration>
-          <aggregate>true</aggregate>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.pitest</groupId>
-        <artifactId>pitest-maven</artifactId>
-        <configuration>
-          <siteReportName>PIT Test Report</siteReportName>
-          <siteReportDescription>Report of the PIT mutation tests</siteReportDescription>
-        </configuration>
         <reportSets>
           <reportSet>
             <reports>
-              <report>report</report>
+              <report>report-only</report>
+              <report>failsafe-report-only</report>
             </reports>
           </reportSet>
         </reportSets>
@@ -248,15 +238,25 @@
 
     <profile>
       <id>pitest</id>
-      <build>
+      <modules>
+        <module>../booking-report</module>
+      </modules>
+      <reporting>
         <plugins>
           <plugin>
             <!-- main configuration in pluginManagement -->
             <groupId>org.pitest</groupId>
             <artifactId>pitest-maven</artifactId>
+            <reportSets>
+              <reportSet>
+                <reports>
+                  <report>report</report>
+                </reports>
+              </reportSet>
+            </reportSets>
           </plugin>
         </plugins>
-      </build>
+	  </reporting>
     </profile>
 
     <profile>

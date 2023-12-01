@@ -1,29 +1,71 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>io.github.marcopaglio</groupId>
-    <artifactId>booking-parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <relativePath>../booking-parent</relativePath>
-  </parent>
+  <groupId>io.github.marcopaglio</groupId>
   <artifactId>booking-app</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
   
   <name>BookingApp - Application</name>
   <description>
     The application itself that contains everything you need to start a new instance of BookingApp.
   </description>
+  <url>${site.url}booking-app</url>
+  <inceptionYear>2023</inceptionYear>
+  
+  <distributionManagement>
+    <site>
+      <id>${project.artifactId}</id>
+      <name>${project.name}</name>
+      <url>${site.url}booking-app</url>
+    </site>
+  </distributionManagement>
   
   <properties>
     <!-- PROJECT PROPERTIES -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <site.url>https://marcopaglio.github.io/BookingApp/</site.url>
     <fatjar.name>${project.artifactId}-${project.version}-jar-with-dependencies</fatjar.name>
     <xserver.socket.location>/tmp/.X11-unix</xserver.socket.location>
+
+    <!-- VERSIONS FOR DEPENDENCIES -->
+    <picocli.version>4.7.5</picocli.version>
+
+    <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
+    <maven.antrun.version>3.1.0</maven.antrun.version>
+    <maven.assembly.version>3.6.0</maven.assembly.version>
+    <maven.dependency.version>3.5.0</maven.dependency.version>
+    <maven.release.version>3.0.0-M7</maven.release.version>
+    <maven.clean.version>3.2.0</maven.clean.version>
+    <maven.install.version>3.1.0</maven.install.version>
+    <maven.deploy.version>3.1.0</maven.deploy.version>
+    <maven.site.version>4.0.0-M5</maven.site.version>
 
     <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
     <maven.shade.version>3.5.1</maven.shade.version>
 
     <!-- VERSIONS FOR OTHER PLUGINS -->
     <exec.version>3.1.0</exec.version>
+    <docker.version>0.43.4</docker.version>
   </properties>
+  
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <!-- Synchronizing groupId and version with BOM forces to be updated -->
+        <groupId>${project.groupId}</groupId>
+        <artifactId>booking-bom</artifactId>
+        <version>${project.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>info.picocli</groupId>
+        <artifactId>picocli</artifactId>
+        <version>${picocli.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
   
   <dependencies>
     <dependency>
@@ -61,41 +103,54 @@
       <artifactId>logback-classic</artifactId>
       <!-- version taken from the bom -->
     </dependency>
+
     <dependency>
       <groupId>info.picocli</groupId>
       <artifactId>picocli</artifactId>
-      <!-- version taken from the bom -->
-    </dependency>
-
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <!-- version taken from the parent -->
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <!-- version taken from the parent -->
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-swing-junit</artifactId>
-      <!-- version taken from the parent -->
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
-      <!-- version taken from the parent -->
-      <scope>test</scope>
+      <!-- version taken from the dependencyManagement -->
     </dependency>
   </dependencies>
   
   <build>
     <pluginManagement>
       <plugins>
+        <!-- DEFAULT MAVEN PLUGINS -->
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>${maven.antrun.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${maven.assembly.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${maven.dependency.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>${maven.release.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${maven.clean.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>${maven.install.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${maven.deploy.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven.site.version}</version>
+          <configuration>
+            <topSiteURL>${site.url}</topSiteURL>
+          </configuration>
+        </plugin>
+
         <!-- ADDED MAVEN PLUGINS -->
         <plugin>
           <artifactId>maven-shade-plugin</artifactId>
@@ -146,20 +201,9 @@
           </executions>
         </plugin>
         <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <configuration>
-            <excludes>
-              <exclude>**/app/*</exclude>
-            </excludes>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.pitest</groupId>
-          <artifactId>pitest-maven</artifactId>
-          <configuration>
-            <skip>true</skip>
-          </configuration>
+          <groupId>io.fabric8</groupId>
+          <artifactId>docker-maven-plugin</artifactId>
+          <version>${docker.version}</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -174,55 +218,33 @@
         <artifactId>exec-maven-plugin</artifactId>
         <!-- version taken from the pluginManagement -->
       </plugin>
-      
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <!-- version taken from the parent -->
-      </plugin>
-      <plugin>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <!-- version taken from the parent -->
-      </plugin>
-      <plugin>
-        <groupId>io.fabric8</groupId>
-        <artifactId>docker-maven-plugin</artifactId>
-        <!-- version taken from the parent -->
-      </plugin>
     </plugins>
   </build>
   
   <profiles>
     <profile>
-      <id>sonar</id>
-      <properties>
-        <sonar.coverage.exclusions>
-          **/app/swing/*.*
-        </sonar.coverage.exclusions>
-        
-        <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
-        <!-- Rule: "Test classes should comply with a naming convention"  -->
-        <!-- SonarQube considers only Test and IT as suffixes for tests, not E2E -->
-        <sonar.issue.ignore.multicriteria.e1.ruleKey>java:S3577</sonar.issue.ignore.multicriteria.e1.ruleKey>
-        <sonar.issue.ignore.multicriteria.e1.resourceKey>**/*E2E.java</sonar.issue.ignore.multicriteria.e1.resourceKey>
-      </properties>
-    </profile>
-
-    <profile>
       <id>docker</id>
       <properties>
         <database.name>BookingApp_db</database.name>
+        
+        <!-- MONGODB PROPERTIES -->
+        <mongo.conf.volume>mongo_conf</mongo.conf.volume>
+        <mongo.data.volume>mongo_data</mongo.data.volume>
+        <mongo.hostname>mongodb</mongo.hostname>
+        <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
+        
+        <!-- POSTGRESQL PROPERTIES -->
+        <postgres.data.volume>postgresql_data</postgres.data.volume>
+        <postgres.hostname>postgresql</postgres.hostname>
         <database.username>postgres-user</database.username>
         <database.password>postgres-pswd</database.password>
-        <mongo.hostname>mongodb</mongo.hostname>
-        <postgres.hostname>postgresql</postgres.hostname>
       </properties>
       <build>
         <plugins>
           <plugin>
             <groupId>io.fabric8</groupId>
             <artifactId>docker-maven-plugin</artifactId>
-            <!-- version taken from the parent -->
+            <!-- version taken from the pluginManagement -->
             <configuration>
               <showLogs>true</showLogs>
             </configuration>
@@ -243,7 +265,7 @@
                       <build>
                         <contextDir>${project.basedir}</contextDir>
                         <args>
-                          <jarToCopy>${project.artifactId}-${project.version}-jar-with-dependencies.jar</jarToCopy>
+                          <jarToCopy>${fatjar.name}.jar</jarToCopy>
                         </args>
                         <tags>
                           <!-- %l (latest tag) is added by default -->
@@ -421,6 +443,15 @@
       </activation>
       <properties>
         <xserver.socket.location>/run/desktop/mnt/host/wslg/.X11-unix/</xserver.socket.location>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>sonar</id>
+      <properties>
+        <sonar.coverage.exclusions>
+          **/app/swing/*.*
+        </sonar.coverage.exclusions>
       </properties>
     </profile>
   </profiles>

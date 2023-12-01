@@ -101,16 +101,6 @@ public class BookingSwingApp implements Callable<Void> {
 	private String pswd = "postgres-pswd";
 
 	/**
-	 * The entity manager factory used to interact with the persistence provider.
-	 */
-	private EntityManagerFactory emf;
-
-	/**
-	 * The client for connecting to the MongoDB database.
-	 */
-	private MongoClient mongoClient;
-
-	/**
 	 * Main method using Picocli framework for managing arguments.
 	 * 
 	 * @param args	arguments needed for starting the application.
@@ -124,6 +114,8 @@ public class BookingSwingApp implements Callable<Void> {
 	 */
 	@Override
 	public Void call() throws Exception {
+		DatabaseHelper dbHelper = createDatabaseHelper(dbms);
+		
 		LOGGER.info("BookingApp is starting...");
 		EventQueue.invokeLater(() -> {
 			try {
@@ -131,20 +123,22 @@ public class BookingSwingApp implements Callable<Void> {
 				ClientRepositoryFactory clientRepositoryFactory = new ClientRepositoryFactory();
 				ReservationRepositoryFactory reservationRepositoryFactory = new ReservationRepositoryFactory();
 				
-				LOGGER.info(String.format("BookingApp is connecting with %s...", dbms));
-				TransactionManager transactionManager = createTransactionManager(transactionHandlerFactory,
+				LOGGER.info(String.format("BookingApp is connecting with %s...", dbHelper.getDBName()));
+				dbHelper.openDatabaseConnection();
+				LOGGER.info(String.format("The connection to %s has been established.", dbHelper.getDBName()));
+				
+				TransactionManager transactionManager = dbHelper.getTransactionDBManager(transactionHandlerFactory,
 						clientRepositoryFactory, reservationRepositoryFactory);
-				LOGGER.info(String.format("The connection to %s has been established.", dbms));
 				
 				BookingService bookingService = new TransactionalBookingService(transactionManager);
 				ClientValidator clientValidator = new RestrictedClientValidator();
 				ReservationValidator reservationValidator = new RestrictedReservationValidator();
 				
-				BookingSwingView bookingView = new BookingSwingView();
-				BookingPresenter bookingPresenter = new ServedBookingPresenter(bookingView,
+				BookingSwingView bookingSwingView = new BookingSwingView();
+				BookingPresenter bookingPresenter = new ServedBookingPresenter(bookingSwingView,
 						bookingService, clientValidator, reservationValidator);
-				bookingView.setBookingPresenter(bookingPresenter);
-				bookingView.setVisible(true);
+				bookingSwingView.setBookingPresenter(bookingPresenter);
+				bookingSwingView.setVisible(true);
 				bookingPresenter.allClients();
 				bookingPresenter.allReservations();
 				LOGGER.info("BookingApp is ready to be used.");
@@ -163,12 +157,9 @@ public class BookingSwingApp implements Callable<Void> {
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				LOGGER.info(String.format("BookingApp is closing connection with %s...", dbms));
-				if (dbms == DBMS.MONGO && mongoClient != null)
-					mongoClient.close();
-				if (dbms == DBMS.POSTGRES && emf != null && emf.isOpen())
-					emf.close();
-				LOGGER.info(String.format("BookingApp is no longer connected to %s.", dbms));
+				LOGGER.info(String.format("BookingApp is closing connection with %s...", dbHelper.getDBName()));
+				dbHelper.closeDatabaseConnection();
+				LOGGER.info(String.format("BookingApp is no longer connected to %s.", dbHelper.getDBName()));
 			}
 		});
 		
@@ -176,61 +167,19 @@ public class BookingSwingApp implements Callable<Void> {
 	}
 
 	/**
-	 * Starts connection to the chosen database and returns its transaction manager.
+	 * Creates an helper for the chosen database.
 	 * 
-	 * @param transactionHandlerFactory		the factory of {@code TransactionHandler} needed
-	 * 										for the transaction manager.
-	 * @param clientRepositoryFactory		the factory of {@code ClientRepository} needed
-	 * 										for the transaction manager.
-	 * @param reservationRepositoryFactory	the factory of {@code ReservationRepository} needed
-	 * 										for the transaction manager.
-	 * @return								a {@code TransactionManager} for the chosen database.
+	 * @param dbms						the chosen database.
+	 * @return							a {@code DatabaseHelper} specific for the chosen database.
+	 * @throws IllegalArgumentException	if there is no an helper for the specified {@code dbms}.
 	 */
-	private TransactionManager createTransactionManager(TransactionHandlerFactory transactionHandlerFactory,
-			ClientRepositoryFactory clientRepositoryFactory,
-			ReservationRepositoryFactory reservationRepositoryFactory) {
-		TransactionManager transactionManager = null;
-		if (dbms == DBMS.MONGO) {
-			mongoClient = getClient(String.format("mongodb://%s:%d", host, port));
-			transactionManager = new TransactionMongoManager(mongoClient, name,
-					transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
-		}
-		if (dbms == DBMS.POSTGRES) {
-			emf = Persistence.createEntityManagerFactory("postgres-app", Map.of(
-					"jakarta.persistence.jdbc.url", String.format("jdbc:postgresql://%s:%d/%s", host, port, name),
-					"jakarta.persistence.jdbc.user", user,
-					"jakarta.persistence.jdbc.password", pswd));
-			transactionManager = new TransactionPostgresManager(emf, transactionHandlerFactory,
-					clientRepositoryFactory, reservationRepositoryFactory);
-		}
-		return transactionManager;
-	}
-
-	/**
-	 * Returns a client connected to the MongoDB database.
-	 * 
-	 * @param connectionString	the MongoDB URL used for the connection.
-	 * @return					a {@code MongoClient} connected to MongoDB.
-	 */
-	private static MongoClient getClient(String connectionString) {
-		// define the CodecProvider for POJO classes
-		CodecProvider pojoCodecProvider = PojoCodecProvider.builder()
-				.conventions(Arrays.asList(ANNOTATION_CONVENTION, USE_GETTERS_FOR_SETTERS))
-				.automatic(true)
-				.build();
-		
-		// define the CodecRegistry as codecs and other related information
-		CodecRegistry pojoCodecRegistry =
-				fromRegistries(getDefaultCodecRegistry(),
-				fromProviders(pojoCodecProvider));
-		
-		// configure the MongoClient for using the CodecRegistry
-		MongoClientSettings settings = MongoClientSettings.builder()
-				.applyConnectionString(new ConnectionString(connectionString))
-				.uuidRepresentation(STANDARD)
-				.codecRegistry(pojoCodecRegistry)
-				.build();
-		return MongoClients.create(settings);
+	private DatabaseHelper createDatabaseHelper(DBMS dbms) throws IllegalArgumentException {
+		if (dbms == DBMS.MONGO)
+			return new MongoUtility();
+		if (dbms == DBMS.POSTGRES)
+			return new PostgresUtility();
+		throw new IllegalArgumentException(
+				String.format("Cannot create a database helper for the given DBMS=%s", dbms));
 	}
 
 	/**
@@ -258,5 +207,203 @@ public class BookingSwingApp implements Callable<Void> {
 		 * Defines the use of the PostgreSQL DBMS.
 		 */
 		POSTGRES
+	}
+
+	/**
+	 * This interface provides methods for operating in the application using the DBMS functionality.
+	 */
+	interface DatabaseHelper {
+
+		/**
+		 * Retrieves the complete name of chosen database.
+		 */
+		public String getDBName();
+
+		/**
+		 * Opens the connection to the chosen database.
+		 */
+		public void openDatabaseConnection();
+
+		/**
+		 * Creates a transaction manager for the chosen database.
+		 * 
+		 * @param transactionHandlerFactory		the factory of {@code TransactionHandler} needed
+		 * 										for the transaction manager.
+		 * @param clientRepositoryFactory		the factory of {@code ClientRepository} needed
+		 * 										for the transaction manager.
+		 * @param reservationRepositoryFactory	the factory of {@code ReservationRepository} needed
+		 * 										for the transaction manager.
+		 * @return								a {@code TransactionManager} for the chosen database.
+		 */
+		public TransactionManager getTransactionDBManager(TransactionHandlerFactory transactionHandlerFactory,
+				ClientRepositoryFactory clientRepositoryFactory,
+				ReservationRepositoryFactory reservationRepositoryFactory);
+
+		/**
+		 * Closes the opened connection to the chosen database.
+		 */
+		public void closeDatabaseConnection();
+	}
+
+	/**
+	 * Implements methods for operating in the application using the MongoDB functionality.
+	 */
+	class MongoUtility implements DatabaseHelper {
+		/**
+		 * Mongo complete name.
+		 */
+		private static final String MONGO_DB = "MongoDB";
+
+		/**
+		 * The client for connecting to the MongoDB database.
+		 */
+		private MongoClient mongoClient;
+
+		/**
+		 * Default constructor.
+		 */
+		public MongoUtility() {
+			super();
+			mongoClient = null;
+		}
+
+		/**
+		 * Retrieves the complete name of MongoDB.
+		 */
+		public String getDBName() {
+			return MONGO_DB;
+		}
+
+		/**
+		 * Opens the connection to MongoDB through a {@code MongoClient}.
+		 */
+		@Override
+		public void openDatabaseConnection() {
+			mongoClient = getClient(String.format("mongodb://%s:%d", host, port));
+		}
+
+		/**
+		 * Returns a client connected to the MongoDB database.
+		 * 
+		 * @param connectionString	the MongoDB URL used for the connection.
+		 * @return					a {@code MongoClient} connected to MongoDB.
+		 */
+		private MongoClient getClient(String connectionString) {
+			// define the CodecProvider for POJO classes
+			CodecProvider pojoCodecProvider = PojoCodecProvider.builder()
+					.conventions(Arrays.asList(ANNOTATION_CONVENTION, USE_GETTERS_FOR_SETTERS))
+					.automatic(true)
+					.build();
+			
+			// define the CodecRegistry as codecs and other related information
+			CodecRegistry pojoCodecRegistry =
+					fromRegistries(getDefaultCodecRegistry(),
+					fromProviders(pojoCodecProvider));
+			
+			// configure the MongoClient for using the CodecRegistry
+			MongoClientSettings settings = MongoClientSettings.builder()
+					.applyConnectionString(new ConnectionString(connectionString))
+					.uuidRepresentation(STANDARD)
+					.codecRegistry(pojoCodecRegistry)
+					.build();
+			return MongoClients.create(settings);
+		}
+
+		/**
+		 * Creates a transaction manager for MongoDB.
+		 * 
+		 * @param transactionHandlerFactory		the factory of {@code TransactionHandler} needed
+		 * 										for the transaction manager.
+		 * @param clientRepositoryFactory		the factory of {@code ClientRepository} needed
+		 * 										for the transaction manager.
+		 * @param reservationRepositoryFactory	the factory of {@code ReservationRepository} needed
+		 * 										for the transaction manager.
+		 * @return								a {@code TransactionMongoManager} for MongoDB.
+		 */
+		@Override
+		public TransactionManager getTransactionDBManager(TransactionHandlerFactory transactionHandlerFactory,
+				ClientRepositoryFactory clientRepositoryFactory,
+				ReservationRepositoryFactory reservationRepositoryFactory) {
+			return new TransactionMongoManager(mongoClient, name, transactionHandlerFactory,
+					clientRepositoryFactory, reservationRepositoryFactory);
+		}
+
+		/**
+		 * Closes the opened {@code MongoClient} connection to MongoDB.
+		 */
+		@Override
+		public void closeDatabaseConnection() {
+			if (mongoClient != null)
+				mongoClient.close();
+		}
+	}
+
+	/**
+	 * Implements methods for operating in the application using the PostgreSQL functionality.
+	 */
+	class PostgresUtility implements DatabaseHelper {
+		/**
+		 * Postgres complete name.
+		 */
+		private static final String POSTGRE_SQL = "PostgreSQL";
+
+		/**
+		 * The entity manager factory used to interact with the persistence provider.
+		 */
+		private EntityManagerFactory emf;
+
+		/**
+		 * Default constructor.
+		 */
+		public PostgresUtility() {
+			super();
+			emf = null;
+		}
+
+		/**
+		 * Retrieves the complete name of PostgreSQL.
+		 */
+		public String getDBName() {
+			return POSTGRE_SQL;
+		}
+
+		/**
+		 * Opens the connection to PostgreSQL through a {@code EntityManagerFactory}.
+		 */
+		@Override
+		public void openDatabaseConnection() {
+			emf = Persistence.createEntityManagerFactory("postgres-app", Map.of(
+					"jakarta.persistence.jdbc.url", String.format("jdbc:postgresql://%s:%d/%s", host, port, name),
+					"jakarta.persistence.jdbc.user", user,
+					"jakarta.persistence.jdbc.password", pswd));
+		}
+
+		/**
+		 * Creates a transaction manager for PostgreSQL.
+		 * 
+		 * @param transactionHandlerFactory		the factory of {@code TransactionHandler} needed
+		 * 										for the transaction manager.
+		 * @param clientRepositoryFactory		the factory of {@code ClientRepository} needed
+		 * 										for the transaction manager.
+		 * @param reservationRepositoryFactory	the factory of {@code ReservationRepository} needed
+		 * 										for the transaction manager.
+		 * @return								a {@code TransactionPostgresManager} for PostgreSQL.
+		 */
+		@Override
+		public TransactionManager getTransactionDBManager(TransactionHandlerFactory transactionHandlerFactory,
+				ClientRepositoryFactory clientRepositoryFactory,
+				ReservationRepositoryFactory reservationRepositoryFactory) {
+			return new TransactionPostgresManager(emf, transactionHandlerFactory,
+					clientRepositoryFactory, reservationRepositoryFactory);
+		}
+
+		/**
+		 * Closes the opened {@code EntityManagerFactory} connection to PostgreSQL.
+		 */
+		@Override
+		public void closeDatabaseConnection() {
+			if (emf != null && emf.isOpen())
+				emf.close();
+		}
 	}
 }
