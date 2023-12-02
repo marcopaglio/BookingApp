@@ -11,7 +11,7 @@
   
   <name>BookingApp - Aggregate Reports</name>
   <description>
-    It produces aggregate reports of Pitest (mutation testing) and JaCoCo (coverage) for modules.
+    It produces aggregate reports of JaCoCo (coverage) and Pitest (mutation testing) for modules.
     Jacoco report is also used for coverage monitoring in Coveralls.
   </description>
   
