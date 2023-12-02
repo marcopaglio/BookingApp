@@ -175,9 +175,9 @@ public class BookingSwingApp implements Callable<Void> {
 	 */
 	private DatabaseHelper createDatabaseHelper(DBMS dbms) throws IllegalArgumentException {
 		if (dbms == DBMS.MONGO)
-			return new MongoUtility();
+			return new MongoHelper();
 		if (dbms == DBMS.POSTGRES)
-			return new PostgresUtility();
+			return new PostgresHelper();
 		throw new IllegalArgumentException(
 				String.format("Cannot create a database helper for the given DBMS=%s", dbms));
 	}
@@ -248,7 +248,7 @@ public class BookingSwingApp implements Callable<Void> {
 	/**
 	 * Implements methods for operating in the application using the MongoDB functionality.
 	 */
-	class MongoUtility implements DatabaseHelper {
+	class MongoHelper implements DatabaseHelper {
 		/**
 		 * Mongo complete name.
 		 */
@@ -262,7 +262,7 @@ public class BookingSwingApp implements Callable<Void> {
 		/**
 		 * Default constructor.
 		 */
-		public MongoUtility() {
+		public MongoHelper() {
 			super();
 			mongoClient = null;
 		}
@@ -341,7 +341,7 @@ public class BookingSwingApp implements Callable<Void> {
 	/**
 	 * Implements methods for operating in the application using the PostgreSQL functionality.
 	 */
-	class PostgresUtility implements DatabaseHelper {
+	class PostgresHelper implements DatabaseHelper {
 		/**
 		 * Postgres complete name.
 		 */
@@ -355,7 +355,7 @@ public class BookingSwingApp implements Callable<Void> {
 		/**
 		 * Default constructor.
 		 */
-		public PostgresUtility() {
+		public PostgresHelper() {
 			super();
 			emf = null;
 		}
