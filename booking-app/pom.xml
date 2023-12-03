@@ -324,7 +324,7 @@
                           <HOST>${mongo.hostname}</HOST>
                           <PORT>27017</PORT>
                           <DB_NAME>${database.name}</DB_NAME>
-                          <DISPLAY>:0</DISPLAY>
+                          <DISPLAY>:0.0</DISPLAY>
                         </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
@@ -388,7 +388,7 @@
                           <DB_NAME>${database.name}</DB_NAME>
                           <USER>${database.username}</USER>
                           <PSWD>${database.password}</PSWD>
-                          <DISPLAY>:0</DISPLAY>
+                          <DISPLAY>:0.0</DISPLAY>
                         </env>
                         <wait>
                           <log>BookingApp is ready to be used.</log>
