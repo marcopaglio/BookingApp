@@ -3,7 +3,6 @@ package io.github.marcopaglio.booking.presenter.served;
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
-import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOOKING_DB_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.bson.UuidRepresentation.STANDARD;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
@@ -69,6 +68,13 @@ class ServedMongoBookingPresenterIT {
 	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse(ANOTHER_DATE);
 	private static final UUID ANOTHER_RESERVATION_UUID = UUID.fromString("f9e3dd0c-c3ff-4d4f-a3d1-108fcb3a697d");
 
+	final static private String CLIENT_STRING = "Client named " + A_FIRSTNAME + " " + A_LASTNAME;
+	private static final String RESERVATION_STRING = "Reservation on " + A_DATE;
+
+	private static final String MONGODB_NAME = "ITandE2ETest_db";
+	private static String mongoHost = System.getProperty("mongo.host", "localhost");
+	private static int mongoPort = Integer.parseInt(System.getProperty("mongo.port", "27017"));
+
 	private static MongoClient mongoClient;
 
 	private static MongoDatabase database;
@@ -100,8 +106,8 @@ class ServedMongoBookingPresenterIT {
 
 	@BeforeAll
 	static void setupClient() throws Exception {
-		mongoClient = getClient(System.getProperty("mongo.connectionString", "mongodb://localhost:27017"));
-		database = mongoClient.getDatabase(BOOKING_DB_NAME);
+		mongoClient = getClient(String.format("mongodb://%s:%d", mongoHost, mongoPort));
+		database = mongoClient.getDatabase(MONGODB_NAME);
 		clientCollection = database.getCollection(CLIENT_TABLE_DB, Client.class);
 		reservationCollection = database.getCollection(RESERVATION_TABLE_DB, Reservation.class);
 	}
@@ -134,8 +140,8 @@ class ServedMongoBookingPresenterIT {
 		transactionHandlerFactory = new TransactionHandlerFactory();
 		clientRepositoryFactory = new ClientRepositoryFactory();
 		reservationRepositoryFactory = new ReservationRepositoryFactory();
-		transactionMongoManager = new TransactionMongoManager(mongoClient, transactionHandlerFactory,
-				clientRepositoryFactory, reservationRepositoryFactory);
+		transactionMongoManager = new TransactionMongoManager(mongoClient, MONGODB_NAME,
+				transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
 		
 		transactionalBookingService = new TransactionalBookingService(transactionMongoManager);
 		
@@ -239,7 +245,7 @@ class ServedMongoBookingPresenterIT {
 			
 			presenter.deleteClient(client);
 			
-			verify(view).showOperationError(client.toString() + " no longer exists.");
+			verify(view).showOperationError(CLIENT_STRING + " no longer exists.");
 			verify(view).showAllReservations(Collections.emptyList());
 			verify(view).showAllClients(Collections.emptyList());
 		}
@@ -271,7 +277,7 @@ class ServedMongoBookingPresenterIT {
 			
 			presenter.deleteReservation(reservation);
 			
-			verify(view).showOperationError(reservation.toString() + " no longer exists.");
+			verify(view).showOperationError(RESERVATION_STRING + " no longer exists.");
 			verify(view).showAllReservations(Collections.emptyList());
 			verify(view).showAllClients(Collections.emptyList());
 		}
@@ -306,8 +312,7 @@ class ServedMongoBookingPresenterIT {
 			
 			presenter.addClient(A_FIRSTNAME, A_LASTNAME);
 			
-			verify(view).showOperationError("A client named " + A_FIRSTNAME
-					+ " " + A_LASTNAME + " has already been made.");
+			verify(view).showOperationError(CLIENT_STRING + " already exists.");
 			verify(view).showAllReservations(Collections.emptyList());
 			verify(view).showAllClients(Arrays.asList(client));
 		}
@@ -346,8 +351,7 @@ class ServedMongoBookingPresenterIT {
 			
 			presenter.addReservation(client, A_DATE);
 			
-			verify(view).showOperationError(
-					"A reservation on " + A_DATE + " has already been made.");
+			verify(view).showOperationError(RESERVATION_STRING + " already exists.");
 			verify(view).showAllReservations(Arrays.asList(reservation));
 			verify(view).showAllClients(Arrays.asList(client));
 		}
@@ -390,8 +394,8 @@ class ServedMongoBookingPresenterIT {
 			
 			presenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
-			verify(view).showOperationError("A client named " + ANOTHER_FIRSTNAME
-					+ " " + ANOTHER_LASTNAME + " has already been made.");
+			verify(view).showOperationError(
+					"Client named " + ANOTHER_FIRSTNAME + " " + ANOTHER_LASTNAME + " already exists.");
 			verify(view).showAllReservations(Collections.emptyList());
 			verify(view).showAllClients(Arrays.asList(client, another_client));
 		}
@@ -431,8 +435,7 @@ class ServedMongoBookingPresenterIT {
 			
 			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
-			verify(view).showOperationError(
-					"A reservation on " + ANOTHER_DATE + " has already been made.");
+			verify(view).showOperationError("Reservation on " + ANOTHER_DATE + " already exists.");
 			// updateAll
 			verify(view).showAllReservations(Arrays.asList(reservation, another_reservation));
 			verify(view).showAllClients(Collections.emptyList());

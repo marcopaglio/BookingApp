@@ -29,6 +29,8 @@ import jakarta.persistence.Persistence;
 @Testcontainers
 class ReservationRepositoryFactoryTest {
 
+	private static final String BOOKING_DB_NAME = "ReservationRepositoryFactoryTest_db";
+
 	@Container
 	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
 	private static MongoClient mongoClient;
@@ -36,7 +38,7 @@ class ReservationRepositoryFactoryTest {
 
 	@Container
 	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.2")
-		.withDatabaseName("ReservationRepositoryFactoryTest_db")
+		.withDatabaseName(BOOKING_DB_NAME)
 		.withUsername("postgres-test")
 		.withPassword("postgres-test");
 	private static EntityManagerFactory emf;
@@ -48,6 +50,7 @@ class ReservationRepositoryFactoryTest {
 	public static void setupServer() {
 		mongoClient = MongoClients.create(mongo.getConnectionString());
 		
+		System.setProperty("db.host", postgreSQLContainer.getHost());
 		System.setProperty("db.port", postgreSQLContainer.getFirstMappedPort().toString());
 		System.setProperty("db.name", postgreSQLContainer.getDatabaseName());
 		emf = Persistence.createEntityManagerFactory("postgres-test");
@@ -86,7 +89,7 @@ class ReservationRepositoryFactoryTest {
 			@Test
 			@DisplayName("Valid parameters")
 			void testCreateReservationRepositoryWhenParametersAreValidShouldReturnClientMongoRepository() {
-				assertThat(reservationRepositoryFactory.createReservationRepository(mongoClient, session))
+				assertThat(reservationRepositoryFactory.createReservationRepository(mongoClient, session, BOOKING_DB_NAME))
 					.isInstanceOf(ReservationMongoRepository.class);
 			}
 
@@ -94,7 +97,7 @@ class ReservationRepositoryFactoryTest {
 			@DisplayName("Null mongoClient")
 			void testCreateReservationRepositoryWhenMongoClientIsNullShouldThrow() {
 				assertThatThrownBy(
-						() -> reservationRepositoryFactory.createReservationRepository(null, session))
+						() -> reservationRepositoryFactory.createReservationRepository(null, session, BOOKING_DB_NAME))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Cannot create a ReservationMongoRepository from a null Mongo client.");
 			}
@@ -103,7 +106,7 @@ class ReservationRepositoryFactoryTest {
 			@DisplayName("Null session")
 			void testCreateReservationRepositoryWhenSessionIsNullShouldThrow() {
 				assertThatThrownBy(
-						() -> reservationRepositoryFactory.createReservationRepository(mongoClient, null))
+						() -> reservationRepositoryFactory.createReservationRepository(mongoClient, null, BOOKING_DB_NAME))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage(
 							"Cannot create a ReservationMongoRepository from a null Mongo client session.");

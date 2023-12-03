@@ -24,7 +24,7 @@ import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationExce
 import io.github.marcopaglio.booking.model.Reservation;
 import io.github.marcopaglio.booking.repository.ReservationRepository;
 
-import static io.github.marcopaglio.booking.model.BaseEntity.ID_DB;
+import static io.github.marcopaglio.booking.model.BaseEntity.ID_MONGODB;
 import static io.github.marcopaglio.booking.model.Reservation.DATE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.CLIENTID_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
@@ -42,12 +42,13 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	 * Constructs a repository layer for Reservation entities using MongoDB database. 
 	 * The construction generates and configures a collection for using by the repository.
 	 * 
-	 * @param client	the {@code MongoClient} used to retrieve the collection.
-	 * @param session	the {@code ClientSession} used to communicate with MongoDB database.
+	 * @param client		the {@code MongoClient} used to retrieve the collection.
+	 * @param session		the {@code ClientSession} used to communicate with MongoDB database.
+	 * @param databaseName	the name of the database in which the repository works.
 	 */
-	public ReservationMongoRepository(MongoClient client, ClientSession session) {
+	public ReservationMongoRepository(MongoClient client, ClientSession session, String databaseName) {
 		super(client
-				.getDatabase(BOOKING_DB_NAME)
+				.getDatabase(databaseName)
 				.getCollection(RESERVATION_TABLE_DB, Reservation.class),
 				session);
 		
@@ -92,7 +93,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	 */
 	@Override
 	public Optional<Reservation> findById(UUID id) {
-		Reservation reservation = collection.find(session, Filters.eq(ID_DB, id)).first();
+		Reservation reservation = collection.find(session, Filters.eq(ID_MONGODB, id)).first();
 		
 		if (reservation != null)
 			return Optional.of(reservation);
@@ -165,7 +166,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	private void replaceIfFound(Reservation reservation) throws UpdateFailureException {
 		if (collection.replaceOne(
 					session,
-					Filters.eq(ID_DB, reservation.getId()),
+					Filters.eq(ID_MONGODB, reservation.getId()),
 					reservation,
 					new ReplaceOptions().upsert(false))
 				.getModifiedCount() == 0)
@@ -186,7 +187,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 			throw new IllegalArgumentException("Reservation to delete cannot be null.");
 		
 		if (reservation.getId() != null) {
-			if(collection.deleteOne(session, Filters.eq(ID_DB, reservation.getId()))
+			if(collection.deleteOne(session, Filters.eq(ID_MONGODB, reservation.getId()))
 					.getDeletedCount() == 0)
 				LOGGER.warn(() -> reservation.toString() +
 						" has already been deleted from the database.");

@@ -1,6 +1,8 @@
 package io.github.marcopaglio.booking.view.swing;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -17,6 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.JLabel;
 import java.awt.Insets;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
@@ -30,6 +33,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionListener;
 import java.awt.Color;
+import java.awt.Component;
 
 /**
  * A concrete implementation of the view for the booking application using Swing.
@@ -69,10 +73,11 @@ public class BookingSwingView extends JFrame implements BookingView {
 
 	// METHODS
 	/**
-	 * Sets the presenter that is called when a button is clicked.
+	 * Sets the presenter called to carry out the actions of the controls.
 	 * 
 	 * @param bookingPresenter	the presenter of the booking application.
 	 */
+	@Generated
 	public void setBookingPresenter(BookingPresenter bookingPresenter) {
 		this.bookingPresenter = bookingPresenter;
 	}
@@ -444,11 +449,53 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 * This handler enables:
 	 * 1) {@code rescheduleBtn} if date forms aren't blank and a reservation is selected;
 	 * 2) {@code removeReservationBtn} if a reservation is selected.
+	 * And, if a reservation is selected, it selects the associated client in the client list.
 	 */
 	private final transient ListSelectionListener reservationListListener = e -> {
 		rescheduleBtn.setEnabled(checkRescheduleBtnRequirements());
 		removeReservationBtn.setEnabled(checkRemoveReservationRequirements());
+		selectAssociatedClient();
 	};
+
+	/**
+	 * Selects the client of the client list associated to the reservation selected, if it exists,
+	 * or clears the selection, otherwise.
+	 */
+	private void selectAssociatedClient() {
+		if (!reservationList.isSelectionEmpty()) {
+			Reservation reservationSelected = reservationList.getSelectedValue();
+			if (reservationSelected != null) {
+				clientList.setSelectedValue(
+					getClientToSelect(
+							reservationSelected.getClientId(),
+							clientListModel.toArray())
+					, true);
+			} else
+				clientList.clearSelection();
+		}
+	}
+
+	/**
+	 * Retrieves the client of the list with the specified identifier, if it exists.
+	 * 
+	 * @param clientId		the identifier of the client to retrieve.
+	 * @param clientsInList	the list in which to search for the client to retrieve.
+	 * @return				the {@code Client} with the specified identifier, if it exists;
+	 * 						a {@code null} object, otherwise.
+	 */
+	private Client getClientToSelect(UUID clientId, Object[] clientsInList) {
+		int size = clientsInList.length;
+		Client clientToSelect = null;
+		int i = 0;
+		while(clientToSelect == null && i < size) {
+			Client client = (Client) clientsInList[i];
+			if (client != null && Objects.equals(client.getId(), clientId)) {
+				clientToSelect = client;
+			}
+			i++;
+		}
+		return clientToSelect;
+	}
 
 	/**
 	 * Action activated on clicking on {@code addClientBtn}. This handler disables
@@ -805,6 +852,17 @@ public class BookingSwingView extends JFrame implements BookingView {
 		
 		clientListModel = new DefaultListModel<>();
 		clientList = new JList<>(clientListModel);
+		clientList.setCellRenderer(new DefaultListCellRenderer() {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value,
+					int index, boolean isSelected, boolean cellHasFocus) {
+				return super.getListCellRendererComponent(list,
+						getDisplayString((Client) value),
+						index, isSelected, cellHasFocus);
+			}
+		});
 		clientList.addListSelectionListener(clientListListener);
 		clientList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		clientList.setName("clientList");
@@ -822,6 +880,17 @@ public class BookingSwingView extends JFrame implements BookingView {
 		
 		reservationListModel = new DefaultListModel<>();
 		reservationList = new JList<>(reservationListModel);
+		reservationList.setCellRenderer(new DefaultListCellRenderer() {
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public Component getListCellRendererComponent(JList<?> list, Object value,
+					int index, boolean isSelected, boolean cellHasFocus) {
+				return super.getListCellRendererComponent(list,
+						getDisplayString((Reservation) value),
+						index, isSelected, cellHasFocus);
+			}
+		});
 		reservationList.addListSelectionListener(reservationListListener);
 		reservationList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		reservationList.setName("reservationList");
@@ -859,5 +928,29 @@ public class BookingSwingView extends JFrame implements BookingView {
 		gbcReservationErrorMsgLbl.gridx = 0;
 		gbcReservationErrorMsgLbl.gridy = 5;
 		contentPane.add(operationErrorMsgLbl, gbcReservationErrorMsgLbl);
+	}
+
+	/**
+	 * Generates a description string of the reservation.
+	 *  
+	 * @param reservation	reservation for which the string is generated.
+	 * @return				a descriptor {@code String} of the reservation.
+	 */
+	private String getDisplayString(Reservation reservation) {
+		if (reservation != null)
+			return "Reservation [" + reservation.getDate() + "]";
+		return String.valueOf(reservation);
+	}
+
+	/**
+	 * Generates a description string of the client.
+	 *  
+	 * @param client	client for which the string is generated.
+	 * @return			a descriptor {@code String} of the client.
+	 */
+	private String getDisplayString(Client client) {
+		if (client != null)
+			return "Client [" + client.getFirstName() + " " + client.getLastName() + "]";
+		return String.valueOf(client);
 	}
 }

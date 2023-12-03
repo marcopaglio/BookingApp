@@ -29,10 +29,12 @@
     <log4j.version>2.20.0</log4j.version>
     <mongo.version>4.9.1</mongo.version>
     <hibernate.version>6.3.0.CR1</hibernate.version>
+    <postgresql.version>42.6.0</postgresql.version>
+    <logback.version>1.2.12</logback.version>
 
     <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
     <maven.antrun.version>3.1.0</maven.antrun.version>
-    <maven.assembly.version>3.5.0</maven.assembly.version>
+    <maven.assembly.version>3.6.0</maven.assembly.version>
     <maven.dependency.version>3.5.0</maven.dependency.version>
     <maven.release.version>3.0.0-M7</maven.release.version>
     <maven.clean.version>3.2.0</maven.clean.version>
@@ -63,6 +65,7 @@
         <artifactId>booking-ui-module</artifactId>
         <version>${project.version}</version>
       </dependency>
+      
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
         <artifactId>log4j-bom</artifactId>
@@ -79,6 +82,24 @@
         <groupId>org.hibernate.orm</groupId>
         <artifactId>hibernate-core</artifactId>
         <version>${hibernate.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate.orm</groupId>
+        <artifactId>hibernate-hikaricp</artifactId>
+        <version>${hibernate.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <version>${postgresql.version}</version>
+      </dependency>
+      <dependency>
+        <!-- required to see Testcontainers logs -->
+        <!-- required to see Mongo Driver Sync logs -->
+        <!-- required to see Hibernate with HikariCP logs -->
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>${logback.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -127,14 +148,6 @@
         <plugin>
           <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>${maven.reports.version}</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>${maven.surefire.version}</version>
-        </plugin>
-        <plugin>
-          <artifactId>maven-failsafe-plugin</artifactId>
-          <version>${maven.surefire.version}</version>
         </plugin>
         <plugin>
           <artifactId>maven-surefire-report-plugin</artifactId>

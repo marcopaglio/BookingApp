@@ -1,0 +1,38 @@
+# This docker-compose is used to run locally PostgreSQL.
+# From the local directory of this file, run the following command on the terminal:
+# $ docker-compose up
+
+# This can be reproduce using the command line with:
+# $ docker run -d --name postgreSQL -p 5432:5432 -e POSTGRES_DB=ITandE2ETest_db -e POSTGRES_USER=postgres-it-e2e -e POSTGRES_PASSWORD=postgres-it-e2e -N 221 --rm postgres:15.3
+
+# Below is a brief explanation of the arguments used:
+# -d                          execute in detached mode.
+# --name <hostname>           container name, also used as hostname.
+# -p <port>:5432              container port mapping.
+# -e POSTGRES_DB=<db_name>    set environment variable of PostgreSQL database name.
+# -e POSTGRES_USER=<username> set environment variable of PostgreSQL username.
+# -e POSTGRES_PASSWORD=<pswd> set environment variable of PostgreSQL password.
+# -N <num_of_connections>     set max_connections to <num_of_connections>
+# --rm                        for removing container at its end.
+# postgres:<tag>              PostgreSQL image.
+
+version: "3"
+
+services:
+  postgres:
+    image: postgres:15.3
+    container_name: postgreSQL
+    ports:
+    - "5432:5432"
+    command: -c 'max_connections=221'
+    environment:
+    # If you change these values, you must delete the old volumes (not only the old container!)
+    # before running $ docker-compose up; otherwise, they will remain the same as before.
+    - POSTGRES_DB=ITandE2ETest_db
+    - POSTGRES_USER=postgres-it-e2e
+    - POSTGRES_PASSWORD=postgres-it-e2e
+    volumes:
+    - postgresql_data:/var/lib/postgresql/data
+
+volumes:
+  postgresql_data:

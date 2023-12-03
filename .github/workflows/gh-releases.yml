@@ -1,0 +1,112 @@
+name: Release content to GitHub Releases
+
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - v* # Push events to matching v*
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment
+permissions:
+  contents: write
+
+# Allow one concurrent deployment
+concurrency:
+  group: "releases"
+  cancel-in-progress: true
+
+
+jobs:
+  build:
+    name: Build and generate jars
+    runs-on: ubuntu-22.04
+    env:
+      workdir: booking-aggregator
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: 11
+
+    - name: Cache dependencies
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml', '**/*.yml') }}
+        restore-keys:  ${{ runner.os }}-m2-
+
+    - name: Build with Maven Wrapper
+      run: xvfb-run --server-num=0 --server-args="-ac" ../mvnw install -Ppitest,docker
+      working-directory: ${{ env.workdir }}
+
+    - name: Archive FatJar
+      uses: actions/upload-artifact@v3
+      with:
+        #name: 
+        path: '**/target/*-jar-with-dependencies.jar'
+        if-no-files-found: error
+        retention-days: 30
+
+    - name: Generate Sources Jar
+      run: ../mvnw source:aggregate
+      working-directory: ${{ env.workdir }}
+
+    - name: Archive Sources Jar
+      uses: actions/upload-artifact@v3
+      with:
+        #name: 
+        path: '**/target/*-sources.jar'
+        if-no-files-found: error
+        retention-days: 30
+
+    - name: Generate Javadocs Jar
+      run: ../mvnw javadoc:aggregate-jar
+      working-directory: ${{ env.workdir }}
+
+    - name: Archive Javadocs Jar
+      uses: actions/upload-artifact@v3
+      with:
+        #name: 
+        path: '**/target/*-javadoc.jar'
+        if-no-files-found: error
+        retention-days: 30
+
+  release:
+    name: Release job
+    needs: build
+    runs-on: ubuntu-22.04
+    environment:
+      name: github-releases
+    
+    steps:
+    - name: Create Changelog
+      id: changelog
+      uses: scottbrenner/generate-changelog-action@master
+      env:
+        REPO: ${{ github.repository }}
+
+    - name: Download Jars
+      uses: actions/download-artifact@v3
+
+    - name: Deploy to GitHub Releases
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref }}
+        name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+        body: |
+            ${{ steps.changelog.outputs.changelog }}
+        files: |
+          **/*-jar-with-dependencies.jar
+          **/*-sources.jar
+          **/*-javadoc.jar

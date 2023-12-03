@@ -1,0 +1,458 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.github.marcopaglio</groupId>
+  <artifactId>booking-app</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  
+  <name>BookingApp - Application</name>
+  <description>
+    The application itself that contains everything you need to start a new instance of BookingApp.
+  </description>
+  <url>${site.url}booking-app</url>
+  <inceptionYear>2023</inceptionYear>
+  
+  <distributionManagement>
+    <site>
+      <id>${project.artifactId}</id>
+      <name>${project.name}</name>
+      <url>${site.url}booking-app</url>
+    </site>
+  </distributionManagement>
+  
+  <properties>
+    <!-- PROJECT PROPERTIES -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <site.url>https://marcopaglio.github.io/BookingApp/</site.url>
+    <fatjar.name>${project.artifactId}-${project.version}-jar-with-dependencies</fatjar.name>
+    <xserver.socket.location>/tmp/.X11-unix</xserver.socket.location>
+
+    <!-- VERSIONS FOR DEPENDENCIES -->
+    <picocli.version>4.7.5</picocli.version>
+
+    <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
+    <maven.antrun.version>3.1.0</maven.antrun.version>
+    <maven.assembly.version>3.6.0</maven.assembly.version>
+    <maven.dependency.version>3.5.0</maven.dependency.version>
+    <maven.release.version>3.0.0-M7</maven.release.version>
+    <maven.clean.version>3.2.0</maven.clean.version>
+    <maven.install.version>3.1.0</maven.install.version>
+    <maven.deploy.version>3.1.0</maven.deploy.version>
+    <maven.site.version>4.0.0-M5</maven.site.version>
+
+    <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
+    <maven.shade.version>3.5.1</maven.shade.version>
+
+    <!-- VERSIONS FOR OTHER PLUGINS -->
+    <exec.version>3.1.0</exec.version>
+    <docker.version>0.43.4</docker.version>
+  </properties>
+  
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <!-- Synchronizing groupId and version with BOM forces to be updated -->
+        <groupId>${project.groupId}</groupId>
+        <artifactId>booking-bom</artifactId>
+        <version>${project.version}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>info.picocli</groupId>
+        <artifactId>picocli</artifactId>
+        <version>${picocli.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>booking-ui-module</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongodb-driver-sync</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate.orm</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate.orm</groupId>
+      <artifactId>hibernate-hikaricp</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+
+    <dependency>
+      <groupId>info.picocli</groupId>
+      <artifactId>picocli</artifactId>
+      <!-- version taken from the dependencyManagement -->
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <pluginManagement>
+      <plugins>
+        <!-- DEFAULT MAVEN PLUGINS -->
+        <plugin>
+          <artifactId>maven-antrun-plugin</artifactId>
+          <version>${maven.antrun.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <version>${maven.assembly.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${maven.dependency.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>${maven.release.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${maven.clean.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>${maven.install.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${maven.deploy.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven.site.version}</version>
+          <configuration>
+            <topSiteURL>${site.url}</topSiteURL>
+          </configuration>
+        </plugin>
+
+        <!-- ADDED MAVEN PLUGINS -->
+        <plugin>
+          <artifactId>maven-shade-plugin</artifactId>
+          <version>${maven.shade.version}</version>
+          <configuration>
+            <finalName>${fatjar.name}</finalName>
+            <transformers>
+              <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                <mainClass>io.github.marcopaglio.booking.app.swing.BookingSwingApp</mainClass>
+              </transformer>
+            </transformers>
+            <createDependencyReducedPom>false</createDependencyReducedPom>
+          </configuration>
+          <executions>
+            <execution>
+              <phase>package</phase>
+              <goals>
+                <goal>shade</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+
+        <!-- OTHER PLUGINS -->
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>${exec.version}</version>
+          <executions>
+            <execution>
+              <id>run-jar-with-dependencies</id>
+              <phase>verify</phase>
+              <goals>
+                <goal>exec</goal>
+              </goals>
+              <configuration>
+                <executable>java</executable>
+                <arguments>
+                  <argument>-jar</argument>
+                  <argument>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar</argument>
+                </arguments>
+                <successCodes>
+                  <!-- Execution not include server, so startup will have to fail with exiting code 255 -->
+                  <successCode>255</successCode>
+                </successCodes>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>io.fabric8</groupId>
+          <artifactId>docker-maven-plugin</artifactId>
+          <version>${docker.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    
+    <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <!-- version taken from pluginManagement -->
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <!-- version taken from the pluginManagement -->
+      </plugin>
+    </plugins>
+  </build>
+  
+  <profiles>
+    <profile>
+      <id>docker</id>
+      <properties>
+        <database.name>BookingApp_db</database.name>
+        
+        <!-- MONGODB PROPERTIES -->
+        <mongo.conf.volume>mongo_conf</mongo.conf.volume>
+        <mongo.data.volume>mongo_data</mongo.data.volume>
+        <mongo.hostname>mongodb</mongo.hostname>
+        <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
+        
+        <!-- POSTGRESQL PROPERTIES -->
+        <postgres.data.volume>postgresql_data</postgres.data.volume>
+        <postgres.hostname>postgresql</postgres.hostname>
+        <database.username>postgres-user</database.username>
+        <database.password>postgres-pswd</database.password>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+            <!-- version taken from the pluginManagement -->
+            <configuration>
+              <showLogs>true</showLogs>
+            </configuration>
+            <executions>
+              <execution>
+                <id>docker-build-image</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>build</goal>
+                </goals>
+                <configuration>
+                  <verbose>build</verbose>
+                  <images>
+                    <!-- $ docker build -t booking-app:0.0.1-SNAPSHOT -REMOVE_THESE_WORDS-build-arg jarToCopy=booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar . -->
+                    <image>
+                      <name>%a</name> <!-- %a = sanitized version of the artefact id -->
+                      <alias>${project.artifactId}</alias>
+                      <build>
+                        <contextDir>${project.basedir}</contextDir>
+                        <args>
+                          <jarToCopy>${fatjar.name}.jar</jarToCopy>
+                        </args>
+                        <tags>
+                          <!-- %l (latest tag) is added by default -->
+                          <tag>${project.version}</tag>
+                        </tags>
+                      </build>
+                    </image>
+                  </images>
+                </configuration>
+              </execution>
+              <execution>
+                <id>docker-compose-verify</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>volume-create</goal>
+                  <goal>start</goal>
+                  <goal>stop</goal>
+                  <goal>volume-remove</goal>
+                </goals>
+                <configuration>
+                  <autoCreateCustomNetworks>true</autoCreateCustomNetworks>
+                  <volumes>
+                    <volume>
+                      <name>${mongo.conf.volume}</name>
+                      <driver>local</driver>
+                    </volume>
+                    <volume>
+                      <name>${mongo.data.volume}</name>
+                      <driver>local</driver>
+                    </volume>
+                    <volume>
+                      <name>${postgres.data.volume}</name>
+                      <driver>local</driver>
+                    </volume>
+                  </volumes>
+                  <images>
+                    <!-- docker-compose with mongo -->
+                    <image>
+                      <name>%a:${project.version}</name>
+                      <alias>${project.artifactId}</alias>
+                      <run>
+                        <dependsOn>
+                          <container>mongo</container>
+                        </dependsOn>
+                        <network>
+                          <mode>custom</mode>
+                          <name>booking-mongo-network</name>
+                        </network>
+                        <volumes>
+                          <bind>
+                            <volume>${xserver.socket.location}:/tmp/.X11-unix</volume>
+                          </bind>
+                        </volumes>
+                        <env>
+                          <DBMS>MONGO</DBMS>
+                          <HOST>${mongo.hostname}</HOST>
+                          <PORT>27017</PORT>
+                          <DB_NAME>${database.name}</DB_NAME>
+                          <DISPLAY>:0.0</DISPLAY>
+                        </env>
+                        <wait>
+                          <log>BookingApp is ready to be used.</log>
+                          <time>30000</time>
+                        </wait>
+                      </run>
+                    </image>
+                    <image>
+                      <name>mongo:6.0.7</name>
+                      <alias>mongo</alias>
+                      <run>
+                        <network>
+                          <mode>custom</mode>
+                          <name>booking-mongo-network</name>
+                          <alias>${mongo.hostname}</alias>
+                        </network>
+                        <volumes>
+                          <bind>
+                            <volume>${mongo.conf.volume}:/data/configdb</volume>
+                            <volume>${mongo.data.volume}:/data/db</volume>
+                          </bind>
+                        </volumes>
+                        <ports>
+                          <port>mongo.mapped.port:27017</port>
+                        </ports>
+                        <cmd>mongod --replSet ${mongo.replicaSet.name}</cmd>
+                        <wait>
+                          <http>
+                            <url>http://localhost:${mongo.mapped.port}</url>
+                            <method>GET</method>
+                            <status>200</status>
+                          </http>
+                          <time>10000</time>
+                          <exec>
+                            <postStart>mongosh --eval "rs.initiate();"</postStart>
+                          </exec>
+                        </wait>
+                      </run>
+                    </image>
+                    <!-- docker-compose with postgres -->
+                    <image>
+                      <name>%a:${project.version}</name>
+                      <alias>${project.artifactId}</alias>
+                      <run>
+                        <dependsOn>
+                          <container>postgres</container>
+                        </dependsOn>
+                        <network>
+                          <mode>custom</mode>
+                          <name>booking-postgres-network</name>
+                        </network>
+                        <volumes>
+                          <bind>
+                            <volume>${xserver.socket.location}:/tmp/.X11-unix</volume>
+                          </bind>
+                        </volumes>
+                        <env>
+                          <DBMS>POSTGRES</DBMS>
+                          <HOST>${postgres.hostname}</HOST>
+                          <PORT>5432</PORT>
+                          <DB_NAME>${database.name}</DB_NAME>
+                          <USER>${database.username}</USER>
+                          <PSWD>${database.password}</PSWD>
+                          <DISPLAY>:0.0</DISPLAY>
+                        </env>
+                        <wait>
+                          <log>BookingApp is ready to be used.</log>
+                          <time>30000</time>
+                        </wait>
+                      </run>
+                    </image>
+                    <image>
+                      <name>postgres:15.3</name>
+                      <alias>postgres</alias>
+                      <run>
+                        <network>
+                          <mode>custom</mode>
+                          <name>booking-postgres-network</name>
+                          <alias>${postgres.hostname}</alias>
+                        </network>
+                        <volumes>
+                          <bind>
+                            <volume>${postgres.data.volume}:/var/lib/postgresql/data</volume>
+                          </bind>
+                        </volumes>
+                        <ports>
+                          <port>postgres.mapped.port:5432</port>
+                        </ports>
+                        <cmd>postgres -c max_connections=221</cmd>
+                        <env>
+                          <POSTGRES_DB>${database.name}</POSTGRES_DB>
+                          <POSTGRES_USER>${database.username}</POSTGRES_USER>
+                          <POSTGRES_PASSWORD>${database.password}</POSTGRES_PASSWORD>
+                        </env>
+                        <wait>
+                          <log>\[1\] LOG:  database system is ready to accept connections</log>
+                          <time>20000</time>
+                        </wait>
+                      </run>
+                    </image>
+                  </images>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <!-- Profile used to properly set X11 socket location when Docker WSLg is used -->
+      <activation>
+        <file>
+          <exists>\\wsl.localhost\docker-desktop\mnt\host\wslg\.X11-unix\X0</exists>
+        </file>
+      </activation>
+      <properties>
+        <xserver.socket.location>/run/desktop/mnt/host/wslg/.X11-unix/</xserver.socket.location>
+      </properties>
+    </profile>
+
+    <profile>
+      <id>sonar</id>
+      <properties>
+        <sonar.coverage.exclusions>
+          **/app/swing/*.*
+        </sonar.coverage.exclusions>
+      </properties>
+    </profile>
+  </profiles>
+</project>

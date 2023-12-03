@@ -28,6 +28,7 @@
     <module>../booking-domain-module</module>
     <module>../booking-business-module</module>
     <module>../booking-ui-module</module>
+    <module>../booking-app</module>
   </modules>
   
   <properties>
@@ -37,7 +38,7 @@
 
     <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
     <maven.antrun.version>3.1.0</maven.antrun.version>
-    <maven.assembly.version>3.5.0</maven.assembly.version>
+    <maven.assembly.version>3.6.0</maven.assembly.version>
     <maven.dependency.version>3.5.0</maven.dependency.version>
     <maven.release.version>3.0.0-M7</maven.release.version>
     <maven.clean.version>3.2.0</maven.clean.version>
@@ -49,7 +50,8 @@
     <maven.reports.version>3.4.2</maven.reports.version>
     <maven.surefire.version>3.1.2</maven.surefire.version>
     <maven.jxr.version>3.3.0</maven.jxr.version>
-    <maven.javadoc.version>3.5.0</maven.javadoc.version>
+    <maven.javadoc.version>3.6.0</maven.javadoc.version>
+    <maven.source.version>3.3.0</maven.source.version>
 
     <!-- VERSIONS FOR OTHER PLUGINS -->
     <pitest.version>1.11.4</pitest.version>
@@ -104,6 +106,9 @@
         <plugin>
           <artifactId>maven-surefire-report-plugin</artifactId>
           <version>${maven.surefire.version}</version>
+          <configuration>
+            <aggregate>true</aggregate>
+          </configuration>
         </plugin>
         <plugin>
           <artifactId>maven-jxr-plugin</artifactId>
@@ -121,22 +126,21 @@
             <reportOutputDirectory>${project.reporting.outputDirectory}/apidocs</reportOutputDirectory>
           </configuration>
         </plugin>
+        <plugin>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${maven.source.version}</version>
+        </plugin>
 
         <!-- OTHER PLUGINS -->
         <plugin>
           <groupId>org.pitest</groupId>
           <artifactId>pitest-maven</artifactId>
           <version>${pitest.version}</version>
-          <executions>
-            <execution>
-              <id>pitest-report-aggregate</id>
-              <phase>verify</phase>
-              <goals>
-                <!-- Pitest XML report is required by pitest-maven -->
-                <goal>report-aggregate-module</goal>
-              </goals>
-            </execution>
-          </executions>
+          <configuration>
+            <siteReportName>PIT Test Report</siteReportName>
+            <siteReportDescription>Report of the PIT mutation tests</siteReportDescription>
+            <reportsDirectory>${project.basedir}/../booking-report/target/pit-reports/</reportsDirectory>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.sonarsource.scanner.maven</groupId>
@@ -160,6 +164,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-project-info-reports-plugin</artifactId>
+        <!-- version taken from the pluginManagement -->
         <reportSets>
           <reportSet>
             <reports>
@@ -175,8 +180,8 @@
         </reportSets>
       </plugin>
       <plugin>
-        <artifactId>maven-jxr-plugin</artifactId>
         <!-- main configuration in pluginManagement -->
+        <artifactId>maven-jxr-plugin</artifactId>
         <reportSets>
           <reportSet>
             <id>aggregate</id>
@@ -189,8 +194,8 @@
         </reportSets>
       </plugin>
       <plugin>
-        <artifactId>maven-javadoc-plugin</artifactId>
         <!-- main configuration in pluginManagement -->
+        <artifactId>maven-javadoc-plugin</artifactId>
         <reportSets>
           <reportSet>
             <id>aggregate</id>
@@ -202,22 +207,13 @@
         </reportSets>
       </plugin>
       <plugin>
+        <!-- main configuration in pluginManagement -->
         <artifactId>maven-surefire-report-plugin</artifactId>
-        <configuration>
-          <aggregate>true</aggregate>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.pitest</groupId>
-        <artifactId>pitest-maven</artifactId>
-        <configuration>
-          <siteReportName>PIT Test Report</siteReportName>
-          <siteReportDescription>Report of the PIT mutation tests</siteReportDescription>
-        </configuration>
         <reportSets>
           <reportSet>
             <reports>
-              <report>report</report>
+              <report>report-only</report>
+              <report>failsafe-report-only</report>
             </reports>
           </reportSet>
         </reportSets>
@@ -242,15 +238,25 @@
 
     <profile>
       <id>pitest</id>
-      <build>
+      <modules>
+        <module>../booking-report</module>
+      </modules>
+      <reporting>
         <plugins>
           <plugin>
             <!-- main configuration in pluginManagement -->
             <groupId>org.pitest</groupId>
             <artifactId>pitest-maven</artifactId>
+            <reportSets>
+              <reportSet>
+                <reports>
+                  <report>report</report>
+                </reports>
+              </reportSet>
+            </reportSets>
           </plugin>
         </plugins>
-      </build>
+	  </reporting>
     </profile>
 
     <profile>
@@ -265,11 +271,15 @@
         </plugins>
       </build>
       <properties>
-        <sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
+        <sonar.issue.ignore.multicriteria>e1,e2</sonar.issue.ignore.multicriteria>
         <!-- Rule: "Tests should include assertions"  -->
         <!-- SonarQube does not know that AssertJ Swing methods effectively assert something -->
         <sonar.issue.ignore.multicriteria.e1.ruleKey>java:S2699</sonar.issue.ignore.multicriteria.e1.ruleKey>
         <sonar.issue.ignore.multicriteria.e1.resourceKey>**/*Swing*Test.java</sonar.issue.ignore.multicriteria.e1.resourceKey>
+        <!-- Rule: "Test classes should comply with a naming convention"  -->
+        <!-- SonarQube considers only Test and IT as suffixes for tests, not E2E -->
+        <sonar.issue.ignore.multicriteria.e2.ruleKey>java:S3577</sonar.issue.ignore.multicriteria.e2.ruleKey>
+        <sonar.issue.ignore.multicriteria.e2.resourceKey>**/*E2E.java</sonar.issue.ignore.multicriteria.e2.resourceKey>
       </properties>
     </profile>
   </profiles>

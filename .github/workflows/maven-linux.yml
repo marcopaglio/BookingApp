@@ -37,7 +37,9 @@ jobs:
 
     - name: Build with Maven Wrapper and SonarCloud
       id: maven-build
-      run: xvfb-run ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Ppitest -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER
+      # default server number: 99
+      # -ac needed for allowing access of Xvfb from docker containers
+      run: xvfb-run --server-num=0 --server-args="-ac" ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Ppitest -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER -Pdocker
       working-directory: ${{ env.workdir }}
       env:
         ADDITIONAL_COVERALLS_ARGS: -DrepoToken=${{ secrets.COVERALLS_TOKEN }}

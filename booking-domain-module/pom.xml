@@ -18,11 +18,6 @@
   <dependencies>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-api</artifactId>
-      <!-- version taken from the bom -->
-    </dependency>
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
       <!-- version taken from the bom -->
     </dependency>
@@ -40,15 +35,16 @@
     <dependency>
       <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-hikaricp</artifactId>
-      <!-- version taken from the parent -->
+      <!-- version taken from the bom -->
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <!-- version taken from the parent -->
+      <!-- version taken from the bom -->
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
@@ -150,9 +146,9 @@
           **/model/*.*,
           **/annotation/*.*,
           **/exception/*.*,
-          **/repository/factory/*,
-          **/repository/mongo/*,
-          **/repository/postgres/*
+          **/repository/factory/*.*,
+          **/repository/mongo/*.*,
+          **/repository/postgres/*.*
         </sonar.coverage.exclusions>
       </properties>
       <build>

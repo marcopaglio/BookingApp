@@ -23,7 +23,7 @@ import io.github.marcopaglio.booking.exception.UniquenessConstraintViolationExce
 import io.github.marcopaglio.booking.model.Client;
 import io.github.marcopaglio.booking.repository.ClientRepository;
 
-import static io.github.marcopaglio.booking.model.BaseEntity.ID_DB;
+import static io.github.marcopaglio.booking.model.BaseEntity.ID_MONGODB;
 import static io.github.marcopaglio.booking.model.Client.FIRSTNAME_DB;
 import static io.github.marcopaglio.booking.model.Client.LASTNAME_DB;
 import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
@@ -41,12 +41,13 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	 * Constructs a repository layer for Client entities using MongoDB database. 
 	 * The construction generates and configures a collection for using by the repository.
 	 * 
-	 * @param client	the {@code MongoClient} used to retrieve the collection.
-	 * @param session	the {@code ClientSession} used to communicate with MongoDB database.
+	 * @param client		the {@code MongoClient} used to retrieve the collection.
+	 * @param session		the {@code ClientSession} used to communicate with MongoDB database.
+	 * @param databaseName	the name of the database in which the repository works.
 	 */
-	public ClientMongoRepository(MongoClient client, ClientSession session) {
+	public ClientMongoRepository(MongoClient client, ClientSession session, String databaseName) {
 		super(client
-				.getDatabase(BOOKING_DB_NAME)
+				.getDatabase(databaseName)
 				.getCollection(CLIENT_TABLE_DB, Client.class),
 				session);
 		
@@ -77,7 +78,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	 */
 	@Override
 	public Optional<Client> findById(UUID id) {
-		Client client = collection.find(session, Filters.eq(ID_DB, id)).first();
+		Client client = collection.find(session, Filters.eq(ID_MONGODB, id)).first();
 		
 		if (client != null)
 			return Optional.of(client);
@@ -155,7 +156,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	private void replaceIfFound(Client client) throws UpdateFailureException {
 		if (collection.replaceOne(
 					session,
-					Filters.eq(ID_DB, client.getId()),
+					Filters.eq(ID_MONGODB, client.getId()),
 					client,
 					new ReplaceOptions().upsert(false))
 				.getModifiedCount() == 0)
@@ -176,7 +177,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 			throw new IllegalArgumentException("Client to delete cannot be null.");
 		
 		if(client.getId() != null) {
-			if (collection.deleteOne(session, Filters.eq(ID_DB, client.getId()))
+			if (collection.deleteOne(session, Filters.eq(ID_MONGODB, client.getId()))
 					.getDeletedCount() == 0)
 				LOGGER.warn(() -> client.toString() + " has already been deleted from the database.");
 		}

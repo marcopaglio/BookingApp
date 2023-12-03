@@ -51,10 +51,7 @@ public abstract class TransactionHandler<T> {
 	public abstract void rollbackTransaction();
 
 	/**
-	 * Indicates whether a transaction is active on this handler.
-	 * 
-	 * @return	{@code true} if there is an active transaction on the handler;
-	 * 			{@code false} otherwise.
+	 * Closes the handler connection, if still open.
 	 */
-	public abstract boolean hasActiveTransaction();
+	public abstract void closeHandler();
 }

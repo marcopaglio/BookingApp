@@ -60,11 +60,11 @@ class TransactionMongoHandlerTest {
 		@Test
 		@DisplayName("No active transaction")
 		void testStartTransactionWhenThereAreNoActiveTransactionShouldStart() {
-			assertThat(session.hasActiveTransaction()).isFalse();
+			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 			
 			transactionMongoHandler.startTransaction();
 			
-			assertThat(session.hasActiveTransaction()).isTrue();
+			assertThat(hasHandlerAnActiveTransaction()).isTrue();
 		}
 
 		@Test
@@ -74,7 +74,7 @@ class TransactionMongoHandlerTest {
 			
 			assertThatNoException().isThrownBy(() -> transactionMongoHandler.startTransaction());
 			
-			assertThat(session.hasActiveTransaction()).isTrue();
+			assertThat(hasHandlerAnActiveTransaction()).isTrue();
 		}
 
 		@Test
@@ -84,7 +84,7 @@ class TransactionMongoHandlerTest {
 			
 			transactionMongoHandler.startTransaction();
 			
-			assertThat(session.hasActiveTransaction()).isTrue();
+			assertThat(hasHandlerAnActiveTransaction()).isTrue();
 		}
 	}
 
@@ -94,12 +94,12 @@ class TransactionMongoHandlerTest {
 
 		@Test
 		@DisplayName("Active transaction")
-		void testCommitTransactionWhenThereIAnActiveTransactionShouldClose() {
+		void testCommitTransactionWhenThereIsAnActiveTransactionShouldClose() {
 			startATransaction();
 			
 			transactionMongoHandler.commitTransaction();
 			
-			assertThat(session.hasActiveTransaction()).isFalse();
+			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 		}
 
 		@Test
@@ -109,7 +109,7 @@ class TransactionMongoHandlerTest {
 			
 			assertThatNoException().isThrownBy(() -> transactionMongoHandler.commitTransaction());
 			
-			assertThat(session.hasActiveTransaction()).isFalse();
+			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 		}
 	}
 
@@ -119,46 +119,69 @@ class TransactionMongoHandlerTest {
 
 		@Test
 		@DisplayName("Active transaction")
-		void testRollbackTransactionWhenThereIAnActiveTransactionShouldClose() {
+		void testRollbackTransactionWhenThereIsAnActiveTransactionShouldClose() {
 			startATransaction();
 			
 			transactionMongoHandler.rollbackTransaction();
 			
-			assertThat(session.hasActiveTransaction()).isFalse();
+			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 		}
 
 		@Test
 		@DisplayName("No active transaction")
 		void testRollbackTransactionWhenThereIsNoActiveTransactionShouldNotThrowAndMaintainItClose() {
-			assertThat(session.hasActiveTransaction()).isFalse();
+			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 			
 			assertThatNoException().isThrownBy(
 					() -> transactionMongoHandler.rollbackTransaction());
 			
-			assertThat(session.hasActiveTransaction()).isFalse();
+			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 		}
 	}
 
 	@Nested
-	@DisplayName("Tests for 'hasActiveTransaction'")
-	class HasActiveTransactionTest {
+	@DisplayName("Tests for 'closeHandler'")
+	class CloseHandlerTest {
 
 		@Test
-		@DisplayName("Active transaction")
-		void testHasActiveTransactionWhenThereIAnActiveTransactionShouldReturnTrue() {
-			startATransaction();
+		@DisplayName("Open handler")
+		void testCloseHandlerWhenIsOpenShouldClose() {
+			assertThat(isHandlerOpen()).isTrue();
 			
-			assertThat(transactionMongoHandler.hasActiveTransaction()).isTrue();
+			transactionMongoHandler.closeHandler();
+			
+			assertThat(isHandlerOpen()).isFalse();
 		}
 
 		@Test
-		@DisplayName("No active transaction")
-		void testHasActiveTransactionWhenThereIsNoActiveTransactionShouldReturnFalse() {
-			assertThat(transactionMongoHandler.hasActiveTransaction()).isFalse();
+		@DisplayName("Already closed handler")
+		void testCloseHandlerWhenIsAlreadyClosedShouldReturnNotThrow() {
+			closeTheHandler();
+			
+			assertThatNoException().isThrownBy(() -> transactionMongoHandler.closeHandler());
 		}
 	}
 
 	private void startATransaction() {
 		session.startTransaction();
+	}
+
+	private boolean hasHandlerAnActiveTransaction() {
+		return session.hasActiveTransaction();
+	}
+
+	private void closeTheHandler() {
+		session.close();
+	}
+
+	private boolean isHandlerOpen() {
+		try {
+			// currently there isn't a method to check if session is open
+			// this is a workaround
+			session.getServerSession();
+			return true;
+		} catch(IllegalStateException e) {
+			return false;
+		}
 	}
 }

@@ -22,10 +22,17 @@
     <maven.compiler.target>11</maven.compiler.target>
     
     <!-- MONGODB PROPERTIES -->
+    <mongo.conf.volume>mongo_conf</mongo.conf.volume>
+    <mongo.data.volume>mongo_data</mongo.data.volume>
+    <mongo.host.name>localhost</mongo.host.name>
     <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
     
     <!-- POSTGRESQL PROPERTIES -->
-    <postgres.database.name>IntegrationTest_db</postgres.database.name>
+    <postgres.data.volume>postgresql_data</postgres.data.volume>
+    <postgres.host.name>localhost</postgres.host.name>
+    <postgres.database.name>ITandE2ETest_db</postgres.database.name>
+    <postgres.database.user>postgres-it-e2e</postgres.database.user>
+    <postgres.database.pswd>postgres-it-e2e</postgres.database.pswd>
 
     <!-- VERSIONS FOR DEPENDENCIES -->
     <junit.version>5.9.2</junit.version>
@@ -33,8 +40,6 @@
     <assertj.swing.version>3.17.1</assertj.swing.version>
     <mockito.version>5.1.1</mockito.version>
     <testcontainers.version>1.18.3</testcontainers.version>
-    <logback.version>1.2.12</logback.version>
-    <postgresql.version>42.6.0</postgresql.version>
     <awaitility.version>4.2.0</awaitility.version>
 
 
@@ -42,6 +47,8 @@
     <maven.compiler.version>3.11.0</maven.compiler.version>
     <maven.resources.version>3.3.0</maven.resources.version>
     <maven.jar.version>3.3.0</maven.jar.version>
+    <maven.javadoc.version>3.6.0</maven.javadoc.version>
+    <maven.source.version>3.3.0</maven.source.version>
 
     <!-- VERSIONS FOR OTHER PLUGINS -->
     <jacoco.version>0.8.8</jacoco.version>
@@ -56,25 +63,6 @@
   
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.hibernate.orm</groupId>
-        <artifactId>hibernate-hikaricp</artifactId>
-        <version>${hibernate.version}</version>
-        <!-- version defined in the bom -->
-      </dependency>
-      <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>${postgresql.version}</version>
-      </dependency>
-      <dependency>
-        <!-- required to see Testcontainers logs -->
-        <!-- required to see Mongo Java Driver logs -->
-        <groupId>ch.qos.logback</groupId>
-        <artifactId>logback-classic</artifactId>
-        <version>${logback.version}</version>
-      </dependency>
-
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
@@ -144,27 +132,63 @@
           <version>${maven.resources.version}</version>
         </plugin>
         <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>${maven.jar.version}</version>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven.surefire.version}</version>
         </plugin>
         <plugin>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <!-- version taken from the bom -->
+          <version>${maven.surefire.version}</version>
           <configuration>
             <systemPropertyVariables>
-              <mongo.connectionString>mongodb://localhost:${mongo.mapped.port}</mongo.connectionString>
+              <mongo.host>${mongo.host.name}</mongo.host>
+              <mongo.port>${mongo.mapped.port}</mongo.port>
+              
+              <postgres.host>${postgres.host.name}</postgres.host>
               <postgres.port>${postgres.mapped.port}</postgres.port>
               <postgres.name>${postgres.database.name}</postgres.name>
+              <postgres.user>${postgres.database.user}</postgres.user>
+              <postgres.pswd>${postgres.database.pswd}</postgres.pswd>
             </systemPropertyVariables>
           </configuration>
           <executions>
             <execution>
+              <id>default-it</id>
               <goals>
                 <goal>integration-test</goal>
                 <goal>verify</goal>
               </goals>
             </execution>
+            <execution>
+              <id>e2e-tests</id>
+              <goals>
+                <goal>integration-test</goal>
+                <goal>verify</goal>
+              </goals>
+              <configuration>
+                <excludes>
+                  <!-- Exclude integration test default patterns -->
+                  <exclude>**/IT*.java</exclude>
+                  <exclude>**/*IT.java</exclude>
+                  <exclude>**/*ITCase.java</exclude>
+                </excludes>
+                <includes>
+                  <include>**/*E2E.java</include>
+                </includes>
+              </configuration>
+            </execution>
           </executions>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${maven.jar.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>${maven.javadoc.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>${maven.source.version}</version>
         </plugin>
 
         <!-- OTHER PLUGINS -->
@@ -227,6 +251,7 @@
             </avoidCallsTo>
             <excludedTestClasses>
               <excludedTestClass>**.*IT</excludedTestClass>
+              <excludedTestClass>**.*E2E</excludedTestClass>
             </excludedTestClasses>
             <exportLineCoverage>true</exportLineCoverage>
             <outputFormats>
@@ -264,6 +289,7 @@
               <configuration>
                 <sources>
                   <source>src/it/java</source>
+                  <source>src/e2e/java</source>
                 </sources>
               </configuration>
             </execution>
@@ -274,19 +300,39 @@
           <artifactId>docker-maven-plugin</artifactId>
           <version>${docker.version}</version>
           <configuration>
+            <volumes>
+              <volume>
+                <name>${mongo.conf.volume}</name>
+                <driver>local</driver>
+              </volume>
+              <volume>
+                <name>${mongo.data.volume}</name>
+                <driver>local</driver>
+              </volume>
+              <volume>
+                <name>${postgres.data.volume}</name>
+                <driver>local</driver>
+              </volume>
+            </volumes>
             <containerNamePattern>%a</containerNamePattern> <!-- %a = <alias>'s value-->
             <images>
               <image>
                 <name>mongo:6.0.7</name>
                 <alias>mongo</alias>
                 <run>
+                  <volumes>
+                    <bind>
+                      <volume>${mongo.conf.volume}:/data/configdb</volume>
+                      <volume>${mongo.data.volume}:/data/db</volume>
+                    </bind>
+                  </volumes>
                   <ports>
                     <port>mongo.mapped.port:27017</port>
                   </ports>
                   <cmd>mongod --replSet ${mongo.replicaSet.name}</cmd>
                   <wait>
                     <http>
-                      <url>http://localhost:${mongo.mapped.port}</url>
+                      <url>http://${mongo.host.name}:${mongo.mapped.port}</url>
                       <method>GET</method>
                       <status>200</status>
                     </http>
@@ -301,13 +347,23 @@
                 <name>postgres:15.3</name>
                 <alias>postgres</alias>
                 <run>
+                  <volumes>
+                    <bind>
+                      <volume>${postgres.data.volume}:/var/lib/postgresql/data</volume>
+                    </bind>
+                  </volumes>
                   <ports>
                     <port>postgres.mapped.port:5432</port>
                   </ports>
+                  <!-- With HikariCP each new connection to PostgreSQL takes a pool of (max) 10 available connections. -->
+                  <!-- So the real value of possible concorrent connection is: ceil(max_connection / 10) -->
+                  <!-- Setting up value of maxPoolSize of HikariCP in persistence.xml: default=10 -->
+                  <!-- Setting up value of max_connections of PostgreSQL with Docker: default=100 -->
+                  <cmd>postgres -c max_connections=221</cmd>
                   <env>
                     <POSTGRES_DB>${postgres.database.name}</POSTGRES_DB>
-                    <POSTGRES_USER>postgres-it</POSTGRES_USER>
-                    <POSTGRES_PASSWORD>postgres-it</POSTGRES_PASSWORD>
+                    <POSTGRES_USER>${postgres.database.user}</POSTGRES_USER>
+                    <POSTGRES_PASSWORD>${postgres.database.pswd}</POSTGRES_PASSWORD>
                   </env>
                   <wait>
                     <log>\[1\] LOG:  database system is ready to accept connections</log>
@@ -322,6 +378,7 @@
               <id>docker-start</id>
               <phase>pre-integration-test</phase>
               <goals>
+                <goal>volume-create</goal>
                 <goal>start</goal>
               </goals>
             </execution>
@@ -330,7 +387,21 @@
               <phase>post-integration-test</phase>
               <goals>
                 <goal>stop</goal>
+                <goal>volume-remove</goal>
               </goals>
+              <configuration>
+                <volumes>
+                  <volume>
+                    <name>${mongo.conf.volume}</name>
+                  </volume>
+                  <volume>
+                    <name>${mongo.data.volume}</name>
+                  </volume>
+                  <volume>
+                    <name>${postgres.data.volume}</name>
+                  </volume>
+                </volumes>
+              </configuration>
             </execution>
           </executions>
         </plugin>

@@ -22,6 +22,11 @@
       <!-- version taken from the bom -->
     </dependency>
     <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongodb-driver-sync</artifactId>
+      <!-- version taken from the bom -->
+    </dependency>
+    <dependency>
       <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-core</artifactId>
       <!-- version taken from the bom -->
@@ -30,15 +35,16 @@
     <dependency>
       <groupId>org.hibernate.orm</groupId>
       <artifactId>hibernate-hikaricp</artifactId>
-      <!-- version taken from the parent -->
+      <!-- version taken from the bom -->
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <!-- version taken from the parent -->
+      <!-- version taken from the bom -->
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
@@ -128,7 +134,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-failsafe-plugin</artifactId>
-        <!-- version taken from the bom -->
+        <!-- version taken from the parent -->
       </plugin>
       <plugin>
         <groupId>io.fabric8</groupId>
@@ -159,9 +165,9 @@
       <properties>
         <sonar.coverage.exclusions>
           **/transaction/code/*.*,
-          **/handler/factory/*,
-          **/handler/mongo/*,
-          **/handler/postgres/*
+          **/handler/factory/*.*,
+          **/handler/mongo/*.*,
+          **/handler/postgres/*.*
         </sonar.coverage.exclusions>
       </properties>
       <build>

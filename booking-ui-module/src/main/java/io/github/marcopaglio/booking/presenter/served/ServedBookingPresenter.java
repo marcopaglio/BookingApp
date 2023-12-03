@@ -40,20 +40,22 @@ public class ServedBookingPresenter implements BookingPresenter {
 	private BookingService bookingService;
 
 	/**
-	 * Validates inputs for creating Client entities.
+	 * Validates inputs for creating {@code Client} entities.
 	 */
 	private ClientValidator clientValidator;
 
 	/**
-	 * Validates inputs for creating Reservation entities.
+	 * Validates inputs for creating {@code Reservation} entities.
 	 */
 	private ReservationValidator reservationValidator;
 
 	/**
 	 * Constructs a presenter for the booking application with a view and a service.
 	 * 
-	 * @param view				the {@code View} used to show the user interface.
-	 * @param bookingService	the {@code BookingService} used to interact with repositories.
+	 * @param view					the {@code View} used to show the user interface.
+	 * @param bookingService		the {@code BookingService} used to interact with repositories.
+	 * @param clientValidator		the inputs checker for {@code Client} entities. 
+	 * @param reservationValidator	the inputs checker for {@code Reservation} entities.
 	 */
 	public ServedBookingPresenter(BookingView view, BookingService bookingService,
 			ClientValidator clientValidator, ReservationValidator reservationValidator) {
@@ -115,18 +117,22 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.warn("Client to delete cannot be null.");
 			view.showFormError("Select a client to delete.");
 		} else {
+			String firstName = client.getFirstName();
+			String lastName = client.getLastName();
 			try {
-				bookingService.removeClientNamed(client.getFirstName(), client.getLastName());
+				bookingService.removeClientNamed(firstName, lastName);
 				allReservations();
 				view.clientRemoved(client);
 				LOGGER.info(() -> String.format("%s and all his reservations have been deleted with success.", client.toString()));
 			} catch (InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(instanceNotFoundErrorMsg(client.toString()));
+				view.showOperationError(instanceNotFoundErrorMsg(
+						getClientStringToDisplay(firstName, lastName)));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(databaseErrorMsg("deleting " + client.toString()));
+				view.showOperationError(databaseErrorMsg("deleting "
+						+ getClientStringToDisplay(firstName, lastName)));
 				updateAll();
 			}
 		}
@@ -144,17 +150,21 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.warn("Reservation to delete cannot be null.");
 			view.showFormError("Select a reservation to delete.");
 		} else {
+			LocalDate localDate = reservation.getDate();
 			try {
-				bookingService.removeReservationOn(reservation.getDate());
+				bookingService.removeReservationOn(localDate);
 				view.reservationRemoved(reservation);
 				LOGGER.info(() -> String.format("%s has been deleted with success.", reservation.toString()));
 			} catch (InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(instanceNotFoundErrorMsg(reservation.toString()));
+				view.showOperationError(instanceNotFoundErrorMsg(
+						getReservationStringToDisplay(localDate)));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(databaseErrorMsg("deleting " + reservation.toString()));
+				view.showOperationError(databaseErrorMsg("deleting "
+						+ getReservationStringToDisplay(localDate)));
+				updateAll();
 			}
 		}
 	}
@@ -177,12 +187,13 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s has been added with success.", clientInDB.toString()));
 			} catch(InstanceAlreadyExistsException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(clientAlreadyExistsErrorMsg(
-						client.getFirstName(), client.getLastName()));
+				view.showOperationError(instanceAlreadyExistsErrorMsg(
+						getClientStringToDisplay(client.getFirstName(), client.getLastName())));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(databaseErrorMsg("adding " + client.toString()));
+				view.showOperationError(databaseErrorMsg("adding "
+						+ getClientStringToDisplay(client.getFirstName(), client.getLastName())));
 				updateAll();
 			}
 		}
@@ -220,7 +231,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			return clientValidator.validateFirstName(firstName);
 		} catch(IllegalArgumentException e) {
 			LOGGER.warn(e.getMessage());
-			throw new IllegalArgumentException("Client's name is not valid.");
+			throw new IllegalArgumentException(illegalArgumentErrorMsg("Client's name", firstName));
 		}
 	}
 
@@ -236,7 +247,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			return clientValidator.validateLastName(lastName);
 		} catch(IllegalArgumentException e) {
 			LOGGER.warn(e.getMessage());
-			throw new IllegalArgumentException("Client's surname is not valid.");
+			throw new IllegalArgumentException(illegalArgumentErrorMsg("Client's surname", lastName));
 		}
 	}
 
@@ -258,17 +269,18 @@ public class ServedBookingPresenter implements BookingPresenter {
 				LOGGER.info(() -> String.format("%s has been added with success.", reservationInDB.toString()));
 			} catch(InstanceAlreadyExistsException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(reservationAlreadyExistsErrorMsg(
-						reservation.getDate().toString()));
+				view.showOperationError(instanceAlreadyExistsErrorMsg(
+						getReservationStringToDisplay(reservation.getDate())));
 				updateAll();
 			} catch(InstanceNotFoundException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(instanceNotFoundErrorMsg(reservation.toString()
-						+ "'s client [id=" + reservation.getClientId() + "]"));
+				view.showOperationError(instanceNotFoundErrorMsg(
+						getClientStringToDisplay(client.getFirstName(), client.getLastName())));
 				updateAll();
 			} catch(DatabaseException e) {
 				LOGGER.warn(e.getMessage());
-				view.showOperationError(databaseErrorMsg("adding " + reservation.toString()));
+				view.showOperationError(databaseErrorMsg("adding "
+						+ getReservationStringToDisplay(reservation.getDate())));
 				updateAll();
 			}
 		}
@@ -312,7 +324,8 @@ public class ServedBookingPresenter implements BookingPresenter {
 			return reservationValidator.validateClientId(clientId);
 		} catch(IllegalArgumentException e) {
 			LOGGER.warn(e.getMessage());
-			throw new IllegalArgumentException("Client's identifier associated with reservation is not valid.");
+			throw new IllegalArgumentException(
+					illegalArgumentErrorMsg("Reservation's client ID", String.valueOf(clientId)));
 		}
 	}
 
@@ -328,7 +341,7 @@ public class ServedBookingPresenter implements BookingPresenter {
 			return reservationValidator.validateDate(date);
 		} catch(IllegalArgumentException e) {
 			LOGGER.warn(e.getMessage());
-			throw new IllegalArgumentException("Reservation's date is not valid.");
+			throw new IllegalArgumentException(illegalArgumentErrorMsg("Reservation's date", date));
 		}
 	}
 
@@ -371,15 +384,18 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.info(() -> String.format("%s has been renamed with success.", clientInDB.toString()));
 		} catch(InstanceAlreadyExistsException e) {
 			LOGGER.warn(e.getMessage());
-			view.showOperationError(clientAlreadyExistsErrorMsg(newFirstName, newLastName));
+			view.showOperationError(instanceAlreadyExistsErrorMsg(
+					getClientStringToDisplay(newFirstName, newLastName)));
 			updateAll();
 		} catch(InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
-			view.showOperationError(instanceNotFoundErrorMsg(client.toString()));
+			view.showOperationError(instanceNotFoundErrorMsg(
+					getClientStringToDisplay(client.getFirstName(), client.getLastName())));
 			updateAll();
 		} catch(DatabaseException e) {
 			LOGGER.warn(e.getMessage());
-			view.showOperationError(databaseErrorMsg("renaming " + client.toString()));
+			view.showOperationError(databaseErrorMsg("renaming "
+					+ getClientStringToDisplay(client.getFirstName(), client.getLastName())));
 			updateAll();
 		}
 	}
@@ -421,45 +437,36 @@ public class ServedBookingPresenter implements BookingPresenter {
 			LOGGER.info(() -> String.format("%s has been rescheduled with success.", reservationInDB.toString()));
 		} catch(InstanceAlreadyExistsException e) {
 			LOGGER.warn(e.getMessage());
-			view.showOperationError(reservationAlreadyExistsErrorMsg(validatedDate.toString()));
+			view.showOperationError(instanceAlreadyExistsErrorMsg(
+					getReservationStringToDisplay(validatedDate)));
 			updateAll();
 		} catch(InstanceNotFoundException e) {
 			LOGGER.warn(e.getMessage());
-			view.showOperationError(instanceNotFoundErrorMsg(reservation.toString()));
+			view.showOperationError(instanceNotFoundErrorMsg(
+					getReservationStringToDisplay(reservation.getDate())));
 			updateAll();
 		} catch(DatabaseException e) {
 			LOGGER.warn(e.getMessage());
-			view.showOperationError(databaseErrorMsg("rescheduling " + reservation.toString()));
+			view.showOperationError(databaseErrorMsg("rescheduling "
+					+ getReservationStringToDisplay(reservation.getDate())));
 			updateAll();
 		}
 	}
 
 	/**
-	 * Generates an error message used when a {@code InstanceAlreadyExistsException} occurs
-	 * for {@code Client} entities.
+	 * Generates an error message used when a {@code InstanceAlreadyExistsException} occurs.
 	 * 
-	 * @param date	the date of the existing reservation.
-	 * @return		a {@code String} containing the generated error message.
+	 * @param alreadyExistingInstance	the description of the existing instance.
+	 * @return							a {@code String} containing the generated error message.
 	 */
-	private String clientAlreadyExistsErrorMsg(String firstName, String lastName) {
-		return "A client named " + firstName + " " + lastName + " has already been made.";
-	}
-
-	/**
-	 * Generates an error message used when a {@code InstanceAlreadyExistsException} occurs
-	 * for {@code Reservation} entities.
-	 * 
-	 * @param date	the date of the existing reservation.
-	 * @return		a {@code String} containing the generated error message.
-	 */
-	private String reservationAlreadyExistsErrorMsg(String date) {
-		return "A reservation on " + date + " has already been made.";
+	private String instanceAlreadyExistsErrorMsg(String alreadyExistingInstance) {
+		return alreadyExistingInstance + " already exists.";
 	}
 
 	/**
 	 * Generates an error message used when a {@code InstanceNotFoundException} occurs.
 	 * 
-	 * @param notFoundInstance	description of the not found object.
+	 * @param notFoundInstance	the description of the not found instance.
 	 * @return					a {@code String} containing the generated error message.
 	 */
 	private String instanceNotFoundErrorMsg(String notFoundInstance) {
@@ -474,5 +481,37 @@ public class ServedBookingPresenter implements BookingPresenter {
 	 */
 	private String databaseErrorMsg(String failedAction) {
 		return "Something went wrong while " + failedAction + ".";
+	}
+
+	/**
+	 * Generates an error message used when an {@code IllegalArgumentException} occurs.
+	 * 
+	 * @param argName	description of the illegal argument.
+	 * @param argValue	value of the illegal argument.
+	 * @return			a {@code String} containing the generated error message.
+	 */
+	private String illegalArgumentErrorMsg(String argName, String argValue) {
+		return argName + " [" + argValue + "] is not valid.";
+	}
+
+	/**
+	 * Generates a string descriptor of a generic {@code Client} with the specified name and surname.
+	 * 
+	 * @param firstName	the name of the generic client.
+	 * @param lastName	the surname of the generic client.
+	 * @return			a {@code String} descriptor of the generic client.
+	 */
+	private String getClientStringToDisplay(String firstName, String lastName) {
+		return "Client named " + firstName + " " + lastName;
+	}
+
+	/**
+	 * Generates a string descriptor of a generic {@code Reservation} with the specified date.
+	 * 
+	 * @param date	the date of the generic reservation.
+	 * @return		a {@code String} descriptor of the generic reservation.
+	 */
+	private String getReservationStringToDisplay(LocalDate date) {
+		return "Reservation on " + date;
 	}
 }

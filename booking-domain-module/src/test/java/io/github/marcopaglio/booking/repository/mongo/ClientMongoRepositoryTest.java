@@ -53,7 +53,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.spy;
-import static io.github.marcopaglio.booking.repository.mongo.MongoRepository.BOOKING_DB_NAME;
 
 @DisplayName("Tests for ClientMongoRepository class")
 @Testcontainers
@@ -68,6 +67,8 @@ class ClientMongoRepositoryTest {
 
 	@Container
 	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
+
+	private static final String BOOKING_DB_NAME = "ClientMongoRepositoryTest_db";
 
 	private static MongoClient mongoClient;
 	private static MongoDatabase database;
@@ -113,7 +114,7 @@ class ClientMongoRepositoryTest {
 		database.drop();
 		
 		// repository creation after drop because it removes configurations on collections
-		clientRepository = new ClientMongoRepository(mongoClient, session);
+		clientRepository = new ClientMongoRepository(mongoClient, session, BOOKING_DB_NAME);
 		
 		// get a MongoCollection suited for your POJO class
 		clientCollection = clientRepository.getCollection();

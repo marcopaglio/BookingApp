@@ -5,9 +5,10 @@
 # you should see this string in the log “ SonarQube is operational”, stating that SonarQube is ready.
 # Then go to "http://localhost:9000" and access with default login configurations
 # [username=admin; password=admin].
-# Go to the settings and generate a new token for project analysis.
+# Go to the settings and generate a new token for project analysis:
+# -> My Account -> Security (tab) -> (compile) Generate Tokens -> Generate
 # Then execute the following maven command from booking-aggregator:
-# $ mvn clean install -Psonar -Dsonar.login=<token>
+# $ mvn clean install -Psonar -Dsonar.login=<sonar_token>
 # where <token> is the value of generated token.
 version: "3"
 
