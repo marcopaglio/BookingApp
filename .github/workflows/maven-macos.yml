@@ -33,7 +33,7 @@ jobs:
 
     - name: Build with Maven Wrapper
       id: maven-build
-      run: ../mvnw install -Pdocker
+      run: ../mvnw install
       working-directory: ${{ env.workdir }}
 
     - name: Generate JUnit Report
