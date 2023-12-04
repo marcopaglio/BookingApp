@@ -20,7 +20,7 @@ Desktop application for managing reservations developed with TDD, build automati
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=marcopaglio_BookingApp&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=marcopaglio_BookingApp)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=marcopaglio_BookingApp&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=marcopaglio_BookingApp)
 
-## Before you continue
+## Before you start
 
 In order to replicate buildings or using the application, following programs have to be installed on your machine:
 1) Java SDK (and JRE?) 11
@@ -92,3 +92,11 @@ The installation guide depending on your operating system.
 #### Linux (Ubuntu)
 
 On Ubuntu Software application is stored Eclipse. So just find it on the store and install clicking the right botton. Then you can open the application.
+
+## Import the repository
+
+1) Open eclipse
+2) Import from Git
+3) Find the repository (marcopaglio/BookingApp)
+4) If some errors (about dependencies) appears, just Refresh modules, and they go away.
+5) Download database docker images before building, otherwise build fails due to timeout.
