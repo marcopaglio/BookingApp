@@ -41,7 +41,7 @@ class ReservationPostgresRepositoryTest {
 	private static final UUID A_RESERVATION_UUID = UUID.fromString("d96af73a-efbc-45d7-a013-15e4f0c3a8fd");
 
 	@Container
-	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.2")
+	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.3")
 		.withDatabaseName("ReservationPostgresRepositoryTest_db")
 		.withUsername("postgres-test")
 		.withPassword("postgres-test");

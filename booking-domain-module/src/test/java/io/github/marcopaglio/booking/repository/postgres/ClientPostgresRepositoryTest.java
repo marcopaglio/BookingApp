@@ -43,7 +43,7 @@ class ClientPostgresRepositoryTest {
 	private static final UUID A_CLIENT_UUID = UUID.fromString("b37cbe2c-77c9-4f68-ad2d-140d7fc43a38");
 
 	@Container
-	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.2")
+	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.3")
 		.withDatabaseName("ClientPostgresRepositoryTest_db")
 		.withUsername("postgres-test")
 		.withPassword("postgres-test");

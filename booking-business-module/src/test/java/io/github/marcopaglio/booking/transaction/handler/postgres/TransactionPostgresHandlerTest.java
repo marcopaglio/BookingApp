@@ -23,7 +23,7 @@ import jakarta.persistence.Persistence;
 class TransactionPostgresHandlerTest {
 
 	@Container
-	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.2")
+	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.3")
 		.withDatabaseName("TransactionPostgresHandlerTest_db")
 		.withUsername("postgres-test")
 		.withPassword("postgres-test");
