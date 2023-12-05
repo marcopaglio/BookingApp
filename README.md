@@ -23,12 +23,12 @@ Desktop application for managing reservations developed with TDD, build automati
 ## Before you start
 
 In order to replicate buildings or using the application, following programs have to be installed on your machine:
-1) Java SDK (and JRE?) 11
-2) Git
-3) Docker engine and Docker compose
-4) Eclipse IDE
+1. Java SDK (and JRE?) 11
+2. Git
+3. Docker engine and Docker compose
+4. Eclipse IDE
 
-### 1) Install Java SDK (and JRE) 11
+### 1. Install Java SDK (and JRE) 11
 
 The installation guide depending on your operating system.
 
@@ -64,7 +64,7 @@ javac --version
 javac 11.0.21
 TODO: set JAVA_HOME?
 
-### 2) Install Git
+### 2. Install Git
 
 The installation guide depending on your operating system.
 
@@ -76,7 +76,7 @@ The verify the installation was successful by typing:
 git --version
 TODO: configure username and email?
 
-### 3) Install Docker Engine and Docker Compose
+### 3. Install Docker Engine and Docker Compose
 
 The installation guide depending on your operating system.
 
@@ -85,7 +85,7 @@ The installation guide depending on your operating system.
 A complete step-by-step guide is provided by the official page:
 LINK: https://docs.docker.com/engine/install/ubuntu/
 
-### 4) Install Eclipse IDE
+### 4. Install Eclipse IDE
 
 The installation guide depending on your operating system.
 
@@ -93,10 +93,28 @@ The installation guide depending on your operating system.
 
 On Ubuntu Software application is stored Eclipse. So just find it on the store and install clicking the right botton. Then you can open the application.
 
+## Running on Virtual Machine (VirtualBox) with Windows 11 as host
+
+In this case it's necessary:
+- Disable all kind of virtualizations.
+    Go to Impostazioni > App > funzionalità facoltative > Altre funzionalità Windows
+  Disable:
+    1. Sottosistema Windows per Linux
+    2. Piattaforma Windows Hypervisor
+    3. Piattaforma macchina virtuale
+  Then OK > Restart.
+  In order to verify if any kind of virtualization is disabled, click Win + R > msinfo32 > OK > Scroll at the end and there must be no writing "rilevato hypervisor. le funzionalità necessarie per hyper-v non verranno visualizzate"
+- Disable Windows security Memory Integrity (very bad)
+    Go to Impostazioni > Privacy e Sicurezza > Sicurezza di Windows > Sicurezza dispositivi > Isolament Core > Integrità della Memoria
+  Disable it and restart.
+For cheching everything goes, open VirtualBox and start the virtual machine. In the right bottom side there must be a symbol with V but not in a turtle. The presence of turtle means that AVX and AVX2 about cores aren't enabled/presented and Mongo 5+ needs them for running.
+
 ## Import the repository
 
-1) Open eclipse
-2) Import from Git
-3) Find the repository (marcopaglio/BookingApp)
-4) If some errors (about dependencies) appears, just Refresh modules, and they go away.
-5) Download database docker images before building, otherwise build fails due to timeout.
+1. Open eclipse
+2. Import from Git
+3. Find the repository (marcopaglio/BookingApp)
+4. If some errors (about dependencies) appears, just Refresh modules, and they go away.
+5. Download database docker images before building, otherwise build fails due to timeout.
+     docker pull mongo:6.0.7
+     docker pull postgres:15.3
