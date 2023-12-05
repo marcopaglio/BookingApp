@@ -97,6 +97,8 @@ On Ubuntu Software application is stored Eclipse. So just find it on the store a
 
 In this case it's necessary:
 - Disable all kind of virtualizations.
+  Run on terminal with privilegis: $ bcdedit /set hypervisorlaunchtype off
+  For revert run: $ bcdedit /set hypervisorlaunchtype auto 
     Go to Impostazioni > App > funzionalità facoltative > Altre funzionalità Windows
   Disable:
     1. Sottosistema Windows per Linux
