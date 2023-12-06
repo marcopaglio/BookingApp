@@ -24,25 +24,25 @@ Desktop application for managing reservations developed with TDD, build automati
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=marcopaglio_BookingApp&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=marcopaglio_BookingApp)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=marcopaglio_BookingApp&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=marcopaglio_BookingApp)
 
-## Before you start
+## Is your machine compatible
 
-This project runs a Docker image of MongoDB, which its version is major of 5.0.0, then your machine must support AVX/AVX2 core's instructions. About that, you have to check the information about your CPUs.  
+This project runs a Docker image with MongoDB, the version of which is greater than 5.0, then requires use of AVX instructions. To determine whether AVX supports your CPU model, check the manufacturer’s website and enter your CPU model number. Below are other methods for this verification.
 
-On Unix machines, run the following commands on terminal:  
+> Note: even if your machine supports AVX instructions, a running virtual machine hosted by it might disabilitate them due to virtualization problems. See **LINK** for fixing this possible issue.  
 
+### Linux and MacOS
+
+To check if CPU has AVX capabilities on Unix systems, run the following commands on terminal:  
 `grep avx /proc/cpuinfo`  
+If the output is not empty, then your cores has AVX support.
 
-`grep avx2 /proc/cpuinfo`  
+### Windows 
 
-If the output is like following, then your cores has AVX/AVX2 support:  
+Enable AVX capabilities directly by running the following command on a Command Prompt as Administrator:  
+`bcdedit /set xsavedisable 0`  
+You will see a confirmation message.
 
-> flags : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon rep_good nopl eagerfpu pni pclmulqdq vmx ssse3 cx16 pcid sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave **avx** **avx2** hypervisor lahf_lm arat tsc_adjust xsaveopt
-
-On Windows (**TODO**)  
-
-On Macos (**TODO**)  
-
-> Note: even if your machine supports AVX/AVX2 instructions, a running virtual machine hosted by it might disabilitate them due to virtualization problems. See **LINK** for fixing this issue.  
+## Before you start
 
 In order to replicate buildings or using the application, following programs have to be installed on your machine:
 1. Java SDK (and JRE?) 11
