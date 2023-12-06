@@ -155,3 +155,23 @@ I recommand to revert all the changes here described as soon as you no longer ha
      docker pull mongo:6.0.7
      docker pull postgres:15.3
 6. On Linux run xhost+ before running docker-compose or Maven docker profile (and xhost- as soon as it stop).
+
+## Build BookingApp
+
+### Linux
+
+1. locate yourself into the project base directory (e.g. BookingApp) where the mvnw (Maven Wrapper) file is stored, through the command:
+   `cd git/BookingApp`
+   **TODO: è meglio piazzarsi in booking-aggregator in modo che vi siano tutti i file lì?**
+2. Building is done by running the following command:  
+   `./mvnw -f booking-aggregator/pom.xml clean install`
+   Alternative buildings can be ran adding one or more profiles at the end of the previous command:
+   - `-Pjacoco` > add coverage
+     Once finished, the coverage report is located in booking-report/target/site/jacoco-aggregate/index.html.
+   - `-Ppitest` > add mutation testing
+   - `-Pdocker` > add dockerization of the application  
+
+     > Note: docker profile will open BookingApp inside a Docker container, therefore it needs the access to the Linux X display server in order to work propertly. About that, run the following command just before:  
+     > `xhost +`  
+     > Then, when you finish, it is recommanded to remove free access to the X display server by running:  
+     > `xhost -`  
