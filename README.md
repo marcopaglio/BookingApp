@@ -145,16 +145,34 @@ If you're using VirtualBox you can make this check earlier by looking at the bel
 
 I recommand to revert all the changes here described as soon as you no longer have to use the VM.
 
-## Import the repository
+## Clone the BookingApp repository
 
-1. Open eclipse
-2. Import from Git
-3. Find the repository (marcopaglio/BookingApp)
-4. If some errors (about dependencies) appears, just Refresh modules, and they go away.
-5. Download database docker images before building, otherwise build fails due to timeout.
+There are essentially two main ways for cloning, and then using, the BookingApp repository.
+
+### Clone by command line
+
+### Import from Eclipse
+
+1. Once installed, open Eclipse and choose any workspace location.
+2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github**
+3. Search for the repository *marcopaglio/BookingApp* > select only the branch named *Main* > **Next** > choose any directory (we will refer to it as ***BASE_DIR***) > **Next** > every module must be selected from the list > **Finish**
+   
+   > Once imported, there may be appeared some errors (about dependencies) on the *Problems* tab of Eclipse. Don't worry, just **Refresh** once and they will go away.
+   
+6. Download database docker images before building, otherwise build fails due to timeout.
      docker pull mongo:6.0.7
      docker pull postgres:15.3
-6. On Linux run xhost+ before running docker-compose or Maven docker profile (and xhost- as soon as it stop).
+7. On Linux run xhost+ before running docker-compose or Maven docker profile (and xhost- as soon as it stop).
+
+### Eclipse settings
+
+Opening files which define DTD or XSD schemas, like in pom.xml and persistence.xml files of BookingApp project, requires that such schemas have to be downloaded and stored locally (inside .lemminx folder, in Linux).
+About that, if you find the following error message coming from these files:
+
+> Downloading external resources is disabled.
+
+Then you have to allow Eclipse downloading schemas. This can be done modifying Eclipse settings: **Window** > **Preferences** > **XML (Wild Web Developer)** > tick **Download external resources like referenced DTD, XSD** > Apply > Aplly and Close.
+Now you can find the .lemminx file containing all the resources necessary for building. 
 
 ## Build BookingApp
 
