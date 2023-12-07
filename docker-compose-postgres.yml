@@ -14,11 +14,11 @@ services:
     - DB_NAME=BookingApp_db
     - USER=postgres-user
     - PSWD=postgres-pswd
-    - DISPLAY=:0
+    - DISPLAY=:0.0
     networks: 
     - booking-network
     volumes:
-    - /run/desktop/mnt/host/wslg/.X11-unix:/tmp/.X11-unix
+    - /tmp/.X11-unix:/tmp/.X11-unix
 
   postgres:
     image: postgres:15.3
