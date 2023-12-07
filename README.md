@@ -171,7 +171,16 @@ I recommand to revert all the changes here described as soon as you no longer ha
    - `-Ppitest` > add mutation testing
    - `-Pdocker` > add dockerization of the application  
 
-     > Note: docker profile will open BookingApp inside a Docker container, therefore it needs the access to the Linux X display server in order to work propertly. About that, run the following command just before:  
-     > `xhost +`  
-     > Then, when you finish, it is recommanded to remove free access to the X display server by running:  
-     > `xhost -`  
+     > Note: docker profile will open BookingApp inside a Docker container, therefore it needs the access to the Linux X display server in order to work propertly:
+     > - run the following command for showing all the net interfaces:  
+     >   `ifconfig`
+     >   
+     >   > It may be necessary install the package for running it: `sudo apt install net-tools`
+     >   
+     > - from the printed list, find out the Docker virtual bridge (alias <DOCKER_NET>) which all the containers are connected to (as default it is `docker0`).
+     > - run the following command before using docker profile or docker-compose:  
+     >   `xhost +local:<DOCKER_NET>`
+     >   e.g: `xhost +local:docker0`  
+     > - When running finishes, it is recommanded to remove the access to the X display server by running:  
+     >   `xhost -local:<DOCKER_NET>`
+     >   e.g: `xhost -local:docker0`
