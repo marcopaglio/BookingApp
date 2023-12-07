@@ -24,12 +24,12 @@
     <!-- MONGODB PROPERTIES -->
     <mongo.conf.volume>mongo_conf</mongo.conf.volume>
     <mongo.data.volume>mongo_data</mongo.data.volume>
-    <mongo.host.name>localhost</mongo.host.name>
+    <mongo.host.name>${docker.host.address}</mongo.host.name>
     <mongo.replicaSet.name>rsOneNode</mongo.replicaSet.name>
     
     <!-- POSTGRESQL PROPERTIES -->
     <postgres.data.volume>postgresql_data</postgres.data.volume>
-    <postgres.host.name>localhost</postgres.host.name>
+    <postgres.host.name>${docker.host.address}</postgres.host.name>
     <postgres.database.name>ITandE2ETest_db</postgres.database.name>
     <postgres.database.user>postgres-it-e2e</postgres.database.user>
     <postgres.database.pswd>postgres-it-e2e</postgres.database.pswd>

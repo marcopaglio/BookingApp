@@ -353,7 +353,7 @@
                         <cmd>mongod --replSet ${mongo.replicaSet.name}</cmd>
                         <wait>
                           <http>
-                            <url>http://localhost:${mongo.mapped.port}</url>
+                            <url>http://${docker.host.address}:${mongo.mapped.port}</url>
                             <method>GET</method>
                             <status>200</status>
                           </http>
@@ -442,7 +442,7 @@
         </file>
       </activation>
       <properties>
-        <xserver.socket.location>/run/desktop/mnt/host/wslg/.X11-unix/</xserver.socket.location>
+        <xserver.socket.location>/run/desktop/mnt/host/wslg/.X11-unix</xserver.socket.location>
       </properties>
     </profile>
 
