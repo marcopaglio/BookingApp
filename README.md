@@ -153,8 +153,10 @@ There are essentially two main ways for cloning, and then using, the BookingApp 
 
 ### Import from Eclipse
 
+> Following steps have been defined using EclipseIDE 2022-12 and 2023-09. Different versions may involve slightly different steps.
+
 1. Once installed, open Eclipse and choose any workspace location.
-2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github**
+2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github**.
 3. Search for the repository *marcopaglio/BookingApp* > select only the branch named *Main* > **Next** > choose any directory (we will refer to it as ***BASE_DIR***) > **Next** > every module must be selected from the list > **Finish**
    
    > Once imported, there may be appeared some errors (about dependencies) on the *Problems* tab of Eclipse. Don't worry, just **Refresh** once and they will go away.
@@ -176,29 +178,28 @@ Now you can find the .lemminx file containing all the resources necessary for bu
 
 ## Build BookingApp
 
+Locate yourself into the project base directory (or *BASE_DIR*, e.g. BookingApp) where the Maven Wrapper files (mvnw, mvnw.cmd, etc.) are stored, and open a Command Prompt.
+
 ### Linux
 
-1. locate yourself into the project base directory (e.g. BookingApp) where the mvnw (Maven Wrapper) file is stored, through the command:
-   `cd git/BookingApp`
-   **TODO: è meglio piazzarsi in booking-aggregator in modo che vi siano tutti i file lì?**
-2. Building is done by running the following command:  
-   `./mvnw -f booking-aggregator/pom.xml clean install`
-   Alternative buildings can be ran adding one or more profiles at the end of the previous command:
-   - `-Pjacoco` > add coverage
-     Once finished, the coverage report is located in booking-report/target/site/jacoco-aggregate/index.html.
-   - `-Ppitest` > add mutation testing
-   - `-Pdocker` > add dockerization of the application  
+Building is done by running the following command:  <br>
+`./mvnw -f booking-aggregator/pom.xml clean install`  <br>
+Alternative buildings can be ran adding one or more profiles at the end of the previous command:
+- `-Pjacoco` > add coverage  <br>
+  Once finished, the coverage report is located in booking-report/target/site/jacoco-aggregate/index.html.
+- `-Ppitest` > add mutation testing
+- `-Pdocker` > add dockerization of the application  
 
-     > Note: docker profile will open BookingApp inside a Docker container, therefore it needs the access to the Linux X display server in order to work propertly:
-     > - run the following command for showing all the net interfaces:  
-     >   `ifconfig`
-     >   
-     >   > It may be necessary install the package for running it: `sudo apt install net-tools`
-     >   
-     > - from the printed list, find out the Docker virtual bridge (alias <DOCKER_NET>) which all the containers are connected to (as default it is `docker0`).
-     > - run the following command before using docker profile or docker-compose:  
-     >   `xhost +local:<DOCKER_NET>`
-     >   e.g: `xhost +local:docker0`  
-     > - When running finishes, it is recommanded to remove the access to the X display server by running:  
-     >   `xhost -local:<DOCKER_NET>`
-     >   e.g: `xhost -local:docker0`
+  > Note: docker profile will open BookingApp inside a Docker container, therefore it needs the access to the Linux X display server in order to work propertly:
+  > - run the following command for showing all the net interfaces:  <br>
+  >   `ifconfig`
+  >   
+  >   > It may be necessary install the package for running it: `sudo apt install net-tools`
+  >   
+  > - from the printed list, find out the Docker virtual bridge (alias *<DOCKER_NET>*) which all the containers are connected to (as default it is `docker0`).
+  > - run the following command before using docker profile or docker-compose:  <br>
+  >   `xhost +local:<DOCKER_NET>` e.g: `xhost +local:docker0`  
+  > - When running finishes, it is recommanded to remove the access to the X display server by running:  <br>
+  >   `xhost -local:<DOCKER_NET>` e.g: `xhost -local:docker0`
+
+You can also build the BookingApp project using the command `mvn` instead of `./mvnw`, but without Maven Wrapper build might fails due to different versions of Maven. For this reason building with maven Wrapper is recommended. If you prefer taking your risks, you can also run launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the .launch file, select **Run As**, and click on the same name maven configuration for starting the building. Remember that launch files in Reactor execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
