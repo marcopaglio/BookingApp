@@ -26,21 +26,25 @@ Desktop application for managing reservations developed with TDD, build automati
 
 ## Is your machine compatible
 
-This project runs a Docker image with MongoDB, the version of which is greater than 5.0, then requires use of AVX instructions. To determine whether AVX supports your CPU model, check the manufacturer’s website and enter your CPU model number. Below are other methods for this verification.
+This project runs a Docker image with MongoDB, the version of which is greater than 5.0 and requires the use of AVX instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System (OS).
 
-> Note: even if your machine supports AVX instructions, a running virtual machine hosted by it might disabilitate them due to virtualization problems. See **LINK** for fixing this possible issue.  
+> Note: even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See **LINK** for fixing this possible problem.  
 
 ### Linux and MacOS
 
-To check if CPU has AVX capabilities on Unix systems, run the following commands on terminal:  
-`grep avx /proc/cpuinfo`  
-If the output is not empty, then your cores has AVX support.
+To check if CPU has AVX capabilities on Unix systems, run the following command on the terminal:  <br>
+```
+grep avx /proc/cpuinfo
+```
+If the output is not empty then your cores have AVX support.
 
 ### Windows 
 
-Enable AVX capabilities directly by running the following command on a Command Prompt as Administrator:  
-`bcdedit /set xsavedisable 0`  
-You will see a confirmation message.
+On Windows systems, enable AVX capabilities directly by running the following command on a Command Prompt as Administrator:  
+```
+bcdedit /set xsavedisable 0
+```
+You should see a confirmation message.
 
 ## Before you start
 
@@ -150,6 +154,10 @@ I recommand to revert all the changes here described as soon as you no longer ha
 There are essentially two main ways for cloning, and then using, the BookingApp repository.
 
 ### Clone by command line
+
+If you decide to use command line, get a copy of BookingApp by running:  <br>
+`git clone https://github.com/marcopaglio/BookingApp.git`  <br>
+
 
 ### Import from Eclipse
 
