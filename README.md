@@ -186,16 +186,21 @@ Now you can find the .lemminx file containing all the resources necessary for bu
 
 ## Build BookingApp
 
-Locate yourself into the project base directory (or *BASE_DIR*, e.g. BookingApp) where the Maven Wrapper files (mvnw, mvnw.cmd, etc.) are stored, and open a Command Prompt.
+For building a copy of BookingApp, place yourself into the project root directory (or *BASE_DIR* e.g: `BookingApp`) where the Maven Wrapper files (`mvnw`, `mvnw.cmd`, etc.) are stored, and open a Command Prompt.
 
 ### Linux
 
-Building is done by running the following command:  <br>
-`./mvnw -f booking-aggregator/pom.xml clean install`  <br>
-Alternative buildings can be ran adding one or more profiles at the end of the previous command:
-- `-Pjacoco` > add coverage  <br>
-  Once finished, the coverage report is located in booking-report/target/site/jacoco-aggregate/index.html.
-- `-Ppitest` > add mutation testing
+On Linux systems, building is done by running the following command:
+```
+./mvnw -f booking-aggregator/pom.xml clean install
+```
+Its execution will remove unnecessary files generated in previous builds and install dependencies locally for each module. In this way, you can then build each sub-module indipendently, just change `booking-aggregator` with one between `booking-domain-module`, `booking-business-module` and `booking-ui-module` in the previous command.  <br>
+This execution executes unit, integration and end-to-end tests at all. If the command is executed for a sub-module, these tests will be executed only for the specific module.  <br>
+Alternative builds can be run adding one or more profiles at the end of the previous command:
+- `-Pjacoco` will add test coverage.  <br>
+  BookingApp project already provides test coverage results **LINK HERE**, but you can see them for yourself once execution finishes at `BASE_DIR/booking-report/target/site/jacoco-aggregate/index.html`.
+- `-Ppitest` will add mutation testing.  <br>
+  BookingApp project already provides mutation testing results **LINK HERE**, but you can see them for yourself once execution finishes at `BASE_DIR/booking-report/target/pit-reports/index.html`.
 - `-Pdocker` > add dockerization of the application  
 
   > Note: docker profile will open BookingApp inside a Docker container, therefore it needs the access to the Linux X display server in order to work propertly:
