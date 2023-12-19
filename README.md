@@ -61,14 +61,46 @@ bcdedit /set xsavedisable 0
 ```
 If you see a confirmation message then your cores have AVX support.
 
+### Running on Virtual Machine
+
+It is possible to clone and run BookingApp on a OS installed on a Virtual Machine (VM) program (e.g. VirtualBox, VMware Workstations, etc.), but it may not work due to lack of support for AVX/AVX2 instructions, even if your host machine's CPU supports them. 
+
+#### Hosted by Windows 11
+
+On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to virtualization problems. In this case it's necessary to:
+- *disable the hypervisor launch which is enabled by default*.
+  
+  First of all, check if the hypervisor is executing: **WIN + R** > enter **msinfo32** > in the **System Summary** window, you should find the following entry (otherwise you can skip to the second part **LINK HERE**):
+
+  > A hypervisor was detected. The features required for Hyper-V will not be displayed.
+  
+  In this case, open a Command Prompt in Windows 11 Host as Administrator and run:  
+  `bcdedit /set hypervisorlaunchtype off`
+  Then restart your machine for applying changes.
+  For revert changes about the hypervisor run on a Command Prompt in Windows 11 Host as Administrator:
+  `bcdedit /set hypervisorlaunchtype auto`
+  Then restart your machine for applying changes.
+  
+- *disable Windows security Memory Integrity*.
+
+  This is a very bad thing to do because the Memory integrity feature is stated to *prevent attacks from inserting malicious code into high-security processes*. It is a *security feature that use virtualization-based security*. Unfortunately this is require in order to enable AVX/AVX2 instructions in VMs. You can find it on **Settings** > **Windows Security** > **Device security** > **Core isolation details** > **Memory integrity**. As soon as turned this feature off, restart your machine to allow Windows to apply the change.  
+
+If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running instructions of the previous chapter (**LINK HERE**).  
+If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an icon, chip-like, with a V letter inside. Instead, if the V is inside a turtle, it means that hypervisor is still running (and the virtualization is slower, just like a turtle), then AVX/AVX2 core instructions will be not supported.  
+
+I recommand to revert all the changes here described as soon as you no longer have to use the VM.
+
 ### What else?
 
-In order to replicate buildings or using the application, following programs have to be installed on your machine:
-1. Java SDK (and JRE?) 11
-2. Git
-3. Docker engine and Docker compose
+To use the BookingApp application, the following programs must be installed on your machine:
+1. Java SDK (and JRE?) 11 (or more?)
+2. Docker engine and Docker compose
+
+To replicate builds, tests and so on, the BookingApp project also requires the following programs installed on your machine:
+3. Git
 4. Eclipse IDE
 
+**START: CHECK IF TO MANTAIN** :arrow_down:
 #### 1. Install Java SDK (and JRE) 11
 
 The installation guide depending on your operating system.
@@ -132,37 +164,9 @@ The installation guide depending on your operating system.
 
 ##### Linux (Ubuntu)
 
-On Ubuntu Software application is stored Eclipse. So just find it on the store and install clicking the right botton. Then you can open the application.
+On Ubuntu Software application is stored Eclipse. So just find it on the store and install clicking the right botton. Then you can open the application.  <br>
 
-## Running on Virtual Machine
-
-It is possible to clone and run BookingApp on a Virtual Machine (VM) program (e.g. VirtualBox, VMware Workstations, etc.), but it may not work due to lack of support for AVX/AVX2 instructions, even if your host machine's CPU supports them. 
-
-### Hosted by Windows 11
-
-On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to virtualization problems. In this case it's necessary to:
-
-- *disable the hypervisor launch which is enabled by default*.
-  
-  First of all, check if the hypervisor is executing: **WIN + R** > enter **msinfo32** > in the **System Summary** window, you should find the following entry (otherwise you can skip to the second part **LINK HERE**):
-
-  > A hypervisor was detected. The features required for Hyper-V will not be displayed.
-  
-  In this case, open a Command Prompt in Windows 11 Host as Administrator and run:  
-  `bcdedit /set hypervisorlaunchtype off`
-  Then restart your machine for applying changes.
-  For revert changes about the hypervisor run on a Command Prompt in Windows 11 Host as Administrator:
-  `bcdedit /set hypervisorlaunchtype auto`
-  Then restart your machine for applying changes.
-  
-- *disable Windows security Memory Integrity*.
-
-  This is a very bad thing to do because the Memory integrity feature is stated to *prevent attacks from inserting malicious code into high-security processes*. It is a *security feature that use virtualization-based security*. Unfortunately this is require in order to enable AVX/AVX2 instructions in VMs. You can find it on **Settings** > **Windows Security** > **Device security** > **Core isolation details** > **Memory integrity**. As soon as turned this feature off, restart your machine to allow Windows to apply the change.  
-
-If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running instructions of the previous chapter (**LINK HERE**).  
-If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an icon, chip-like, with a V letter inside. Instead, if the V is inside a turtle, it means that hypervisor is still running (and the virtualization is slower, just like a turtle), then AVX/AVX2 core instructions will be not supported.  
-
-I recommand to revert all the changes here described as soon as you no longer have to use the VM.
+**END: CHECK IF TO MANTAIN** :arrow_up:
 
 ## Clone the BookingApp repository
 
