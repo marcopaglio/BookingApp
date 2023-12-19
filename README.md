@@ -33,13 +33,15 @@ Finally, on SonarCloud are published analysis of BookingApp code quality, partic
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=marcopaglio_BookingApp&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=marcopaglio_BookingApp) 
 .  <br>
 
-## Is your machine compatible
+## Before you start
 
-This project runs a Docker image with MongoDB, the version of which is greater than 5.0 and requires the use of AVX instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System (OS).
+### Is your machine compatible?
 
-> Note: even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See **LINK** for fixing this possible problem.  
+This project runs a Docker image with MongoDB, the version of which is greater than 5.0 and requires the use of AVX instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System.
 
-### Linux and MacOS
+> N.B: even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See the section on [Running on Virtual Machine](#running-on-virtual-machine) for fixing this possible problem.  
+
+#### Linux and MacOS
 
 To check if CPU has AVX capabilities on Unix systems, run the following command on the terminal:  <br>
 ```
@@ -47,7 +49,7 @@ grep avx /proc/cpuinfo
 ```
 If the output is not empty then your cores have AVX support.
 
-### Windows 
+#### Windows 
 
 On Windows systems, enable AVX capabilities directly by running the following command on a Command Prompt as Administrator:  
 ```
@@ -55,7 +57,7 @@ bcdedit /set xsavedisable 0
 ```
 You should see a confirmation message.
 
-## Before you start
+### Have you already install all the necessary?
 
 In order to replicate buildings or using the application, following programs have to be installed on your machine:
 1. Java SDK (and JRE?) 11
@@ -63,11 +65,11 @@ In order to replicate buildings or using the application, following programs hav
 3. Docker engine and Docker compose
 4. Eclipse IDE
 
-### 1. Install Java SDK (and JRE) 11
+#### 1. Install Java SDK (and JRE) 11
 
 The installation guide depending on your operating system.
 
-#### Linux (Ubuntu)
+##### Linux (Ubuntu)
 
 First of all, check if Java JRE is already installed, running the following commands on terminal:
 java -version
@@ -99,11 +101,11 @@ javac --version
 javac 11.0.21
 TODO: set JAVA_HOME?
 
-### 2. Install Git
+#### 2. Install Git
 
 The installation guide depending on your operating system.
 
-#### Linux (Ubuntu 22.04)
+##### Linux (Ubuntu 22.04)
 
 sudo apt-get update
 sudo apt-get install git
@@ -111,20 +113,20 @@ The verify the installation was successful by typing:
 git --version
 TODO: configure username and email?
 
-### 3. Install Docker Engine and Docker Compose
+#### 3. Install Docker Engine and Docker Compose
 
 The installation guide depending on your operating system.
 
-#### Linux (Ubuntu 22.04)
+##### Linux (Ubuntu 22.04)
 
 A complete step-by-step guide is provided by the official page:
 LINK: https://docs.docker.com/engine/install/ubuntu/
 
-### 4. Install Eclipse IDE
+#### 4. Install Eclipse IDE
 
 The installation guide depending on your operating system.
 
-#### Linux (Ubuntu)
+##### Linux (Ubuntu)
 
 On Ubuntu Software application is stored Eclipse. So just find it on the store and install clicking the right botton. Then you can open the application.
 
