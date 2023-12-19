@@ -4,6 +4,8 @@
 BookingApp is a simple desktop application for managing reservations developed with TDD, build automation and continuous integration practices. Once the application is launched, you can add your clients and their reservations via a GUI. Informations are stored in a database server running as a Docker container. BookingApp is compatible both with MongoDB and PostgreSQL DBMSs.  <br>
 **IMAGES HERE**  <br>
 
+> InfoPoint :information_source:: BookingApp followed by "***project***" indicates the entire job, which includes builds, tests and hence the source code, while "***application***" indicates the executable itself, which you can launch and use.
+
 On GitHub Actions are stored results about Maven builds e tests for Linux OS, MacOS, and Windows:  <br>
 [![Java CI with Maven in Linux](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-linux.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-linux.yml)  <br>
 [![Java CI with Maven in MacOS](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-macos.yml/badge.svg)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-macos.yml)  <br>
@@ -11,7 +13,7 @@ On GitHub Actions are stored results about Maven builds e tests for Linux OS, Ma
 
 > N.B: On Windows systems some unit and integration tests cannot be executed due to lack of compatibility of required Docker images, like MongoDB and PostgresSQL. If you are brave enough, you can fill the void creating custom Docker images for MongoDB and PostgreSQL starting from a [Windows OS base layer](https://hub.docker.com/_/microsoft-windows-base-os-images).
 
-Also GitHub Actions provides website and release status of the BookingApp project:  <br>
+Also GitHub Actions provides website status for the BookingApp project and release status for the BookingApp application:  <br>
 [![Deploy content to GitHub Pages](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml)  <br>
 **HERE GITHUB RELEASES**  <br>
   
@@ -37,9 +39,11 @@ Finally, on SonarCloud are published analysis of BookingApp code quality, partic
 
 ### Is your machine compatible?
 
-This project runs a Docker image with MongoDB, the version of which is greater than 5.0 and requires the use of AVX instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System.
+If you just launch the BookingApp application with PostgreSQL as DBMS there are no *known* machine requirements.  <br>
 
-> N.B: even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See the section on [Running on Virtual Machine](#running-on-virtual-machine) for fixing this possible problem.  
+Otherwise, even if you want to try building or testing, the BookingApp project runs a Docker container with MongoDB, the version of which is greater than 5.0 and requires the use of AVX instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System.
+
+> N.B: even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See the section on [Running on Virtual Machine](#running-on-virtual-machine) for fixing this possible problem.
 
 #### Linux and MacOS
 
@@ -55,9 +59,9 @@ On Windows systems, enable AVX capabilities directly by running the following co
 ```
 bcdedit /set xsavedisable 0
 ```
-You should see a confirmation message.
+If you see a confirmation message then your cores have AVX support.
 
-### Have you already install all the necessary?
+### What else?
 
 In order to replicate buildings or using the application, following programs have to be installed on your machine:
 1. Java SDK (and JRE?) 11
