@@ -1,10 +1,11 @@
 
 # BookingApp
 
-BookingApp is a simple desktop application for managing reservations developed with TDD, build automation and continuous integration practices. Once the application is launched, you can add your clients and their reservations via a GUI. Informations are stored in a database server running as a Docker container. BookingApp is compatible both with MongoDB and PostgreSQL DBMSs.  <br>
+BookingApp is a simple desktop application for managing reservations developed with TDD, build automation and continuous integration practices. Once the application is launched, you can add your clients and their reservations via a GUI. Informations are stored in a database server running as a Docker container.  <br>
+BookingApp is compatible both with MongoDB and PostgreSQL DBMSs.  <br>
 **IMAGES HERE**  <br>
 
-> InfoPoint :information_source:: BookingApp followed by "***project***" indicates the entire job, which includes builds, tests and hence the source code, while "***application***" indicates the executable itself, which you can launch and use.
+> InfoPoint :information_source:: BookingApp followed by "***project***" indicates the entire job, which includes builds, tests and hence the source code, while "***application***" indicates the executable which you can launch and use.
 
 On GitHub Actions are stored results about Maven builds e tests for Linux OS, MacOS, and Windows:  <br>
 [![Java CI with Maven in Linux](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-linux.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-linux.yml)  <br>
@@ -70,25 +71,21 @@ It is possible to clone and run BookingApp on a OS installed on a Virtual Machin
 On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to virtualization problems. In this case it's necessary to:
 - *disable the hypervisor launch which is enabled by default*.
   
-  First of all, check if the hypervisor is executing: **WIN + R** > enter **msinfo32** > in the **System Summary** window, you should find the following entry (otherwise you can skip to the second part **LINK HERE**):
-
-  > A hypervisor was detected. The features required for Hyper-V will not be displayed.
+  First of all, check if the hypervisor is executing: **WIN + R** > enter **msinfo32** > in the **System Summary** window you should find the following entry (otherwise skip over to the next point): `A hypervisor was detected. The features required for Hyper-V will not be displayed.` In this case, open a Command Prompt as Administrator and run `bcdedit /set hypervisorlaunchtype off`. Then restart your machine for applying changes.  <br>
   
-  In this case, open a Command Prompt in Windows 11 Host as Administrator and run:  
-  `bcdedit /set hypervisorlaunchtype off`
-  Then restart your machine for applying changes.
-  For revert changes about the hypervisor run on a Command Prompt in Windows 11 Host as Administrator:
-  `bcdedit /set hypervisorlaunchtype auto`
-  Then restart your machine for applying changes.
+  When you need to undo the changes, open a Command Prompt as Administrator and run `bcdedit /set hypervisorlaunchtype auto`. Then restart your machine for applying changes.
   
 - *disable Windows security Memory Integrity*.
 
-  This is a very bad thing to do because the Memory integrity feature is stated to *prevent attacks from inserting malicious code into high-security processes*. It is a *security feature that use virtualization-based security*. Unfortunately this is require in order to enable AVX/AVX2 instructions in VMs. You can find it on **Settings** > **Windows Security** > **Device security** > **Core isolation details** > **Memory integrity**. As soon as turned this feature off, restart your machine to allow Windows to apply the change.  
+  > Attention :exclamation:: this is a very bad thing to do because the Memory integrity feature is stated to *prevent injection attacks into virtualization-based security processes*. Unfortunately, this is require in order to enable AVX/AVX2 instructions in VMs.
+  
+  You can find it on **Settings** > **Windows Security** > **Device security** > **Core isolation details** > **Memory integrity**. As soon as turned this feature off, restart your machine to allow Windows to apply the change.  
 
-If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running instructions of the previous chapter (**LINK HERE**).  
-If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an icon, chip-like, with a V letter inside. Instead, if the V is inside a turtle, it means that hypervisor is still running (and the virtualization is slower, just like a turtle), then AVX/AVX2 core instructions will be not supported.  
+If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM.  <br>
 
-I recommand to revert all the changes here described as soon as you no longer have to use the VM.
+If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an chip-like icon with a V letter inside (**IMAGE HERE**). Instead, if the V is inside a turtle (**IMAGE HERE**), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
+
+> InfoPoint :information_source:: I really recommand to revert all the changes here described as soon as you no longer have to use the VM.
 
 ### What else?
 
