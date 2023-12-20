@@ -77,7 +77,7 @@ On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to vi
 
 If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM.<br>
 
-If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an chip-like icon with a V letter inside (**IMAGE HERE**). Instead, if the V is inside a turtle (**IMAGE HERE**), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
+If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an chip-like icon with a V letter inside (**IMAGE HERE**). Instead, if the V is inside a turtle (![TURTLEEEE](/../screenshots/screenshot-turtle-icon.png?raw=true "TURTLEEEEE")), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
 
 > InfoPoint :information_source:: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
 
