@@ -1,28 +1,23 @@
 
 # BookingApp
 
-BookingApp is a simple desktop application for managing reservations developed with TDD, build automation and continuous integration practices. Once the application is launched, you can add your clients and their reservations via a GUI. Informations are stored in a database server running as a Docker container.  <br>
-BookingApp is compatible both with MongoDB and PostgreSQL DBMSs.  <br>
-**IMAGES HERE**  <br>
+BookingApp is a simple desktop application for managing reservations developed with TDD, build automation and continuous integration practices. Once the application is launched, you can add your clients and their reservations via a GUI. Informations are stored in a database server running as a Docker container.<br>
+BookingApp is compatible with both MongoDB and PostgreSQL DBMSs.<br>
+**IMAGES HERE**<br>
 
 > InfoPoint :information_source:: BookingApp followed by "***project***" indicates the entire job, which includes builds, tests and hence the source code, while "***application***" indicates the executable which you can launch and use.
 
-On GitHub Actions are stored results about Maven builds e tests for Linux OS, MacOS, and Windows:  <br>
-[![Java CI with Maven in Linux](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-linux.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-linux.yml)  <br>
-[![Java CI with Maven in MacOS](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-macos.yml/badge.svg)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-macos.yml)  <br>
-[![Build with Maven in Windows](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-windows.yml/badge.svg)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-windows.yml)  <br>
+On GitHub Actions are stored results about Maven builds and tests for Linux OS, MacOS, and Windows, and also the website status for the BookingApp project and the release status for the BookingApp application:<br>
+[![Java CI with Maven in Linux](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-linux.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-linux.yml)<br>
+[![Java CI with Maven in MacOS](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-macos.yml/badge.svg)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-macos.yml)<br>
+[![Build with Maven in Windows](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-windows.yml/badge.svg)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-windows.yml)<br>
+[![Deploy content to GitHub Pages](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml)<br>
+**HERE GITHUB RELEASES**<br>
 
 > N.B: On Windows systems some unit and integration tests cannot be executed due to lack of compatibility of required Docker images, like MongoDB and PostgresSQL. If you are brave enough, you can fill the void creating custom Docker images for MongoDB and PostgreSQL starting from a [Windows OS base layer](https://hub.docker.com/_/microsoft-windows-base-os-images).
-
-Also GitHub Actions provides website status for the BookingApp project and release status for the BookingApp application:  <br>
-[![Deploy content to GitHub Pages](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml)  <br>
-**HERE GITHUB RELEASES**  <br>
   
-On Coveralls are published the history and statisticsits of BookingApp test code coverage; surf on it by clicking on the following status badge: 
-[![Coverage Status](https://coveralls.io/repos/github/marcopaglio/BookingApp/badge.svg?branch=main)](https://coveralls.io/github/marcopaglio/BookingApp?branch=main) 
-.  <br>
-
-Finally, on SonarCloud are published analysis of BookingApp code quality, particularly on *reliability*, *security* and *maintainability*: 
+On Coveralls are published the history and statisticsits of BookingApp test code coverage; while on SonarCloud are published analysis of BookingApp code quality, particularly on *reliability*, *security* and *maintainability*:<br>
+[![Coverage Status](https://coveralls.io/repos/github/marcopaglio/BookingApp/badge.svg?branch=main)](https://coveralls.io/github/marcopaglio/BookingApp?branch=main)<br>
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=marcopaglio_BookingApp&metric=coverage)](https://sonarcloud.io/summary/new_code?id=marcopaglio_BookingApp) 
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=marcopaglio_BookingApp&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=marcopaglio_BookingApp) 
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=marcopaglio_BookingApp&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=marcopaglio_BookingApp) 
@@ -34,21 +29,20 @@ Finally, on SonarCloud are published analysis of BookingApp code quality, partic
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=marcopaglio_BookingApp&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=marcopaglio_BookingApp) 
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=marcopaglio_BookingApp&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=marcopaglio_BookingApp) 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=marcopaglio_BookingApp&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=marcopaglio_BookingApp) 
-.  <br>
 
 ## Before you start
 
 ### Is your machine compatible?
 
-If you just launch the BookingApp application with PostgreSQL as DBMS there are no *known* machine requirements.  <br>
+If you just launch the BookingApp application with PostgreSQL as DBMS there are no *known* machine requirements.<br>
 
-Otherwise, even if you want to try building or testing, the BookingApp project runs a Docker container with MongoDB, the version of which is greater than 5.0 and requires the use of AVX instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System.
+Otherwise, even if you want to try building or testing, the BookingApp project runs a Docker container with MongoDB, the version of which is greater than 5.0 and requires the use of AVX instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System (OS).
 
 > N.B: even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See the section on [Running on Virtual Machine](#running-on-virtual-machine) for fixing this possible problem.
 
 #### Linux and MacOS
 
-To check if CPU has AVX capabilities on Unix systems, run the following command on the terminal:  <br>
+To check if CPU has AVX capabilities on Unix systems, run the following command on the terminal:<br>
 ```
 grep avx /proc/cpuinfo
 ```
@@ -71,7 +65,7 @@ It is possible to clone and run BookingApp on a OS installed on a Virtual Machin
 On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to virtualization problems. In this case it's necessary to:
 - *disable the hypervisor launch which is enabled by default*.
   
-  First of all, check if the hypervisor is executing: **WIN + R** > enter **msinfo32** > in the **System Summary** window you should find the following entry (otherwise skip over to the next point): `A hypervisor was detected. The features required for Hyper-V will not be displayed.` In this case, open a Command Prompt as Administrator and run `bcdedit /set hypervisorlaunchtype off`. Then restart your machine for applying changes.  <br>
+  First of all, check if the hypervisor is executing: **WIN + R** > enter **msinfo32** > in the **System Summary** window you should find the following entry (otherwise skip over to the next point): `A hypervisor was detected. The features required for Hyper-V will not be displayed`. In this case, open a Command Prompt as Administrator and run `bcdedit /set hypervisorlaunchtype off`. Then restart your machine for applying changes.<br>
   
   When you need to undo the changes, open a Command Prompt as Administrator and run `bcdedit /set hypervisorlaunchtype auto`. Then restart your machine for applying changes.
   
@@ -81,11 +75,11 @@ On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to vi
   
   You can find it on **Settings** > **Windows Security** > **Device security** > **Core isolation details** > **Memory integrity**. As soon as turned this feature off, restart your machine to allow Windows to apply the change.  
 
-If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM.  <br>
+If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM.<br>
 
 If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an chip-like icon with a V letter inside (**IMAGE HERE**). Instead, if the V is inside a turtle (**IMAGE HERE**), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
 
-> InfoPoint :information_source:: I really recommand to revert all the changes here described as soon as you no longer have to use the VM.
+> InfoPoint :information_source:: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
 
 ### What else?
 
@@ -161,7 +155,7 @@ The installation guide depending on your operating system.
 
 ##### Linux (Ubuntu)
 
-On Ubuntu Software application is stored Eclipse. So just find it on the store and install clicking the right botton. Then you can open the application.  <br>
+On Ubuntu Software application is stored Eclipse. So just find it on the store and install clicking the right botton. Then you can open the application.<br>
 
 **END: CHECK IF TO MANTAIN** :arrow_up:
 
@@ -171,8 +165,8 @@ There are essentially two main ways for cloning, and then using, the BookingApp 
 
 ### Clone by command line
 
-If you decide to use command line, get a copy of BookingApp by running:  <br>
-`git clone https://github.com/marcopaglio/BookingApp.git`  <br>
+If you decide to use command line, get a copy of BookingApp by running:<br>
+`git clone https://github.com/marcopaglio/BookingApp.git`<br>
 
 
 ### Import from Eclipse
@@ -210,25 +204,25 @@ On Linux systems, building is done by running the following command:
 ```
 ./mvnw -f booking-aggregator/pom.xml clean install
 ```
-Its execution will remove unnecessary files generated in previous builds and install dependencies locally for each module. In this way, you can then build each sub-module indipendently, just change `booking-aggregator` with one between `booking-domain-module`, `booking-business-module` and `booking-ui-module` in the previous command.  <br>
-This execution executes unit, integration and end-to-end tests at all. If the command is executed for a sub-module, these tests will be executed only for the specific module.  <br>
+Its execution will remove unnecessary files generated in previous builds and install dependencies locally for each module. In this way, you can then build each sub-module indipendently, just change `booking-aggregator` with one between `booking-domain-module`, `booking-business-module` and `booking-ui-module` in the previous command.<br>
+This execution executes unit, integration and end-to-end tests at all. If the command is executed for a sub-module, these tests will be executed only for the specific module.<br>
 Alternative builds can be run adding one or more profiles at the end of the previous command:
-- `-Pjacoco` will add test coverage.  <br>
+- `-Pjacoco` will add test coverage.<br>
   BookingApp project already provides test coverage results **LINK HERE**, but you can see them for yourself once execution finishes at `BASE_DIR/booking-report/target/site/jacoco-aggregate/index.html`.
-- `-Ppitest` will add mutation testing.  <br>
+- `-Ppitest` will add mutation testing.<br>
   BookingApp project already provides mutation testing results **LINK HERE**, but you can see them for yourself once execution finishes at `BASE_DIR/booking-report/target/pit-reports/index.html`.
 - `-Pdocker` > add dockerization of the application  
 
   > Note: docker profile will open BookingApp inside a Docker container, therefore it needs the access to the Linux X display server in order to work propertly:
-  > - run the following command for showing all the net interfaces:  <br>
+  > - run the following command for showing all the net interfaces:<br>
   >   `ifconfig`
   >   
   >   > It may be necessary install the package for running it: `sudo apt install net-tools`
   >   
   > - from the printed list, find out the Docker virtual bridge (alias *<DOCKER_NET>*) which all the containers are connected to (as default it is `docker0`).
-  > - run the following command before using docker profile or docker-compose:  <br>
+  > - run the following command before using docker profile or docker-compose:<br>
   >   `xhost +local:<DOCKER_NET>` e.g: `xhost +local:docker0`  
-  > - When running finishes, it is recommanded to remove the access to the X display server by running:  <br>
+  > - When running finishes, it is recommanded to remove the access to the X display server by running:<br>
   >   `xhost -local:<DOCKER_NET>` e.g: `xhost -local:docker0`
 
 You can also build the BookingApp project using the command `mvn` instead of `./mvnw`, but without Maven Wrapper build might fails due to different versions of Maven. For this reason building with maven Wrapper is recommended. If you prefer taking your risks, you can also run launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the .launch file, select **Run As**, and click on the same name maven configuration for starting the building. Remember that launch files in Reactor execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
