@@ -42,19 +42,11 @@ Otherwise, even if you want to try building or testing, the BookingApp project r
 
 #### Linux and MacOS
 
-To check if CPU has AVX capabilities on Unix systems, run the following command on the terminal:<br>
-```
-grep avx /proc/cpuinfo
-```
-If the output is not empty then your cores have AVX support.
+To check if CPU has AVX capabilities on Unix systems, run `grep avx /proc/cpuinfo` on the terminal. If the output is not empty then your cores have AVX support.
 
 #### Windows 
 
-On Windows systems, enable AVX capabilities directly by running the following command on a Command Prompt as Administrator:  
-```
-bcdedit /set xsavedisable 0
-```
-If you see a confirmation message then your cores have AVX support.
+On Windows systems, enable AVX capabilities directly by running `bcdedit /set xsavedisable 0` on a Command Prompt as Administrator. If you see a confirmation message then your cores have AVX support.
 
 ### Running on Virtual Machine
 
@@ -65,7 +57,7 @@ It is possible to clone and run BookingApp on a OS installed on a Virtual Machin
 On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to virtualization problems. In this case it's necessary to:
 - *disable the hypervisor launch which is enabled by default*.
   
-  First of all, check if the hypervisor is executing: **WIN + R** > enter **msinfo32** > in the **System Summary** window you should find the following entry (otherwise skip over to the next point): `A hypervisor was detected. The features required for Hyper-V will not be displayed`. In this case, open a Command Prompt as Administrator and run `bcdedit /set hypervisorlaunchtype off`. Then restart your machine for applying changes.<br>
+  First of all, check if the hypervisor is executing: press together **WIN + R** > enter **msinfo32** > in the **System Summary** window you should find the following entry (otherwise skip over to the next point): `A hypervisor was detected. The features required for Hyper-V will not be displayed`. In this case, open a Command Prompt as Administrator and run `bcdedit /set hypervisorlaunchtype off`. Then restart your machine for applying changes.<br>
   
   When you need to undo the changes, open a Command Prompt as Administrator and run `bcdedit /set hypervisorlaunchtype auto`. Then restart your machine for applying changes.
   
@@ -77,7 +69,7 @@ On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to vi
 
 If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM.<br>
 
-If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an chip-like icon with a V letter inside (**IMAGE HERE**). Instead, if the V is inside a turtle (![TURTLEEEE](/../screenshots/screenshot-turtle-icon.png?raw=true "TURTLEEEEE")), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
+If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an chip-like icon with a V letter inside (**IMAGE HERE**). Instead, if you see ![the V inside a turtle icon](/../screenshots/screenshot-turtle-icon.png?raw=true "V turtle icon"), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
 
 > InfoPoint :information_source:: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
 
