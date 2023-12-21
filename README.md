@@ -37,13 +37,13 @@ On Coveralls are published the history and statisticsits of BookingApp test code
 
 If you just launch the BookingApp application with PostgreSQL as DBMS there are no *known* machine requirements.<br>
 
-Otherwise, even if you want to try building or testing, the BookingApp project runs a Docker container with MongoDB, the version of which is greater than 5.0 and requires the use of AVX instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System (OS).
+Otherwise, the BookingApp project runs a Docker container with MongoDB, the version of which is greater than 5.0 and requires the use of AVX instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System (OS).
 
-> N.B: even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See the section on [Running on Virtual Machine](#running-on-virtual-machine) for fixing this possible problem.
+> N.B: Even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See the section on [Running on Virtual Machine](#running-on-virtual-machine) for fixing this possible problem.
 
 #### Linux and MacOS
 
-To check if CPU has AVX capabilities on Unix systems, run on the terminal:
+To check if CPU has AVX capabilities on Unix systems, run the following command on the terminal:
 ```
 grep avx /proc/cpuinfo
 ``` 
@@ -51,7 +51,7 @@ If the output is not empty then your cores have AVX support.
 
 #### Windows 
 
-On Windows systems, enable AVX capabilities directly by running on a Command Prompt as Administrator:
+On Windows systems, enable AVX capabilities directly by running the following command on a Command Prompt as Administrator:
 ```
 bcdedit /set xsavedisable 0
 ``` 
@@ -72,13 +72,13 @@ On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to vi
   
 - *disable Windows security Memory Integrity*.
 
-  > Attention :exclamation:: this is a very bad thing to do because the Memory integrity feature is stated to *prevent injection attacks into virtualization-based security processes*. Unfortunately, this is require in order to enable AVX/AVX2 instructions in VMs.
+  > Attention :exclamation:: This is a very bad thing to do because the Memory integrity feature is stated to *prevent injection attacks into virtualization-based security processes*. Unfortunately, this is require in order to enable AVX/AVX2 instructions in VMs.
   
   You can find it on **Settings** > **Windows Security** > **Device security** > **Core isolation details** > **Memory integrity**. As soon as turned this feature off, restart your machine to allow Windows to apply the change.  
 
 If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM. If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an icon like ![a chip with a V letter inside](/../screenshots/screenshot-chip-icon.png?raw=true "V chip icon"). Instead, if you see an icon like ![a turtle with a V letter inside](/../screenshots/screenshot-turtle-icon.png?raw=true "V turtle icon"), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
 
-> InfoPoint :information_source:: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
+> N.B: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
 
 ### What else?
 
