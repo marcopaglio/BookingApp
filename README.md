@@ -194,31 +194,37 @@ Just imported on Eclipse, there may be appeared some errors (about dependencies)
 
 #### Eclipse settings
 
-Opening files which define DTD or XSD schemas, like in `pom.xml` and `persistence.xml` of BookingApp project, requires those schemas to be downloaded and stored locally (e.g. on Linux they are found in the `.lemminx` folder). In this regard, if you find the error message `Downloading external resources is disabled` coming from these files, you can fix that by modifying Eclipse settings: **Window** > **Preferences** > **XML (Wild Web Developer)** > tick `Download external resources like referenced DTD, XSD` > **Apply** > **Apply and Close**.
+Opening files which define DTD or XSD schemas, like `pom.xml` and `persistence.xml` in the BookingApp project, requires those schemas to be downloaded and stored locally (e.g. on Linux they are found in the `.lemminx` folder). In this regard, if you find the error message `Downloading external resources is disabled` coming from these files, you can fix that by modifying Eclipse settings: **Window** > **Preferences** > **XML (Wild Web Developer)** > tick `Download external resources like referenced DTD, XSD` > **Apply** > **Apply and Close**.
 
-## Build BookingApp
-   
-6. Download database docker images before building, otherwise build fails due to timeout.
-     docker pull mongo:6.0.7
-     docker pull postgres:15.3
-7. On Linux run xhost+ before running docker-compose or Maven docker profile (and xhost- as soon as it stop).
+## Build the BookingApp project
 
-For building a copy of BookingApp, place yourself into the project root directory (or *BASE_DIR* e.g: `BookingApp`) where the Maven Wrapper files (`mvnw`, `mvnw.cmd`, etc.) are stored, and open a Command Prompt.
+Before the very first build, in order to avoid timeout failures, you need to store DBMSs' Docker image locally by running the following commands on the terminal:
+```
+docker pull mongo:6.0.7
+docker pull postgres:15.3
+```
+After that, place yourself into the project root directory, where the Maven Wrapper files (`mvnw`, `mvnw.cmd`, etc.) are stored, open a Command Prompt, and continue with the guide depending on your OS.
 
 ### Linux
 
-On Linux systems, building is done by running the following command:
+On Linux systems, build the project by running the following command:
 ```
 ./mvnw -f booking-aggregator/pom.xml clean install
 ```
 Its execution will remove unnecessary files generated in previous builds and install dependencies locally for each module. In this way, you can then build each sub-module indipendently, just change `booking-aggregator` with one between `booking-domain-module`, `booking-business-module` and `booking-ui-module` in the previous command.<br>
-This execution executes unit, integration and end-to-end tests at all. If the command is executed for a sub-module, these tests will be executed only for the specific module.<br>
+Additionally, all unit, integration and end-to-end tests will be performed with Maven. If the command is executed for a sub-module, tests will be executed only for the specific module.<br>
+
 Alternative builds can be run adding one or more profiles at the end of the previous command:
-- `-Pjacoco` will add test coverage.<br>
-  BookingApp project already provides test coverage results **LINK HERE**, but you can see them for yourself once execution finishes at `BASE_DIR/booking-report/target/site/jacoco-aggregate/index.html`.
-- `-Ppitest` will add mutation testing.<br>
-  BookingApp project already provides mutation testing results **LINK HERE**, but you can see them for yourself once execution finishes at `BASE_DIR/booking-report/target/pit-reports/index.html`.
-- `-Pdocker` > add dockerization of the application  
+
+- `-Pjacoco` add test coverage.
+  
+  BookingApp project already provides test coverage results on [Coveralls](https://coveralls.io/github/marcopaglio/BookingApp?branch=main), but you can see them for yourself once execution finishes at `/booking-report/target/site/jacoco-aggregate/index.html`.
+  
+- `-Ppitest` add mutation testing.
+  
+  BookingApp project already provides mutation testing results on the [website](https://marcopaglio.github.io/BookingApp/pit-reports/index.html), but you can see them for yourself once execution finishes at `/booking-report/target/pit-reports/index.html`.
+  
+- `-Pdocker` add dockerization of the application.
 
   > Note: docker profile will open BookingApp inside a Docker container, therefore it needs the access to the Linux X display server in order to work propertly:
   > - run the following command for showing all the net interfaces:<br>
@@ -231,5 +237,7 @@ Alternative builds can be run adding one or more profiles at the end of the prev
   >   `xhost +local:<DOCKER_NET>` e.g: `xhost +local:docker0`  
   > - When running finishes, it is recommanded to remove the access to the X display server by running:<br>
   >   `xhost -local:<DOCKER_NET>` e.g: `xhost -local:docker0`
+
+7. On Linux run xhost+ before running docker-compose or Maven docker profile (and xhost- as soon as it stop).
 
 You can also build the BookingApp project using the command `mvn` instead of `./mvnw`, but without Maven Wrapper build might fails due to different versions of Maven. For this reason building with maven Wrapper is recommended. If you prefer taking your risks, you can also run launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the .launch file, select **Run As**, and click on the same name maven configuration for starting the building. Remember that launch files in Reactor execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
