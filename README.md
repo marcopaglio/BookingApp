@@ -179,27 +179,22 @@ A copy of the BookingApp project will be downloaded.
 
 If you have already cloned the BookingApp project via Git command line and now want to use Eclipse, change the second step of the [Import from Eclipse](#import-from-eclipse) guide with the following one so as to avoid cloning again:
 
-2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the project root directory > **Open** > make sure of selecting the **Search for nested projects** option > from the Folder list, import all subfolders but not the root folder `BookingApp` > **Finish**
+2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the project root directory > **Open** > make sure of selecting the `Search for nested projects` option > from the Folder list, import all subfolders but not the root folder `BookingApp` > **Finish**.
 
-### Import from Eclipse
+### Eclipse Smart Imports
 
 > InfoPoint :information_source:: Following steps have been defined using EclipseIDE 2022-12 and 2023-09. Different versions may involve slightly different steps.
 
-1. Once installed, open Eclipse and choose any workspace location.
-2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github** > search for the repository *marcopaglio/BookingApp* > select only the branch named *Main* > **Next** > choose any directory (we will refer to it as ***BASE_DIR***) > **Next** > every module must be selected from the list > **Finish**
-   
-   > Once imported, there may be appeared some errors (about dependencies) on the *Problems* tab of Eclipse. Don't worry, just **Refresh** once and they will go away.
+If you decide to use the Eclipse import mode for cloning the BookingApp project:
 
+1. Once installed, open Eclipse and choose any workspace location.
+2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github** > search for the repository `marcopaglio/BookingApp` > select only the `main` branch > **Next** > choose any directory as project root directory > **Next** > select all modules from the list > **Finish**.
+   
+Just imported on Eclipse, there may be appeared some errors (about dependencies) on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
 
 #### Eclipse settings
 
-Opening files which define DTD or XSD schemas, like in pom.xml and persistence.xml files of BookingApp project, requires that such schemas have to be downloaded and stored locally (inside .lemminx folder, in Linux).
-About that, if you find the following error message coming from these files:
-
-> Downloading external resources is disabled.
-
-Then you have to allow Eclipse downloading schemas. This can be done modifying Eclipse settings: **Window** > **Preferences** > **XML (Wild Web Developer)** > tick **Download external resources like referenced DTD, XSD** > Apply > Aplly and Close.
-Now you can find the .lemminx file containing all the resources necessary for building. 
+Opening files which define DTD or XSD schemas, like in `pom.xml` and `persistence.xml` of BookingApp project, requires those schemas to be downloaded and stored locally (e.g. on Linux they are found in the `.lemminx` folder). In this regard, if you find the error message `Downloading external resources is disabled` coming from these files, you can fix that by modifying Eclipse settings: **Window** > **Preferences** > **XML (Wild Web Developer)** > tick `Download external resources like referenced DTD, XSD` > **Apply** > **Apply and Close**.
 
 ## Build BookingApp
    
