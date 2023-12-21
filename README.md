@@ -6,7 +6,6 @@ BookingApp is a simple desktop application for managing reservations developed w
   <img src="/../screenshots/screenshot-bookingapp-gui.png" alt="Screenshot of the simple BookingApp GUI." title="BookingApp GUI"/>
 </p>
 
-
 > InfoPoint :information_source:: BookingApp followed by "***project***" indicates the entire job, which includes builds, tests and hence the source code, while "***application***" indicates the executable which you can launch and use.
 
 On GitHub Actions are stored results about Maven builds and tests for Linux OS, MacOS, and Windows, and also the website status for the BookingApp project and the release status for the BookingApp application:<br>
@@ -44,11 +43,19 @@ Otherwise, even if you want to try building or testing, the BookingApp project r
 
 #### Linux and MacOS
 
-To check if CPU has AVX capabilities on Unix systems, run `grep avx /proc/cpuinfo` on the terminal. If the output is not empty then your cores have AVX support.
+To check if CPU has AVX capabilities on Unix systems, run on the terminal:
+```
+grep avx /proc/cpuinfo
+``` 
+If the output is not empty then your cores have AVX support.
 
 #### Windows 
 
-On Windows systems, enable AVX capabilities directly by running `bcdedit /set xsavedisable 0` on a Command Prompt as Administrator. If you see a confirmation message then your cores have AVX support.
+On Windows systems, enable AVX capabilities directly by running on a Command Prompt as Administrator:
+```
+bcdedit /set xsavedisable 0
+``` 
+If you see a confirmation message then your cores have AVX support.
 
 ### Running on Virtual Machine
 
@@ -69,9 +76,7 @@ On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to vi
   
   You can find it on **Settings** > **Windows Security** > **Device security** > **Core isolation details** > **Memory integrity**. As soon as turned this feature off, restart your machine to allow Windows to apply the change.  
 
-If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM.<br>
-
-If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an chip-like icon with a V letter inside (**IMAGE HERE**). Instead, if you see ![the V inside a turtle icon](/../screenshots/screenshot-turtle-icon.png?raw=true "V turtle icon"), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
+If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM. If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an icon like ![a chip with a V letter inside](/../screenshots/screenshot-chip-icon.png?raw=true "V chip icon"). Instead, if you see an icon like ![a turtle with a V letter inside](/../screenshots/screenshot-turtle-icon.png?raw=true "V turtle icon"), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
 
 > InfoPoint :information_source:: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
 
@@ -83,7 +88,10 @@ To use the BookingApp application, the following programs must be installed on y
 
 To replicate builds, tests and so on, the BookingApp project also requires the following programs installed on your machine:
 3. Git
+
+If you wanna use an IDE:
 4. Eclipse IDE
+5. Maven v.x.y.z
 
 **START: CHECK IF TO MANTAIN** :arrow_down:
 #### 1. Install Java SDK (and JRE) 11
@@ -153,32 +161,37 @@ On Ubuntu Software application is stored Eclipse. So just find it on the store a
 
 **END: CHECK IF TO MANTAIN** :arrow_up:
 
-## Clone the BookingApp repository
+## Clone the BookingApp project
 
-There are essentially two main ways for cloning, and then using, the BookingApp repository.
+There are essentially two main ways for cloning, and then using, the BookingApp project: the Git command line or the import mode of an IDE.
 
-### Clone by command line
+> InfoPoint :information_source:: The first way is the simplest because it doesn't require any IDE or Maven installation. Anyway, the BookingApp project was developed using Eclipse, recommended if your goal is to use an IDE.
 
-If you decide to use command line, get a copy of BookingApp by running:<br>
-`git clone https://github.com/marcopaglio/BookingApp.git`<br>
+### Git command line
 
+If you decide to use the Git command line, choose any folder and run on the terminal:
+```
+git clone https://github.com/marcopaglio/BookingApp.git
+```
+A copy of the BookingApp project will be downloaded.
+
+#### What if you now want to use Eclipse?
+
+If you have already cloned the BookingApp project via Git command line and now want to use Eclipse, change the second step of the [Import from Eclipse](#import-from-eclipse) guide with the following one so as to avoid cloning again:
+
+2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the project root directory > **Open** > make sure of selecting the **Search for nested projects** option > from the Folder list, import all subfolders but not the root folder `BookingApp` > **Finish**
 
 ### Import from Eclipse
 
-> Following steps have been defined using EclipseIDE 2022-12 and 2023-09. Different versions may involve slightly different steps.
+> InfoPoint :information_source:: Following steps have been defined using EclipseIDE 2022-12 and 2023-09. Different versions may involve slightly different steps.
 
 1. Once installed, open Eclipse and choose any workspace location.
-2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github**.
-3. Search for the repository *marcopaglio/BookingApp* > select only the branch named *Main* > **Next** > choose any directory (we will refer to it as ***BASE_DIR***) > **Next** > every module must be selected from the list > **Finish**
+2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github** > search for the repository *marcopaglio/BookingApp* > select only the branch named *Main* > **Next** > choose any directory (we will refer to it as ***BASE_DIR***) > **Next** > every module must be selected from the list > **Finish**
    
    > Once imported, there may be appeared some errors (about dependencies) on the *Problems* tab of Eclipse. Don't worry, just **Refresh** once and they will go away.
-   
-6. Download database docker images before building, otherwise build fails due to timeout.
-     docker pull mongo:6.0.7
-     docker pull postgres:15.3
-7. On Linux run xhost+ before running docker-compose or Maven docker profile (and xhost- as soon as it stop).
 
-### Eclipse settings
+
+#### Eclipse settings
 
 Opening files which define DTD or XSD schemas, like in pom.xml and persistence.xml files of BookingApp project, requires that such schemas have to be downloaded and stored locally (inside .lemminx folder, in Linux).
 About that, if you find the following error message coming from these files:
@@ -189,6 +202,11 @@ Then you have to allow Eclipse downloading schemas. This can be done modifying E
 Now you can find the .lemminx file containing all the resources necessary for building. 
 
 ## Build BookingApp
+   
+6. Download database docker images before building, otherwise build fails due to timeout.
+     docker pull mongo:6.0.7
+     docker pull postgres:15.3
+7. On Linux run xhost+ before running docker-compose or Maven docker profile (and xhost- as soon as it stop).
 
 For building a copy of BookingApp, place yourself into the project root directory (or *BASE_DIR* e.g: `BookingApp`) where the Maven Wrapper files (`mvnw`, `mvnw.cmd`, etc.) are stored, and open a Command Prompt.
 
