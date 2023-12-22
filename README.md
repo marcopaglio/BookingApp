@@ -181,14 +181,14 @@ If you have already cloned the BookingApp project via Git command line and now w
 
 2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the *project root directory* > **Open** > make sure of selecting the `Search for nested projects` option > from the Folder list, import all subfolders but not the root folder `BookingApp` > **Finish**.
 
-### Eclipse Smart Imports
+### Eclipse Smart Imports TODO: change name
 
 > InfoPoint :information_source:: Following steps have been defined using EclipseIDE 2022-12 and 2023-09. Different versions may involve slightly different steps.
 
 If you decide to use the Eclipse import mode for cloning the BookingApp project:
 
 1. Once installed, open Eclipse and choose any workspace location.
-2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github** > search for the repository `marcopaglio/BookingApp` > select only the `main` branch > **Next** > choose any directory as *project root directory* > **Next** > select all modules from the list > **Finish**.
+2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github** > search for the repository `marcopaglio/BookingApp` > select only the `main` branch > **Next** > choose any directory as *project root directory* > **Next** > select all modules from the list > **Finish**. **TODO:** l'opzione Github non è sempre presente (vedi su Windows)
    
 > N.B: Just imported on Eclipse, there may be appeared some errors (about dependencies) on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
 
@@ -247,6 +247,35 @@ Alternative builds can be run adding one or more profiles at the end of the prev
 - `-Pdocker` add the application's dockerization.
   
    This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `docker` profile.
+
+### Run tests from Eclipse
+
+Unit, integration and end-to-end tests can be run directly from Eclipse: right click on a module with some of these tests amoung `booking-domain-module`, `booking-business-module` and `booking-ui-module` > **Run As** > **JUnit Test**. This will execute all the tests of that module.<br>
+Running tests from Eclipse doesn't require any additional setting for unit tests, since they are run with TestContainers; instead, for integration and end-to-end tests a running instance (suitably configured) of MongoDB and once of PostgreSQL are needed. You can start such instances in a Docker container through Docker compose commands as follows:
+```
+docker-compose -f docker-compose/MongoDB/docker-compose.yml up
+docker-compose -f docker-compose/PostgreSQL/docker-compose.yml up
+```
+Alternatively, move on each of the two folders and run in each one the simpler command:
+```
+docker-compose up
+```
+**TODO:** docker compose comando cambia da sistema operativo?
+
+> InfoPoint :information_source:: As you can see, there is another folder inside `docker-compose` directory: `SonarQube` also contains a docker compose file which can be run for executing Sonar code quality analisys locally. Particularly, it has to be runned before using the not-previously-mentioned `sonar` profile.<br>
+> In each docker-compose file there are other comments on what they do, and how can be done in other ways. Read it, if interested.
+
+## Run the BookingApp application
+
+How to recover the jar: build with docker profile or download from Resources.
+
+### Run through jar
+
+This way doesn't have problems with X server, but it need to start containers.
+
+### Run through Docker
+
+This is more practical because it doesn't require starting containers, but it requires setup the X server.
 
 ## Setup X server environment for Docker
 
