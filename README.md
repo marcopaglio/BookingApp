@@ -224,20 +224,24 @@ Alternative builds can be run adding one or more profiles at the end of the prev
   
   BookingApp project already provides mutation testing results on the [website](https://marcopaglio.github.io/BookingApp/pit-reports/index.html), but you can see them for yourself once execution finishes at `/booking-report/target/pit-reports/index.html`.
   
-- `-Pdocker` add dockerization of the application.
-
-  > Note: docker profile will open BookingApp inside a Docker container, therefore it needs the access to the Linux X display server in order to work propertly:
-  > - run the following command for showing all the net interfaces:<br>
-  >   `ifconfig`
-  >   
-  >   > It may be necessary install the package for running it: `sudo apt install net-tools`
-  >   
-  > - from the printed list, find out the Docker virtual bridge (alias *<DOCKER_NET>*) which all the containers are connected to (as default it is `docker0`).
-  > - run the following command before using docker profile or docker-compose:<br>
-  >   `xhost +local:<DOCKER_NET>` e.g: `xhost +local:docker0`  
-  > - When running finishes, it is recommanded to remove the access to the X display server by running:<br>
-  >   `xhost -local:<DOCKER_NET>` e.g: `xhost -local:docker0`
-
-7. On Linux run xhost+ before running docker-compose or Maven docker profile (and xhost- as soon as it stop).
+- `-Pdocker` add the application's dockerization.
+  
+   This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [setup X server environment for Docker](#setup-x-server-environment-for-docker) before using this Maven profile.
 
 You can also build the BookingApp project using the command `mvn` instead of `./mvnw`, but without Maven Wrapper build might fails due to different versions of Maven. For this reason building with maven Wrapper is recommended. If you prefer taking your risks, you can also run launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the .launch file, select **Run As**, and click on the same name maven configuration for starting the building. Remember that launch files in Reactor execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
+
+## Setup X server environment for Docker
+
+Desktop GUI applications need a graphical environment for working propertly. Since BookingApp uses the standard *Java GUI Swing*, it also requires an X display server. Depending on the OS, the X server environment may or may not be native. Once it works, the X server must be shared with Docker in order to pass access controls. After that you will be able to use the `docker` profile or the `docker compose`.
+
+### Linux
+
+Linux has nativetly an X server environment, thus the only thing to do is to share it with Docker. The simplest way (but not the most secure :exclamation:) is to disable the access control to the X server for the Docker network:
+
+- Run `ifconfig` for showing all the net interfaces. It may be necessary install the package for running it: `sudo apt install net-tools`.
+- From the printed list, find out the Docker virtual bridge (let's call it `<DOCKER_NET>`) which all the containers are connected to (as default it is `docker0`).
+- Run `xhost +local:<DOCKER_NET>` e.g: `xhost +local:docker0`.
+
+Now Docker can use the X server.
+
+> N.B: When you finish with Docker, it is highly recommanded to remove its access to the X display server by running `xhost -local:<DOCKER_NET>` e.g: `xhost -local:docker0`.
