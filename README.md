@@ -173,7 +173,7 @@ If you decide to use the Git command line, choose any folder and run on the term
 ```
 git clone https://github.com/marcopaglio/BookingApp.git
 ```
-A copy of the BookingApp project will be downloaded in the chosen folder.
+A copy of the BookingApp project will be downloaded in the chosen directory.
 
 #### What if you now want to use Eclipse?
 
@@ -205,15 +205,25 @@ In order to avoid timeout failures, before to build the BookingApp project is ne
 docker pull mongo:6.0.7
 docker pull postgres:15.3
 ```
-After that, place yourself into the project root directory and open a Command Prompt.
+After that, place yourself into the project root directory, where the Maven Wrapper files (`mvnw`, `mvnw.cmd`, etc.) are stored, open a Command Prompt, and choose whether to build the BookingApp project with [Maven](#build-with-maven) or [Maven Wrapper](#build-with-maven-wrapper).
 
-### Build with Maven Wrapper
+> InfoPoint :information_source:: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended.
+> If you prefer using Maven directly, make sure to install Maven yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6, otherwise build might fails.
 
-The BookingApp project root directory contains two project-specific Maven Wrapper scripts (`mvnw` and `mvnw.cmd`), very useful for users that don’t want to install Maven at all.<br>
-Please, in the next build commands change the placeholder `<MVNW>` with the right one, depending on your OS:
+#### Build with Maven Wrapper
 
-- **Linux and MacOS**: if you are using Unix systems, substitute `<MVNW>` with `./mvnw`.
-- **Windows**: if you are using Windows, substitute `<MVNW>` with `mvnw.cmd`.
+If you decide to build with Maven Wrapper, in the next [build commands](#build-commands) replace the placeholder `<MVNW>` with the right script command, depending on your OS:
+
+- **Linux and MacOS**: if you are using Unix systems, the script command is `./mvnw`.
+- **Windows**: if you are using Windows, the script command is `mvnw.cmd`.
+
+#### Build with Maven
+
+If you take the time to install Maven, then replace the placeholder `<MVNW>` with `mvn` in the next [build commands](#build-commands).<br>
+
+In this case, you can also build the BookingApp project using launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the `.launch` file > select **Run As** > click on the same name Maven configuration for starting the building. Remember that launch files in Reactor execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
+
+### Build commands
 
 The very basic command to build the BookingApp project is as follows:
 ```
@@ -235,17 +245,6 @@ Alternative builds can be run adding one or more profiles at the end of the prev
 - `-Pdocker` add the application's dockerization.
   
    This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `docker` profile.
-
-### Build with Maven
-
-> InfoPoint :information_source:: Without Maven Wrapper build might fails due to different versions of Maven. For this reason building with Maven Wrapper is recommended.<br>
-> If you prefer using Maven directly, make sure to install Maven yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6.
-
-If you take the time to install Maven, then build the BookingApp project using the command described in [Build with Maven Wrapper](#build-with-maven-wrapper) where `<MVNW>` is substituted by `mvn`.<br>
-
-#### On Eclipse
-
-You can also build the BookingApp project using launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the `.launch` file > select **Run As** > click on the same name Maven configuration for starting the building. Remember that launch files in Reactor execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
 
 ## Setup X server environment for Docker
 
