@@ -17,7 +17,7 @@ On GitHub Actions are stored results about Maven builds and tests for Linux OS, 
 
 > N.B: On Windows systems some unit and integration tests cannot be executed due to lack of compatibility of required Docker images, like MongoDB and PostgresSQL. If you are brave enough, you can fill the void creating custom Docker images for MongoDB and PostgreSQL starting from a [Windows OS base layer](https://hub.docker.com/_/microsoft-windows-base-os-images).
   
-On Coveralls are published the history and statisticsits of BookingApp test code coverage; while on SonarCloud are published analysis of BookingApp code quality, particularly on *reliability*, *security* and *maintainability*:<br>
+On Coveralls are published the history and statistics of BookingApp test code coverage, while on SonarCloud are published analysis of BookingApp code quality, particularly on *reliability*, *security* and *maintainability*:<br>
 [![Coverage Status](https://coveralls.io/repos/github/marcopaglio/BookingApp/badge.svg?branch=main)](https://coveralls.io/github/marcopaglio/BookingApp?branch=main)<br>
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=marcopaglio_BookingApp&metric=coverage)](https://sonarcloud.io/summary/new_code?id=marcopaglio_BookingApp) 
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=marcopaglio_BookingApp&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=marcopaglio_BookingApp) 
@@ -194,7 +194,7 @@ If you decide to use the Eclipse import mode for cloning the BookingApp project:
 
 #### Eclipse settings
 
-Opening files which define DTD or XSD schemas, like `pom.xml` and `persistence.xml` in the BookingApp project, requires those schemas to be downloaded and stored locally (e.g. on Linux they are found in the `.lemminx` folder). If you find the error message `Downloading external resources is disabled` coming from these files, you can fix that by modifying Eclipse settings: **Window** > **Preferences** > **XML (Wild Web Developer)** > tick `Download external resources like referenced DTD, XSD` > **Apply** > **Apply and Close**.
+Opening files which define DTD or XSD schemas, like in `pom.xml` and `persistence.xml` of the BookingApp project, requires those schemas to be downloaded and stored locally; for example, on Linux they are found in the `.lemminx` folder. If you find the error message `Downloading external resources is disabled` coming from these files, you can fix that by modifying Eclipse settings: **Window** > **Preferences** > **XML (Wild Web Developer)** > tick `Download external resources like referenced DTD, XSD` > **Apply** > **Apply and Close**.
 
 ## Build the BookingApp project
 
@@ -223,6 +223,8 @@ If you take the time to install Maven, then replace the placeholder `<MVNW>` wit
 
 In this case, you can also build the BookingApp project using launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the `.launch` file > select **Run As** > click on the same name Maven configuration for starting the building. Remember that launch files in Reactor execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
 
+> TODO: se non si vede niente dopo Run As che vuol dire? Si collega con gli schemas DTD o con assenza di Maven o altro?
+
 ### Build commands
 
 The very basic command to build the BookingApp project is as follows:
@@ -248,26 +250,26 @@ Alternative builds can be run adding one or more profiles at the end of the prev
 
 ## Setup X server environment for Docker
 
-Desktop GUI applications need a graphical environment for working propertly. Since BookingApp uses the standard *Java GUI Swing*, it also requires an X display server. Depending on the OS, the X server environment may or may not be native. Once it works, the X server must be shared with Docker in order to pass access controls. After that, you will be able to use the `docker` profile or the `docker compose`.
+Desktop GUI applications need a graphical environment for working propertly. Since BookingApp uses the standard *Java GUI Swing*, it also requires an X display server. Depending on the OS, the X server environment may or may not be native. Once it works, the X server must be shared with Docker in order to pass access controls. After that, you will be able to open the BookingApp application inside a Docker container, as required in the `docker` profile or for the `docker compose`.
 
 ### Linux
 
 Linux already has an X server environment, thus the only thing to do is to share it with Docker. The simplest way (but not the most secure!) is to disable the access control to the X server for the Docker network:
 
-- Run `ifconfig` for showing all the net interfaces. It may be necessary install the package for running it: `sudo apt install net-tools`.
+- Run `ifconfig` for showing all the net interfaces. It may be necessary install the following package for running it: `sudo apt install net-tools`.
 - From the printed list, find out the Docker virtual bridge (let's call it `<DOCKER_NET>`) which all the containers are connected to (as default it is `docker0`).
-- Run `xhost +local:<DOCKER_NET>` e.g: `xhost +local:docker0`.
+- Run `xhost +local:<DOCKER_NET>` e.g. `xhost +local:docker0`.
 
 Now Docker can use the X server.
 
-> N.B: When you finish with Docker, it is highly recommanded to remove its access to the X display server by running `xhost -local:<DOCKER_NET>` e.g: `xhost -local:docker0`.
+> N.B: When you finish with Docker, it is highly recommanded to remove its access to the X display server by running `xhost -local:<DOCKER_NET>` e.g. `xhost -local:docker0`.
 
 ### Windows
 
-Windows cannot rely on a default X server environment, but the solution could be the Windows Subsystem for Linux GUI (WSLg), necessary to run Docker in Linux containers and provided for Windows 10 (Build 19041 or later) and 11.<br>
+Windows cannot rely on a default X server environment, but the solution could be the *Windows Subsystem for Linux GUI* (WSLg), necessary to run Docker in Linux containers and provided for Windows 10 (Build 19041 or later) and 11.<br>
 
 To use WSLg, just install the last version of WSL from the [Microsoft Store](https://aka.ms/wslstorepage) or update it if a previous version is already installed throught `wsl --update`.
   
 > N.B: If Docker was open you may need to restart it after WSL update.
 
-Once done, Docker can already use the X server without any modify on access control. 
+Once done, Docker can already use the X server without any changes to access control.
