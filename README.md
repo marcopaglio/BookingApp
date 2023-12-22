@@ -209,13 +209,13 @@ After that, place yourself into the project root directory and open a Command Pr
 
 ### Build with Maven Wrapper
 
-The BookingApp project contains its Maven Wrapper, a very useful tool for users that don’t want to install Maven at all.<br>
-Into the project root directory there are two project-specific wrapper script (`mvnw` and `mvnw.cmd`). Please, in next commands change the placeholder `<MVNW>` with the right one, depending on your OS:
+The BookingApp project root directory contains two project-specific Maven Wrapper scripts (`mvnw` and `mvnw.cmd`), very useful for users that don’t want to install Maven at all.<br>
+Please, in the next build commands change the placeholder `<MVNW>` with the right one, depending on your OS:
 
 - **Linux and MacOS**: if you are using Unix systems, substitute `<MVNW>` with `./mvnw`.
 - **Windows**: if you are using Windows, substitute `<MVNW>` with `mvnw.cmd`.
 
-The very base command to build the BookingApp project is the following one:
+The very basic command to build the BookingApp project is as follows:
 ```
 <MVNW> -f booking-aggregator/pom.xml clean install
 ```
@@ -234,24 +234,26 @@ Alternative builds can be run adding one or more profiles at the end of the prev
   
 - `-Pdocker` add the application's dockerization.
   
-   This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [setup X server environment for Docker](#setup-x-server-environment-for-docker) before using this Maven profile.
+   This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `docker` profile.
 
 ### Build with Maven
 
 > InfoPoint :information_source:: Without Maven Wrapper build might fails due to different versions of Maven. For this reason building with Maven Wrapper is recommended.<br>
 > If you prefer using Maven directly, make sure to install Maven yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6.
 
-If you take the time to install Maven, then you can now build the BookingApp project using the command described in [Build with Maven Wrapper](#build-with-maven-wrapper) where `<MVNW>` is substituted by `mvn`.<br>
+If you take the time to install Maven, then build the BookingApp project using the command described in [Build with Maven Wrapper](#build-with-maven-wrapper) where `<MVNW>` is substituted by `mvn`.<br>
 
-You can also build the BookingApp project using launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the .launch file, select **Run As**, and click on the same name Maven configuration for starting the building. Remember that launch files in Reactor execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
+#### On Eclipse
+
+You can also build the BookingApp project using launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the `.launch` file > select **Run As** > click on the same name Maven configuration for starting the building. Remember that launch files in Reactor execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
 
 ## Setup X server environment for Docker
 
-Desktop GUI applications need a graphical environment for working propertly. Since BookingApp uses the standard *Java GUI Swing*, it also requires an X display server. Depending on the OS, the X server environment may or may not be native. Once it works, the X server must be shared with Docker in order to pass access controls. After that you will be able to use the `docker` profile or the `docker compose`.
+Desktop GUI applications need a graphical environment for working propertly. Since BookingApp uses the standard *Java GUI Swing*, it also requires an X display server. Depending on the OS, the X server environment may or may not be native. Once it works, the X server must be shared with Docker in order to pass access controls. After that, you will be able to use the `docker` profile or the `docker compose`.
 
 ### Linux
 
-Linux has nativetly an X server environment, thus the only thing to do is to share it with Docker. The simplest way (but not the most secure :exclamation:) is to disable the access control to the X server for the Docker network:
+Linux already has an X server environment, thus the only thing to do is to share it with Docker. The simplest way (but not the most secure!) is to disable the access control to the X server for the Docker network:
 
 - Run `ifconfig` for showing all the net interfaces. It may be necessary install the package for running it: `sudo apt install net-tools`.
 - From the printed list, find out the Docker virtual bridge (let's call it `<DOCKER_NET>`) which all the containers are connected to (as default it is `docker0`).
@@ -260,3 +262,13 @@ Linux has nativetly an X server environment, thus the only thing to do is to sha
 Now Docker can use the X server.
 
 > N.B: When you finish with Docker, it is highly recommanded to remove its access to the X display server by running `xhost -local:<DOCKER_NET>` e.g: `xhost -local:docker0`.
+
+### Windows
+
+Windows cannot rely on a default X server environment, but the solution could be the Windows Subsystem for Linux GUI (WSLg), necessary to run Docker in Linux containers and provided for Windows 10 (Build 19041 or later) and 11.<br>
+
+To use WSLg, just install the last version of WSL from the [Microsoft Store](https://aka.ms/wslstorepage) or update it if a previous version is already installed throught `wsl --update`.
+  
+> N.B: If Docker was open you may need to restart it after WSL update.
+
+Once done, Docker can already use the X server without any modify on access control. 
