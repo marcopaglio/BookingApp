@@ -173,13 +173,13 @@ If you decide to use the Git command line, choose any folder and run on the term
 ```
 git clone https://github.com/marcopaglio/BookingApp.git
 ```
-A copy of the BookingApp project will be downloaded.
+A copy of the BookingApp project will be downloaded in the chosen folder.
 
 #### What if you now want to use Eclipse?
 
-If you have already cloned the BookingApp project via Git command line and now want to use Eclipse, change the second step of the [Import from Eclipse](#import-from-eclipse) guide with the following one so as to avoid cloning again:
+If you have already cloned the BookingApp project via Git command line and now want to use Eclipse, follow the [Eclipse Smart Imports](#eclipse-smart-imports) guide and change the second step with the following one so as to avoid cloning again:
 
-2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the project root directory > **Open** > make sure of selecting the `Search for nested projects` option > from the Folder list, import all subfolders but not the root folder `BookingApp` > **Finish**.
+2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the *project root directory* > **Open** > make sure of selecting the `Search for nested projects` option > from the Folder list, import all subfolders but not the root folder `BookingApp` > **Finish**.
 
 ### Eclipse Smart Imports
 
@@ -188,28 +188,36 @@ If you have already cloned the BookingApp project via Git command line and now w
 If you decide to use the Eclipse import mode for cloning the BookingApp project:
 
 1. Once installed, open Eclipse and choose any workspace location.
-2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github** > search for the repository `marcopaglio/BookingApp` > select only the `main` branch > **Next** > choose any directory as project root directory > **Next** > select all modules from the list > **Finish**.
+2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github** > search for the repository `marcopaglio/BookingApp` > select only the `main` branch > **Next** > choose any directory as *project root directory* > **Next** > select all modules from the list > **Finish**.
    
-Just imported on Eclipse, there may be appeared some errors (about dependencies) on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
+> N.B: Just imported on Eclipse, there may be appeared some errors (about dependencies) on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
 
 #### Eclipse settings
 
-Opening files which define DTD or XSD schemas, like `pom.xml` and `persistence.xml` in the BookingApp project, requires those schemas to be downloaded and stored locally (e.g. on Linux they are found in the `.lemminx` folder). In this regard, if you find the error message `Downloading external resources is disabled` coming from these files, you can fix that by modifying Eclipse settings: **Window** > **Preferences** > **XML (Wild Web Developer)** > tick `Download external resources like referenced DTD, XSD` > **Apply** > **Apply and Close**.
+Opening files which define DTD or XSD schemas, like `pom.xml` and `persistence.xml` in the BookingApp project, requires those schemas to be downloaded and stored locally (e.g. on Linux they are found in the `.lemminx` folder). If you find the error message `Downloading external resources is disabled` coming from these files, you can fix that by modifying Eclipse settings: **Window** > **Preferences** > **XML (Wild Web Developer)** > tick `Download external resources like referenced DTD, XSD` > **Apply** > **Apply and Close**.
 
 ## Build the BookingApp project
 
-Before the very first build, in order to avoid timeout failures, you need to store DBMSs' Docker image locally by running the following commands on the terminal:
+### Before the very first build
+
+In order to avoid timeout failures, before to build the BookingApp project is necessary to have DBMSs' Docker image locally, otherwise it will be pulled during the first build. So, run the following commands on the terminal:
 ```
 docker pull mongo:6.0.7
 docker pull postgres:15.3
 ```
-After that, place yourself into the project root directory, where the Maven Wrapper files (`mvnw`, `mvnw.cmd`, etc.) are stored, open a Command Prompt, and continue with the guide depending on your OS.
+After that, place yourself into the project root directory and open a Command Prompt.
 
-### Linux
+### Build with Maven Wrapper
 
-On Linux systems, build the project by running the following command:
+The BookingApp project contains its Maven Wrapper, a very useful tool for users that don’t want to install Maven at all.<br>
+Into the project root directory there are two project-specific wrapper script (`mvnw` and `mvnw.cmd`). Please, in next commands change the placeholder `<MVNW>` with the right one, depending on your OS:
+
+- **Linux and MacOS**: if you are using Unix systems, substitute `<MVNW>` with `./mvnw`.
+- **Windows**: if you are using Windows, substitute `<MVNW>` with `mvnw.cmd`.
+
+The very base command to build the BookingApp project is the following one:
 ```
-./mvnw -f booking-aggregator/pom.xml clean install
+<MVNW> -f booking-aggregator/pom.xml clean install
 ```
 Its execution will remove unnecessary files generated in previous builds and install dependencies locally for each module. In this way, you can then build each sub-module indipendently, just change `booking-aggregator` with one between `booking-domain-module`, `booking-business-module` and `booking-ui-module` in the previous command.<br>
 Additionally, all unit, integration and end-to-end tests will be performed with Maven. If the command is executed for a sub-module, tests will be executed only for the specific module.<br>
@@ -228,7 +236,14 @@ Alternative builds can be run adding one or more profiles at the end of the prev
   
    This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [setup X server environment for Docker](#setup-x-server-environment-for-docker) before using this Maven profile.
 
-You can also build the BookingApp project using the command `mvn` instead of `./mvnw`, but without Maven Wrapper build might fails due to different versions of Maven. For this reason building with maven Wrapper is recommended. If you prefer taking your risks, you can also run launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the .launch file, select **Run As**, and click on the same name maven configuration for starting the building. Remember that launch files in Reactor execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
+### Build with Maven
+
+> InfoPoint :information_source:: Without Maven Wrapper build might fails due to different versions of Maven. For this reason building with Maven Wrapper is recommended.<br>
+> If you prefer using Maven directly, make sure to install Maven yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6.
+
+If you take the time to install Maven, then you can now build the BookingApp project using the command described in [Build with Maven Wrapper](#build-with-maven-wrapper) where `<MVNW>` is substituted by `mvn`.<br>
+
+You can also build the BookingApp project using launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the .launch file, select **Run As**, and click on the same name Maven configuration for starting the building. Remember that launch files in Reactor execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
 
 ## Setup X server environment for Docker
 
