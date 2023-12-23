@@ -264,14 +264,56 @@ docker compose -f docker-compose/PostgreSQL/docker-compose.yml up
 
 ## Run the BookingApp application
 
-How to recover the jar: build with docker profile or download from Resources.
+Once built, you can run the BookingApp application through its jar file or using its Docker image.
+Remember that the BookingApp application is compatible with both MongoDB and PostgreSQL, hence you have to decide with which of them launch the application.
 
 ### Run through jar
 
+You can obtain a FatJar of the BookingApp application in two ways: from the build of the BookingApp project or directly by downloading it from the release on GitHub (**LINK HERE**).<br>
+
+If you decide to run the BookingApp application through its jar file, you need a running instance of MongoDB or PostgreSQL, depending on which you prefer.
+
 This way doesn't have problems with X server, but it need to start containers.
+
+#### MongoDB
+
+First of all you need to start a MongoDB instance which is part of a named cluster (or replica set). Run a Docker container with the following command:
+```
+docker run -d --name mongo-set -p 27017:27017 --rm mongo:6.0.7 mongod --replSet rs0
+```
+Once, the first execution is on stand-by (you'll read on the terminal something like ``), run the following command for initializating the replica set:
+```
+docker exec -it mongo-set mongosh --eval "rs.initiate()"
+```
+or start a previously created container with:
+```
+docker start mongo-set
+```
+**TODO:** N.B. On Linux and macOS you could have to precede the Docker commands with `sudo`, depending on your system/docker configuration.<br>
+
+Then you can start the BookingApp application with the following command:
+```
+java -jar ./booking-app/target/booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=MONGO --host=localhost --port=27017 --name=<YOUR_DB_NAME>
+```
+
+#### PostgreSQL
+
+First of all you need to start a PostgreSQL instance. Run a Docker container with the following command:
+```
+docker run -d --name postgres-server -p 5432:5432 -e POSTGRES_DB=<YOUR_DB_NAME> -e POSTGRES_USER=<YOUR_USER> -e POSTGRES_PASSWORD=<YOUR_PSDW> -N 221 --rm postgres:15.3
+```
+or start a previously created container with:
+```
+docker start postgres-server
+```
+Then you can start the BookingApp application with the following command:
+```
+java -jar ./booking-app/target/booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=POSTGRES --host=localhost --port=5432 --name=<YOUR_DB_NAME> --user=<YOUR_USER> --pswd=<YOUR_PSWD>
+```
 
 ### Run through Docker
 
+Il jar dockerizzato si recupera solo col profile: build with docker profile
 This is more practical because it doesn't require starting containers, but it requires setup the X server.
 
 ## Setup X server environment for Docker
