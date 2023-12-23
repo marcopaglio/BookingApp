@@ -252,10 +252,10 @@ Alternative builds can be run adding one or more profiles at the end of the prev
 
 In the BookingApp project there are three modules that contain tests: `booking-domain-module`, `booking-business-module` and `booking-ui-module`. You can run them directly from Eclipse: right click on the module > **Run As** > **JUnit Test**. This will execute all the tests of that module.<br>
 
-Running tests from Eclipse doesn't require any additional setting for unit tests, since they are run with TestContainers; instead, for integration and end-to-end tests a running instance (suitably configured) of MongoDB and once of PostgreSQL are needed. You can start such instances in a Docker container through Docker Compose commands as follows:
+Before running tests from Eclipse, make sure Docker is turned on and working properly. Then, unit tests doesn't require any additional setting, since they are run with TestContainers; instead, integration and end-to-end tests need a running instance (suitably configured) of MongoDB and once of PostgreSQL. You can start such instances in Docker containers through Docker Compose commands as follows:
 ```
-docker-compose -f docker-compose/MongoDB/docker-compose.yml up
-docker-compose -f docker-compose/PostgreSQL/docker-compose.yml up
+docker compose -f docker-compose/MongoDB/docker-compose.yml up
+docker compose -f docker-compose/PostgreSQL/docker-compose.yml up
 ```
 **TODO:** docker compose comando cambia da sistema operativo?
 
