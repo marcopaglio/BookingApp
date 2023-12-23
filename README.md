@@ -267,13 +267,13 @@ docker compose -f docker-compose/PostgreSQL/docker-compose.yml up
 Once built, you can run the BookingApp application through its jar file or using its Docker image.
 Remember that the BookingApp application is compatible with both MongoDB and PostgreSQL, hence you have to decide with which of them launch the application.
 
+**TODO:** posizionarsi nel root project directory
+
 ### Run through jar
 
-You can obtain a FatJar of the BookingApp application in two ways: from the build of the BookingApp project or directly by downloading it from the release on GitHub (**LINK HERE**).<br>
+> InfoPoint :information_source:: You can obtain a FatJar of the BookingApp application in two ways: from the build of the BookingApp project or directly by downloading it from the release on GitHub (**LINK HERE**).
 
 If you decide to run the BookingApp application through its jar file, you need a running instance of MongoDB or PostgreSQL, depending on which you prefer.
-
-This way doesn't have problems with X server, but it need to start containers.
 
 #### MongoDB
 
@@ -313,8 +313,33 @@ java -jar ./booking-app/target/booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.
 
 ### Run through Docker
 
-Il jar dockerizzato si recupera solo col profile: build with docker profile
-This is more practical because it doesn't require starting containers, but it requires setup the X server.
+> InfoPoint :information_source:: You can obtain a Docker image of the BookingApp application by building the BookingApp project with the `docker` profile.
+
+If you decide to run the BookingApp application through its Docker image, it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using this way.
+
+#### MongoDB
+
+You can run the application in one command thanks to Docker Compose, that will also start the MongoDB instance.
+
+The command is the following and must be run in the project root folder:
+
+```
+docker compose -f docker-compose-mongo.yml up
+```
+
+> N.B: are you using Windows with WSLg? Use the following command: `docker compose -f docker-compose-mongo.yml -f docker-compose-wslg.yml up`.
+
+#### PostgreSQL
+
+You can run the application in one command thanks to Docker Compose, that will also start the PostgreSQL instance.
+
+The command is the following and must be run in the project root folder, but, ***before that, you need to set up the graphical environment***: you can found instructions in the next sections depending on your OS.
+
+```
+docker compose -f docker-compose-postgres.yml up
+```
+
+> N.B: are you using Windows with WSLg? Use the following command: `docker compose -f docker-compose-postgres.yml -f docker-compose-wslg.yml up`.
 
 ## Setup X server environment for Docker
 
@@ -340,4 +365,6 @@ To use WSLg, just install the last version of WSL from the [Microsoft Store](htt
   
 > N.B: If Docker was open you may need to restart it after WSL update.
 
-Once done, Docker can already use the X server without any changes to access control.
+Once done, Docker can already use the X server without any changes to access control.<br>
+
+If you run the BookingApp application with Docker compose and WSLg, you need to override compose configurations, so add `-f docker-compose.wslg.yaml` to the compose command before the `up` command.
