@@ -250,20 +250,17 @@ Alternative builds can be run adding one or more profiles at the end of the prev
 
 ### Run tests from Eclipse
 
-Unit, integration and end-to-end tests can be run directly from Eclipse: right click on a module with some of these tests amoung `booking-domain-module`, `booking-business-module` and `booking-ui-module` > **Run As** > **JUnit Test**. This will execute all the tests of that module.<br>
-Running tests from Eclipse doesn't require any additional setting for unit tests, since they are run with TestContainers; instead, for integration and end-to-end tests a running instance (suitably configured) of MongoDB and once of PostgreSQL are needed. You can start such instances in a Docker container through Docker compose commands as follows:
+In the BookingApp project there are three modules that contain tests: `booking-domain-module`, `booking-business-module` and `booking-ui-module`. You can run them directly from Eclipse: right click on the module > **Run As** > **JUnit Test**. This will execute all the tests of that module.<br>
+
+Running tests from Eclipse doesn't require any additional setting for unit tests, since they are run with TestContainers; instead, for integration and end-to-end tests a running instance (suitably configured) of MongoDB and once of PostgreSQL are needed. You can start such instances in a Docker container through Docker Compose commands as follows:
 ```
 docker-compose -f docker-compose/MongoDB/docker-compose.yml up
 docker-compose -f docker-compose/PostgreSQL/docker-compose.yml up
 ```
-Alternatively, move on each of the two folders and run in each one the simpler command:
-```
-docker-compose up
-```
 **TODO:** docker compose comando cambia da sistema operativo?
 
-> InfoPoint :information_source:: As you can see, there is another folder inside `docker-compose` directory: `SonarQube` also contains a docker compose file which can be run for executing Sonar code quality analisys locally. Particularly, it has to be runned before using the not-previously-mentioned `sonar` profile.<br>
-> In each docker-compose file there are other comments on what they do, and how can be done in other ways. Read it, if interested.
+> InfoPoint :information_source:: As you can see, there is another folder inside the `docker-compose` directory. It also contains a compose file which starts a SonarQube instance in a Docker container. This can be used in conjuction with the `sonar` profile (not previously mentioned) to measure the code quality locally.<br>
+> Finally, each compose file contains a short description of what it does and and what else can be done.
 
 ## Run the BookingApp application
 
