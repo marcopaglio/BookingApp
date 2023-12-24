@@ -200,7 +200,7 @@ Opening files which define DTD or XSD schemas, like in `pom.xml` and `persistenc
 
 ### Before the very first build
 
-In order to avoid timeout failures, before to build the BookingApp project is necessary to have DBMSs' Docker image locally, otherwise it will be pulled during the first build. So, run the following commands on the terminal:
+When you build the BookingApp project is necessary to have DBMSs' Docker image locally, otherwise they will be pulled during the build execution causing a possible timeout failure. In order to avoid this, before the very first build run the following commands on the terminal:
 ```
 docker pull mongo:6.0.7
 docker pull postgres:15.3
@@ -212,29 +212,29 @@ After that, place yourself into the project root directory, where the Maven Wrap
 
 #### Build with Maven Wrapper
 
-If you decide to build with Maven Wrapper, in the next [build commands](#build-commands) replace the placeholder `<MVNW>` with the right script command, depending on your OS:
+If you decide to use Maven Wrapper, in the next [build commands](#build-commands) replace the placeholder `<MVN>` with the right script command, depending on your OS:
 
 - **Linux and MacOS**: if you are using Unix systems, the script command is `./mvnw`.
 - **Windows**: if you are using Windows, the script command is `mvnw.cmd`.
 
 #### Build with Maven
 
-If you take the time to install Maven, then replace the placeholder `<MVNW>` with `mvn` in the next [build commands](#build-commands).<br>
+If you take the time to install Maven, then replace the placeholder `<MVN>` with `mvn` in the next [build commands](#build-commands).<br>
 
-In this case, you can also build the BookingApp project using launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the `.launch` file > select **Run As** > click on the same name Maven configuration for starting the building. Remember that launch files in Reactor execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
+In this case, you can also build the BookingApp project using launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the `.launch` file > select **Run As** > click on the same name Maven configuration for starting the building. Remember that launch files in `booking-aggregate` execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
 
-> TODO: se non si vede niente dopo Run As che vuol dire? Si collega con gli schemas DTD o con assenza di Maven o altro?
+> **TODO**: se non si vede niente dopo Run As che vuol dire? Si collega con gli schemas DTD o con assenza di Maven o altro?
 
 ### Build commands
 
 The very basic command to build the BookingApp project is as follows:
 ```
-<MVNW> -f booking-aggregator/pom.xml clean install
+<MVN> -f booking-aggregator/pom.xml clean install
 ```
 Its execution will remove unnecessary files generated in previous builds and install dependencies locally for each module. In this way, you can then build each sub-module indipendently, just change `booking-aggregator` with one between `booking-domain-module`, `booking-business-module` and `booking-ui-module` in the previous command.<br>
 Additionally, all unit, integration and end-to-end tests will be performed with Maven. If the command is executed for a sub-module, tests will be executed only for the specific module.<br>
 
-Alternative builds can be run adding one or more profiles at the end of the previous command:
+Alternative builds can be run by adding one or more profiles at the end of the previous command:
 
 - `-Pjacoco` add test coverage.
   
@@ -246,7 +246,7 @@ Alternative builds can be run adding one or more profiles at the end of the prev
   
 - `-Pdocker` add the application's dockerization.
   
-   This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `docker` profile.
+   This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
 
 ### Run tests from Eclipse
 
@@ -259,39 +259,38 @@ docker compose -f docker-compose/PostgreSQL/docker-compose.yml up
 ```
 **TODO:** docker compose comando cambia da sistema operativo?
 
-> InfoPoint :information_source:: As you can see, there is another folder inside the `docker-compose` directory. It also contains a compose file which starts a SonarQube instance in a Docker container. This can be used in conjuction with the `sonar` profile (not previously mentioned) to measure the code quality locally.<br>
+> InfoPoint :information_source:: As you can see, there is another folder inside the `docker-compose` directory. It also contains a compose file which starts a SonarQube instance in a Docker container. This can be used in conjuction with the `-Psonar` profile (not previously mentioned) to measure the code quality locally.<br>
 > Finally, each compose file contains a short description of what it does and and what else can be done.
 
 ## Run the BookingApp application
 
-Once built, you can run the BookingApp application through its jar file or using its Docker image.
-Remember that the BookingApp application is compatible with both MongoDB and PostgreSQL, hence you have to decide with which of them launch the application.
-
-**TODO:** posizionarsi nel root project directory
+Once built, you can run the BookingApp application through its jar file or using its Docker image.<br>
+Remember that the BookingApp application is compatible with both MongoDB and PostgreSQL, so you also need to decide which of them to launch the application with.<br>
+In any case, place yourself into the project root directory to run the next commands on a terminal.
 
 ### Run through jar
 
 > InfoPoint :information_source:: You can obtain a FatJar of the BookingApp application in two ways: from the build of the BookingApp project or directly by downloading it from the release on GitHub (**LINK HERE**).
 
-If you decide to run the BookingApp application through its jar file, you need a running instance of MongoDB or PostgreSQL, depending on which you prefer.
+If you decide to run the BookingApp application through its jar file, you need a running instance of MongoDB or PostgreSQL, depending on which one you prefer.
 
 #### MongoDB
 
-First of all you need to start a MongoDB instance which is part of a named cluster (or replica set). Run a Docker container with the following command:
+First of all you need a MongoDB instance *which is part of a replica set* (let's call it `rs0`). You can start it by running a Docker container with the following command:
 ```
-docker run -d --name mongo-set -p 27017:27017 --rm mongo:6.0.7 mongod --replSet rs0
+docker run -d --name booking-mongo-set -p 27017:27017 mongo:6.0.7 mongod --replSet rs0
 ```
-Once, the first execution is on stand-by (you'll read on the terminal something like ``), run the following command for initializating the replica set:
+After few seconds, the MongoDB instance asks for the replica set initialization (if you remove the detached mode `-d` from the command above, you can read on the terminal an error message just like `Cannot use a non-local read concern until replica set is finished initializing`). It's the right time to run the following command:
 ```
-docker exec -it mongo-set mongosh --eval "rs.initiate()"
+docker exec -it booking-mongo-set mongosh --eval "rs.initiate()"
 ```
-or start a previously created container with:
-```
-docker start mongo-set
-```
+If the confirmation message appears (e.g. `ok: 1`), then the replica set is also initialized.<br>
+
+> N.B: This procedure only needs to be applied once, then stop the MongoDB instance through `docker stop booking-mongo-set`, and start it again (ready for use) with `docker start booking-mongo-set`.
+
 **TODO:** N.B. On Linux and macOS you could have to precede the Docker commands with `sudo`, depending on your system/docker configuration.<br>
 
-Then you can start the BookingApp application with the following command:
+Once the MongoDB instance is ready, place yourself into the project root directory, open a Command Prompt and launch the BookingApp application with the following command:
 ```
 java -jar ./booking-app/target/booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=MONGO --host=localhost --port=27017 --name=<YOUR_DB_NAME>
 ```
