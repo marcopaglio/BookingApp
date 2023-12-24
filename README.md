@@ -265,8 +265,7 @@ docker compose -f docker-compose/PostgreSQL/docker-compose.yml up
 ## Run the BookingApp application
 
 Once built, you can run the BookingApp application through its jar file or using its Docker image.<br>
-Remember that the BookingApp application is compatible with both MongoDB and PostgreSQL, so you also need to decide which of them to launch the application with.<br>
-In any case, place yourself into the project root directory to run the next commands on a terminal.
+Remember that the BookingApp application is compatible with both MongoDB and PostgreSQL, so you also need to decide which of them to launch the application with.
 
 ### Run through jar
 
@@ -276,19 +275,18 @@ If you decide to run the BookingApp application through its jar file, you need a
 
 #### MongoDB
 
-First of all you need a MongoDB instance *which is part of a replica set* (let's call it `rs0`). You can start it by running a Docker container with the following command:
+The MongoDB instance has to be *part of a replica set* (or cluster, let's call it `rs0`). You can start it by running a Docker container with the following command:
 ```
 docker run -d --name booking-mongo-set -p 27017:27017 mongo:6.0.7 mongod --replSet rs0
 ```
-After few seconds, the MongoDB instance asks for the replica set initialization (if you remove the detached mode `-d` from the command above, you can read on the terminal an error message just like `Cannot use a non-local read concern until replica set is finished initializing`). It's the right time to run the following command:
+**TODO:** N.B. On Linux and macOS you could have to precede the Docker commands with `sudo`, depending on your system/docker configuration.<br>
+After few seconds, the MongoDB instance asks for the replica set initialization (if you remove the detached mode `-d` from the command above, you can read on terminal an error message just like `Cannot use a non-local read concern until replica set is finished initializing`). It's the right time to run the following command:
 ```
 docker exec -it booking-mongo-set mongosh --eval "rs.initiate()"
 ```
 If the confirmation message appears (e.g. `ok: 1`), then the replica set is also initialized.<br>
 
 > N.B: This procedure only needs to be applied once, then stop the MongoDB instance through `docker stop booking-mongo-set`, and start it again (ready for use) with `docker start booking-mongo-set`.
-
-**TODO:** N.B. On Linux and macOS you could have to precede the Docker commands with `sudo`, depending on your system/docker configuration.<br>
 
 Once the MongoDB instance is ready, place yourself into the project root directory, open a Command Prompt and launch the BookingApp application with the following command:
 ```
@@ -297,15 +295,15 @@ java -jar ./booking-app/target/booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.
 
 #### PostgreSQL
 
-First of all you need to start a PostgreSQL instance. Run a Docker container with the following command:
+You can start the PostgreSQL instance by running a Docker container with the following command:
 ```
-docker run -d --name postgres-server -p 5432:5432 -e POSTGRES_DB=<YOUR_DB_NAME> -e POSTGRES_USER=<YOUR_USER> -e POSTGRES_PASSWORD=<YOUR_PSDW> -N 221 --rm postgres:15.3
+docker run -d --name booking-postgres -p 5432:5432 -e POSTGRES_DB=<YOUR_DB_NAME> -e POSTGRES_USER=<YOUR_USER> -e POSTGRES_PASSWORD=<YOUR_PSDW> -N 221 postgres:15.3
 ```
-or start a previously created container with:
-```
-docker start postgres-server
-```
-Then you can start the BookingApp application with the following command:
+**TODO:** qualche parola in più sui valori custom?
+
+> N.B: Once created, stop the PostgreSQL instance through `docker stop booking-postgres`, and start it again with `docker start booking-postgres`.
+
+Once the PostgreSQL instance is ready, place yourself into the project root directory, open a Command Prompt and launch the BookingApp application with the following command:
 ```
 java -jar ./booking-app/target/booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=POSTGRES --host=localhost --port=5432 --name=<YOUR_DB_NAME> --user=<YOUR_USER> --pswd=<YOUR_PSWD>
 ```
