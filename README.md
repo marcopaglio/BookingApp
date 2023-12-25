@@ -198,7 +198,7 @@ Opening files which define DTD or XSD schemas, like in `pom.xml` and `persistenc
 
 ## Build the BookingApp project
 
-### Before the very first build
+### Before to build
 
 When you build the BookingApp project is necessary to have DBMSs' Docker image locally, otherwise they will be pulled during the build execution causing a possible timeout failure. In order to avoid this, before the very first build run the following commands on the terminal:
 ```
@@ -238,15 +238,17 @@ Alternative builds can be run by adding one or more profiles at the end of the p
 
 - `-Pjacoco` add test coverage.
   
-  BookingApp project already provides test coverage results on [Coveralls](https://coveralls.io/github/marcopaglio/BookingApp?branch=main), but you can see them for yourself once execution finishes at `/booking-report/target/site/jacoco-aggregate/index.html`.
+  BookingApp project already provides test coverage results on [Coveralls](https://coveralls.io/github/marcopaglio/BookingApp?branch=main), but you can see them yourself once the execution finishes at `/booking-report/target/site/jacoco-aggregate/index.html`.
   
 - `-Ppitest` add mutation testing.
   
-  BookingApp project already provides mutation testing results on the [website](https://marcopaglio.github.io/BookingApp/pit-reports/index.html), but you can see them for yourself once execution finishes at `/booking-report/target/pit-reports/index.html`.
+  BookingApp project already provides mutation testing results on the [website](https://marcopaglio.github.io/BookingApp/pit-reports/index.html), but you can see them yourself once the execution finishes at `/booking-report/target/pit-reports/index.html`.
   
-- `-Pdocker` add the application's dockerization.
+- `-Pdocker` dockerize the application.
   
-   This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
+  The Docker image created is named `booking-app` and it is verified with both MongoDB and PostgreSQL.
+
+  > N.B: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
 
 ### Run tests from Eclipse
 
@@ -260,11 +262,11 @@ docker compose -f docker-compose/PostgreSQL/docker-compose.yml up
 **TODO:** docker compose comando cambia da sistema operativo?
 
 > InfoPoint :information_source:: As you can see, there is another folder inside the `docker-compose` directory. It also contains a compose file which starts a SonarQube instance in a Docker container. This can be used in conjuction with the `-Psonar` profile (not previously mentioned) to measure the code quality locally.<br>
-> Finally, each compose file contains a short description of what it does and and what else can be done.
+> Finally, in each compose file there is a short description of what it does and and what else can be done.
 
 ## Run the BookingApp application
 
-Once built, you can run the BookingApp application through its jar file or using its Docker image.<br>
+You can run the BookingApp application through its jar file or using its Docker image.<br>
 Remember that the BookingApp application is compatible with both MongoDB and PostgreSQL, so you also need to decide which of them to launch the application with.
 
 ### Run through jar
@@ -280,18 +282,20 @@ The MongoDB instance has to be *part of a replica set* (or cluster, let's call i
 docker run -d --name booking-mongo-set -p 27017:27017 mongo:6.0.7 mongod --replSet rs0
 ```
 **TODO:** N.B. On Linux and macOS you could have to precede the Docker commands with `sudo`, depending on your system/docker configuration.<br>
-After few seconds, the MongoDB instance asks for the replica set initialization (if you remove the detached mode `-d` from the command above, you can read on terminal an error message just like `Cannot use a non-local read concern until replica set is finished initializing`). It's the right time to run the following command:
+
+After few seconds, the MongoDB instance asks for the replica set initialization (if you remove the detached mode `-d` from the command above, you can read on terminal an error message just like `Cannot use a non-local read concern until replica set is finished initializing`). It's the right time to run this other command:
 ```
 docker exec -it booking-mongo-set mongosh --eval "rs.initiate()"
 ```
-If the confirmation message appears (e.g. `ok: 1`), then the replica set is also initialized.<br>
+If the confirmation message `ok: 1` appears, then the replica set is also initialized.<br>
 
 > N.B: This procedure only needs to be applied once, then stop the MongoDB instance through `docker stop booking-mongo-set`, and start it again (ready for use) with `docker start booking-mongo-set`.
 
-Once the MongoDB instance is ready, place yourself into the project root directory, open a Command Prompt and launch the BookingApp application with the following command:
+Once the MongoDB instance is ready, place yourself into the project root directory, open a Command Prompt and launch the BookingApp application via the following command:
 ```
 java -jar ./booking-app/target/booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=MONGO --host=localhost --port=27017 --name=<YOUR_DB_NAME>
 ```
+The placeholder `<YOUR_DB_NAME>` must be replaced with a custom name for your database.
 
 #### PostgreSQL
 
@@ -299,7 +303,7 @@ You can start the PostgreSQL instance by running a Docker container with the fol
 ```
 docker run -d --name booking-postgres -p 5432:5432 -e POSTGRES_DB=<YOUR_DB_NAME> -e POSTGRES_USER=<YOUR_USER> -e POSTGRES_PASSWORD=<YOUR_PSDW> -N 221 postgres:15.3
 ```
-**TODO:** qualche parola in più sui valori custom?
+The placeholders `<YOUR_DB_NAME>`, `<YOUR_USER>` and `<YOUR_PSWD>` must be replaced with a custom name and login credentials for your database, respectively. Remember them for later.
 
 > N.B: Once created, stop the PostgreSQL instance through `docker stop booking-postgres`, and start it again with `docker start booking-postgres`.
 
