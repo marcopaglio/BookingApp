@@ -314,58 +314,40 @@ java -jar ./booking-app/target/booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.
 
 ### Run through Docker
 
-> InfoPoint :information_source:: You can obtain a Docker image of the BookingApp application by building the BookingApp project with the `docker` profile.
+> InfoPoint :information_source:: You can obtain a Docker image of the BookingApp application by building the BookingApp project with the `-Pdocker` profile. Remember to [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using this mode.
 
-If you decide to run the BookingApp application through its Docker image, it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using this way.
-
-#### MongoDB
-
-You can run the application in one command thanks to Docker Compose, that will also start the MongoDB instance.
-
-The command is the following and must be run in the project root folder:
-
+If you decide to run the BookingApp application through its Docker image, place yourself into the project root directory and open a Command Prompt. You can launch the BookingApp application and also a well-configured instance of the chosen DBMS (MongoDB or PostgreSQL) simply with the following Docker Compose command:
 ```
-docker compose -f docker-compose-mongo.yml up
+docker compose -f <COMPOSE_FILE> up
 ```
+If your choice is **MongoDB**, replace `<COMPOSE_FILE>` with `docker-compose-mongo.yml`; otherwise, if your choice is **PostgreSQL**, replace `<COMPOSE_FILE>` with `docker-compose-postgres.yml`.
 
-> N.B: are you using Windows with WSLg? Use the following command: `docker compose -f docker-compose-mongo.yml -f docker-compose-wslg.yml up`.
-
-#### PostgreSQL
-
-You can run the application in one command thanks to Docker Compose, that will also start the PostgreSQL instance.
-
-The command is the following and must be run in the project root folder, but, ***before that, you need to set up the graphical environment***: you can found instructions in the next sections depending on your OS.
-
-```
-docker compose -f docker-compose-postgres.yml up
-```
-
-> N.B: are you using Windows with WSLg? Use the following command: `docker compose -f docker-compose-postgres.yml -f docker-compose-wslg.yml up`.
+> N.B: Are you using Windows with WSLg? The all-in-one command becomes: `docker compose -f <COMPOSE_FILE> -f docker-compose-wslg.yml up`.
 
 ## Setup X server environment for Docker
 
-Desktop GUI applications need a graphical environment for working propertly. Since BookingApp uses the standard *Java GUI Swing*, it also requires an X display server. Depending on the OS, the X server environment may or may not be native. Once it works, the X server must be shared with Docker in order to pass access controls. After that, you will be able to open the BookingApp application inside a Docker container, as required in the `docker` profile or for the `docker compose`.
+Desktop GUI applications need a graphical environment for working propertly. Since BookingApp uses the standard *Java GUI Swing*, it also requires an X display server. Depending on the OS, the X server environment may or may not be native. Once it works, the X server must be shared with Docker in order to pass access controls.<br>
+
+After that, you will be able to open the BookingApp application inside a Docker container, as required in the `-Pdocker` profile or with Docker Compose commands.
 
 ### Linux
 
-Linux already has an X server environment, thus the only thing to do is to share it with Docker. The simplest way (but not the most secure!) is to disable the access control to the X server for the Docker network:
+Linux already has an X server environment, thus the only thing to do is to share it with Docker. The simplest way is to disable the access control to the X server for the Docker network:
 
 - Run `ifconfig` for showing all the net interfaces. It may be necessary install the following package for running it: `sudo apt install net-tools`.
-- From the printed list, find out the Docker virtual bridge (let's call it `<DOCKER_NET>`) which all the containers are connected to (as default it is `docker0`).
-- Run `xhost +local:<DOCKER_NET>` e.g. `xhost +local:docker0`.
+- From the printed list, find out the Docker virtual bridge (let's call it `<DOCKER_NET>`) which all the containers are connected to. As default it is `docker0`.
+- Run `xhost +local:<DOCKER_NET>` e.g: `xhost +local:docker0`.
 
 Now Docker can use the X server.
 
-> N.B: When you finish with Docker, it is highly recommanded to remove its access to the X display server by running `xhost -local:<DOCKER_NET>` e.g. `xhost -local:docker0`.
+> Attention :exclamation:: Disabling access control is not a secure choice and you should rely on an authentication method, like *xauth*. For this reason, when you finish with Docker, it is highly recommanded to remove its access to the X display server by running `xhost -local:<DOCKER_NET>` e.g: `xhost -local:docker0`.
 
 ### Windows
 
-Windows cannot rely on a default X server environment, but the solution could be the *Windows Subsystem for Linux GUI* (WSLg), necessary to run Docker in Linux containers and provided for Windows 10 (Build 19041 or later) and 11.<br>
+Windows has not a default X server environment, but it can use the one provided by the *Windows Subsystem for Linux GUI*. **WSLg** is necessary to run Docker in Linux containers and is compatible with Windows 10 (Build 19041 or later) and 11.<br>
 
-To use WSLg, just install the last version of WSL from the [Microsoft Store](https://aka.ms/wslstorepage) or update it if a previous version is already installed throught `wsl --update`.
+To use WSLg, just install the last version of WSL from the [Microsoft Store](https://aka.ms/wslstorepage) or update it if a previous version is already installed through `wsl --update`.
   
 > N.B: If Docker was open you may need to restart it after WSL update.
 
-Once done, Docker can already use the X server without any changes to access control.<br>
-
-If you run the BookingApp application with Docker compose and WSLg, you need to override compose configurations, so add `-f docker-compose.wslg.yaml` to the compose command before the `up` command.
+Once done, Docker can already use the X display server without any changes to access control. However, if you run the BookingApp application through Docker, you need to override some configurations by adding `-f docker-compose-wslg.yml` in the Docker Compose command, just before `up`.
