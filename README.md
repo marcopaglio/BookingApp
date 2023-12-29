@@ -3,7 +3,7 @@
 
 BookingApp is a simple desktop application for managing reservations developed with TDD, build automation and continuous integration practices. Once the application is launched, you can add your clients and their reservations via a GUI. Informations are stored in a database server running as a Docker container. BookingApp is compatible with both MongoDB and PostgreSQL DBMSs.<br>
 <p align="center">
-  <img src="/../screenshots/screenshot-bookingapp-gui.png" alt="Screenshot of the simple BookingApp GUI." title="BookingApp GUI"/>
+  <img src="/../screenshots/screenshot-bookingapp-gui.png" alt="Screenshot of the simple BookingApp GUI." title="BookingApp GUI" width="80%"/>
 </p>
 
 > InfoPoint :information_source:: BookingApp followed by "***project***" indicates the entire job, which includes builds, tests and hence the source code, while "***application***" indicates the executable which you can launch and use.
@@ -15,7 +15,7 @@ On GitHub Actions are stored results about Maven builds and tests for Linux OS, 
 [![Deploy content to GitHub Pages](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml)<br>
 **HERE GITHUB RELEASES**<br>
 
-> N.B: On Windows systems some unit and integration tests cannot be executed due to lack of compatibility of required Docker images, like MongoDB and PostgresSQL. If you are brave enough, you can fill the void creating custom Docker images for MongoDB and PostgreSQL starting from a [Windows OS base layer](https://hub.docker.com/_/microsoft-windows-base-os-images).
+> N.B. :alarm_clock:: On Windows systems some unit and integration tests cannot be executed due to lack of compatibility of required Docker images, like MongoDB and PostgresSQL. If you are brave enough, you can fill the void by creating custom Docker images for MongoDB and PostgreSQL starting from a [Windows OS base layer](https://hub.docker.com/_/microsoft-windows-base-os-images).
   
 On Coveralls are published the history and statistics of BookingApp test code coverage, while on SonarCloud are published analysis of BookingApp code quality, particularly on *reliability*, *security* and *maintainability*:<br>
 [![Coverage Status](https://coveralls.io/repos/github/marcopaglio/BookingApp/badge.svg?branch=main)](https://coveralls.io/github/marcopaglio/BookingApp?branch=main)<br>
@@ -39,7 +39,7 @@ If you just launch the BookingApp application with PostgreSQL as DBMS there are 
 
 Otherwise, the BookingApp project runs a Docker container with MongoDB, the version of which is greater than 5.0 and requires the use of AVX instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System (OS).
 
-> N.B: Even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See the section on [Running on Virtual Machine](#running-on-virtual-machine) for fixing this possible problem.
+> N.B. :alarm_clock:: Even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See the section on [Running on Virtual Machine](#running-on-virtual-machine) for fixing this possible problem.
 
 #### Linux and MacOS
 
@@ -72,13 +72,13 @@ On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to vi
   
 - *disable Windows security Memory Integrity*.
 
-  > Attention :exclamation:: This is a very bad thing to do because the Memory integrity feature is stated to *prevent injection attacks into virtualization-based security processes*. Unfortunately, this is require in order to enable AVX/AVX2 instructions in VMs.
+  > Attention :bangbang:: This is a very bad thing to do because the Memory integrity feature is stated to *prevent injection attacks into virtualization-based security processes*. Unfortunately, this is require in order to enable AVX/AVX2 instructions in VMs.
   
   You can find it on **Settings** > **Windows Security** > **Device security** > **Core isolation details** > **Memory integrity**. As soon as turned this feature off, restart your machine to allow Windows to apply the change.  
 
 If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM. If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an icon like ![a chip with a V letter inside](/../screenshots/screenshot-chip-icon.png?raw=true "V chip icon"). Instead, if you see an icon like ![a turtle with a V letter inside](/../screenshots/screenshot-turtle-icon.png?raw=true "V turtle icon"), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
 
-> N.B: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
+> Attention :bangbang:: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
 
 ### What else?
 
@@ -177,20 +177,20 @@ A copy of the BookingApp project will be downloaded in the chosen directory.
 
 #### What if you now want to use Eclipse?
 
-If you have already cloned the BookingApp project via Git command line and now want to use Eclipse, follow the [Eclipse Smart Imports](#eclipse-smart-imports) guide and change the second step with the following one so as to avoid cloning again:
+If you have already cloned the BookingApp project via Git command line and now want to use Eclipse, follow the [Import from Eclipse](#import-from-eclipse) guide and change the second step with the following one so as to avoid cloning again:
 
-2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the *project root directory* > **Open** > make sure of selecting the `Search for nested projects` option > from the Folder list, import all subfolders but not the root folder `BookingApp` > **Finish**.
+2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the *project root directory* > **Open** > make sure of selecting the `Search for nested projects` option > from the Folder list import all subfolders but not the root folder `BookingApp` > **Finish**.
 
-### Eclipse Smart Imports TODO: change name
+### Import from Eclipse
 
 > InfoPoint :information_source:: Following steps have been defined using EclipseIDE 2022-12 and 2023-09. Different versions may involve slightly different steps.
 
-If you decide to use the Eclipse import mode for cloning the BookingApp project:
+If you decide to use the Eclipse Smart Imports for cloning the BookingApp project:
 
 1. Once installed, open Eclipse and choose any workspace location.
 2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github** > search for the repository `marcopaglio/BookingApp` > select only the `main` branch > **Next** > choose any directory as *project root directory* > **Next** > select all modules from the list > **Finish**. **TODO:** l'opzione Github non è sempre presente (vedi su Windows)
    
-> N.B: Just imported on Eclipse, there may be appeared some errors (about dependencies) on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
+> N.B. :alarm_clock:: Just imported on Eclipse, there may be appeared some errors (about dependencies) on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
 
 #### Eclipse settings
 
@@ -198,13 +198,13 @@ Opening files which define DTD or XSD schemas, like in `pom.xml` and `persistenc
 
 ## Build the BookingApp project
 
-### Before to build
-
 When you build the BookingApp project is necessary to have DBMSs' Docker image locally, otherwise they will be pulled during the build execution causing a possible timeout failure. In order to avoid this, before the very first build run the following commands on the terminal:
 ```
 docker pull mongo:6.0.7
 docker pull postgres:15.3
 ```
+**TODO:** N.B. On Linux and macOS you could have to precede the Docker commands with `sudo`, depending on your system/docker configuration.<br>
+
 After that, place yourself into the project root directory, where the Maven Wrapper files (`mvnw`, `mvnw.cmd`, etc.) are stored, open a Command Prompt, and choose whether to build the BookingApp project with [Maven](#build-with-maven) or [Maven Wrapper](#build-with-maven-wrapper).
 
 > InfoPoint :information_source:: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended.
@@ -221,13 +221,13 @@ If you decide to use Maven Wrapper, in the next [build commands](#build-commands
 
 If you take the time to install Maven, then replace the placeholder `<MVN>` with `mvn` in the next [build commands](#build-commands).<br>
 
-In this case, you can also build the BookingApp project using launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the `.launch` file > select **Run As** > click on the same name Maven configuration for starting the building. Remember that launch files in `booking-aggregate` execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
+In this case, you can also build the BookingApp project using launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the `.launch` file > select **Run As** > click on the same name Maven configuration to start the build. Remember that launch files in `booking-aggregate` execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
 
 > **TODO**: se non si vede niente dopo Run As che vuol dire? Si collega con gli schemas DTD o con assenza di Maven o altro?
 
 ### Build commands
 
-The very basic command to build the BookingApp project is as follows:
+The very basic command to build the BookingApp project is as follows (replace `<MVN>` with a command depending on whether [Maven](#build-with-maven) or [Maven Wrapper](#build-with-maven-wrapper) is used):
 ```
 <MVN> -f booking-aggregator/pom.xml clean install
 ```
@@ -236,19 +236,13 @@ Additionally, all unit, integration and end-to-end tests will be performed with 
 
 Alternative builds can be run by adding one or more profiles at the end of the previous command:
 
-- `-Pjacoco` add test coverage.
+- `-Pjacoco` add test coverage. BookingApp project already provides test coverage results on [Coveralls](https://coveralls.io/github/marcopaglio/BookingApp?branch=main), but you can see them yourself once the execution finishes at `/booking-report/target/site/jacoco-aggregate/index.html`.
   
-  BookingApp project already provides test coverage results on [Coveralls](https://coveralls.io/github/marcopaglio/BookingApp?branch=main), but you can see them yourself once the execution finishes at `/booking-report/target/site/jacoco-aggregate/index.html`.
+- `-Ppitest` add mutation testing. BookingApp project already provides mutation testing results on the [website](https://marcopaglio.github.io/BookingApp/pit-reports/index.html), but you can see them yourself once the execution finishes at `/booking-report/target/pit-reports/index.html`.
   
-- `-Ppitest` add mutation testing.
-  
-  BookingApp project already provides mutation testing results on the [website](https://marcopaglio.github.io/BookingApp/pit-reports/index.html), but you can see them yourself once the execution finishes at `/booking-report/target/pit-reports/index.html`.
-  
-- `-Pdocker` dockerize the application.
-  
-  The Docker image created is named `booking-app` and it is verified with both MongoDB and PostgreSQL.
+- `-Pdocker` dockerize the application. The Docker image created is named `booking-app` and it is checked with both MongoDB and PostgreSQL.
 
-  > N.B: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
+  > N.B. :alarm_clock:: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
 
 ### Run tests from Eclipse
 
@@ -281,8 +275,6 @@ The MongoDB instance has to be *part of a replica set* (or cluster, let's call i
 ```
 docker run -d --name booking-mongo-set -p 27017:27017 mongo:6.0.7 mongod --replSet rs0
 ```
-**TODO:** N.B. On Linux and macOS you could have to precede the Docker commands with `sudo`, depending on your system/docker configuration.<br>
-
 After few seconds, the MongoDB instance asks for the replica set initialization (if you remove the detached mode `-d` from the command above, you can read on terminal an error message just like `Cannot use a non-local read concern until replica set is finished initializing`). It's the right time to run this other command:
 ```
 docker exec -it booking-mongo-set mongosh --eval "rs.initiate()"
