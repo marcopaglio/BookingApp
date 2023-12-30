@@ -189,18 +189,18 @@ A complete step-by-step guide is provided by the [Docker official webpage](https
    ```
    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
    ```
-4. In Linux, Docker commands must be run as the superuser. Add your user to the docker group by running the following command:
+4. Verify that the Docker Engine installation is successful by running the `hello-world` image:
    ```
-   sudo usermod -aG docker ${USER}
-   ```
-   After that, you need to logout and login again. Then, you can run Docker with your user.
-6. Verify that the Docker Engine installation is successful by running the `hello-world` image:
-   ```
-   docker run hello-world
+   sudo docker run hello-world
    ```
    This command downloads a test image and runs it in a container. When the container runs, it prints a confirmation message and exits.
 
-You have now successfully installed and started Docker Engine.
+You have now successfully installed and started Docker Engine.<br>
+In Linux, Docker commands must be run as the superuser. Add your user to the docker group by running the following command:
+```
+sudo usermod -aG docker ${USER}
+```
+After that, you need to logout and login again. Then, you can run Docker without using `sudo` with your user.
 
 #### 4. Install Eclipse IDE
 
