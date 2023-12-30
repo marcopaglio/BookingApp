@@ -6,7 +6,7 @@ BookingApp is a simple desktop application for managing reservations developed w
   <img src="/../screenshots/screenshot-bookingapp-gui.png" alt="Screenshot of the simple BookingApp GUI." title="BookingApp GUI" width="80%"/>
 </p>
 
-> InfoPoint :information_source:: BookingApp followed by "***project***" indicates the entire job, which includes builds, tests and hence the source code, while "***application***" indicates the executable which you can launch and use.
+> :information_source: **InfoPoint**: BookingApp followed by "*project*" indicates the entire job, which includes builds, tests and hence the source code, while "*application*" indicates the executable which you can launch and use.
 
 On GitHub Actions are stored results about Maven builds and tests for Linux OS, MacOS, and Windows, and also the website status for the BookingApp project and the release status for the BookingApp application:<br>
 [![Java CI with Maven in Linux](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-linux.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-linux.yml)<br>
@@ -15,7 +15,7 @@ On GitHub Actions are stored results about Maven builds and tests for Linux OS, 
 [![Deploy content to GitHub Pages](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml)<br>
 **HERE GITHUB RELEASES**<br>
 
-> N.B. :alarm_clock:: On Windows systems some unit and integration tests cannot be executed due to lack of compatibility of required Docker images, like MongoDB and PostgresSQL. If you are brave enough, you can fill the void by creating custom Docker images for MongoDB and PostgreSQL starting from a [Windows OS base layer](https://hub.docker.com/_/microsoft-windows-base-os-images).
+> :alarm_clock: **N.B**: On Windows systems some unit and integration tests cannot be executed due to lack of compatibility of required Docker images, like MongoDB and PostgresSQL. If you are brave enough, you can fill the void by creating custom Docker images for MongoDB and PostgreSQL starting from a [Windows OS base layer](https://hub.docker.com/_/microsoft-windows-base-os-images).
   
 On Coveralls are published the history and statistics of BookingApp test code coverage, while on SonarCloud are published analysis of BookingApp code quality, particularly on *reliability*, *security* and *maintainability*:<br>
 [![Coverage Status](https://coveralls.io/repos/github/marcopaglio/BookingApp/badge.svg?branch=main)](https://coveralls.io/github/marcopaglio/BookingApp?branch=main)<br>
@@ -39,7 +39,7 @@ If you just launch the BookingApp application with PostgreSQL as DBMS there are 
 
 Otherwise, the BookingApp project runs a Docker container with MongoDB, the version of which is greater than 5.0 and requires the use of AVX instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System (OS).
 
-> N.B. :alarm_clock:: Even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See the section on [Running on Virtual Machine](#running-on-virtual-machine) for fixing this possible problem.
+> :alarm_clock: **N.B**: Even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See the section on [Running on Virtual Machine](#running-on-virtual-machine) for fixing this possible problem.
 
 #### Linux and MacOS
 
@@ -72,13 +72,13 @@ On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to vi
   
 - *disable Windows security Memory Integrity*.
 
-  > Attention :bangbang:: This is a very bad thing to do because the Memory integrity feature is stated to *prevent injection attacks into virtualization-based security processes*. Unfortunately, this is require in order to enable AVX/AVX2 instructions in VMs.
+  > :warning: **Attention**: This is a very bad thing to do because the Memory integrity feature is stated to *prevent injection attacks into virtualization-based security processes*. Unfortunately, this is require in order to enable AVX/AVX2 instructions in VMs.
   
   You can find it on **Settings** > **Windows Security** > **Device security** > **Core isolation details** > **Memory integrity**. As soon as turned this feature off, restart your machine to allow Windows to apply the change.  
 
 If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM. If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an icon like ![a chip with a V letter inside](/../screenshots/screenshot-chip-icon.png?raw=true "V chip icon"). Instead, if you see an icon like ![a turtle with a V letter inside](/../screenshots/screenshot-turtle-icon.png?raw=true "V turtle icon"), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
 
-> Attention :bangbang:: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
+> :warning: **Attention**: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
 
 ### What else?
 
@@ -165,7 +165,7 @@ On Ubuntu Software application is stored Eclipse. So just find it on the store a
 
 There are essentially two main ways for cloning, and then using, the BookingApp project: the Git command line or the import mode of an IDE.
 
-> InfoPoint :information_source:: The first way is the simplest because it doesn't require any IDE or Maven installation. Anyway, the BookingApp project was developed using Eclipse, recommended if your goal is to use an IDE.
+> :information_source: **InfoPoint**: The first way is the simplest because it doesn't require any IDE or Maven installation. Anyway, the BookingApp project was developed using Eclipse, recommended if your goal is to use an IDE.
 
 ### Git command line
 
@@ -183,14 +183,14 @@ If you have already cloned the BookingApp project via Git command line and now w
 
 ### Import from Eclipse
 
-> InfoPoint :information_source:: Following steps have been defined using EclipseIDE 2022-12 and 2023-09. Different versions may involve slightly different steps.
+> :information_source: **InfoPoint**: Following steps have been defined using EclipseIDE 2022-12 and 2023-09. Different versions may involve slightly different steps.
 
 If you decide to use the Eclipse Smart Imports for cloning the BookingApp project:
 
 1. Once installed, open Eclipse and choose any workspace location.
 2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github** > search for the repository `marcopaglio/BookingApp` > select only the `main` branch > **Next** > choose any directory as *project root directory* > **Next** > select all modules from the list > **Finish**. **TODO:** l'opzione Github non è sempre presente (vedi su Windows)
    
-> N.B. :alarm_clock:: Just imported on Eclipse, there may be appeared some errors (about dependencies) on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
+> :alarm_clock: **N.B**: Just imported on Eclipse, there may be appeared some errors (about dependencies) on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
 
 #### Eclipse settings
 
@@ -207,8 +207,7 @@ docker pull postgres:15.3
 
 After that, place yourself into the project root directory, where the Maven Wrapper files (`mvnw`, `mvnw.cmd`, etc.) are stored, open a Command Prompt, and choose whether to build the BookingApp project with [Maven](#build-with-maven) or [Maven Wrapper](#build-with-maven-wrapper).
 
-> InfoPoint :information_source:: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended.
-> If you prefer using Maven directly, make sure to install Maven yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6, otherwise build might fails.
+> :information_source: **InfoPoint**: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended. If you prefer using Maven directly, make sure to install Maven yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6, otherwise build might fails.
 
 #### Build with Maven Wrapper
 
@@ -242,7 +241,7 @@ Alternative builds can be run by adding one or more profiles at the end of the p
   
 - `-Pdocker` dockerize the application. The Docker image created is named `booking-app` and it is checked with both MongoDB and PostgreSQL.
 
-  > N.B. :alarm_clock:: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
+  > :alarm_clock: **N.B**: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
 
 ### Run tests from Eclipse
 
@@ -255,7 +254,7 @@ docker compose -f docker-compose/PostgreSQL/docker-compose.yml up
 ```
 **TODO:** docker compose comando cambia da sistema operativo?
 
-> InfoPoint :information_source:: As you can see, there is another folder inside the `docker-compose` directory. It also contains a compose file which starts a SonarQube instance in a Docker container. This can be used in conjuction with the `-Psonar` profile (not previously mentioned) to measure the code quality locally.<br>
+> :information_source: **InfoPoint**: As you can see, there is another folder inside the `docker-compose` directory. It also contains a compose file which starts a SonarQube instance in a Docker container. This can be used in conjuction with the `-Psonar` profile (not previously mentioned) to measure the code quality locally.<br>
 > Finally, in each compose file there is a short description of what it does and and what else can be done.
 
 ## Run the BookingApp application
