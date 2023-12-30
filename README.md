@@ -54,7 +54,7 @@ If the output is not empty then your cores have AVX support.
 On Windows systems, enable AVX capabilities directly by running the following command on a Command Prompt as Administrator:
 ```
 bcdedit /set xsavedisable 0
-``` 
+```
 If you see a confirmation message then your cores have AVX support.
 
 ### Running on Virtual Machine
@@ -82,12 +82,13 @@ If everything went right, your VM should now support AVX/AVX2 instructions as we
 
 ### What else?
 
-To use the BookingApp application, following programs must be installed on your machine:
-- Java SDK (and JRE?) 11 (or more?)
-- Docker engine and Docker compose
+To [Run the BookingApp application](#run-the-bookingapp-application) following programs must be installed on your machine:
+
+- Java Runtime Environment (JRE) 11 (or greater)
+- Docker Engine and Docker Compose
 
 To replicate builds, tests and so on, the BookingApp project also requires the following programs installed on your machine:
-- Java JRE 11 (or more?)
+- Java JDK 11 (or more?)
 - Git
 
 If you wanna use an IDE:
@@ -101,35 +102,47 @@ The installation guide depending on your operating system.
 
 ##### Linux (Ubuntu)
 
-First of all, check if Java JRE is already installed, running the following commands on terminal:
-java -version
-and:
-javac --version
-If it appears something like:
-openjdk version "11.0.21"
-and:
-javac 11.0.21
-Then you have already installed java, and you have to pass to next part of tutorial (link on words).
-Otherwise, if there is another version (major versions are ok or not?), or something like:
-Command 'java' not found
-or:
-Command 'javac' not found
-These responses indicate that the necessary Java version is not installed and you can proceed with the next steps.
+###### JRE
 
-Before installing any new package is reccomanded to update your package listing with the most recent information:
-sudo apt-get update
-Install the JDK with the following commands:
-sudo apt install openjdk-11-jre
-sudo apt install openjdk-11-jdk
-The full Java suite includes the Java Runtime Environment (JRE), Java Virtual Machine (JVM) and utilities to develop Java source code.
-The Java Development Kit (JDK) provides everything a user needs to run Java applications. 
-To validate the successful install of Java on Ubuntu with apt, issue the following command:
+First of all, check if JRE is already installed, running the following commands on terminal:
+```
 java -version
-openjdk version "11.0.21"
-and
+```
+If `Command 'java' not found` appears, then the JRE is not installed. Otherwise, it will appear something like `openjdk version "xx.yy.zz"`, where `xx`, `yy` and `zz` are numbers.<br>
+`xx` is the major version and must be 11 or greater in order to have a JRE sufficiently new installed; if it is lower, then you have to follow next steps.<br>
+
+Before installing any new package is raccomanded to update your package listing with the most recent information:
+```
+sudo apt-get update
+```
+Install the JRE with the following commands:
+```
+sudo apt install openjdk-11-jre
+```
+Now if you run `java --version` you obtain the desired output.
+
+###### JDK
+
+First of all, check if JDK is already installed, running the following commands on terminal:
+```
 javac --version
-javac 11.0.21
-TODO: set JAVA_HOME?
+```
+If it appears something like `javac 11.0.21`, then you have already installed java, and you have to pass to next part of tutorial (link on words).<br>
+Otherwise, if there is another version (major versions are ok or not?), or something like `Command 'javac' not found`, then the JDK is not installed and you can proceed with the next steps.<br>
+
+Before installing any new package is raccomanded to update your package listing with the most recent information:
+```
+sudo apt-get update
+```
+Install the JDK with the following commands:
+```
+sudo apt install openjdk-11-jdk
+```
+The Java Development Kit (JDK) provides the Java Runtime Environment (JRE), Java Virtual Machine (JVM) and utilities to develop Java source code.<br>
+
+Now if you run `javac --version` you obtein the desired output.
+
+**TODO:** set JAVA_HOME?
 
 #### 2. Install Git
 
@@ -149,8 +162,45 @@ The installation guide depending on your operating system.
 
 ##### Linux (Ubuntu 22.04)
 
-A complete step-by-step guide is provided by the official page:
-LINK: https://docs.docker.com/engine/install/ubuntu/
+A complete step-by-step guide is provided by the [Docker official webpage](https://docs.docker.com/engine/install/ubuntu/). It follows an essential extract:
+
+1. Before you can install Docker Engine, you need to uninstall any conflicting packages by running the following command:
+   ```
+   for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
+   ```
+   `apt-get` might report that you have none of these packages installed.
+2. Before you install Docker Engine for the first time on a new host machine, you need to set up the Docker repository by running following commands:
+   ```
+   # Add Docker's official GPG key:
+   sudo apt-get update
+   sudo apt-get install ca-certificates curl gnupg
+   sudo install -m 0755 -d /etc/apt/keyrings
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+   sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+   # Add the repository to Apt sources:
+   echo \
+     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+     $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+     sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+   sudo apt-get update
+   ```
+3. To install the latest version, run:
+   ```
+   sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+   ```
+4. In Linux, Docker commands must be run as the superuser. Add your user to the docker group by running the following command:
+   ```
+   sudo usermod -aG docker ${USER}
+   ```
+   After that, you need to logout and login again. Then, you can run Docker with your user.
+6. Verify that the Docker Engine installation is successful by running the `hello-world` image:
+   ```
+   docker run hello-world
+   ```
+   This command downloads a test image and runs it in a container. When the container runs, it prints a confirmation message and exits.
+
+You have now successfully installed and started Docker Engine.
 
 #### 4. Install Eclipse IDE
 
@@ -285,9 +335,9 @@ If the confirmation message `ok: 1` appears, then the replica set is also initia
 
 > :alarm_clock: **N.B**: This procedure only needs to be applied once, then stop the MongoDB instance through `docker stop booking-mongo-set`, and start it again (ready for use) with `docker start booking-mongo-set`.
 
-Once the MongoDB instance is ready, place yourself into the project root directory, open a Command Prompt and launch the BookingApp application via the following command:
+Once the MongoDB instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application via the following command:
 ```
-java -jar ./booking-app/target/booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=MONGO --host=localhost --port=27017 --name=<YOUR_DB_NAME>
+java -jar booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=MONGO --host=localhost --port=27017 --name=<YOUR_DB_NAME>
 ```
 The placeholder `<YOUR_DB_NAME>` must be replaced with a custom name for your database.
 
@@ -295,15 +345,15 @@ The placeholder `<YOUR_DB_NAME>` must be replaced with a custom name for your da
 
 You can start the PostgreSQL instance by running a Docker container with the following command:
 ```
-docker run -d --name booking-postgres -p 5432:5432 -e POSTGRES_DB=<YOUR_DB_NAME> -e POSTGRES_USER=<YOUR_USER> -e POSTGRES_PASSWORD=<YOUR_PSDW> -N 221 postgres:15.3
+docker run -d --name booking-postgres -p 5432:5432 -e POSTGRES_DB=<YOUR_DB_NAME> -e POSTGRES_USER=<YOUR_USER> -e POSTGRES_PASSWORD=<YOUR_PSDW> postgres:15.3 -N 10
 ```
-The placeholders `<YOUR_DB_NAME>`, `<YOUR_USER>` and `<YOUR_PSWD>` must be replaced with a custom name and login credentials for your database, respectively.
+The placeholders `<YOUR_DB_NAME>`, `<YOUR_USER>` and `<YOUR_PSWD>` must be replaced with a custom name and login credentials for your database, respectively. The `-N` parameter, set to `10`, can also be changed: it defines the maximum number of BookingApp instances that can be opened.
 
 > :alarm_clock: **N.B**: Once created, stop the PostgreSQL instance through `docker stop booking-postgres`, and start it again with `docker start booking-postgres`.
 
-Once the PostgreSQL instance is ready, place yourself into the project root directory, open a Command Prompt and launch the BookingApp application with the following command (replace the placeholders with those previously defined):
+Once the PostgreSQL instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application with the following command (replace the placeholders with those previously defined):
 ```
-java -jar ./booking-app/target/booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=POSTGRES --host=localhost --port=5432 --name=<YOUR_DB_NAME> --user=<YOUR_USER> --pswd=<YOUR_PSWD>
+java -jar booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=POSTGRES --host=localhost --port=5432 --name=<YOUR_DB_NAME> --user=<YOUR_USER> --pswd=<YOUR_PSWD>
 ```
 
 ### Run through Docker
