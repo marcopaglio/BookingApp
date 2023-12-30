@@ -82,16 +82,17 @@ If everything went right, your VM should now support AVX/AVX2 instructions as we
 
 ### What else?
 
-To use the BookingApp application, the following programs must be installed on your machine:
-1. Java SDK (and JRE?) 11 (or more?)
-2. Docker engine and Docker compose
+To use the BookingApp application, following programs must be installed on your machine:
+- Java SDK (and JRE?) 11 (or more?)
+- Docker engine and Docker compose
 
 To replicate builds, tests and so on, the BookingApp project also requires the following programs installed on your machine:
-3. Git
+- Java JRE 11 (or more?)
+- Git
 
 If you wanna use an IDE:
-4. Eclipse IDE
-5. Maven v.x.y.z
+- Eclipse IDE
+- Maven v.x.y.z
 
 **START: CHECK IF TO MANTAIN** :arrow_down:
 #### 1. Install Java SDK (and JRE) 11
