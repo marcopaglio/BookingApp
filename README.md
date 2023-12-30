@@ -198,6 +198,8 @@ Opening files which define DTD or XSD schemas, like in `pom.xml` and `persistenc
 
 ## Build the BookingApp project
 
+### Before you build
+
 When you build the BookingApp project is necessary to have DBMSs' Docker image locally, otherwise they will be pulled during the build execution causing a possible timeout failure. In order to avoid this, before the very first build run the following commands on the terminal:
 ```
 docker pull mongo:6.0.7
@@ -241,13 +243,13 @@ Alternative builds can be run by adding one or more profiles at the end of the p
   
 - `-Pdocker` dockerize the application. The Docker image created is named `booking-app` and it is checked with both MongoDB and PostgreSQL.
 
-  > :alarm_clock: **N.B**: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you have [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
+  > :alarm_clock: **N.B**: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
 
 ### Run tests from Eclipse
 
 In the BookingApp project there are three modules that contain tests: `booking-domain-module`, `booking-business-module` and `booking-ui-module`. You can run them directly from Eclipse: right click on the module > **Run As** > **JUnit Test**. This will execute all the tests of that module.<br>
 
-Before running tests from Eclipse, make sure Docker is turned on and working properly. Then, unit tests doesn't require any additional setting, since they are run with TestContainers; instead, integration and end-to-end tests need a running instance (suitably configured) of MongoDB and once of PostgreSQL. You can start such instances in Docker containers through Docker Compose commands as follows:
+Before running tests from Eclipse, make sure Docker is turned on and working properly. Then, unit tests doesn't require any additional setting, since they are run with TestContainers; instead, integration and end-to-end tests need a well-configured running instance of MongoDB and once of PostgreSQL. You can start such instances in Docker containers through Docker Compose commands as follows:
 ```
 docker compose -f docker-compose/MongoDB/docker-compose.yml up
 docker compose -f docker-compose/PostgreSQL/docker-compose.yml up
@@ -264,7 +266,7 @@ Remember that the BookingApp application is compatible with both MongoDB and Pos
 
 ### Run through jar
 
-> InfoPoint :information_source:: You can obtain a FatJar of the BookingApp application in two ways: from the build of the BookingApp project or directly by downloading it from the release on GitHub (**LINK HERE**).
+> :information_source: **InfoPoint**: You can obtain a FatJar of the BookingApp application in two ways: from the build of the BookingApp project or directly by downloading it from the release on GitHub (**LINK HERE**).
 
 If you decide to run the BookingApp application through its jar file, you need a running instance of MongoDB or PostgreSQL, depending on which one you prefer.
 
@@ -280,7 +282,7 @@ docker exec -it booking-mongo-set mongosh --eval "rs.initiate()"
 ```
 If the confirmation message `ok: 1` appears, then the replica set is also initialized.<br>
 
-> N.B: This procedure only needs to be applied once, then stop the MongoDB instance through `docker stop booking-mongo-set`, and start it again (ready for use) with `docker start booking-mongo-set`.
+> :alarm_clock: **N.B**: This procedure only needs to be applied once, then stop the MongoDB instance through `docker stop booking-mongo-set`, and start it again (ready for use) with `docker start booking-mongo-set`.
 
 Once the MongoDB instance is ready, place yourself into the project root directory, open a Command Prompt and launch the BookingApp application via the following command:
 ```
@@ -294,11 +296,11 @@ You can start the PostgreSQL instance by running a Docker container with the fol
 ```
 docker run -d --name booking-postgres -p 5432:5432 -e POSTGRES_DB=<YOUR_DB_NAME> -e POSTGRES_USER=<YOUR_USER> -e POSTGRES_PASSWORD=<YOUR_PSDW> -N 221 postgres:15.3
 ```
-The placeholders `<YOUR_DB_NAME>`, `<YOUR_USER>` and `<YOUR_PSWD>` must be replaced with a custom name and login credentials for your database, respectively. Remember them for later.
+The placeholders `<YOUR_DB_NAME>`, `<YOUR_USER>` and `<YOUR_PSWD>` must be replaced with a custom name and login credentials for your database, respectively.
 
-> N.B: Once created, stop the PostgreSQL instance through `docker stop booking-postgres`, and start it again with `docker start booking-postgres`.
+> :alarm_clock: **N.B**: Once created, stop the PostgreSQL instance through `docker stop booking-postgres`, and start it again with `docker start booking-postgres`.
 
-Once the PostgreSQL instance is ready, place yourself into the project root directory, open a Command Prompt and launch the BookingApp application with the following command:
+Once the PostgreSQL instance is ready, place yourself into the project root directory, open a Command Prompt and launch the BookingApp application with the following command (replace the placeholders with those previously defined):
 ```
 java -jar ./booking-app/target/booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=POSTGRES --host=localhost --port=5432 --name=<YOUR_DB_NAME> --user=<YOUR_USER> --pswd=<YOUR_PSWD>
 ```
@@ -313,15 +315,15 @@ docker compose -f <COMPOSE_FILE> up
 ```
 If your choice is **MongoDB**, replace `<COMPOSE_FILE>` with `docker-compose-mongo.yml`; otherwise, if your choice is **PostgreSQL**, replace `<COMPOSE_FILE>` with `docker-compose-postgres.yml`.
 
-> N.B: Are you using Windows with WSLg? The all-in-one command becomes: `docker compose -f <COMPOSE_FILE> -f docker-compose-wslg.yml up`.
+> :alarm_clock: **N.B**: Are you using Windows with WSLg? The all-in-one command becomes: `docker compose -f <COMPOSE_FILE> -f docker-compose-wslg.yml up`.
 
 ## Setup X server environment for Docker
 
-Desktop GUI applications need a graphical environment for working propertly. Since BookingApp uses the standard *Java GUI Swing*, it also requires an X display server. Depending on the OS, the X server environment may or may not be native. Once it works, the X server must be shared with Docker in order to pass access controls.<br>
+Desktop GUI applications need a graphical environment for working propertly. Since BookingApp uses the standard *Java GUI Swing*, it also requires an X display server. Depending on the OS, the X server environment may or may not be native.<br>
 
-After that, you will be able to open the BookingApp application inside a Docker container, as required in the `-Pdocker` profile or with Docker Compose commands.
+The X server must therefore be shared with Docker in order to pass access controls. After that, you will be able to open the BookingApp application inside a Docker container, as required in the `-Pdocker` profile or with Docker Compose commands.
 
-### Linux
+#### Linux
 
 Linux already has an X server environment, thus the only thing to do is to share it with Docker. The simplest way is to disable the access control to the X server for the Docker network:
 
@@ -329,16 +331,16 @@ Linux already has an X server environment, thus the only thing to do is to share
 - From the printed list, find out the Docker virtual bridge (let's call it `<DOCKER_NET>`) which all the containers are connected to. As default it is `docker0`.
 - Run `xhost +local:<DOCKER_NET>` e.g: `xhost +local:docker0`.
 
-Now Docker can use the X server.
+Now Docker containers can use the X server.
 
-> Attention :exclamation:: Disabling access control is not a secure choice and you should rely on an authentication method, like *xauth*. For this reason, when you finish with Docker, it is highly recommanded to remove its access to the X display server by running `xhost -local:<DOCKER_NET>` e.g: `xhost -local:docker0`.
+> :warning: **Attention**: Disabling access control is not a secure choice and you should rely on an authentication method, like *xauth*. For this reason, when you finish with Docker, it is highly recommanded to remove its access to the X display server by running `xhost -local:<DOCKER_NET>` e.g: `xhost -local:docker0`.
 
-### Windows
+#### Windows
 
-Windows has not a default X server environment, but it can use the one provided by the *Windows Subsystem for Linux GUI*. **WSLg** is necessary to run Docker in Linux containers and is compatible with Windows 10 (Build 19041 or later) and 11.<br>
+Windows has not a default X server environment, but it can use the one provided by *Windows Subsystem for Linux GUI*. **WSL** is necessary to run Docker in Linux containers and is compatible with Windows 10 (Build 19041 or later) and 11.<br>
 
 To use WSLg, just install the last version of WSL from the [Microsoft Store](https://aka.ms/wslstorepage) or update it if a previous version is already installed through `wsl --update`.
   
-> N.B: If Docker was open you may need to restart it after WSL update.
+> :alarm_clock: **N.B**: If Docker is open you may need to restart it after WSL update.
 
 Once done, Docker can already use the X display server without any changes to access control. However, if you run the BookingApp application through Docker, you need to override some configurations by adding `-f docker-compose-wslg.yml` in the Docker Compose command, just before `up`.
