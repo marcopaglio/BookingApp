@@ -82,18 +82,20 @@ If everything went right, your VM should now support AVX/AVX2 instructions as we
 
 ### What else?
 
-To [Run the BookingApp application](#run-the-bookingapp-application) following programs must be installed on your machine:
+To [Run the BookingApp application through its jar file](#run-through-jar), at least the following programs must be installed on your computer:
 
 - Java Runtime Environment (JRE) 11 (or greater)
-- Docker Engine and Docker Compose
+- Docker Engine
 
-To replicate builds, tests and so on, the BookingApp project also requires the following programs installed on your machine:
-- Java JDK 11 (or more?)
+To [Run the BookingApp application through Docker](#run-through-docker) or to [replicate builds, tests and so on](#build-the-bookingapp-project), the BookingApp project *also* requires the following programs installed on your computer:
+
 - Git
+- Docker Compose
 
-If you wanna use an IDE:
-- Eclipse IDE
+If you want to use an IDE, the BookingApp project was developed using Eclipse, so it is recommended.
+
 - Maven v.x.y.z
+- Java JDK 11 (or more?)
 
 **START: CHECK IF TO MANTAIN** :arrow_down:
 #### 1. Install Java SDK (and JRE) 11
@@ -108,8 +110,7 @@ First of all, check if JRE is already installed, running the following commands 
 ```
 java -version
 ```
-If `Command 'java' not found` appears, then the JRE is not installed. Otherwise, it will appear something like `openjdk version "xx.yy.zz"`, where `xx`, `yy` and `zz` are numbers.<br>
-`xx` is the major version and must be 11 or greater in order to have a JRE sufficiently new installed; if it is lower, then you have to follow next steps.<br>
+If `Command 'java' not found` appears, then the JRE is not installed. Otherwise, it will appear something like `openjdk version "xx.yy.zz"`, where `xx`, `yy` and `zz` are numbers. `xx` is the major version and must be 11 or greater in order to have a JRE sufficiently new installed; if it is lower, then you have to follow next steps.<br>
 
 Before installing any new package is raccomanded to update your package listing with the most recent information:
 ```
@@ -150,11 +151,15 @@ The installation guide depending on your operating system.
 
 ##### Linux (Ubuntu 22.04)
 
+On Ubuntu 22.04, Git should be already installed. You can check it by running:
+```
+git --version
+```
+If the terminal doesn't recognize the command, then install Git through the following commands:
+```
 sudo apt-get update
 sudo apt-get install git
-The verify the installation was successful by typing:
-git --version
-TODO: configure username and email?
+```
 
 #### 3. Install Docker Engine and Docker Compose
 
@@ -196,11 +201,12 @@ A complete step-by-step guide is provided by the [Docker official webpage](https
    This command downloads a test image and runs it in a container. When the container runs, it prints a confirmation message and exits.
 
 You have now successfully installed and started Docker Engine.<br>
+
 In Linux, Docker commands must be run as the superuser. Add your user to the docker group by running the following command:
 ```
 sudo usermod -aG docker ${USER}
 ```
-After that, you need to logout and login again. Then, you can run Docker without using `sudo` with your user.
+After that, you need to logout and login again. Then, you can run Docker commands without using `sudo` with your user.
 
 #### 4. Install Eclipse IDE
 
@@ -208,40 +214,32 @@ The installation guide depending on your operating system.
 
 ##### Linux (Ubuntu)
 
-On Ubuntu Software application is stored Eclipse. So just find it on the store and install clicking the right botton. Then you can open the application.<br>
+You can find the latest and stable version of Eclipse IDE directly from [Snapcraft](https://snapcraft.io/eclipse). You can install it by clicking on **Install** > **View in Desktop Store** > **Open Link** > **Ubuntu Software** > **Install**, or by using the command line `sudo snap install eclipse --classic`.<br>
+
+Once the installation is finished, you can find Eclipse among your applications.
 
 **END: CHECK IF TO MANTAIN** :arrow_up:
 
 ## Clone the BookingApp project
 
-There are essentially two main ways for cloning, and then using, the BookingApp project: the Git command line or the import mode of an IDE.
-
-> :information_source: **InfoPoint**: The first way is the simplest because it doesn't require any IDE or Maven installation. Anyway, the BookingApp project was developed using Eclipse, recommended if your goal is to use an IDE.
-
-### Git command line
-
-If you decide to use the Git command line, choose any folder and run on the terminal:
+For cloning the BookingApp project you have to use the Git command line. Choose any folder and run on the terminal:
 ```
 git clone https://github.com/marcopaglio/BookingApp.git
 ```
 A copy of the BookingApp project will be downloaded in the chosen directory.
 
-#### What if you now want to use Eclipse?
+> :information_source: **InfoPoint**: In the chosen folder will appear a directory named `BookingApp`. This is the *project root directory*.
 
-If you have already cloned the BookingApp project via Git command line and now want to use Eclipse, follow the [Import from Eclipse](#import-from-eclipse) guide and change the second step with the following one so as to avoid cloning again:
-
-2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the *project root directory* > **Open** > make sure of selecting the `Search for nested projects` option > from the Folder list import all subfolders but not the root folder `BookingApp` > **Finish**.
-
-### Import from Eclipse
+### Import to Eclipse
 
 > :information_source: **InfoPoint**: Following steps have been defined using EclipseIDE 2022-12 and 2023-09. Different versions may involve slightly different steps.
 
-If you decide to use the Eclipse Smart Imports for cloning the BookingApp project:
+Once cloned via Git command line, you can import the BookingApp project to Eclipse:
 
 1. Once installed, open Eclipse and choose any workspace location.
-2. From the top left bar: **File** > **Import** > **Git** > **Projects from Git** > **Github** > search for the repository `marcopaglio/BookingApp` > select only the `main` branch > **Next** > choose any directory as *project root directory* > **Next** > select all modules from the list > **Finish**. **TODO:** l'opzione Github non è sempre presente (vedi su Windows)
+2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the project root directory > **Open** > make sure of selecting the `Search for nested projects` option > from the Folder list import all subfolders but not the root folder `BookingApp` > **Finish**.
    
-> :alarm_clock: **N.B**: Just imported on Eclipse, there may be appeared some errors (about dependencies) on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
+> :alarm_clock: **N.B**: Just imported on Eclipse, there may be appeared some dependencies errors on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
 
 #### Eclipse settings
 
@@ -256,7 +254,8 @@ When you build the BookingApp project is necessary to have DBMSs' Docker image l
 docker pull mongo:6.0.7
 docker pull postgres:15.3
 ```
-**TODO:** N.B. On Linux and macOS you could have to precede the Docker commands with `sudo`, depending on your system/docker configuration.<br>
+
+> :alarm_clock: **N.B**: On Linux and MacOS you have to precede Docker commands with `sudo`. You may not use it if you add your user to the Docker group. See the section on [Install Docker Engine and Docker Compose](#3-install-docker-engine-and-docker-compose) for more details.
 
 After that, place yourself into the project root directory, where the Maven Wrapper files (`mvnw`, `mvnw.cmd`, etc.) are stored, open a Command Prompt, and choose whether to build the BookingApp project with [Maven](#build-with-maven) or [Maven Wrapper](#build-with-maven-wrapper).
 
