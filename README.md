@@ -89,13 +89,14 @@ To [Run the BookingApp application through its jar file](#run-through-jar), at l
 
 To [Run the BookingApp application through Docker](#run-through-docker) or to [replicate builds, tests and so on](#build-the-bookingapp-project), the BookingApp project *also* requires the following programs installed on your computer:
 
+- Java Development Kit (JDK) 11 (or greater). 
 - Git
 - Docker Compose
 
 If you want to use an IDE, the BookingApp project was developed using Eclipse, so it is recommended.
 
-- Maven v.x.y.z
-- Java JDK 11 (or more?)
+- Maven 3.8.6
+
 
 **START: CHECK IF TO MANTAIN** :arrow_down:
 #### 1. Install Java SDK (and JRE) 11
@@ -141,9 +142,9 @@ sudo apt install openjdk-11-jdk
 ```
 The Java Development Kit (JDK) provides the Java Runtime Environment (JRE), Java Virtual Machine (JVM) and utilities to develop Java source code.<br>
 
-Now if you run `javac --version` you obtein the desired output.
+Now if you run `javac --version` you obtain the desired output.
 
-**TODO:** set JAVA_HOME?
+**TODO:** set JAVA_HOME? Non importa
 
 #### 2. Install Git
 
@@ -247,8 +248,6 @@ Opening files which define DTD or XSD schemas, like in `pom.xml` and `persistenc
 
 ## Build the BookingApp project
 
-### Before you build
-
 When you build the BookingApp project is necessary to have DBMSs' Docker image locally, otherwise they will be pulled during the build execution causing a possible timeout failure. In order to avoid this, before the very first build run the following commands on the terminal:
 ```
 docker pull mongo:6.0.7
@@ -259,24 +258,16 @@ docker pull postgres:15.3
 
 ### Build from Command Line
 
-After that, place yourself into the project root directory, where the Maven Wrapper files (`mvnw`, `mvnw.cmd`, etc.) are stored, open a Command Prompt, and choose whether to build the BookingApp project with [Maven](#build-with-maven) or [Maven Wrapper](#build-with-maven-wrapper).
+You can build the BookingApp project from the command line with Maven or Maven Wrapper. In the next [Build commands](#build-commands) section, replace the placeholder `<MVN>` with the right script command, depending on what you choose:
 
-> :information_source: **InfoPoint**: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended. If you prefer using Maven directly, make sure to install Maven yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6, otherwise build might fails.
+- with Maven, use `mvn`.
+- with Maven Wrapper, use `./mvnw` if you are using **Unix systems** (e.g: Linux, MacOS, etc.), or `mvnw.cmd` if you are using **Windows** as OS of your machine.
 
-#### Build with Maven Wrapper
+> :information_source: **InfoPoint**: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended. If you prefer using Maven directly, make sure to install Maven yourself, and preferably with the same version used for the BookingApp project, otherwise build might fails.
 
-If you decide to use Maven Wrapper, in the next [build commands](#build-commands) replace the placeholder `<MVN>` with the right script command, depending on your OS:
+#### Build commands
 
-- **Linux and MacOS**: if you are using Unix systems, the script command is `./mvnw`.
-- **Windows**: if you are using Windows, the script command is `mvnw.cmd`.
-
-#### Build with Maven
-
-If you take the time to install Maven, then replace the placeholder `<MVN>` with `mvn` in the next [build commands](#build-commands).<br>
-
-### Build commands
-
-The very basic command to build the BookingApp project is as follows (replace `<MVN>` with a command depending on whether [Maven](#build-with-maven) or [Maven Wrapper](#build-with-maven-wrapper) is used):
+Place yourself into the project root directory and open a Command Prompt. The very basic command to build the BookingApp project is as follows:
 ```
 <MVN> -f booking-aggregator/pom.xml clean install
 ```
@@ -285,11 +276,11 @@ Additionally, all unit, integration and end-to-end tests will be performed with 
 
 Alternative builds can be run by adding one or more profiles at the end of the previous command:
 
-- `-Pjacoco` add test coverage. BookingApp project already provides test coverage results on [Coveralls](https://coveralls.io/github/marcopaglio/BookingApp?branch=main), but you can see them yourself once the execution finishes at `/booking-report/target/site/jacoco-aggregate/index.html`.
+- `-Pjacoco` adds test coverage. BookingApp project already provides test coverage results on [Coveralls](https://coveralls.io/github/marcopaglio/BookingApp?branch=main), but you can see them yourself once the execution finishes at `/booking-report/target/site/jacoco-aggregate/index.html`.
   
-- `-Ppitest` add mutation testing. BookingApp project already provides mutation testing results on the [website](https://marcopaglio.github.io/BookingApp/pit-reports/index.html), but you can see them yourself once the execution finishes at `/booking-report/target/pit-reports/index.html`.
+- `-Ppitest` adds mutation testing. BookingApp project already provides mutation testing results on the [website](https://marcopaglio.github.io/BookingApp/pit-reports/index.html), but you can see them yourself once the execution finishes at `/booking-report/target/pit-reports/index.html`.
   
-- `-Pdocker` dockerize the application. The Docker image created is named `booking-app` and it is checked with both MongoDB and PostgreSQL.
+- `-Pdocker` dockerizes the application. The Docker image created is named `booking-app` and it is checked with both MongoDB and PostgreSQL.
 
   > :alarm_clock: **N.B**: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
 
@@ -299,24 +290,25 @@ You can also build the BookingApp project using launch files from Eclipse. They 
 
 Launch file naming convention consists of a radix that is the module name (`booking-aggregate`, `booking-domain-module`, `booking-business-module` or `booking-ui-module`), and a suffix that indicates what the build does in particular:
 
-- `-install` runs all tests and installs dependencies locally for each module.
-- `-verify` runs all tests.
-- `-test-without-docker` only runs tests that don't require the use of Docker.
-- `-junit-report` runs all tests and generates unit test results at `/target/site/surefire-report.html` and integration and end-to-end test results at `/target/site/failsafe-report.html`.
-- `-jacoco` does the same thing as `-Pjacoco`. If launched on a sub-module, test coverage results can be found at `/target/site/jacoco/index.html`.
-- `-pitest` does the same thing as `-Ppitest`. If launched in a sub-module, mutation testing results can be found at `/target/pit-reports/index.html`.
-- `-pages` generates a static website for the BookingApp project at `/target/staging/index.html`.
-- `-docker`
-- `-reset-dependencies` removes the project dependencies from the local repository. It is useful when you have to remove unused or conflicting dependencies.
-- `-docs` generates the documentation for source code and its javadoc
-- `-wrapper`
+| Suffix | What it does |
+| ------ | ------------ |
+| `-install` | Runs all tests and installs dependencies locally for each module. |
+| `-verify` | Runs all tests. |
+| `-test-without-docker` | Only runs tests that don't require the use of Docker. |
+| `-junit-report` | Runs all tests and generates unit test results at `/target/site/surefire-report.html` and integration and end-to-end test results at `/target/site/failsafe-report.html`. |
+| `-jacoco` | Does the same thing as `-Pjacoco` of [Build commands](#build-commands). If launched on a sub-module, test coverage results can be found at `/target/site/jacoco/index.html`. |
+| `-pitest` | Does the same thing as `-Ppitest` of [Build commands](#build-commands). If launched in a sub-module, mutation testing results can be found at `/target/pit-reports/index.html`. |
+| `-pages` | Generates a static website for the BookingApp project that can be visited from `/target/staging/index.html`. |
+| `-docker` | Does the same thing as `-Pdocker` of [Build commands](#build-commands). |
+| `-docs` | Generates a jar archive for source code and another for its javadoc in the `/target/` directory. |
+| `-reset-dependencies` | Removes the project dependencies from the local repository. It is useful when you have to remove unused or conflicting dependencies. |
 
 #### Run tests from Eclipse
 
 In the BookingApp project three modules contain tests:
 
-- `booking-domain-module` contains only unit tests;
-- `booking-business-module` contains unit and integration tests
+- `booking-domain-module` contains only unit tests.
+- `booking-business-module` contains unit and integration tests.
 - `booking-ui-module` contains both unit, integration and end-to-end tests.
 
 You can run them directly from Eclipse: right click on the module > **Run As** > **JUnit Test**. This will execute all the tests of that module.<br>
