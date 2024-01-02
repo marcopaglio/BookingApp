@@ -1,6 +1,25 @@
 
 # BookingApp
 
+## Table of Contents
+
+- [Introduction](#introduction) 
+- [Before you start](#before-you-start)
+  - [Is your machine compatible?](#is-your-machine-compatible)
+  - [Running on Virtual Machine](#running-on-virtual-machine)
+  - [What else?](#what-else)
+- [Clone the BookingApp project](#clone-the-bookingapp-project)
+  - [Import to Eclipse](#import-to-eclipse)
+- [Build the BookingApp project](#build-the-bookingapp-project)
+  - [Build from Command Line](#build-from-command-line)
+  - [Build from Eclipse](#build-from-eclipse)
+- [Run the BookingApp application](#run-the-bookingapp-application)
+  - [Run through jar](#run-through-jar)
+  - [Run through Docker](#run-through-docker)
+- [Setup X server environment for Docker](#setup-x-server-environment-for-docker)
+
+## Introduction
+
 BookingApp is a simple desktop application for managing reservations developed with TDD, build automation and continuous integration practices. Once the application is launched, you can add your clients and their reservations via a GUI. Informations are stored in a database server running as a Docker container. BookingApp is compatible with both MongoDB and PostgreSQL DBMSs.<br>
 <p align="center">
   <img src="/../screenshots/screenshot-bookingapp-gui.png" alt="Screenshot of the simple BookingApp GUI." title="BookingApp GUI" width="80%"/>
@@ -215,7 +234,7 @@ The installation guide depending on your operating system.
 
 ##### Linux (Ubuntu)
 
-You can find the latest and stable version of Eclipse IDE directly from [Snapcraft](https://snapcraft.io/eclipse). You can install it by clicking on **Install** > **View in Desktop Store** > **Open Link** > **Ubuntu Software** > **Install**, or by using the command line `sudo snap install eclipse --classic`.<br>
+You can find the latest and stable version of Eclipse IDE directly from [Snapcraft](https://snapcraft.io/eclipse). Install it by clicking on **Install** > **View in Desktop Store** > **Open Link** > **Ubuntu Software** > **Install**, or by using the command line `sudo snap install eclipse --classic`.<br>
 
 Once the installation is finished, you can find Eclipse among your applications.
 
@@ -248,7 +267,7 @@ Opening files which define DTD or XSD schemas, like in `pom.xml` and `persistenc
 
 ## Build the BookingApp project
 
-When you build the BookingApp project is necessary to have DBMSs' Docker image locally, otherwise they will be pulled during the build execution causing a possible timeout failure. In order to avoid this, before the very first build run the following commands on the terminal:
+When you build the BookingApp project is necessary to have DBMSs' Docker image locally, otherwise they will be downloaded during the build execution causing a possible timeout failure. In order to avoid this, before the very first build run the following commands on the terminal:
 ```
 docker pull mongo:6.0.7
 docker pull postgres:15.3
@@ -258,12 +277,12 @@ docker pull postgres:15.3
 
 ### Build from Command Line
 
-You can build the BookingApp project from the command line with Maven or Maven Wrapper. In the next [Build commands](#build-commands) section, replace the placeholder `<MVN>` with the right script command, depending on what you choose:
+You can build the BookingApp project from the command line with Maven or Maven Wrapper. In next [build commands](#build-commands) replace the placeholder `<MVN>` with the right script command, depending on what you choose:
 
-- with Maven, use `mvn`.
-- with Maven Wrapper, use `./mvnw` if you are using **Unix systems** (e.g: Linux, MacOS, etc.), or `mvnw.cmd` if you are using **Windows** as OS of your machine.
+- with Maven use `mvn`.
+- with Maven Wrapper use `./mvnw` for **Unix systems** (e.g: Linux, MacOS, etc.), or `mvnw.cmd` for **Windows**.
 
-> :information_source: **InfoPoint**: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended. If you prefer using Maven directly, make sure to install Maven yourself, and preferably with the same version used for the BookingApp project, otherwise build might fails.
+> :information_source: **InfoPoint**: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended. If you prefer using Maven directly, make sure to install Maven yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6, otherwise build might fails.
 
 #### Build commands
 
@@ -296,10 +315,10 @@ Launch file naming convention consists of a radix that is the module name (`book
 | `-verify` | Runs all tests. |
 | `-test-without-docker` | Only runs tests that don't require the use of Docker. |
 | `-junit-report` | Runs all tests and generates unit test results at `/target/site/surefire-report.html` and integration and end-to-end test results at `/target/site/failsafe-report.html`. |
-| `-jacoco` | Does the same thing as `-Pjacoco` of [Build commands](#build-commands). If launched on a sub-module, test coverage results can be found at `/target/site/jacoco/index.html`. |
-| `-pitest` | Does the same thing as `-Ppitest` of [Build commands](#build-commands). If launched in a sub-module, mutation testing results can be found at `/target/pit-reports/index.html`. |
+| `-jacoco` | Does the same thing as `-Pjacoco` of [Build commands](#build-commands) section. If launched on a sub-module, test coverage results can be found at `/target/site/jacoco/index.html`. |
+| `-pitest` | Does the same thing as `-Ppitest` of [Build commands](#build-commands) section. If launched in a sub-module, mutation testing results can be found at `/target/pit-reports/index.html`. |
 | `-pages` | Generates a static website for the BookingApp project that can be visited from `/target/staging/index.html`. |
-| `-docker` | Does the same thing as `-Pdocker` of [Build commands](#build-commands). |
+| `-docker` | Does the same thing as `-Pdocker` of [Build commands](#build-commands) section. |
 | `-docs` | Generates a jar archive for source code and another for its javadoc in the `/target/` directory. |
 | `-reset-dependencies` | Removes the project dependencies from the local repository. It is useful when you have to remove unused or conflicting dependencies. |
 
