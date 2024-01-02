@@ -238,6 +238,42 @@ You can find the latest and stable version of Eclipse IDE directly from [Snapcra
 
 Once the installation is finished, you can find Eclipse among your applications.
 
+#### 5. Install Maven
+
+The installation guide depending on your operating system.
+
+##### Linux (Ubuntu)
+
+To install Maven on the Linux operating system, we download the wanted version from the [Apache Maven site](https://maven.apache.org/download.cgi) and select the Maven binary tar.gz file, for example, `apache-maven-3.8.6-bin.tar.gz`.<br>
+Then, open a terminal in the folder where the binary has been downloaded and extract the archive in any directory (e.g: `/opt/`):
+```
+sudo tar -xvf apache-maven-3.8.6-bin.tar.gz -C /opt/
+```
+Now, we have to add the `bin` directory of the extracted archive (e.g: `/opt/apache-maven-3.8.6/bin`) to the PATH environment variable. To make the change permanent, you need to define the `$PATH` variable in the shell configuration file (e.g: `.bashrc`). Edit it using the below command:
+```
+nano ~/.bashrc
+```
+Next, let’s add Maven-specific lines to the file:
+```
+export M2_HOME=/opt/apache-maven-3.8.6
+export M2=$M2_HOME/bin
+export PATH=$M2:$PATH
+```
+Once we save the file, we can reload the environment configuration without restarting:
+```
+source ~/.bashrc
+```
+Finally, we can verify if Maven has been added:
+```
+mvn -version
+```
+The output should be similar to the below:
+```
+Apache Maven 3.8.6 (81a9f75f19aa7275152c262bcea1a77223b93445)
+Maven home: /opt/apache-maven-3.8.6
+Java version: 11.0.2, vendor: Oracle Corporation, runtime: /usr/lib/jvm/java-11-open-jdk-amd64
+```
+
 **END: CHECK IF TO MANTAIN** :arrow_up:
 
 ## Clone the BookingApp project
