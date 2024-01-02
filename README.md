@@ -257,6 +257,8 @@ docker pull postgres:15.3
 
 > :alarm_clock: **N.B**: On Linux and MacOS you have to precede Docker commands with `sudo`. You may not use it if you add your user to the Docker group. See the section on [Install Docker Engine and Docker Compose](#3-install-docker-engine-and-docker-compose) for more details.
 
+### Build from Command Line
+
 After that, place yourself into the project root directory, where the Maven Wrapper files (`mvnw`, `mvnw.cmd`, etc.) are stored, open a Command Prompt, and choose whether to build the BookingApp project with [Maven](#build-with-maven) or [Maven Wrapper](#build-with-maven-wrapper).
 
 > :information_source: **InfoPoint**: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended. If you prefer using Maven directly, make sure to install Maven yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6, otherwise build might fails.
@@ -271,10 +273,6 @@ If you decide to use Maven Wrapper, in the next [build commands](#build-commands
 #### Build with Maven
 
 If you take the time to install Maven, then replace the placeholder `<MVN>` with `mvn` in the next [build commands](#build-commands).<br>
-
-In this case, you can also build the BookingApp project using launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the `.launch` file > select **Run As** > click on the same name Maven configuration to start the build. Remember that launch files in `booking-aggregate` execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
-
-> **TODO**: se non si vede niente dopo Run As che vuol dire? Si collega con gli schemas DTD o con assenza di Maven o altro?
 
 ### Build commands
 
@@ -295,19 +293,42 @@ Alternative builds can be run by adding one or more profiles at the end of the p
 
   > :alarm_clock: **N.B**: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
 
-### Run tests from Eclipse
+### Build from Eclipse
 
-In the BookingApp project there are three modules that contain tests: `booking-domain-module`, `booking-business-module` and `booking-ui-module`. You can run them directly from Eclipse: right click on the module > **Run As** > **JUnit Test**. This will execute all the tests of that module.<br>
+You can also build the BookingApp project using launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the `.launch` file > select **Run As** > click on the same name Maven configuration to start the build. Remember that launch files in `booking-aggregate` execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.<br>
+
+Launch file naming convention consists of a radix that is the module name (`booking-aggregate`, `booking-domain-module`, `booking-business-module` or `booking-ui-module`), and a suffix that indicates what the build does in particular:
+
+- `-install` runs all tests and installs dependencies locally for each module.
+- `-verify` runs all tests.
+- `-test-without-docker` only runs tests that don't require the use of Docker.
+- `-junit-report` runs all tests and generates unit test results at `/target/site/surefire-report.html` and integration and end-to-end test results at `/target/site/failsafe-report.html`.
+- `-jacoco` does the same thing as `-Pjacoco`. If launched on a sub-module, test coverage results can be found at `/target/site/jacoco/index.html`.
+- `-pitest` does the same thing as `-Ppitest`. If launched in a sub-module, mutation testing results can be found at `/target/pit-reports/index.html`.
+- `-pages` generates a static website for the BookingApp project at `/target/staging/index.html`.
+- `-docker`
+- `-reset-dependencies` removes the project dependencies from the local repository. It is useful when you have to remove unused or conflicting dependencies.
+- `-docs` generates the documentation for source code and its javadoc
+- `-wrapper`
+
+#### Run tests from Eclipse
+
+In the BookingApp project three modules contain tests:
+
+- `booking-domain-module` contains only unit tests;
+- `booking-business-module` contains unit and integration tests
+- `booking-ui-module` contains both unit, integration and end-to-end tests.
+
+You can run them directly from Eclipse: right click on the module > **Run As** > **JUnit Test**. This will execute all the tests of that module.<br>
 
 Before running tests from Eclipse, make sure Docker is turned on and working properly. Then, unit tests doesn't require any additional setting, since they are run with TestContainers; instead, integration and end-to-end tests need a well-configured running instance of MongoDB and once of PostgreSQL. You can start such instances in Docker containers through Docker Compose commands as follows:
 ```
 docker compose -f docker-compose/MongoDB/docker-compose.yml up
 docker compose -f docker-compose/PostgreSQL/docker-compose.yml up
 ```
-**TODO:** docker compose comando cambia da sistema operativo?
+**TODO:** docker compose comando cambia da sistema operativo?<br>
 
-> :information_source: **InfoPoint**: As you can see, there is another folder inside the `docker-compose` directory. It also contains a compose file which starts a SonarQube instance in a Docker container. This can be used in conjuction with the `-Psonar` profile (not previously mentioned) to measure the code quality locally.<br>
-> Finally, in each compose file there is a short description of what it does and and what else can be done.
+> :information_source: **InfoPoint**: As you can see, there is another folder inside the `docker-compose` directory. It also contains a compose file which starts a SonarQube instance in a Docker container. This can be used in conjuction with the `-Psonar` profile (not previously mentioned) to measure the code quality locally. For more details, read the description in compose files.
 
 ## Run the BookingApp application
 
