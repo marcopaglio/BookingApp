@@ -4,19 +4,21 @@
 ## Table of Contents
 
 - [Introduction](#introduction) 
-- [Before you start](#before-you-start)
-  - [Is your machine compatible?](#is-your-machine-compatible)
-  - [Programs to install](#programs-to-install)
-  - [Running on Virtual Machine](#running-on-virtual-machine)
-- [Clone the BookingApp project](#clone-the-bookingapp-project)
-  - [Import to Eclipse](#import-to-eclipse)
-- [Build the BookingApp project](#build-the-bookingapp-project)
-  - [Build from Command Line](#build-from-command-line)
-  - [Build from Eclipse](#build-from-eclipse)
-- [Run the BookingApp application](#run-the-bookingapp-application)
-  - [Run through jar](#run-through-jar)
-  - [Run through Docker](#run-through-docker)
-- [Setup X server environment for Docker](#setup-x-server-environment-for-docker)
+- [Before you Start](#before-you-start)
+  + [Is your Machine Compatible?](#is-your-machine-compatible)
+  + [Programs to Install](#programs-to-install)
+  + [Running on Virtual Machine](#running-on-virtual-machine)
+- [Clone the BookingApp Project](#clone-the-bookingapp-project)
+  + [Import to Eclipse](#import-to-eclipse)
+- [Build the BookingApp Project](#build-the-bookingapp-project)
+  + [Build from Command Line](#build-from-command-line)
+  + [Build from Eclipse](#build-from-eclipse)
+- [Run the BookingApp Application](#run-the-bookingapp-application)
+  + [Run through Jar](#run-through-jar)
+  + [Run through Docker](#run-through-docker)
+- [Setup X Server Environment for Docker](#setup-x-server-environment-for-docker)
+  + [Linux](#linux)
+  + [Windows](#windows-1)
 
 ## Introduction
 
@@ -52,7 +54,7 @@ On Coveralls are published the history and statistics of BookingApp test code co
 
 ## Before you start
 
-### Is your machine compatible?
+### Is your Machine Compatible?
 
 If you just launch the BookingApp application with PostgreSQL as DBMS there are no *known* machine requirements.<br>
 
@@ -76,7 +78,7 @@ bcdedit /set xsavedisable 0
 ```
 If you see a confirmation message then your cores have AVX support.
 
-### Programs to install
+### Programs to Install
 
 To [run the BookingApp application](#run-through-jar), *at least* the following programs must be installed on your computer:
 
@@ -116,51 +118,49 @@ If everything went right, your VM should now support AVX/AVX2 instructions as we
 
 > :warning: **Attention**: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
 
-## Clone the BookingApp project
+## Clone the BookingApp Project
 
-For cloning the BookingApp project you have to use the Git command line. Choose any folder and run on the terminal:
+Use the Git command line to clone the BookingApp project. Choose any folder and run on the terminal:
 ```
 git clone https://github.com/marcopaglio/BookingApp.git
 ```
-A copy of the BookingApp project will be downloaded in the chosen directory.
+A copy of the BookingApp project will be downloaded.
 
-> :information_source: **InfoPoint**: In the chosen folder will appear a directory named `BookingApp`. This is the *project root directory*.
+> :information_source: **InfoPoint**: In the chosen folder will appear a directory named `BookingApp/`. This is the *project root directory*.
 
 ### Import to Eclipse
 
-> :information_source: **InfoPoint**: Following steps have been defined using EclipseIDE 2022-12 and 2023-09. Different versions may involve slightly different steps.
+> :alarm_clock: **N.B**: Following steps have been defined using EclipseIDE 2022-12 and 2023-09. Different versions may involve slightly different steps.
 
 Once cloned via Git command line, you can import the BookingApp project to Eclipse:
 
-1. Once installed, open Eclipse and choose any workspace location.
+1. Open Eclipse and choose any workspace location.
 2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the project root directory > **Open** > make sure of selecting the `Search for nested projects` option > from the Folder list import all subfolders but not the root folder `BookingApp` > **Finish**.
-   
-> :alarm_clock: **N.B**: Just imported on Eclipse, there may be appeared some dependencies errors on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
+3. Just imported on Eclipse, there may be appeared some dependencies errors on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
 
-#### Eclipse settings
+#### Eclipse Settings
 
 Opening files which define DTD or XSD schemas, like in `pom.xml` and `persistence.xml` of the BookingApp project, requires those schemas to be downloaded and stored locally; for example, on Linux they are found in the `.lemminx` folder. If you find the error message `Downloading external resources is disabled` coming from these files, you can fix that by modifying Eclipse settings: **Window** > **Preferences** > **XML (Wild Web Developer)** > tick `Download external resources like referenced DTD, XSD` > **Apply** > **Apply and Close**.
 
-## Build the BookingApp project
+## Build the BookingApp Project
 
-When you build the BookingApp project is necessary to have DBMSs' Docker image locally, otherwise they will be downloaded during the build execution causing a possible timeout failure. In order to avoid this, before the very first build run the following commands on the terminal:
+When you build the BookingApp project is necessary to have DBMSs' Docker image locally, otherwise they will be downloaded during the build execution causing a possible timeout failure. In order to avoid this, before the very first build, run the following commands on the terminal:
 ```
 docker pull mongo:6.0.7
 docker pull postgres:15.3
 ```
 
-> :alarm_clock: **N.B**: On Linux and MacOS you have to precede Docker commands with `sudo`. You may not use it if you add your user to the Docker group. See the section on [Install Docker Engine and Docker Compose](#3-install-docker-engine-and-docker-compose) for more details.
+> :alarm_clock: **N.B**: On Linux and MacOS you have to precede Docker commands with `sudo`. You may not use it if you add your user to the Docker group. See the [Docker Installation Guide](https://github.com/marcopaglio/installation-guides/tree/docker#installation-guide) for more details.
 
 ### Build from Command Line
 
 You can build the BookingApp project from the command line with Maven or Maven Wrapper. In next [build commands](#build-commands) replace the placeholder `<MVN>` with the right script command, depending on what you choose:
-
 - with Maven use `mvn`.
 - with Maven Wrapper use `./mvnw` for **Unix systems** (e.g: Linux, MacOS, etc.), or `mvnw.cmd` for **Windows**.
 
-> :information_source: **InfoPoint**: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended. If you prefer using Maven directly, make sure to install Maven yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6, otherwise build might fails.
+> :information_source: **InfoPoint**: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended. If you prefer using Maven directly, make sure to [install Maven](https://github.com/marcopaglio/installation-guides/tree/maven#installation-guide) yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6, otherwise build might fails.
 
-#### Build commands
+#### Build Commands
 
 Place yourself into the project root directory and open a Command Prompt. The very basic command to build the BookingApp project is as follows:
 ```
@@ -169,7 +169,7 @@ Place yourself into the project root directory and open a Command Prompt. The ve
 Its execution will remove unnecessary files generated in previous builds and install dependencies locally for each module. In this way, you can then build each sub-module indipendently, just change `booking-aggregator` with one between `booking-domain-module`, `booking-business-module` and `booking-ui-module` in the previous command.<br>
 Additionally, all unit, integration and end-to-end tests will be performed with Maven. If the command is executed for a sub-module, tests will be executed only for the specific module.<br>
 
-Alternative builds can be run by adding one or more profiles at the end of the previous command:
+Alternative builds can be run by adding one or more *profiles* at the end of the previous command:
 
 - `-Pjacoco` adds test coverage. BookingApp project already provides test coverage results on [Coveralls](https://coveralls.io/github/marcopaglio/BookingApp?branch=main), but you can see them yourself once the execution finishes at `/booking-report/target/site/jacoco-aggregate/index.html`.
   
@@ -177,13 +177,12 @@ Alternative builds can be run by adding one or more profiles at the end of the p
   
 - `-Pdocker` dockerizes the application. The Docker image created is named `booking-app` and it is checked with both MongoDB and PostgreSQL.
 
-  > :alarm_clock: **N.B**: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
+  > :alarm_clock: **N.B**: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you [setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
 
 ### Build from Eclipse
 
-You can also build the BookingApp project using launch files from Eclipse. They are located inside `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` into `launches` folders. Just right click on the `.launch` file > select **Run As** > click on the same name Maven configuration to start the build. Remember that launch files in `booking-aggregate` execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.<br>
-
-Launch file naming convention consists of a radix that is the module name (`booking-aggregate`, `booking-domain-module`, `booking-business-module` or `booking-ui-module`), and a suffix that indicates what the build does in particular:
+You can also build the BookingApp project using launch files from Eclipse. They are located into `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` inside `launches` folders. Just right click on the `.launch` file > select **Run As** > click on the same name Maven configuration to start the build.<br>
+Launch file naming convention consists of a radix that is the module name, and a suffix that indicates what the build does in particular:
 
 | Suffix | What it does |
 | ------ | ------------ |
@@ -198,7 +197,9 @@ Launch file naming convention consists of a radix that is the module name (`book
 | `-docs` | Generates a jar archive for source code and another for its javadoc in the `/target/` directory. |
 | `-reset-dependencies` | Removes the project dependencies from the local repository. It is useful when you have to remove unused or conflicting dependencies. |
 
-#### Run tests from Eclipse
+Remember that launch files in `booking-aggregate` execute on the whole project, while the others execute on the single module, so they need to have dependencies installed before starting.
+
+#### Run Tests from Eclipse
 
 In the BookingApp project three modules contain tests:
 
@@ -217,12 +218,12 @@ docker compose -f docker-compose/PostgreSQL/docker-compose.yml up
 
 > :information_source: **InfoPoint**: As you can see, there is another folder inside the `docker-compose` directory. It also contains a compose file which starts a SonarQube instance in a Docker container. This can be used in conjuction with the `-Psonar` profile (not previously mentioned) to measure the code quality locally. For more details, read the description in compose files.
 
-## Run the BookingApp application
+## Run the BookingApp Application
 
 You can run the BookingApp application through its jar file or using its Docker image.<br>
 Remember that the BookingApp application is compatible with both MongoDB and PostgreSQL, so you also need to decide which of them to launch the application with.
 
-### Run through jar
+### Run through Jar
 
 > :information_source: **InfoPoint**: You can obtain a FatJar of the BookingApp application in two ways: from the build of the BookingApp project or directly by downloading it from the release on GitHub (**LINK HERE**).
 
@@ -230,7 +231,7 @@ If you decide to run the BookingApp application through its jar file, you need a
 
 #### MongoDB
 
-The MongoDB instance has to be *part of a replica set* (or cluster, let's call it `rs0`). You can start it by running a Docker container with the following command:
+The MongoDB instance has to be *part of a replica set*, let's call it `rs0`. You can start it by running a Docker container with the following command:
 ```
 docker run -d --name booking-mongo-set -p 27017:27017 mongo:6.0.7 mongod --replSet rs0
 ```
@@ -265,7 +266,7 @@ java -jar booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=POSTGRES -
 
 ### Run through Docker
 
-> InfoPoint :information_source:: You can obtain a Docker image of the BookingApp application by building the BookingApp project with the `-Pdocker` profile. Remember to [Setup X server environment for Docker](#setup-x-server-environment-for-docker) before using this mode.
+> InfoPoint :information_source:: You can obtain a Docker image of the BookingApp application by building the BookingApp project with the `-Pdocker` profile. Remember to [setup X server environment for Docker](#setup-x-server-environment-for-docker) before using this mode.
 
 If you decide to run the BookingApp application through its Docker image, place yourself into the project root directory and open a Command Prompt. You can launch the BookingApp application and also a well-configured instance of the chosen DBMS (MongoDB or PostgreSQL) simply with the following Docker Compose command:
 ```
@@ -275,13 +276,12 @@ If your choice is **MongoDB**, replace `<COMPOSE_FILE>` with `docker-compose-mon
 
 > :alarm_clock: **N.B**: Are you using Windows with WSLg? The all-in-one command becomes: `docker compose -f <COMPOSE_FILE> -f docker-compose-wslg.yml up`.
 
-## Setup X server environment for Docker
+## Setup X Server Environment for Docker
 
 Desktop GUI applications need a graphical environment for working propertly. Since BookingApp uses the standard *Java GUI Swing*, it also requires an X display server. Depending on the OS, the X server environment may or may not be native.<br>
+The X server must therefore be shared with Docker in order to pass access controls. After that, you will be able to open the BookingApp application inside a Docker container, as required with `-Pdocker` or when running the BookingApp application with Docker Compose commands.
 
-The X server must therefore be shared with Docker in order to pass access controls. After that, you will be able to open the BookingApp application inside a Docker container, as required in the `-Pdocker` profile or with Docker Compose commands.
-
-#### Linux
+### Linux
 
 Linux already has an X server environment, thus the only thing to do is to share it with Docker. The simplest way is to disable the access control to the X server for the Docker network:
 
@@ -293,7 +293,7 @@ Now Docker containers can use the X server.
 
 > :warning: **Attention**: Disabling access control is not a secure choice and you should rely on an authentication method, like *xauth*. For this reason, when you finish with Docker, it is highly recommanded to remove its access to the X display server by running `xhost -local:<DOCKER_NET>` e.g: `xhost -local:docker0`.
 
-#### Windows
+### Windows
 
 Windows has not a default X server environment, but it can use the one provided by *Windows Subsystem for Linux GUI*. **WSL** is necessary to run Docker in Linux containers and is compatible with Windows 10 (Build 19041 or later) and 11.<br>
 
