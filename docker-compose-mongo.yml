@@ -12,7 +12,7 @@ services:
     - HOST=mongodb
     - PORT=27017
     - DB_NAME=BookingApp_db
-    - DISPLAY=:0.0
+    - DISPLAY=$DISPLAY
     networks: 
     - booking-network
     volumes:

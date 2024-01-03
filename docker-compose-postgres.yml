@@ -14,7 +14,7 @@ services:
     - DB_NAME=BookingApp_db
     - USER=postgres-user
     - PSWD=postgres-pswd
-    - DISPLAY=:0.0
+    - DISPLAY=$DISPLAY
     networks: 
     - booking-network
     volumes:
