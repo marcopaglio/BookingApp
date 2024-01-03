@@ -6,7 +6,7 @@
 - [Introduction](#introduction) 
 - [Before you start](#before-you-start)
   - [Is your machine compatible?](#is-your-machine-compatible)
-  - [Install these programs](#install-these-programs)
+  - [Programs to install](#programs-to-install)
   - [Running on Virtual Machine](#running-on-virtual-machine)
 - [Clone the BookingApp project](#clone-the-bookingapp-project)
   - [Import to Eclipse](#import-to-eclipse)
