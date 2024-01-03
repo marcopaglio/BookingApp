@@ -6,8 +6,8 @@
 - [Introduction](#introduction) 
 - [Before you start](#before-you-start)
   - [Is your machine compatible?](#is-your-machine-compatible)
+  - [Install these programs](#install-these-programs)
   - [Running on Virtual Machine](#running-on-virtual-machine)
-  - [What else?](#what-else)
 - [Clone the BookingApp project](#clone-the-bookingapp-project)
   - [Import to Eclipse](#import-to-eclipse)
 - [Build the BookingApp project](#build-the-bookingapp-project)
@@ -76,46 +76,22 @@ bcdedit /set xsavedisable 0
 ```
 If you see a confirmation message then your cores have AVX support.
 
-### Running on Virtual Machine
+### Programs to install
 
-It is possible to clone and run BookingApp on a OS installed on a Virtual Machine (VM) program (e.g. VirtualBox, VMware Workstations, etc.), but it may not work due to lack of support for AVX/AVX2 instructions, even if your host machine's CPU supports them. 
-
-#### Hosted by Windows 11
-
-On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to virtualization problems. In this case it's necessary to:
-- *disable the hypervisor launch which is enabled by default*.
-  
-  First of all, check if the hypervisor is executing: press together **WIN + R** > enter **msinfo32** > in the **System Summary** window you should find the following entry (otherwise skip over to the next point): `A hypervisor was detected. The features required for Hyper-V will not be displayed`. In this case, open a Command Prompt as Administrator and run `bcdedit /set hypervisorlaunchtype off`. Then restart your machine for applying changes.<br>
-  
-  When you need to undo the changes, open a Command Prompt as Administrator and run `bcdedit /set hypervisorlaunchtype auto`. Then restart your machine for applying changes.
-  
-- *disable Windows security Memory Integrity*.
-
-  > :warning: **Attention**: This is a very bad thing to do because the Memory integrity feature is stated to *prevent injection attacks into virtualization-based security processes*. Unfortunately, this is require in order to enable AVX/AVX2 instructions in VMs.
-  
-  You can find it on **Settings** > **Windows Security** > **Device security** > **Core isolation details** > **Memory integrity**. As soon as turned this feature off, restart your machine to allow Windows to apply the change.  
-
-If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM. If you're using VirtualBox you can make this check earlier by looking at the below right side of your running VM: there must be an icon like ![a chip with a V letter inside](/../screenshots/screenshot-chip-icon.png?raw=true "V chip icon"). Instead, if you see an icon like ![a turtle with a V letter inside](/../screenshots/screenshot-turtle-icon.png?raw=true "V turtle icon"), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
-
-> :warning: **Attention**: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
-
-### What else?
-
-To [Run the BookingApp application through its jar file](#run-through-jar), at least the following programs must be installed on your computer:
+To [run the BookingApp application](#run-through-jar), *at least* the following programs must be installed on your computer:
 
 - Java Runtime Environment (JRE) 11 (or greater)
 - Docker Engine
 
-To [Run the BookingApp application through Docker](#run-through-docker) or to [replicate builds, tests and so on](#build-the-bookingapp-project), the BookingApp project *also* requires the following programs installed on your computer:
+To [replicate builds, tests and so on](#build-the-bookingapp-project), the BookingApp project *also* requires:
 
 - Java Development Kit (JDK) 11 (or greater). 
 - Git
 - Docker Compose
 
+You can also build the BookingApp project with Maven. In this case the installation of Maven is mandatory, possibly with the version 3.8.6.<br>
+
 If you want to use an IDE, the BookingApp project was developed using Eclipse, so it is recommended.
-
-- Maven 3.8.6
-
 
 **START: CHECK IF TO MANTAIN** :arrow_down:
 #### 1. Install Java SDK (and JRE) 11
@@ -126,7 +102,7 @@ The installation guide depending on your operating system.
 
 ###### JRE
 
-First of all, check if JRE is already installed, running the following commands on terminal:
+First of all check if JRE is already installed by running the following commands on terminal:
 ```
 java -version
 ```
@@ -144,7 +120,7 @@ Now if you run `java --version` you obtain the desired output.
 
 ###### JDK
 
-First of all, check if JDK is already installed, running the following commands on terminal:
+First of all check if JDK is already installed by running the following commands on terminal:
 ```
 javac --version
 ```
@@ -244,26 +220,7 @@ The installation guide depending on your operating system.
 
 ##### Linux (Ubuntu)
 
-To install Maven on the Linux operating system, we download the wanted version from the [Apache Maven site](https://maven.apache.org/download.cgi) and select the Maven binary tar.gz file, for example, `apache-maven-3.8.6-bin.tar.gz`.<br>
-Then, open a terminal in the folder where the binary has been downloaded and extract the archive in any directory (e.g: `/opt/`):
-```
-sudo tar -xvf apache-maven-3.8.6-bin.tar.gz -C /opt/
-```
-Now, we have to add the `bin` directory of the extracted archive (e.g: `/opt/apache-maven-3.8.6/bin`) to the PATH environment variable. To make the change permanent, you need to define the `$PATH` variable in the shell configuration file (e.g: `.bashrc`). Edit it using the below command:
-```
-nano ~/.bashrc
-```
-Next, let’s add Maven-specific lines to the file:
-```
-export M2_HOME=/opt/apache-maven-3.8.6
-export M2=$M2_HOME/bin
-export PATH=$M2:$PATH
-```
-Once we save the file, we can reload the environment configuration without restarting:
-```
-source ~/.bashrc
-```
-Finally, we can verify if Maven has been added:
+First of all check if Maven is already installed by running on the terminal:
 ```
 mvn -version
 ```
@@ -273,8 +230,63 @@ Apache Maven 3.8.6 (81a9f75f19aa7275152c262bcea1a77223b93445)
 Maven home: /opt/apache-maven-3.8.6
 Java version: 11.0.2, vendor: Oracle Corporation, runtime: /usr/lib/jvm/java-11-open-jdk-amd64
 ```
+Otherwise, if something like `Command 'mvn' not found` appears, Maven is not installed yet.<br>
+
+If you have not version requirements you can install Maven by simply running:
+```
+apt install maven -y
+```
+
+Otherwise, choose the desired version from the [Apache Maven repository](https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/) and select the Maven binary tar.gz file (let's call it `<BIN_FILE>` e.g: `apache-maven-3.8.6-bin.tar.gz`) to download it.<br>
+Then, place yourself in the folder where the binary was downloaded, open a terminal and extract the archive in any directory (`/usr/local/` or `/opt/` are often used, let's call it `<MVN_DIR>`):
+```
+tar -xvf `<BIN_FILE>` -C <MVN_DIR>
+```
+If the destination directory doesn't exist (e.g. `/usr/local/apache-maven`), create it by running `mkdir -p <MVN_DIR>` before the extraction.<br>
+
+Now add the `bin` directory of the extracted archive (e.g. `/usr/local/apache-maven/apache-maven-3.8.6/bin`) to the PATH environment variable. To make the change permanent, define the `$PATH` variable in the shell configuration file `.bashrc`:
+```
+nano ~/.bashrc
+```
+Edit it by adding Maven-specific lines at the beginning of the file:
+```
+export M2_HOME=<MVN_DIR>
+export M2=$M2_HOME/bin
+export MAVEN_OPTS="-Xms256m -Xmx512m"
+export PATH=$M2:$PATH
+```
+Once saved, we can reload the environment configuration without restarting:
+```
+source ~/.bashrc
+```
+Finally, we can verify the PATH environment variable contains `<MVN_DIR>` through `echo $PATH` and if Maven has been added through `mvn -version`.
+
+> :warning: **Attention**: At each execution of `source ~/.bashrc` the PATH variable is updated by adding a redundant `$M2` value. For this reason, once Maven is set, re-open `.bashrc`, delete the added lines and save it.
 
 **END: CHECK IF TO MANTAIN** :arrow_up:
+
+### Running on Virtual Machine
+
+It is possible to clone and run BookingApp on a OS installed on a Virtual Machine (VM) program (e.g. VirtualBox, VMware Workstations, etc.), but it may not work due to lack of support for AVX/AVX2 instructions, even if your host machine's CPU supports them. 
+
+#### Hosted by Windows 11
+
+On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to virtualization problems. In this case it's necessary to:
+- *disable the hypervisor launch which is enabled by default*.
+  
+  First of all, check if the hypervisor is executing: press together **WIN + R** > enter **msinfo32** > in the **System Summary** window you should find the following entry (otherwise skip over to the next point): `A hypervisor was detected. The features required for Hyper-V will not be displayed`. In this case, open a Command Prompt as Administrator and run `bcdedit /set hypervisorlaunchtype off`. Then restart your machine for applying changes.<br>
+  
+  When you need to undo the changes, open a Command Prompt as Administrator and run `bcdedit /set hypervisorlaunchtype auto`. Then restart your machine for applying changes.
+  
+- *disable Windows security Memory Integrity*.
+
+  > :warning: **Attention**: This is a very bad thing to do because the Memory integrity feature is stated to *prevent injection attacks into virtualization-based security processes*. Unfortunately, this is require in order to enable AVX/AVX2 instructions in VMs.
+  
+  You can find it on **Settings** > **Windows Security** > **Device security** > **Core isolation details** > **Memory integrity**. As soon as turned this feature off, restart your machine to allow Windows to apply the change.  
+
+If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM. If you're using *VirtualBox* you can make this check earlier by looking at the below right side of your running VM: there must be an icon like ![a chip with a V letter inside](/../screenshots/screenshot-chip-icon.png?raw=true "V chip icon"). Instead, if you see an icon like ![a turtle with a V letter inside](/../screenshots/screenshot-turtle-icon.png?raw=true "V turtle icon"), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
+
+> :warning: **Attention**: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
 
 ## Clone the BookingApp project
 
