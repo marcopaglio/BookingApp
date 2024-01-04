@@ -39,9 +39,7 @@ jobs:
       id: maven-build
       # default server number: 99
       # -ac needed for allowing access of Xvfb from docker containers
-      run: |
-        export DISPLAY=:0.0
-        xvfb-run --server-num=0 --server-args="-ac" ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Ppitest -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER -Pdocker
+      run: xvfb-run --server-num=0 --server-args="-ac" ../mvnw install -Pcoveralls $ADDITIONAL_COVERALLS_ARGS -Ppitest -Psonar $ADDITIONAL_SONAR_ARGS -DpullRequest=PR_NUMBER -Pdocker
       working-directory: ${{ env.workdir }}
       env:
         ADDITIONAL_COVERALLS_ARGS: -DrepoToken=${{ secrets.COVERALLS_TOKEN }}
