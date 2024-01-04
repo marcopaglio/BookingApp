@@ -301,4 +301,10 @@ To use WSLg, just install the last version of WSL from the [Microsoft Store](htt
   
 > :alarm_clock: **N.B**: If Docker is open you may need to restart it after WSL update.
 
+Next, open a Command Prompt and set the `DISPLAY` variable pointing to the display provided by WSLg:
+```
+setx DISPLAY=:0.0
+```
+By default, the `setx` command adds variables as user variable in the local environment. To add `DISPLAY` to the system environment use the `/m` parameter and run the Command Prompt as Administrator.<br>
+
 Once done, Docker can already use the X display server without any changes to access control. However, if you run the BookingApp application through Docker, you need to override some configurations by adding `-f docker-compose-wslg.yml` in the Docker Compose command, just before `up`.
