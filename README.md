@@ -58,7 +58,7 @@ On Coveralls are published the history and statistics of BookingApp test code co
 
 If you just launch the BookingApp application with PostgreSQL as DBMS there are no *known* machine requirements.<br>
 
-Otherwise, the BookingApp project runs a Docker container with MongoDB, the version of which is greater than 5.0 and requires the use of AVX instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System (OS).
+Otherwise, the BookingApp project runs a Docker container with MongoDB, the version of which is greater than 5.0 and requires the use of *Advanced Vector Extensions* (AVX) instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System (OS).
 
 > :alarm_clock: **N.B**: Even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See the section on [Running on Virtual Machine](#running-on-virtual-machine) for fixing this possible problem.
 
