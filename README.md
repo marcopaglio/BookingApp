@@ -303,7 +303,7 @@ To use WSLg, just install the last version of WSL from the [Microsoft Store](htt
 
 Next, open a Command Prompt and set the `DISPLAY` variable pointing to the display provided by WSLg:
 ```
-setx DISPLAY=:0.0
+setx DISPLAY :0.0
 ```
 By default, the `setx` command adds variables as user variable in the local environment. To add `DISPLAY` to the system environment use the `/m` parameter and run the Command Prompt as Administrator.<br>
 
