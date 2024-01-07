@@ -135,7 +135,7 @@ A copy of the BookingApp project will be downloaded.
 Once cloned via Git command line, you can import the BookingApp project to Eclipse:
 
 1. Open Eclipse and choose any workspace location.
-2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the project root directory > **Open** > make sure of selecting the `Search for nested projects` option > from the Folder list import all subfolders but not the root folder `BookingApp` > **Finish**.
+2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the *project root directory* > **Open** > make sure of selecting the `Search for nested projects` option > from the Folder list import all subfolders but not the root folder `BookingApp` > **Finish**.
 3. Just imported on Eclipse, there may be appeared some dependencies errors on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
 
 #### Eclipse Settings
@@ -162,7 +162,7 @@ You can build the BookingApp project from the command line with Maven or Maven W
 
 #### Build Commands
 
-Place yourself into the project root directory and open a Command Prompt. The very basic command to build the BookingApp project is as follows:
+Place yourself into the *project root directory* and open a Command Prompt. The very basic command to build the BookingApp project is as follows:
 ```
 <MVN> -f booking-aggregator/pom.xml clean install
 ```
@@ -268,7 +268,7 @@ java -jar booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=POSTGRES -
 
 > InfoPoint :information_source:: You can obtain a Docker image of the BookingApp application by building the BookingApp project with the `-Pdocker` profile. Remember to [setup X server environment for Docker](#setup-x-server-environment-for-docker) before using this mode.
 
-If you decide to run the BookingApp application through its Docker image, place yourself into the project root directory and open a Command Prompt. You can launch the BookingApp application and also a well-configured instance of the chosen DBMS (MongoDB or PostgreSQL) simply with the following Docker Compose command:
+If you decide to run the BookingApp application through its Docker image, place yourself into the *project root directory* and open a Command Prompt. You can launch the BookingApp application and also a well-configured instance of the chosen DBMS (MongoDB or PostgreSQL) simply with the following Docker Compose command:
 ```
 docker compose -f <COMPOSE_FILE> up
 ```
