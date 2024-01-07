@@ -253,9 +253,9 @@ The placeholder `<YOUR_DB_NAME>` must be replaced with a custom name for your da
 
 You can start the PostgreSQL instance by running a Docker container with the following command:
 ```
-docker run -d --name booking-postgres -p 5432:5432 -e POSTGRES_DB=<YOUR_DB_NAME> -e POSTGRES_USER=<YOUR_USER> -e POSTGRES_PASSWORD=<YOUR_PSDW> postgres:15.3 -N 10
+docker run -d --name booking-postgres -p 5432:5432 -e POSTGRES_USER=<YOUR_USER> -e POSTGRES_PASSWORD=<YOUR_PSDW> -e POSTGRES_DB=<YOUR_DB_NAME> postgres:15.3 -N 10
 ```
-The placeholders `<YOUR_DB_NAME>`, `<YOUR_USER>` and `<YOUR_PSWD>` must be replaced with a custom name and login credentials for your database, respectively. The `-N` parameter, set to `10`, can also be changed: it defines the maximum number of BookingApp instances that can be opened.
+The placeholders `<YOUR_PSWD>`, `<YOUR_USER>` and `<YOUR_DB_NAME>` must be replaced with custom login credentials and a name for your database, respectively. The `-N` parameter, set to `10`, can also be changed: it defines the maximum number of BookingApp instances that can be opened.
 
 > :alarm_clock: **N.B**: Once created, stop the PostgreSQL instance through `docker stop booking-postgres`, and start it again with `docker start booking-postgres`.
 
