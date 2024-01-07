@@ -156,7 +156,7 @@ docker pull postgres:15.3
 
 You can build the BookingApp project from the command line with Maven or Maven Wrapper. In next [build commands](#build-commands) replace the placeholder `<MVN>` with the right script command, depending on what you choose:
 - with Maven use `mvn`.
-- with Maven Wrapper use `./mvnw` for **Unix systems** (e.g: Linux, MacOS, etc.), or `mvnw.cmd` for **Windows**.
+- with Maven Wrapper use `./mvnw` for **Unix systems** (e.g: Linux, MacOS, etc.), or `./mvnw.cmd` for **Windows**.
 
 > :information_source: **InfoPoint**: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended. If you prefer using Maven directly, make sure to [install Maven](https://github.com/marcopaglio/installation-guides/tree/maven#installation-guide) yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6, otherwise build might fails.
 
