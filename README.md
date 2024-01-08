@@ -90,7 +90,7 @@ To [replicate builds, tests and so on](#build-the-bookingapp-project), the Booki
 - [Git](https://github.com/marcopaglio/installation-guides/tree/git#installation-guide)
 - [Docker Compose](https://github.com/marcopaglio/installation-guides/tree/docker#installation-guide)
 
-You can also build the BookingApp project with Maven. In this case the [Maven installation](https://github.com/marcopaglio/installation-guides/tree/maven#installation-guide) is mandatory, possibly with the version 3.8.6.<br>
+You can also build the BookingApp project with Maven from the command line. In this case the [Maven installation](https://github.com/marcopaglio/installation-guides/tree/maven#installation-guide) is mandatory, possibly with the version 3.8.6.<br>
 
 If you want to use an IDE, the BookingApp project was developed using [Eclipse](https://github.com/marcopaglio/installation-guides/tree/eclipse#installation-guide), so it is recommended.
 
