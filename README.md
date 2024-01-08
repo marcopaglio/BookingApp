@@ -213,7 +213,6 @@ Before running tests from Eclipse, make sure Docker is turned on and working pro
 docker compose -f docker-compose/MongoDB/docker-compose.yml up
 docker compose -f docker-compose/PostgreSQL/docker-compose.yml up
 ```
-**TODO:** docker compose comando cambia da sistema operativo?<br>
 
 > :information_source: **InfoPoint**: As you can see, there is another folder inside the `docker-compose` directory. It also contains a compose file which starts a SonarQube instance in a Docker container. This can be used in conjuction with the `-Psonar` profile (not previously mentioned) to measure the code quality locally. For more details, read the description in compose files.
 
