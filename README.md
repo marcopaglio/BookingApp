@@ -134,7 +134,7 @@ A copy of the BookingApp project will be downloaded.
 Once cloned via Git command line, you can import the BookingApp project to Eclipse:
 
 1. Open Eclipse and choose any workspace location.
-2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the *project root directory* > **Open** > make sure of selecting the `Search for nested projects` option > from the Folder list import all subfolders but not the root folder `BookingApp` > **Finish**.
+2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the *project root directory* > make sure of selecting the `Search for nested projects` option > from the Folder list import all subfolders but not the root folder `BookingApp` > **Finish**.
 3. Just imported on Eclipse, there may be appeared some dependencies errors on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
 
 #### Eclipse Settings
