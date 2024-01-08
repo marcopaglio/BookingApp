@@ -88,7 +88,7 @@ To [run the BookingApp application](#run-through-jar), *at least* the following 
 To [replicate builds, tests and so on](#build-the-bookingapp-project), the BookingApp project *also* requires:
 
 - [Git](https://github.com/marcopaglio/installation-guides/tree/git#installation-guide)
-- [Docker Compose](https://github.com/marcopaglio/installation-guides/tree/docker#installation-guide-1)
+- [Docker Compose](https://github.com/marcopaglio/installation-guides/tree/docker#installation-guide)
 
 You can also build the BookingApp project with Maven. In this case the [Maven installation](https://github.com/marcopaglio/installation-guides/tree/maven#installation-guide) is mandatory, possibly with the version 3.8.6.<br>
 
