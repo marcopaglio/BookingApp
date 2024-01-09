@@ -82,7 +82,7 @@ If you see a confirmation message then your cores have AVX support.
 
 To [run the BookingApp application](#run-through-jar), *at least* the following programs must be installed on your computer:
 
-- [Java 11](https://github.com/marcopaglio/installation-guides/tree/java#installation-guide)
+- <a href="https://github.com/marcopaglio/installation-guides/tree/java#installation-guide" target="_blank">Java 11</a>
 - [Docker Engine](https://github.com/marcopaglio/installation-guides/tree/docker#installation-guide)
 
 To [replicate builds, tests and so on](#build-the-bookingapp-project), the BookingApp project *also* requires:
