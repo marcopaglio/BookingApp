@@ -115,7 +115,7 @@ On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to vi
 
 If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM. If you're using *VirtualBox* you can make this check earlier by looking at the below right side of your running VM: there must be an icon like ![a chip with a V letter inside](/../screenshots/screenshot-chip-icon.png?raw=true "V chip icon"). Instead, if you see an icon like ![a turtle with a V letter inside](/../screenshots/screenshot-turtle-icon.png?raw=true "V turtle icon"), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
 
-> :warning: **Warning**: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
+> :warning: **Warning**: It is really recommended to revert all the changes here described as soon as you no longer use the VM.
 
 ## Clone the BookingApp Project
 
@@ -135,11 +135,8 @@ Once cloned via Git command line, you can import the BookingApp project to Eclip
 
 1. Open Eclipse and choose any workspace location.
 2. From the top left bar: **File** > **Open Projects from File System...** > use **Directory..** to choose for the *project root directory* > make sure of selecting the `Search for nested projects` option > from the Folder list import all subfolders but not the root folder `BookingApp` > **Finish**.
-3. Just imported on Eclipse, there may be appeared some dependencies errors on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away.
 
-#### Eclipse Settings
-
-Opening files which define DTD or XSD schemas, like in `pom.xml` and `persistence.xml` of the BookingApp project, requires those schemas to be downloaded and stored locally; for example, on Linux they are found in the `.lemminx` folder. If you find the error message `Downloading external resources is disabled` coming from these files, you can fix that by modifying Eclipse settings: **Window** > **Preferences** > **XML (Wild Web Developer)** > tick `Download external resources like referenced DTD, XSD` > **Apply** > **Apply and Close**.
+> :pencil: **Note**: Just imported on Eclipse, there may be appeared some dependencies errors on the `Problems` tab. Don't worry, just **File** > **Refresh** once and they will go away. See the [Eclipse Configuration Guide](https://github.com/marcopaglio/installation-guides/tree/eclipse#configuration-guide "Configuration guide for Eclipse") for other solutions for possible problems.
 
 ## Build the BookingApp Project
 
