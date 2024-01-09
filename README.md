@@ -27,7 +27,7 @@ BookingApp is a simple desktop application for managing reservations developed w
   <img src="/../screenshots/screenshot-bookingapp-gui.png" alt="Screenshot of the simple BookingApp GUI." title="BookingApp GUI" width="80%"/>
 </p>
 
-> :information_source: **InfoPoint**: BookingApp followed by "*project*" indicates the entire job, which includes builds, tests and hence the source code, while "*application*" indicates the executable which you can launch and use.
+> :bulb: **Tip**: BookingApp followed by "*project*" indicates the entire job, which includes builds, tests and hence the source code, while "*application*" indicates the executable which you can launch and use.
 
 On GitHub Actions are stored results about Maven builds and tests for Linux OS, MacOS, and Windows, and also the website status for the BookingApp project and the release status for the BookingApp application:<br>
 [![Java CI with Maven in Linux](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-linux.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-linux.yml)<br>
@@ -36,7 +36,7 @@ On GitHub Actions are stored results about Maven builds and tests for Linux OS, 
 [![Deploy content to GitHub Pages](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml)<br>
 **HERE GITHUB RELEASES**<br>
 
-> :alarm_clock: **N.B**: On Windows systems some unit and integration tests cannot be executed due to lack of compatibility of required Docker images, like MongoDB and PostgresSQL. If you are brave enough, you can fill the void by creating custom Docker images for MongoDB and PostgreSQL starting from a [Windows OS base layer](https://hub.docker.com/_/microsoft-windows-base-os-images).
+> :pencil: **Note**: On Windows systems some unit and integration tests cannot be executed due to lack of compatibility of required Docker images, like MongoDB and PostgresSQL. If you are brave enough, you can fill the void by creating custom Docker images for MongoDB and PostgreSQL starting from a [Windows OS base layer](https://hub.docker.com/_/microsoft-windows-base-os-images).
   
 On Coveralls are published the history and statistics of BookingApp test code coverage, while on SonarCloud are published analysis of BookingApp code quality, particularly on *reliability*, *security* and *maintainability*:<br>
 [![Coverage Status](https://coveralls.io/repos/github/marcopaglio/BookingApp/badge.svg?branch=main)](https://coveralls.io/github/marcopaglio/BookingApp?branch=main)<br>
@@ -60,7 +60,7 @@ If you just launch the BookingApp application with PostgreSQL as DBMS there are 
 
 Otherwise, the BookingApp project runs a Docker container with MongoDB, the version of which is greater than 5.0 and requires the use of *Advanced Vector Extensions* (AVX) instructions. To determine whether your CPU model supports AVX, check the manufacturer’s website and enter your CPU model number. Alternatively, below there are other methods specific to the Operating System (OS).
 
-> :alarm_clock: **N.B**: Even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See the section on [Running on Virtual Machine](#running-on-virtual-machine) for fixing this possible problem.
+> :pencil: **Note**: Even if your machine supports AVX instructions, a hosted Virtual Machine may disable them due to virtualization issues. See the section on [Running on Virtual Machine](#running-on-virtual-machine) for fixing this possible problem.
 
 #### Linux and MacOS
 
@@ -82,17 +82,17 @@ If you see a confirmation message then your cores have AVX support.
 
 To [run the BookingApp application](#run-through-jar), *at least* the following programs must be installed on your computer:
 
-- <a href="https://github.com/marcopaglio/installation-guides/tree/java#installation-guide" target="_blank">Java 11</a>
-- [Docker Engine](https://github.com/marcopaglio/installation-guides/tree/docker#installation-guide)
+- [Java 11](https://github.com/marcopaglio/installation-guides/tree/java#installation-guide "Installation guide for Java")
+- [Docker Engine](https://github.com/marcopaglio/installation-guides/tree/docker#installation-guide "Installation guide for Docker")
 
 To [replicate builds, tests and so on](#build-the-bookingapp-project), the BookingApp project *also* requires:
 
-- [Git](https://github.com/marcopaglio/installation-guides/tree/git#installation-guide)
-- [Docker Compose](https://github.com/marcopaglio/installation-guides/tree/docker#installation-guide)
+- [Git](https://github.com/marcopaglio/installation-guides/tree/git#installation-guide "Installation guide for Git")
+- [Docker Compose](https://github.com/marcopaglio/installation-guides/tree/docker#installation-guide "Installation guide for Docker")
 
-You can also build the BookingApp project with Maven from the command line. In this case the [Maven installation](https://github.com/marcopaglio/installation-guides/tree/maven#installation-guide) is mandatory, possibly with the version 3.8.6.<br>
+You can also build the BookingApp project with Maven from the command line. In this case [Maven](https://github.com/marcopaglio/installation-guides/tree/maven#installation-guide "Installation guide for Maven") is mandatory, possibly with the version 3.8.6.<br>
 
-If you want to use an IDE, the BookingApp project was developed using [Eclipse](https://github.com/marcopaglio/installation-guides/tree/eclipse#installation-guide), so it is recommended.
+If you want to use an IDE, the BookingApp project was developed using [Eclipse](https://github.com/marcopaglio/installation-guides/tree/eclipse#installation-guide "Installation guide for Eclipse"), so it is recommended.
 
 ### Running on Virtual Machine
 
@@ -109,13 +109,13 @@ On Windows 11 the supporting of AVX/AVX2 instructions in a VM may fail due to vi
   
 - *disable Windows security Memory Integrity*.
 
-  > :warning: **Attention**: This is a very bad thing to do because the Memory integrity feature is stated to *prevent injection attacks into virtualization-based security processes*. Unfortunately, this is require in order to enable AVX/AVX2 instructions in VMs.
+  > :warning: **Warning**: This is a very bad thing to do because the Memory integrity feature is stated to *prevent injection attacks into virtualization-based security processes*. Unfortunately, this is require in order to enable AVX/AVX2 instructions in VMs.
   
   You can find it on **Settings** > **Privacy & security** > **Windows Security** > **Device security** > **Core isolation details** > **Memory integrity**. As soon as turned this feature off, restart your machine to allow Windows to apply the change.  
 
 If everything went right, your VM should now support AVX/AVX2 instructions as well as the host machine. You can make this check running the [previous section](#is-your-machine-compatible) instructions on the OS installed on your VM. If you're using *VirtualBox* you can make this check earlier by looking at the below right side of your running VM: there must be an icon like ![a chip with a V letter inside](/../screenshots/screenshot-chip-icon.png?raw=true "V chip icon"). Instead, if you see an icon like ![a turtle with a V letter inside](/../screenshots/screenshot-turtle-icon.png?raw=true "V turtle icon"), it means that hypervisor is still running (and the virtualization is slower, just like a turtle) then AVX/AVX2 core instructions will be not supported.  
 
-> :warning: **Attention**: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
+> :warning: **Warning**: It is really recommended to revert all the changes here described as soon as you no longer have to use the VM.
 
 ## Clone the BookingApp Project
 
@@ -125,11 +125,11 @@ git clone https://github.com/marcopaglio/BookingApp.git
 ```
 A copy of the BookingApp project will be downloaded.
 
-> :information_source: **InfoPoint**: In the chosen folder will appear a directory named `BookingApp/`. This is the *project root directory*.
+> :bulb: **Tip**: In the chosen folder will appear a directory named `BookingApp/`. This is the *project root directory*.
 
 ### Import to Eclipse
 
-> :alarm_clock: **N.B**: Following steps have been defined using EclipseIDE 2022-12 and 2023-09. Different versions may involve slightly different steps.
+> :pencil: **Note**: Following steps have been defined using EclipseIDE 2022-12 and 2023-09. Different versions may involve slightly different steps.
 
 Once cloned via Git command line, you can import the BookingApp project to Eclipse:
 
@@ -149,7 +149,7 @@ docker pull mongo:6.0.7
 docker pull postgres:15.3
 ```
 
-> :alarm_clock: **N.B**: On Linux and MacOS you have to precede Docker commands with `sudo`. You may not use it if you add your user to the Docker group. See the [Docker Installation Guide](https://github.com/marcopaglio/installation-guides/tree/docker#installation-guide) for more details.
+> :pencil: **Note**: On Linux and MacOS you have to precede Docker commands with `sudo`. You may not use it if you add your user to the Docker group. See the [Docker Installation Guide](https://github.com/marcopaglio/installation-guides/tree/docker#installation-guide "Installation guide for Docker") for more details.
 
 ### Build from Command Line
 
@@ -157,7 +157,7 @@ You can build the BookingApp project from the command line with Maven or Maven W
 - with Maven use `mvn`.
 - with Maven Wrapper use `./mvnw` for **Unix systems** (e.g: Linux, MacOS, etc.), or `./mvnw.cmd` for **Windows**.
 
-> :information_source: **InfoPoint**: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended. If you prefer using Maven directly, make sure to [install Maven](https://github.com/marcopaglio/installation-guides/tree/maven#installation-guide) yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6, otherwise build might fails.
+> :bulb: **Tip**: Maven Wrapper is very useful for users that don’t want to install Maven at all. For this reason building with Maven Wrapper is recommended. If you prefer using Maven directly, make sure to [install Maven](https://github.com/marcopaglio/installation-guides/tree/maven#installation-guide "Installation guide for Maven") yourself, and preferably with the same version used for the BookingApp project, that is 3.8.6, otherwise build might fails.
 
 #### Build Commands
 
@@ -176,7 +176,7 @@ Alternative builds can be run by adding one or more *profiles* at the end of the
   
 - `-Pdocker` dockerizes the application. The Docker image created is named `booking-app` and it is checked with both MongoDB and PostgreSQL.
 
-  > :alarm_clock: **N.B**: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you [setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
+  > :pencil: **Note**: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you [setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
 
 ### Build from Eclipse
 
@@ -184,7 +184,7 @@ You can also build the BookingApp project using launch files from Eclipse. They 
 Launch file naming convention consists of a radix that is the module name, and a suffix that indicates what the build does in particular:
 
 | Suffix | What it does |
-| ------ | ------------ |
+| :----: | ------------ |
 | `-install` | Runs all tests and installs dependencies locally for each module. |
 | `-verify` | Runs all tests. |
 | `-test-without-docker` | Only runs tests that don't require the use of Docker. |
@@ -214,7 +214,7 @@ docker compose -f docker-compose/MongoDB/docker-compose.yml up
 docker compose -f docker-compose/PostgreSQL/docker-compose.yml up
 ```
 
-> :information_source: **InfoPoint**: As you can see, there is another folder inside the `docker-compose` directory. It also contains a compose file which starts a SonarQube instance in a Docker container. This can be used in conjuction with the `-Psonar` profile (not previously mentioned) to measure the code quality locally. For more details, read the description in compose files.
+> :bulb: **Tip**: As you can see, there is another folder inside the `docker-compose` directory. It also contains a compose file which starts a SonarQube instance in a Docker container. This can be used in conjuction with the `-Psonar` profile (not previously mentioned) to measure the code quality locally. For more details, read the description in compose files.
 
 ## Run the BookingApp Application
 
@@ -223,7 +223,7 @@ Remember that the BookingApp application is compatible with both MongoDB and Pos
 
 ### Run through Jar
 
-> :information_source: **InfoPoint**: You can obtain a FatJar of the BookingApp application in two ways: from the build of the BookingApp project or directly by downloading it from the release on GitHub (**LINK HERE**).
+> :bulb: **Tip**: You can obtain a FatJar of the BookingApp application in two ways: from the build of the BookingApp project or directly by downloading it from the release on GitHub (**LINK HERE**).
 
 If you decide to run the BookingApp application through its jar file, you need a running instance of MongoDB or PostgreSQL, depending on which one you prefer.
 
@@ -239,7 +239,7 @@ docker exec -it booking-mongo-set mongosh --eval "rs.initiate()"
 ```
 If the confirmation message `ok: 1` appears, then the replica set is also initialized.<br>
 
-> :alarm_clock: **N.B**: This procedure only needs to be applied once, then stop the MongoDB instance through `docker stop booking-mongo-set`, and start it again (ready for use) with `docker start booking-mongo-set`.
+> :pencil: **Note**: This procedure only needs to be applied once, then stop the MongoDB instance through `docker stop booking-mongo-set`, and start it again (ready for use) with `docker start booking-mongo-set`.
 
 Once the MongoDB instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application via the following command:
 ```
@@ -255,7 +255,7 @@ docker run -d --name booking-postgres -p 5432:5432 -e POSTGRES_DB=<YOUR_DB_NAME>
 ```
 The placeholders `<YOUR_DB_NAME>`, `<YOUR_USER>` and `<YOUR_PSWD>` must be replaced with a custom name and login credentials for your database, respectively. The `-N` parameter, set to `10`, can also be changed: it defines the maximum number of BookingApp instances that can be opened.
 
-> :alarm_clock: **N.B**: Once created, stop the PostgreSQL instance through `docker stop booking-postgres`, and start it again with `docker start booking-postgres`.
+> :pencil: **Note**: Once created, stop the PostgreSQL instance through `docker stop booking-postgres`, and start it again with `docker start booking-postgres`.
 
 Once the PostgreSQL instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application with the following command (replace the placeholders with those previously defined):
 ```
@@ -264,7 +264,7 @@ java -jar booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=POSTGRES -
 
 ### Run through Docker
 
-> InfoPoint :information_source:: You can obtain a Docker image of the BookingApp application by building the BookingApp project with the `-Pdocker` profile. Remember to [setup X server environment for Docker](#setup-x-server-environment-for-docker) before using this mode.
+> :bulb: **Tip**: You can obtain a Docker image of the BookingApp application by building the BookingApp project with the `-Pdocker` profile. Remember to [setup X server environment for Docker](#setup-x-server-environment-for-docker) before using this mode.
 
 If you decide to run the BookingApp application through its Docker image, place yourself into the *project root directory* and open a Command Prompt. You can launch the BookingApp application and also a well-configured instance of the chosen DBMS (MongoDB or PostgreSQL) simply with the following Docker Compose command:
 ```
@@ -272,7 +272,7 @@ docker compose -f <COMPOSE_FILE> up
 ```
 If your choice is **MongoDB**, replace `<COMPOSE_FILE>` with `docker-compose-mongo.yml`; otherwise, if your choice is **PostgreSQL**, replace `<COMPOSE_FILE>` with `docker-compose-postgres.yml`.
 
-> :alarm_clock: **N.B**: Are you using Windows with WSLg? The all-in-one command becomes: `docker compose -f <COMPOSE_FILE> -f docker-compose-wslg.yml up`.
+> :pencil: **Note**: Are you using Windows with WSLg? The all-in-one command becomes: `docker compose -f <COMPOSE_FILE> -f docker-compose-wslg.yml up`.
 
 ## Setup X Server Environment for Docker
 
@@ -289,15 +289,15 @@ Linux already has an X server environment, thus the only thing to do is to share
 
 Now Docker containers can use the X server.
 
-> :warning: **Attention**: Disabling access control is not a secure choice and you should rely on an authentication method, like *xauth*. For this reason, when you finish with Docker, it is highly recommanded to remove its access to the X display server by running `xhost -local:<DOCKER_NET>` e.g: `xhost -local:docker0`.
+> :warning: **Warning**: Disabling access control is not a secure choice and you should rely on an authentication method, like *xauth*. For this reason, when you finish with Docker, it is highly recommanded to remove its access to the X display server by running `xhost -local:<DOCKER_NET>` e.g: `xhost -local:docker0`.
 
 ### Windows
 
 Windows has not a default X server environment, but it can use the one provided by *Windows Subsystem for Linux GUI*. **WSL** is necessary to run Docker in Linux containers and is compatible with Windows 10 (Build 19041 or later) and 11.<br>
 
-To use WSLg, just install the last version of WSL from the [Microsoft Store](https://aka.ms/wslstorepage) or update it if a previous version is already installed through `wsl --update`.
+To use WSLg, just install the last version of WSL from the [Microsoft Store](https://aka.ms/wslstorepage "Install WSL from Microsoft Store") or update it if a previous version is already installed through `wsl --update`.
   
-> :alarm_clock: **N.B**: If Docker is open you may need to restart it after WSL update.
+> :pencil: **Note**: If Docker is open you may need to restart it after WSL update.
 
 Next, open a Command Prompt and set the `DISPLAY` variable pointing to the display provided by WSLg:
 ```
