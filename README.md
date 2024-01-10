@@ -34,7 +34,7 @@ On GitHub Actions are stored results about Maven builds and tests for Linux OS, 
 [![Java CI with Maven in MacOS](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-macos.yml/badge.svg)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-macos.yml)<br>
 [![Build with Maven in Windows](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-windows.yml/badge.svg)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-windows.yml)<br>
 [![Deploy content to GitHub Pages](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml)<br>
-**HERE GITHUB RELEASES**<br>
+**TODO: HERE GITHUB RELEASES**<br>
 
 > :pencil: **Note**: On Windows systems some unit and integration tests cannot be executed due to lack of compatibility of required Docker images, like MongoDB and PostgresSQL. If you are brave enough, you can fill the void by creating custom Docker images for MongoDB and PostgreSQL starting from a [Windows OS base layer](https://hub.docker.com/_/microsoft-windows-base-os-images).
   
@@ -171,13 +171,14 @@ Alternative builds can be run by adding one or more *profiles* at the end of the
   
 - `-Ppitest` adds mutation testing. BookingApp project already provides mutation testing results on the [website](https://marcopaglio.github.io/BookingApp/pit-reports/index.html), but you can see them yourself once the execution finishes at `/booking-report/target/pit-reports/index.html`.
   
-- `-Pdocker` dockerizes the application. The Docker image created is named `booking-app` and it is checked with both MongoDB and PostgreSQL.
+- `-Pdocker` dockerizes the application. The Docker image created is named `booking-app` and it is verified with both MongoDB and PostgreSQL.
 
   > :pencil: **Note**: This Maven profile opens the BookingApp application inside a Docker container, therefore it needs the access to the X display server in order to work propertly. Please, make sure you [setup X server environment for Docker](#setup-x-server-environment-for-docker) before using the `-Pdocker` profile.
 
 ### Build from Eclipse
 
 You can also build the BookingApp project using launch files from Eclipse. They are located into `booking-aggregate`, `booking-domain-module`, `booking-business-module` and `booking-ui-module` inside `launches` folders. Just right click on the `.launch` file > select **Run As** > click on the same name Maven configuration to start the build.<br>
+
 Launch file naming convention consists of a radix that is the module name, and a suffix that indicates what the build does in particular:
 
 | Suffix | What it does |
@@ -220,7 +221,7 @@ Remember that the BookingApp application is compatible with both MongoDB and Pos
 
 ### Run through Jar
 
-> :bulb: **Tip**: You can obtain a FatJar of the BookingApp application in two ways: from the build of the BookingApp project or directly by downloading it from the release on GitHub (**LINK HERE**).
+> :bulb: **Tip**: You can obtain a FatJar of the BookingApp application in two ways: from the build of the BookingApp project or directly by downloading it from the release on GitHub (**TODO: LINK HERE**).
 
 If you decide to run the BookingApp application through its jar file, you need a running instance of MongoDB or PostgreSQL, depending on which one you prefer.
 
@@ -238,7 +239,7 @@ If the confirmation message `ok: 1` appears, then the replica set is also initia
 
 > :pencil: **Note**: This procedure only needs to be applied once, then stop the MongoDB instance through `docker stop booking-mongo-set`, and start it again (ready for use) with `docker start booking-mongo-set`.
 
-Once the MongoDB instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application via the following command:
+Once the MongoDB instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application via the following command: **TODO: change SNAPSHOT**
 ```
 java -jar booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=MONGO --host=localhost --port=27017 --name=<YOUR_DB_NAME>
 ```
@@ -254,7 +255,7 @@ The placeholders `<YOUR_DB_NAME>`, `<YOUR_USER>` and `<YOUR_PSWD>` must be repla
 
 > :pencil: **Note**: Once created, stop the PostgreSQL instance through `docker stop booking-postgres`, and start it again with `docker start booking-postgres`.
 
-Once the PostgreSQL instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application with the following command (replace the placeholders with those previously defined):
+Once the PostgreSQL instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application with the following command (use the previously defined values for placeholders): **TODO: change SNAPSHOT**
 ```
 java -jar booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=POSTGRES --host=localhost --port=5432 --name=<YOUR_DB_NAME> --user=<YOUR_USER> --pswd=<YOUR_PSWD>
 ```
@@ -302,4 +303,4 @@ setx DISPLAY :0.0
 ```
 By default, the `setx` command adds variables as user variable in the local environment. To add `DISPLAY` to the system environment use the `-m` parameter and run the Command Prompt as Administrator.<br>
 
-Once done, Docker can already use the X display server without any changes to access control. However, if you run the BookingApp application through Docker, you need to override some configurations by adding `-f docker-compose-wslg.yml` in the Docker Compose command, just before `up`.
+Once done, Docker can already use the X display server without any changes to access control. However, if you run the BookingApp application through Docker, you need to override some configurations by adding `-f docker-compose-wslg.yml` in the Docker Compose command, just *after* `-f <COMPOSE_FILE>`.
