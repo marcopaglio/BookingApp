@@ -27,12 +27,16 @@ jobs:
         brew install --cask xquartz
         open -a XQuartz
         defaults write org.macosforge.xquartz.X11.plist nolisten_tcp 0
-        echo "Kill: "
         osascript -e 'tell application "X11.bin" to quit'
-        echo "Reopen: "
+        echo "After closed:"
+        ps aux
+        sudo launchctl list
+        sudo ls /Library/LaunchDaemons
         open -a XQuartz
-        sudo launchctl bootstrap unload /System/Library/LaunchDaemons/org.xquartz.privileged_startx.plist
-        sudo launchctl bootstrap load /System/Library/LaunchDaemons/org.xquartz.privileged_startx.plist
+        echo "Once opened:"
+        ps aux
+        sudo launchctl list
+        sudo ls /Library/LaunchDaemons
         ip=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
         display_number=$(ps -ef | grep "Xquartz :\d" | grep -v xinit | awk '{ print $9; }')
         export DISPLAY=$ip:$display_number
