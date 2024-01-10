@@ -19,7 +19,6 @@ concurrency:
   group: "pages"
   cancel-in-progress: true
 
-
 jobs:
   build:
     name: Build job
@@ -47,7 +46,7 @@ jobs:
         restore-keys:  ${{ runner.os }}-m2-
 
     - name: Build with Maven Wrapper
-      run: xvfb-run --server-num=0 --server-args="-ac" ../mvnw verify site site:stage -Ppitest
+      run: xvfb-run --server-num=0 --server-args="-ac" ../mvnw verify site site:stage -Ppitest,docker
       working-directory: ${{ env.workdir }}
 
     - name: Configure GitHub Pages
@@ -62,11 +61,12 @@ jobs:
   deploy:
     name: Deployment job
     needs: build
+    runs-on: ubuntu-22.04
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-22.04
+    
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v1
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v1
