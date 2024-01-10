@@ -27,8 +27,9 @@ jobs:
         brew install --cask xquartz
         open -a XQuartz
         defaults write org.macosforge.xquartz.X11.plist nolisten_tcp 0
-        ps aux
-        killall "XQuartz""
+        echo "Kill: "
+        osascript -e 'tell application "X11.bin" to quit'
+        echo "Reopen: "
         open -a XQuartz
         sudo launchctl bootstrap unload /System/Library/LaunchDaemons/org.xquartz.privileged_startx.plist
         sudo launchctl bootstrap load /System/Library/LaunchDaemons/org.xquartz.privileged_startx.plist
