@@ -3,7 +3,7 @@
   <parent>
     <groupId>io.github.marcopaglio</groupId>
     <artifactId>booking-bom</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <relativePath>../booking-bom</relativePath>
   </parent>
   <artifactId>booking-parent</artifactId>

@@ -3,7 +3,7 @@ version: "3"
 
 services:
   app:
-    image: booking-app:0.0.1-SNAPSHOT
+    image: booking-app:1.0.0
     depends_on:
       postgres:
         condition: service_healthy

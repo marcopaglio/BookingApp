@@ -15,7 +15,6 @@ concurrency:
   group: "releases"
   cancel-in-progress: true
 
-
 jobs:
   build:
     name: Build and generate jars
