@@ -27,7 +27,7 @@ jobs:
         brew install --cask xquartz
         open -a XQuartz
         defaults write org.macosforge.xquartz.X11.plist nolisten_tcp 0
-        osascript -e 'tell application "X11.bin" to quit'
+        killall X11
         echo "After closed:"
         ps aux
         sudo launchctl list
