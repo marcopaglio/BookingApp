@@ -34,7 +34,7 @@ On GitHub Actions are stored results about Maven builds and tests for Linux OS, 
 [![Java CI with Maven in MacOS](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-macos.yml/badge.svg)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-macos.yml)<br>
 [![Build with Maven in Windows](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-windows.yml/badge.svg)](https://github.com/marcopaglio/BookingApp/actions/workflows/maven-windows.yml)<br>
 [![Deploy content to GitHub Pages](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml/badge.svg?branch=main)](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-pages.yml)<br>
-**TODO: HERE GITHUB RELEASES**<br>
+[![Release content to GitHub Releases](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-releases.yml/badge.svg)](https://github.com/marcopaglio/BookingApp/actions/workflows/gh-releases.yml)<br>
 
 > :pencil: **Note**: On Windows systems some unit and integration tests cannot be executed due to lack of compatibility of required Docker images, like MongoDB and PostgresSQL. If you are brave enough, you can fill the void by creating custom Docker images for MongoDB and PostgreSQL starting from a [Windows OS base layer](https://hub.docker.com/_/microsoft-windows-base-os-images).
   
@@ -221,7 +221,7 @@ Remember that the BookingApp application is compatible with both MongoDB and Pos
 
 ### Run through Jar
 
-> :bulb: **Tip**: You can obtain a FatJar of the BookingApp application in two ways: from the build of the BookingApp project or directly by downloading it from the release on GitHub (**TODO: LINK HERE**).
+> :bulb: **Tip**: You can obtain a FatJar of the BookingApp application in two ways: from the build of the BookingApp project or directly by downloading it from [Releases](https://github.com/marcopaglio/BookingApp/releases).
 
 If you decide to run the BookingApp application through its jar file, you need a running instance of MongoDB or PostgreSQL, depending on which one you prefer.
 
@@ -239,9 +239,9 @@ If the confirmation message `ok: 1` appears, then the replica set is also initia
 
 > :pencil: **Note**: This procedure only needs to be applied once, then stop the MongoDB instance through `docker stop booking-mongo-set`, and start it again (ready for use) with `docker start booking-mongo-set`.
 
-Once the MongoDB instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application via the following command: **TODO: change SNAPSHOT**
+Once the MongoDB instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application via the following command:
 ```
-java -jar booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=MONGO --host=localhost --port=27017 --name=<YOUR_DB_NAME>
+java -jar booking-app-1.0.0-jar-with-dependencies.jar --dbms=MONGO --host=localhost --port=27017 --name=<YOUR_DB_NAME>
 ```
 The placeholder `<YOUR_DB_NAME>` must be replaced with a custom name for your database.
 
@@ -255,9 +255,9 @@ The placeholders `<YOUR_DB_NAME>`, `<YOUR_USER>` and `<YOUR_PSWD>` must be repla
 
 > :pencil: **Note**: Once created, stop the PostgreSQL instance through `docker stop booking-postgres`, and start it again with `docker start booking-postgres`.
 
-Once the PostgreSQL instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application with the following command (use the previously defined values for placeholders): **TODO: change SNAPSHOT**
+Once the PostgreSQL instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application with the following command (use the previously defined values for placeholders):
 ```
-java -jar booking-app-0.0.1-SNAPSHOT-jar-with-dependencies.jar --dbms=POSTGRES --host=localhost --port=5432 --name=<YOUR_DB_NAME> --user=<YOUR_USER> --pswd=<YOUR_PSWD>
+java -jar booking-app-1.0.0-jar-with-dependencies.jar --dbms=POSTGRES --host=localhost --port=5432 --name=<YOUR_DB_NAME> --user=<YOUR_USER> --pswd=<YOUR_PSWD>
 ```
 
 ### Run through Docker
