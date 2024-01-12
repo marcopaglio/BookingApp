@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-import javax.swing.JButton;
-
 import org.assertj.swing.core.matcher.JButtonMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
@@ -58,17 +56,7 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 
 	private static EntityManagerFactory emf;
 
-	private TransactionPostgresManager transactionPostgresManager;
-	private TransactionHandlerFactory transactionHandlerFactory;
-	private ClientRepositoryFactory clientRepositoryFactory;
-	private ReservationRepositoryFactory reservationRepositoryFactory;
-
-	private TransactionalBookingService transactionalBookingService;
-	private RestrictedReservationValidator restrictedReservationValidator;
-	private RestrictedClientValidator restrictedClientValidator;
-
 	private ServedBookingPresenter servedPostgresBookingPresenter;
-	private BookingSwingView bookingSwingView;
 
 	private FrameFixture window;
 
@@ -145,15 +133,15 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 
 	@Override
 	protected void onSetUp() throws Exception {
-		transactionHandlerFactory = new TransactionHandlerFactory();
-		clientRepositoryFactory = new ClientRepositoryFactory();
-		reservationRepositoryFactory = new ReservationRepositoryFactory();
-		transactionPostgresManager = new TransactionPostgresManager(emf, transactionHandlerFactory,
+		TransactionHandlerFactory transactionHandlerFactory = new TransactionHandlerFactory();
+		ClientRepositoryFactory clientRepositoryFactory = new ClientRepositoryFactory();
+		ReservationRepositoryFactory reservationRepositoryFactory = new ReservationRepositoryFactory();
+		TransactionPostgresManager transactionPostgresManager = new TransactionPostgresManager(emf, transactionHandlerFactory,
 				clientRepositoryFactory, reservationRepositoryFactory);
 		
-		transactionalBookingService = new TransactionalBookingService(transactionPostgresManager);
-		restrictedClientValidator = new RestrictedClientValidator();
-		restrictedReservationValidator = new RestrictedReservationValidator();
+		TransactionalBookingService transactionalBookingService = new TransactionalBookingService(transactionPostgresManager);
+		RestrictedClientValidator restrictedClientValidator = new RestrictedClientValidator();
+		RestrictedReservationValidator restrictedReservationValidator = new RestrictedReservationValidator();
 		
 		// make sure we always start with a clean database
 		EntityManager em = emf.createEntityManager();
@@ -162,16 +150,15 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 		em.getTransaction().commit();
 		em.close();
 		
-		GuiActionRunner.execute(() -> {
-			bookingSwingView = new BookingSwingView();
+		window = new FrameFixture(robot(), GuiActionRunner.execute(() -> {
+			BookingSwingView bookingSwingView = new BookingSwingView();
 			servedPostgresBookingPresenter = new ServedBookingPresenter(bookingSwingView,
 					transactionalBookingService, restrictedClientValidator,
 					restrictedReservationValidator);
 			
 			bookingSwingView.setBookingPresenter(servedPostgresBookingPresenter);
 			return bookingSwingView;
-		});
-		window = new FrameFixture(robot(), bookingSwingView);
+		}));
 		window.show();
 		
 		// text fields
@@ -206,9 +193,8 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 	@Test
 	@DisplayName("Integration tests for 'AddClientBtn'")
 	public void testAddClientBtnWhenClientIsNewShouldInsert() {
-		nameFormTxt.setText(A_FIRSTNAME);
-		surnameFormTxt.setText(A_LASTNAME);
-		enableButton(bookingSwingView.getAddClientBtn());
+		nameFormTxt.enterText(A_FIRSTNAME);
+		surnameFormTxt.enterText(A_LASTNAME);
 		
 		addClientBtn.click();
 		
@@ -220,24 +206,25 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 	@Test
 	@DisplayName("Integration tests for 'RenameBtn'")
 	public void testRenameBtnWhenThereIsNoClientWithTheSameNewNamesShouldRenameWithoutChangingId() {
-		addTestClientToDatabase(client);
-		UUID client_id = client.getId();
 		String anotherFirstName = "Maria";
 		String anotherLastName = "De Lucia";
 		
-		nameFormTxt.setText(anotherFirstName);
-		surnameFormTxt.setText(anotherLastName);
-		addClientInList(client);
+		addTestClientToDatabase(client);
+		UUID client_id = client.getId();
+		updateClientList();
+		
 		clientList.selectItem(0);
-		enableButton(bookingSwingView.getRenameBtn());
+		nameFormTxt.enterText(anotherFirstName);
+		surnameFormTxt.enterText(anotherLastName);
 		
 		renameBtn.click();
 		
 		pause(untilNameFormsAreReset, timeout(TIMEOUT));
 		
-		List<Client> clientsInDB = readAllClientsFromDatabase();
-		assertThat(clientsInDB).doesNotContain(client).hasSize(1);
-		Client clientInDB = clientsInDB.get(0);
+		assertThat(readAllClientsFromDatabase())
+			.doesNotContain(client)
+			.hasSize(1);
+		Client clientInDB = readAllClientsFromDatabase().get(0);
 		assertThat(clientInDB.getFirstName()).isEqualTo(anotherFirstName);
 		assertThat(clientInDB.getLastName()).isEqualTo(anotherLastName);
 		assertThat(clientInDB.getId()).isEqualTo(client_id);
@@ -248,12 +235,12 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 	public void testRemoveClientBtnWhenClientExistsWithAnExistingReservationShouldRemove() {
 		addTestClientToDatabase(client);
 		UUID client_id = client.getId();
+		updateClientList();
 		reservation.setClientId(client_id);
 		addTestReservationToDatabase(reservation);
+		updateReservationList();
 		
-		addClientInList(client);
 		clientList.selectItem(0);
-		enableButton(bookingSwingView.getRemoveClientBtn());
 		
 		removeClientBtn.click();
 		
@@ -268,14 +255,13 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 	@DisplayName("Integration tests for 'AddReservationBtn'")
 	public void testAddReservationBtnWhenReservationIsNewAndAssociatedClientExistsShouldInsert() {
 		addTestClientToDatabase(client);
+		updateClientList();
 		reservation.setClientId(client.getId());
 		
-		yearFormTxt.setText(A_YEAR);
-		monthFormTxt.setText(A_MONTH);
-		dayFormTxt.setText(A_DAY);
-		addClientInList(client);
 		clientList.selectItem(0);
-		enableButton(bookingSwingView.getAddReservationBtn());
+		yearFormTxt.enterText(A_YEAR);
+		monthFormTxt.enterText(A_MONTH);
+		dayFormTxt.enterText(A_DAY);
 		
 		addReservationBtn.click();
 		
@@ -287,28 +273,29 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 	@Test
 	@DisplayName("Integration tests for 'RescheduleBtn'")
 	public void testRescheduleBtnWhenThereIsNoReservationInTheSameNewDateShouldRescheduleWithoutChangingId() {
-		addTestReservationToDatabase(reservation);
-		UUID reservation_id = reservation.getId();
 		String anotherYear = "2023";
 		String anotherMonth = "09";
 		String anotherDay = "05";
+		LocalDate anotherDate = LocalDate.parse(anotherYear + "-" + anotherMonth + "-" + anotherDay);
 		
-		yearFormTxt.setText(anotherYear);
-		monthFormTxt.setText(anotherMonth);
-		dayFormTxt.setText(anotherDay);
-		addReservationInList(reservation);
+		addTestReservationToDatabase(reservation);
+		UUID reservation_id = reservation.getId();
+		updateReservationList();
+		
 		reservationList.selectItem(0);
-		enableButton(bookingSwingView.getRescheduleBtn());
+		yearFormTxt.enterText(anotherYear);
+		monthFormTxt.enterText(anotherMonth);
+		dayFormTxt.enterText(anotherDay);
 		
 		rescheduleBtn.click();
 		
 		pause(untilDateFormsAreReset, timeout(TIMEOUT));
 		
-		List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-		assertThat(reservationsInDB).doesNotContain(reservation).hasSize(1);
-		Reservation reservationInDB = reservationsInDB.get(0);
-		assertThat(reservationInDB.getDate()).isEqualTo(
-				LocalDate.parse(anotherYear + "-" + anotherMonth + "-" + anotherDay));
+		assertThat(readAllReservationsFromDatabase())
+			.doesNotContain(reservation)
+			.hasSize(1);
+		Reservation reservationInDB = readAllReservationsFromDatabase().get(0);
+		assertThat(reservationInDB.getDate()).isEqualTo(anotherDate);
 		assertThat(reservationInDB.getId()).isEqualTo(reservation_id);
 	}
 
@@ -316,10 +303,9 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 	@DisplayName("Integration tests for 'RemoveReservationBtn'")
 	public void testRemoveReservationBtnWhenReservationExistsShouldRemove() {
 		addTestReservationToDatabase(reservation);
+		updateReservationList();
 		
-		addReservationInList(reservation);
 		reservationList.selectItem(0);
-		enableButton(bookingSwingView.getRemoveReservationBtn());
 		
 		removeReservationBtn.click();
 		
@@ -329,17 +315,13 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 	}
 
 
-	// GUI modifiers
-	private void enableButton(JButton button) {
-		GuiActionRunner.execute(() -> button.setEnabled(true));
+	// List updater
+	private void updateClientList() {
+		GuiActionRunner.execute(() -> servedPostgresBookingPresenter.allClients());
 	}
 
-	private void addClientInList(Client client) {
-		GuiActionRunner.execute(() -> bookingSwingView.getClientListModel().addElement(client));
-	}
-
-	private void addReservationInList(Reservation reservation) {
-		GuiActionRunner.execute(() -> bookingSwingView.getReservationListModel().addElement(reservation));
+	private void updateReservationList() {
+		GuiActionRunner.execute(() -> servedPostgresBookingPresenter.allReservations());
 	}
 
 	// database modifiers

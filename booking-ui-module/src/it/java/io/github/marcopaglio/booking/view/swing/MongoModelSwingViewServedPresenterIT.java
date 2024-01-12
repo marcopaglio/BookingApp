@@ -12,8 +12,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import javax.swing.JButton;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.bson.UuidRepresentation.STANDARD;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
@@ -83,17 +81,7 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	private static MongoCollection<Client> clientCollection;
 	private static MongoCollection<Reservation> reservationCollection;
 
-	private TransactionMongoManager transactionMongoManager;
-	private TransactionHandlerFactory transactionHandlerFactory;
-	private ClientRepositoryFactory clientRepositoryFactory;
-	private ReservationRepositoryFactory reservationRepositoryFactory;
-
-	private TransactionalBookingService transactionalBookingService;
-	private RestrictedReservationValidator restrictedReservationValidator;
-	private RestrictedClientValidator restrictedClientValidator;
-
 	private ServedBookingPresenter servedMongoBookingPresenter;
-	private BookingSwingView bookingSwingView;
 
 	private FrameFixture window;
 
@@ -191,29 +179,28 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 
 	@Override
 	protected void onSetUp() throws Exception {
-		transactionHandlerFactory = new TransactionHandlerFactory();
-		clientRepositoryFactory = new ClientRepositoryFactory();
-		reservationRepositoryFactory = new ReservationRepositoryFactory();
-		transactionMongoManager = new TransactionMongoManager(mongoClient, MONGODB_NAME,
+		TransactionHandlerFactory transactionHandlerFactory = new TransactionHandlerFactory();
+		ClientRepositoryFactory clientRepositoryFactory = new ClientRepositoryFactory();
+		ReservationRepositoryFactory reservationRepositoryFactory = new ReservationRepositoryFactory();
+		TransactionMongoManager transactionMongoManager = new TransactionMongoManager(mongoClient, MONGODB_NAME,
 				transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
 		
-		transactionalBookingService = new TransactionalBookingService(transactionMongoManager);
-		restrictedClientValidator = new RestrictedClientValidator();
-		restrictedReservationValidator = new RestrictedReservationValidator();
+		TransactionalBookingService transactionalBookingService = new TransactionalBookingService(transactionMongoManager);
+		RestrictedClientValidator restrictedClientValidator = new RestrictedClientValidator();
+		RestrictedReservationValidator restrictedReservationValidator = new RestrictedReservationValidator();
 		
 		// make sure we always start with a clean database
 		database.drop();
 		
-		GuiActionRunner.execute(() -> {
-			bookingSwingView = new BookingSwingView();
+		window = new FrameFixture(robot(), GuiActionRunner.execute(() -> {
+			BookingSwingView bookingSwingView = new BookingSwingView();
 			servedMongoBookingPresenter = new ServedBookingPresenter(bookingSwingView,
 					transactionalBookingService, restrictedClientValidator,
 					restrictedReservationValidator);
 			
 			bookingSwingView.setBookingPresenter(servedMongoBookingPresenter);
 			return bookingSwingView;
-		});
-		window = new FrameFixture(robot(), bookingSwingView);
+		}));
 		window.show();
 		
 		// text fields
@@ -248,9 +235,8 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	@Test
 	@DisplayName("Integration tests for 'AddClientBtn'")
 	public void testAddClientBtnWhenClientIsNewShouldInsert() {
-		nameFormTxt.setText(A_FIRSTNAME);
-		surnameFormTxt.setText(A_LASTNAME);
-		enableButton(bookingSwingView.getAddClientBtn());
+		nameFormTxt.enterText(A_FIRSTNAME);
+		surnameFormTxt.enterText(A_LASTNAME);
 		
 		addClientBtn.click();
 		
@@ -262,23 +248,24 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	@Test
 	@DisplayName("Integration tests for 'RenameBtn'")
 	public void testRenameBtnWhenThereIsNoClientWithTheSameNewNamesShouldRenameWithoutChangingId() {
-		addTestClientToDatabase(client, A_CLIENT_UUID);
 		String anotherFirstName = "Maria";
 		String anotherLastName = "De Lucia";
 		
-		nameFormTxt.setText(anotherFirstName);
-		surnameFormTxt.setText(anotherLastName);
-		addClientInList(client);
+		addTestClientToDatabase(client, A_CLIENT_UUID);
+		updateClientList();
+		
 		clientList.selectItem(0);
-		enableButton(bookingSwingView.getRenameBtn());
+		nameFormTxt.enterText(anotherFirstName);
+		surnameFormTxt.enterText(anotherLastName);
 		
 		renameBtn.click();
 		
 		pause(untilNameFormsAreReset, timeout(TIMEOUT));
 		
-		List<Client> clientsInDB = readAllClientsFromDatabase();
-		assertThat(clientsInDB).doesNotContain(client).hasSize(1);
-		Client clientInDB = clientsInDB.get(0);
+		assertThat(readAllClientsFromDatabase())
+			.doesNotContain(client)
+			.hasSize(1);
+		Client clientInDB = readAllClientsFromDatabase().get(0);
 		assertThat(clientInDB.getFirstName()).isEqualTo(anotherFirstName);
 		assertThat(clientInDB.getLastName()).isEqualTo(anotherLastName);
 		assertThat(clientInDB.getId()).isEqualTo(A_CLIENT_UUID);
@@ -288,11 +275,11 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	@DisplayName("Integration tests for 'RemoveClientBtn'")
 	public void testRemoveClientBtnWhenClientExistsWithAnExistingReservationShouldRemove() {
 		addTestClientToDatabase(client, A_CLIENT_UUID);
+		updateClientList();
 		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+		updateReservationList();
 		
-		addClientInList(client);
 		clientList.selectItem(0);
-		enableButton(bookingSwingView.getRemoveClientBtn());
 		
 		removeClientBtn.click();
 		
@@ -307,13 +294,12 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	@DisplayName("Integration tests for 'AddReservationBtn'")
 	public void testAddReservationBtnWhenReservationIsNewAndAssociatedClientExistsShouldInsert() {
 		addTestClientToDatabase(client, A_CLIENT_UUID);
+		updateClientList();
 		
-		yearFormTxt.setText(A_YEAR);
-		monthFormTxt.setText(A_MONTH);
-		dayFormTxt.setText(A_DAY);
-		addClientInList(client);
 		clientList.selectItem(0);
-		enableButton(bookingSwingView.getAddReservationBtn());
+		yearFormTxt.enterText(A_YEAR);
+		monthFormTxt.enterText(A_MONTH);
+		dayFormTxt.enterText(A_DAY);
 		
 		addReservationBtn.click();
 		
@@ -325,27 +311,28 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	@Test
 	@DisplayName("Integration tests for 'RescheduleBtn'")
 	public void testRescheduleBtnWhenThereIsNoReservationInTheSameNewDateShouldRescheduleWithoutChangingId() {
-		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
 		String anotherYear = "2023";
 		String anotherMonth = "09";
 		String anotherDay = "05";
+		LocalDate anotherDate = LocalDate.parse(anotherYear + "-" + anotherMonth + "-" + anotherDay);
 		
-		yearFormTxt.setText(anotherYear);
-		monthFormTxt.setText(anotherMonth);
-		dayFormTxt.setText(anotherDay);
-		addReservationInList(reservation);
+		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+		updateReservationList();
+		
 		reservationList.selectItem(0);
-		enableButton(bookingSwingView.getRescheduleBtn());
+		yearFormTxt.enterText(anotherYear);
+		monthFormTxt.enterText(anotherMonth);
+		dayFormTxt.enterText(anotherDay);
 		
 		rescheduleBtn.click();
 		
 		pause(untilDateFormsAreReset, timeout(TIMEOUT));
 		
-		List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-		assertThat(reservationsInDB).doesNotContain(reservation).hasSize(1);
-		Reservation reservationInDB = reservationsInDB.get(0);
-		assertThat(reservationInDB.getDate()).isEqualTo(
-				LocalDate.parse(anotherYear + "-" + anotherMonth + "-" + anotherDay));
+		assertThat(readAllReservationsFromDatabase())
+			.doesNotContain(reservation)
+			.hasSize(1);
+		Reservation reservationInDB = readAllReservationsFromDatabase().get(0);
+		assertThat(reservationInDB.getDate()).isEqualTo(anotherDate);
 		assertThat(reservationInDB.getId()).isEqualTo(A_RESERVATION_UUID);
 	}
 
@@ -353,10 +340,9 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	@DisplayName("Integration tests for 'RemoveReservationBtn'")
 	public void testRemoveReservationBtnWhenReservationExistsShouldRemove() {
 		addTestReservationToDatabase(reservation, A_RESERVATION_UUID);
+		updateReservationList();
 		
-		addReservationInList(reservation);
 		reservationList.selectItem(0);
-		enableButton(bookingSwingView.getRemoveReservationBtn());
 		
 		removeReservationBtn.click();
 		
@@ -366,17 +352,13 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	}
 
 
-	// GUI modifiers
-	private void enableButton(JButton button) {
-		GuiActionRunner.execute(() -> button.setEnabled(true));
+	// List updater
+	private void updateClientList() {
+		GuiActionRunner.execute(() -> servedMongoBookingPresenter.allClients());
 	}
 
-	private void addClientInList(Client client) {
-		GuiActionRunner.execute(() -> bookingSwingView.getClientListModel().addElement(client));
-	}
-
-	private void addReservationInList(Reservation reservation) {
-		GuiActionRunner.execute(() -> bookingSwingView.getReservationListModel().addElement(reservation));
+	private void updateReservationList() {
+		GuiActionRunner.execute(() -> servedMongoBookingPresenter.allReservations());
 	}
 
 	// database modifiers
