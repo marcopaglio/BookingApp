@@ -89,6 +89,52 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 	private Client client;
 	private Reservation reservation;
 
+	// pause conditions
+	private Condition untilClientListContainsClients = new Condition("Client list to contain clients") {
+		@Override
+		public boolean test() {
+			return clientList.contents().length != 0;
+		}
+	};
+
+	private Condition untilClientListContainsNothing = new Condition("Client list to contain nothing") {
+		@Override
+		public boolean test() {
+			return clientList.contents().length == 0;
+		}
+	};
+
+	private Condition untilNameFormsAreReset = new Condition("Name forms to be reset") {
+		@Override
+		public boolean test() {
+			return nameFormTxt.text().isEmpty() && 
+					surnameFormTxt.text().isEmpty();
+		}
+	};
+
+	private Condition untilReservationListContainsReservations = new Condition("Reservation list to contain reservations") {
+		@Override
+		public boolean test() {
+			return reservationList.contents().length != 0;
+		}
+	};
+
+	private Condition untilReservationListContainsNothing = new Condition("Reservation list to contain nothing") {
+		@Override
+		public boolean test() {
+			return reservationList.contents().length == 0;
+		}
+	};
+
+	private Condition untilDateFormsAreReset = new Condition("Date forms to be reset") {
+		@Override
+		public boolean test() {
+			return yearFormTxt.text().isEmpty() && 
+					monthFormTxt.text().isEmpty() && 
+					dayFormTxt.text().isEmpty();
+		}
+	};
+
 	@BeforeClass
 	public static void setupEmf() throws Exception {
 		System.setProperty("db.host", System.getProperty("postgres.host", "localhost"));
@@ -166,14 +212,7 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 		
 		addClientBtn.click();
 		
-		pause(
-			new Condition("Client list to contain clients") {
-				@Override
-				public boolean test() {
-					return clientList.contents().length != 0;
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilClientListContainsClients, timeout(TIMEOUT));
 		
 		assertThat(readAllClientsFromDatabase()).containsExactly(client);
 	}
@@ -194,15 +233,7 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 		
 		renameBtn.click();
 		
-		pause(
-			new Condition("Name forms to be reset") {
-				@Override
-				public boolean test() {
-					return nameFormTxt.text().isEmpty() && 
-							surnameFormTxt.text().isEmpty();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilNameFormsAreReset, timeout(TIMEOUT));
 		
 		List<Client> clientsInDB = readAllClientsFromDatabase();
 		assertThat(clientsInDB).doesNotContain(client).hasSize(1);
@@ -226,14 +257,7 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 		
 		removeClientBtn.click();
 		
-		pause(
-			new Condition("Client list to contain nothing") {
-				@Override
-				public boolean test() {
-					return clientList.contents().length == 0;
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilClientListContainsNothing, timeout(TIMEOUT));
 		
 		assertThat(readAllClientsFromDatabase()).doesNotContain(client);
 		assertThat(readAllReservationsFromDatabase())
@@ -255,14 +279,7 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 		
 		addReservationBtn.click();
 		
-		pause(
-			new Condition("Reservation list to contain reservations") {
-				@Override
-				public boolean test() {
-					return reservationList.contents().length != 0;
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilReservationListContainsReservations, timeout(TIMEOUT));
 		
 		assertThat(readAllReservationsFromDatabase()).containsExactly(reservation);
 	}
@@ -285,16 +302,7 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 		
 		rescheduleBtn.click();
 		
-		pause(
-			new Condition("Date forms to be reset") {
-				@Override
-				public boolean test() {
-					return yearFormTxt.text().isEmpty() && 
-							monthFormTxt.text().isEmpty() && 
-							dayFormTxt.text().isEmpty();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilDateFormsAreReset, timeout(TIMEOUT));
 		
 		List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
 		assertThat(reservationsInDB).doesNotContain(reservation).hasSize(1);
@@ -315,18 +323,13 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 		
 		removeReservationBtn.click();
 		
-		pause(
-			new Condition("Reservation list to contain nothing") {
-				@Override
-				public boolean test() {
-					return reservationList.contents().length == 0;
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilReservationListContainsNothing, timeout(TIMEOUT));
 		
 		assertThat(readAllReservationsFromDatabase()).doesNotContain(reservation);
 	}
 
+
+	// GUI modifiers
 	private void enableButton(JButton button) {
 		GuiActionRunner.execute(() -> button.setEnabled(true));
 	}
@@ -339,20 +342,7 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 		GuiActionRunner.execute(() -> bookingSwingView.getReservationListModel().addElement(reservation));
 	}
 
-	private List<Client> readAllClientsFromDatabase() {
-		EntityManager em = emf.createEntityManager();
-		List<Client> clientsInDB = em.createQuery("SELECT c FROM Client c", Client.class).getResultList();
-		em.close();
-		return clientsInDB;
-	}
-
-	private List<Reservation> readAllReservationsFromDatabase() {
-		EntityManager em = emf.createEntityManager();
-		List<Reservation> reservationsInDB = em.createQuery("SELECT r FROM Reservation r", Reservation.class).getResultList();
-		em.close();
-		return reservationsInDB;
-	}
-
+	// database modifiers
 	private void addTestClientToDatabase(Client client) {
 		EntityManager em = emf.createEntityManager();
 		em.getTransaction().begin();
@@ -367,5 +357,19 @@ public class PostgresModelSwingViewServedPresenterIT extends AssertJSwingJUnitTe
 		em.persist(reservation);
 		em.getTransaction().commit();
 		em.close();
+	}
+
+	private List<Client> readAllClientsFromDatabase() {
+		EntityManager em = emf.createEntityManager();
+		List<Client> clientsInDB = em.createQuery("SELECT c FROM Client c", Client.class).getResultList();
+		em.close();
+		return clientsInDB;
+	}
+
+	private List<Reservation> readAllReservationsFromDatabase() {
+		EntityManager em = emf.createEntityManager();
+		List<Reservation> reservationsInDB = em.createQuery("SELECT r FROM Reservation r", Reservation.class).getResultList();
+		em.close();
+		return reservationsInDB;
 	}
 }
