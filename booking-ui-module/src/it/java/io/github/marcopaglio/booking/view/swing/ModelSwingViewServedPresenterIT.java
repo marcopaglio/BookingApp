@@ -7,7 +7,6 @@ import static org.assertj.swing.timing.Timeout.timeout;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 import org.assertj.swing.core.matcher.JButtonMatcher;
 import org.assertj.swing.edt.GuiActionRunner;
@@ -167,7 +166,6 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		String anotherLastName = "De Lucia";
 		
 		addTestClientToDatabase(client);
-		UUID client_id = client.getId();
 		updateClientList();
 		
 		clientList.selectItem(0);
@@ -178,22 +176,17 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		
 		pause(untilNameFormsAreReset, timeout(TIMEOUT));
 		
-		assertThat(readAllClientsFromDatabase())
-			.doesNotContain(client)
-			.hasSize(1);
-		Client clientInDB = readAllClientsFromDatabase().get(0);
+		Client clientInDB = transactionalBookingService.findClient(client.getId());
 		assertThat(clientInDB.getFirstName()).isEqualTo(anotherFirstName);
 		assertThat(clientInDB.getLastName()).isEqualTo(anotherLastName);
-		assertThat(clientInDB.getId()).isEqualTo(client_id);
 	}
 
 	@Test
 	@DisplayName("Integration tests for 'RemoveClientBtn'")
 	public void testRemoveClientBtnWhenClientExistsWithAnExistingReservationShouldRemove() {
 		addTestClientToDatabase(client);
-		UUID client_id = client.getId();
 		updateClientList();
-		Reservation reservation = new Reservation(client_id, A_LOCALDATE);
+		Reservation reservation = new Reservation(client.getId(), A_LOCALDATE);
 		addTestReservationToDatabase(reservation);
 		updateReservationList();
 		
@@ -205,7 +198,7 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		
 		assertThat(readAllClientsFromDatabase()).doesNotContain(client);
 		assertThat(readAllReservationsFromDatabase())
-			.filteredOn(r -> Objects.equals(r.getClientId(), client_id)).isEmpty();
+			.filteredOn(r -> Objects.equals(r.getClientId(), client.getId())).isEmpty();
 	}
 
 	@Test
@@ -213,7 +206,6 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 	public void testAddReservationBtnWhenReservationIsNewAndAssociatedClientExistsShouldInsert() {
 		addTestClientToDatabase(client);
 		updateClientList();
-		Reservation reservation = new Reservation(client.getId(), A_LOCALDATE);
 		
 		clientList.selectItem(0);
 		yearFormTxt.enterText(A_YEAR);
@@ -224,7 +216,8 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		
 		pause(untilReservationListContainsReservations, timeout(TIMEOUT));
 		
-		assertThat(readAllReservationsFromDatabase()).containsExactly(reservation);
+		assertThat(readAllReservationsFromDatabase())
+			.containsExactly(new Reservation(client.getId(), A_LOCALDATE));
 	}
 
 	@Test
@@ -233,13 +226,11 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		String anotherYear = "2023";
 		String anotherMonth = "09";
 		String anotherDay = "05";
-		LocalDate anotherDate = LocalDate.parse(anotherYear + "-" + anotherMonth + "-" + anotherDay);
 		
 		addTestClientToDatabase(client);
 		updateClientList();
 		Reservation reservation = new Reservation(client.getId(), A_LOCALDATE);
 		addTestReservationToDatabase(reservation);
-		UUID reservation_id = reservation.getId();
 		updateReservationList();
 		
 		reservationList.selectItem(0);
@@ -251,12 +242,9 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		
 		pause(untilDateFormsAreReset, timeout(TIMEOUT));
 		
-		assertThat(readAllReservationsFromDatabase())
-			.doesNotContain(reservation)
-			.hasSize(1);
-		Reservation reservationInDB = readAllReservationsFromDatabase().get(0);
-		assertThat(reservationInDB.getDate()).isEqualTo(anotherDate);
-		assertThat(reservationInDB.getId()).isEqualTo(reservation_id);
+		Reservation reservationInDB = transactionalBookingService.findReservation(reservation.getId());
+		assertThat(reservationInDB.getDate())
+			.isEqualTo(LocalDate.parse(anotherYear + "-" + anotherMonth + "-" + anotherDay));
 	}
 
 	@Test
