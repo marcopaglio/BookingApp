@@ -155,6 +155,11 @@ public abstract class BookingSwingViewE2E extends AssertJSwingJUnitTestCase {
 		reservationList = window.list("reservationList");
 	}
 
+	protected void addTestEntitiesToDatabase() {
+		addTestClientToDatabase(A_FIRSTNAME, A_LASTNAME, A_CLIENT_UUID);
+		addTestReservationToDatabase(A_CLIENT_UUID, A_DATE, A_RESERVATION_UUID);
+	}
+
 
 	@Test @GUITest
 	@DisplayName("Application is started")
@@ -497,6 +502,8 @@ public abstract class BookingSwingViewE2E extends AssertJSwingJUnitTestCase {
 	}
 	////////////// Remove reservation
 
+
+	// database modifiers
 	protected abstract void addTestClientToDatabase(String name, String surname, UUID id);
 
 	protected abstract void removeTestClientFromDatabase(String name, String surname);

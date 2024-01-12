@@ -114,6 +114,52 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 	private Client client;
 	private Reservation reservation;
 
+	// pause conditions
+	private Condition untilClientListContainsClients = new Condition("Client list to contain clients") {
+		@Override
+		public boolean test() {
+			return clientList.contents().length != 0;
+		}
+	};
+
+	private Condition untilClientListContainsNothing = new Condition("Client list to contain nothing") {
+		@Override
+		public boolean test() {
+			return clientList.contents().length == 0;
+		}
+	};
+
+	private Condition untilNameFormsAreReset = new Condition("Name forms to be reset") {
+		@Override
+		public boolean test() {
+			return nameFormTxt.text().isEmpty() && 
+					surnameFormTxt.text().isEmpty();
+		}
+	};
+
+	private Condition untilReservationListContainsReservations = new Condition("Reservation list to contain reservations") {
+		@Override
+		public boolean test() {
+			return reservationList.contents().length != 0;
+		}
+	};
+
+	private Condition untilReservationListContainsNothing = new Condition("Reservation list to contain nothing") {
+		@Override
+		public boolean test() {
+			return reservationList.contents().length == 0;
+		}
+	};
+
+	private Condition untilDateFormsAreReset = new Condition("Date forms to be reset") {
+		@Override
+		public boolean test() {
+			return yearFormTxt.text().isEmpty() && 
+					monthFormTxt.text().isEmpty() && 
+					dayFormTxt.text().isEmpty();
+		}
+	};
+
 	@BeforeClass
 	public static void setupClient() throws Exception {
 		mongoClient = getClient(String.format("mongodb://%s:%d", mongoHost, mongoPort));
@@ -208,14 +254,7 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		
 		addClientBtn.click();
 		
-		pause(
-			new Condition("Client list to contain clients") {
-				@Override
-				public boolean test() {
-					return clientList.contents().length != 0;
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilClientListContainsClients, timeout(TIMEOUT));
 		
 		assertThat(readAllClientsFromDatabase()).containsExactly(client);
 	}
@@ -235,15 +274,7 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		
 		renameBtn.click();
 		
-		pause(
-			new Condition("Name forms to be reset") {
-				@Override
-				public boolean test() {
-					return nameFormTxt.text().isEmpty() && 
-							surnameFormTxt.text().isEmpty();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilNameFormsAreReset, timeout(TIMEOUT));
 		
 		List<Client> clientsInDB = readAllClientsFromDatabase();
 		assertThat(clientsInDB).doesNotContain(client).hasSize(1);
@@ -265,14 +296,7 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		
 		removeClientBtn.click();
 		
-		pause(
-			new Condition("Client list to contain nothing") {
-				@Override
-				public boolean test() {
-					return clientList.contents().length == 0;
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilClientListContainsNothing, timeout(TIMEOUT));
 		
 		assertThat(readAllClientsFromDatabase()).doesNotContain(client);
 		assertThat(readAllReservationsFromDatabase())
@@ -293,14 +317,7 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		
 		addReservationBtn.click();
 		
-		pause(
-			new Condition("Reservation list to contain reservations") {
-				@Override
-				public boolean test() {
-					return reservationList.contents().length != 0;
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilReservationListContainsReservations, timeout(TIMEOUT));
 		
 		assertThat(readAllReservationsFromDatabase()).containsExactly(reservation);
 	}
@@ -322,16 +339,7 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		
 		rescheduleBtn.click();
 		
-		pause(
-			new Condition("Date forms to be reset") {
-				@Override
-				public boolean test() {
-					return yearFormTxt.text().isEmpty() && 
-							monthFormTxt.text().isEmpty() && 
-							dayFormTxt.text().isEmpty();
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilDateFormsAreReset, timeout(TIMEOUT));
 		
 		List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
 		assertThat(reservationsInDB).doesNotContain(reservation).hasSize(1);
@@ -352,18 +360,13 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		
 		removeReservationBtn.click();
 		
-		pause(
-			new Condition("Reservation list to contain nothing") {
-				@Override
-				public boolean test() {
-					return reservationList.contents().length == 0;
-				}
-			}
-		, timeout(TIMEOUT));
+		pause(untilReservationListContainsNothing, timeout(TIMEOUT));
 		
 		assertThat(readAllReservationsFromDatabase()).doesNotContain(reservation);
 	}
 
+
+	// GUI modifiers
 	private void enableButton(JButton button) {
 		GuiActionRunner.execute(() -> button.setEnabled(true));
 	}
@@ -376,6 +379,17 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		GuiActionRunner.execute(() -> bookingSwingView.getReservationListModel().addElement(reservation));
 	}
 
+	// database modifiers
+	public void addTestClientToDatabase(Client client, UUID id) {
+		client.setId(id);
+		clientCollection.insertOne(client);
+	}
+
+	public void addTestReservationToDatabase(Reservation reservation, UUID id) {
+		reservation.setId(id);
+		reservationCollection.insertOne(reservation);
+	}
+
 	private List<Client> readAllClientsFromDatabase() {
 		return StreamSupport
 				.stream(clientCollection.find().spliterator(), false)
@@ -386,15 +400,5 @@ public class MongoModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestC
 		return StreamSupport
 				.stream(reservationCollection.find().spliterator(), false)
 				.collect(Collectors.toList());
-	}
-
-	public void addTestClientToDatabase(Client client, UUID id) {
-		client.setId(id);
-		clientCollection.insertOne(client);
-	}
-
-	public void addTestReservationToDatabase(Reservation reservation, UUID id) {
-		reservation.setId(id);
-		reservationCollection.insertOne(reservation);
 	}
 }
