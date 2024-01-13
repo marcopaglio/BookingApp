@@ -171,7 +171,6 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		clientList.selectItem(0);
 		nameFormTxt.enterText(anotherFirstName);
 		surnameFormTxt.enterText(anotherLastName);
-		
 		renameBtn.click();
 		
 		pause(untilNameFormsAreReset, timeout(TIMEOUT));
@@ -191,7 +190,6 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		updateReservationList();
 		
 		clientList.selectItem(0);
-		
 		removeClientBtn.click();
 		
 		pause(untilClientListContainsNothing, timeout(TIMEOUT));
@@ -211,7 +209,6 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		yearFormTxt.enterText(A_YEAR);
 		monthFormTxt.enterText(A_MONTH);
 		dayFormTxt.enterText(A_DAY);
-		
 		addReservationBtn.click();
 		
 		pause(untilReservationListContainsReservations, timeout(TIMEOUT));
@@ -237,7 +234,6 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		yearFormTxt.enterText(anotherYear);
 		monthFormTxt.enterText(anotherMonth);
 		dayFormTxt.enterText(anotherDay);
-		
 		rescheduleBtn.click();
 		
 		pause(untilDateFormsAreReset, timeout(TIMEOUT));
@@ -257,7 +253,6 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		updateReservationList();
 		
 		reservationList.selectItem(0);
-		
 		removeReservationBtn.click();
 		
 		pause(untilReservationListContainsNothing, timeout(TIMEOUT));
