@@ -2,7 +2,6 @@ package io.github.marcopaglio.booking.view.swing;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -119,19 +118,17 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			
 			servedBookingPresenter.allClients();
 			
-			verify(bookingService).findAllClients();
 			assertThat(clientList.contents()).isEmpty();
 		}
 
 		@Test @GUITest
 		@DisplayName("Several clients in repository")
-		public void testAllClientsWhenThereAreSeveralClientsInRepositoryShouldShowClientsInClientList() {
+		public void testAllClientsWhenThereAreSeveralClientsInRepositoryShouldShowClientsInList() {
 			when(bookingService.findAllClients())
 				.thenReturn(Arrays.asList(client, new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME)));
 			
 			servedBookingPresenter.allClients();
 			
-			verify(bookingService).findAllClients();
 			assertThat(clientList.contents())
 				.containsExactlyInAnyOrder(A_CLIENT_DISPLAYED, ANOTHER_CLIENT_DISPLAYED);
 		}
@@ -146,19 +143,17 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			
 			servedBookingPresenter.allReservations();
 			
-			verify(bookingService).findAllReservations();
 			assertThat(reservationList.contents()).isEmpty();
 		}
 
 		@Test @GUITest
 		@DisplayName("Several reservations in repository")
-		public void testAllReservationsWhenThereAreSeveralReservationsInRepositoryShouldShowReservationsInReservationList() {
+		public void testAllReservationsWhenThereAreSeveralReservationsInRepositoryShouldShowReservationsInList() {
 			when(bookingService.findAllReservations()).thenReturn(
 					Arrays.asList(reservation, new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE)));
 			
 			servedBookingPresenter.allReservations();
 			
-			verify(bookingService).findAllReservations();
 			assertThat(reservationList.contents()).containsExactlyInAnyOrder(
 					A_RESERVATION_DISPLAYED, ANOTHER_RESERVATION_DISPLAYED);
 		}
@@ -172,15 +167,12 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			addClientInList(client);
 			addReservationInList(reservation);
 			
+			// default stubbing for bookingService.removeClientNamed(firstName, lastName)
+			
 			servedBookingPresenter.deleteClient(client);
 			
-			verify(bookingService).removeClientNamed(A_FIRSTNAME, A_LASTNAME);
-			assertThat(reservationList.contents())
-				.doesNotContain(A_RESERVATION_DISPLAYED)
-				.isEmpty();
-			assertThat(clientList.contents())
-				.doesNotContain(A_CLIENT_DISPLAYED)
-				.isEmpty();
+			assertThat(reservationList.contents()).doesNotContain(A_RESERVATION_DISPLAYED);
+			assertThat(clientList.contents()).doesNotContain(A_CLIENT_DISPLAYED);
 		}
 
 		@Test @GUITest
@@ -195,7 +187,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			
 			operationErrorMsgLbl.requireText(
 					"Client named " + A_FIRSTNAME + " " + A_LASTNAME + " no longer exists.");
-			assertThat(clientList.contents()).isEmpty();
+			assertThat(clientList.contents()).doesNotContain(A_CLIENT_DISPLAYED);
 		}
 	////////////// Integration tests for 'deleteClient'
 
@@ -203,15 +195,14 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	////////////// Integration tests for 'deleteReservation'
 		@Test @GUITest
 		@DisplayName("Reservation is in repository")
-		public void testDeleteReservationWhenReservationIsInRepositoryShouldDelegateToServiceAndUpdateReservationList() {
+		public void testDeleteReservationWhenReservationIsInRepositoryShouldUpdateReservationList() {
 			addReservationInList(reservation);
+			
+			// default stubbing for bookingService.removeReservationOn(date)
 			
 			servedBookingPresenter.deleteReservation(reservation);
 			
-			verify(bookingService).removeReservationOn(A_LOCALDATE);
-			assertThat(reservationList.contents())
-				.doesNotContain(A_RESERVATION_DISPLAYED)
-				.isEmpty();
+			assertThat(reservationList.contents()).doesNotContain(A_RESERVATION_DISPLAYED);
 		}
 
 		@Test @GUITest
@@ -225,7 +216,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			servedBookingPresenter.deleteReservation(reservation);
 			
 			operationErrorMsgLbl.requireText("Reservation on " + A_DATE + " no longer exists.");
-			assertThat(reservationList.contents()).isEmpty();
+			assertThat(reservationList.contents()).doesNotContain(A_RESERVATION_DISPLAYED);
 		}
 	////////////// Integration tests for 'deleteReservation'
 
@@ -233,22 +224,19 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	////////////// Integration tests for 'addClient'
 		@Test @GUITest
 		@DisplayName("Client is new")
-		public void testAddClientWhenClientIsNewShouldValidateItAndDelegateToServiceAndShowItInClientList() {
+		public void testAddClientWhenClientIsNewShouldShowItInList() {
 			when(clientValidator.validateFirstName(A_FIRSTNAME)).thenReturn(A_FIRSTNAME);
 			when(clientValidator.validateLastName(A_LASTNAME)).thenReturn(A_LASTNAME);
 			when(bookingService.insertNewClient(client)).thenReturn(client);
 			
 			servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME);
 			
-			verify(clientValidator).validateFirstName(A_FIRSTNAME);
-			verify(clientValidator).validateLastName(A_LASTNAME);
-			verify(bookingService).insertNewClient(client);
 			assertThat(clientList.contents()).containsExactly(A_CLIENT_DISPLAYED);
 		}
 
 		@Test @GUITest
 		@DisplayName("Client is not new")
-		public void testAddClientWhenClientIsNotNewShouldShowOperationErrorAndUpdateLists() {
+		public void testAddClientWhenClientIsNotNewShouldShowOperationErrorAndNotAddAgainInList() {
 			when(clientValidator.validateFirstName(A_FIRSTNAME)).thenReturn(A_FIRSTNAME);
 			when(clientValidator.validateLastName(A_LASTNAME)).thenReturn(A_LASTNAME);
 			when(bookingService.insertNewClient(client))
@@ -259,29 +247,31 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			
 			operationErrorMsgLbl.requireText(
 					"Client named " + A_FIRSTNAME + " " + A_LASTNAME + " already exists.");
-			assertThat(clientList.contents()).containsExactly(A_CLIENT_DISPLAYED);
+			assertThat(clientList.contents()).containsOnlyOnce(A_CLIENT_DISPLAYED);
 		}
 
 		@Test @GUITest
 		@DisplayName("Name is not valid")
-		public void testAddClientWhenNameIsNotValidShouldShowFormError() {
+		public void testAddClientWhenNameIsNotValidShouldShowFormErrorAndNotAddInList() {
 			when(clientValidator.validateFirstName(A_FIRSTNAME))
 				.thenThrow(new IllegalArgumentException());
 			
 			servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME);
 			
 			formErrorMsgLbl.requireText("Client's name [" + A_FIRSTNAME + "] is not valid.");
+			assertThat(clientList.contents()).doesNotContain(A_CLIENT_DISPLAYED);
 		}
 
 		@Test @GUITest
 		@DisplayName("Surname is not valid")
-		public void testAddClientWhenSurnameIsNotValidShouldShowFormError() {
+		public void testAddClientWhenSurnameIsNotValidShouldShowFormErrorAndNotAddInList() {
 			when(clientValidator.validateLastName(A_LASTNAME))
 				.thenThrow(new IllegalArgumentException());
 			
 			servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME);
 			
 			formErrorMsgLbl.requireText("Client's surname [" + A_LASTNAME + "] is not valid.");
+			assertThat(clientList.contents()).doesNotContain(A_CLIENT_DISPLAYED);
 		}
 	////////////// Integration tests for 'addClient'
 
@@ -289,22 +279,19 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	////////////// Integration tests for 'addReservation'
 		@Test @GUITest
 		@DisplayName("Reservation is new")
-		public void testAddReservationWhenReservationIsNewShouldValidateItAndDelegateToServiceAndShowItInReservationList() {
+		public void testAddReservationWhenReservationIsNewShouldShowItInList() {
 			when(reservationValidator.validateClientId(A_CLIENT_UUID)).thenReturn(A_CLIENT_UUID);
 			when(reservationValidator.validateDate(A_DATE)).thenReturn(A_LOCALDATE);
 			when(bookingService.insertNewReservation(reservation)).thenReturn(reservation);
 			
 			servedBookingPresenter.addReservation(client, A_DATE);
 			
-			verify(reservationValidator).validateClientId(A_CLIENT_UUID);
-			verify(reservationValidator).validateDate(A_DATE);
-			verify(bookingService).insertNewReservation(reservation);
 			assertThat(reservationList.contents()).containsExactly(A_RESERVATION_DISPLAYED);
 		}
 
 		@Test @GUITest
 		@DisplayName("Reservation is not new")
-		public void testAddReservationWhenReservationIsNotNewShouldShowOperationErrorAndUpdateLists() {
+		public void testAddReservationWhenReservationIsNotNewShouldShowOperationErrorAndNotAddAgainInList() {
 			when(reservationValidator.validateClientId(A_CLIENT_UUID)).thenReturn(A_CLIENT_UUID);
 			when(reservationValidator.validateDate(A_DATE)).thenReturn(A_LOCALDATE);
 			when(bookingService.insertNewReservation(reservation))
@@ -314,29 +301,31 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			servedBookingPresenter.addReservation(client, A_DATE);
 			
 			operationErrorMsgLbl.requireText("Reservation on " + A_DATE + " already exists.");
-			assertThat(reservationList.contents()).containsExactly(A_RESERVATION_DISPLAYED);
+			assertThat(reservationList.contents()).containsOnlyOnce(A_RESERVATION_DISPLAYED);
 		}
 
 		@Test @GUITest
 		@DisplayName("ClientId is not valid")
-		public void testAddReservationWhenClientIdIsNotValidShouldShowFormError() {
+		public void testAddReservationWhenClientIdIsNotValidShouldShowFormErrorAndNotAddInList() {
 			when(reservationValidator.validateClientId(A_CLIENT_UUID))
 				.thenThrow(new IllegalArgumentException());
 			
 			servedBookingPresenter.addReservation(client, A_DATE);
 			
 			formErrorMsgLbl.requireText("Reservation's client ID [" + A_CLIENT_UUID + "] is not valid.");
+			assertThat(reservationList.contents()).doesNotContain(A_RESERVATION_DISPLAYED);
 		}
 
 		@Test @GUITest
 		@DisplayName("Date is not valid")
-		public void testAddReservationWhenDateIsNotValidShouldShowFormError() {
+		public void testAddReservationWhenDateIsNotValidShouldShowFormErrorAndNotAddInList() {
 			when(reservationValidator.validateDate(A_DATE))
 				.thenThrow(new IllegalArgumentException());
 			
 			servedBookingPresenter.addReservation(client, A_DATE);
 			
 			formErrorMsgLbl.requireText("Reservation's date [" + A_DATE + "] is not valid.");
+			assertThat(reservationList.contents()).doesNotContain(A_RESERVATION_DISPLAYED);
 		}
 	////////////// Integration tests for 'addReservation'
 
@@ -344,7 +333,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	////////////// Integration tests for 'renameClient'
 		@Test @GUITest
 		@DisplayName("Renamed client is new")
-		public void testRenameClientWhenRenamedClientIsNewShouldValidateItAndDelegateToServiceAndUpdateClientList() {
+		public void testRenameClientWhenRenamedClientIsNewShouldUpdateClientInList() {
 			addClientInList(client);
 			
 			when(clientValidator.validateFirstName(ANOTHER_FIRSTNAME)).thenReturn(ANOTHER_FIRSTNAME);
@@ -354,54 +343,55 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			
 			servedBookingPresenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
-			verify(clientValidator).validateFirstName(ANOTHER_FIRSTNAME);
-			verify(clientValidator).validateLastName(ANOTHER_LASTNAME);
-			verify(bookingService).renameClient(A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			assertThat(clientList.contents())
 				.doesNotContain(A_CLIENT_DISPLAYED)
-				.containsOnlyOnce(ANOTHER_CLIENT_DISPLAYED);
+				.containsExactly(ANOTHER_CLIENT_DISPLAYED);
 		}
 
 		@Test @GUITest
 		@DisplayName("Renamed client is not new")
-		public void testRenameClientWhenRenamedClientIsNotNewShouldShowOperationErrorAndUpdateLists() {
+		public void testRenameClientWhenRenamedClientIsNotNewShouldShowOperationErrorAndNotRename() {
+			Client another_client = new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+			
 			addClientInList(client);
+			addClientInList(another_client);
 			
 			when(clientValidator.validateFirstName(ANOTHER_FIRSTNAME)).thenReturn(ANOTHER_FIRSTNAME);
 			when(clientValidator.validateLastName(ANOTHER_LASTNAME)).thenReturn(ANOTHER_LASTNAME);
 			when(bookingService.renameClient(A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME))
 				.thenThrow(new InstanceAlreadyExistsException());
-			when(bookingService.findAllClients())
-				.thenReturn(Arrays.asList(client, new Client(ANOTHER_FIRSTNAME, ANOTHER_LASTNAME)));
+			when(bookingService.findAllClients()).thenReturn(Arrays.asList(client, another_client));
 			
 			servedBookingPresenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
 			operationErrorMsgLbl.requireText(
 					"Client named " + ANOTHER_FIRSTNAME + " " + ANOTHER_LASTNAME + " already exists.");
-			assertThat(clientList.contents())
-				.containsExactlyInAnyOrder(A_CLIENT_DISPLAYED, ANOTHER_CLIENT_DISPLAYED);
+			assertThat(clientList.contents()).containsOnlyOnceElementsOf(
+					Arrays.asList(A_CLIENT_DISPLAYED, ANOTHER_CLIENT_DISPLAYED));
 		}
 
 		@Test @GUITest
 		@DisplayName("New name is not valid")
-		public void testRenameClientWhenNewNameIsNotValidShouldShowFormError() {
+		public void testRenameClientWhenNewNameIsNotValidShouldShowFormErrorAndNotRename() {
 			when(clientValidator.validateFirstName(ANOTHER_FIRSTNAME))
 				.thenThrow(new IllegalArgumentException());
 			
 			servedBookingPresenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
 			formErrorMsgLbl.requireText("Client's name [" + ANOTHER_FIRSTNAME + "] is not valid.");
+			assertThat(clientList.contents()).doesNotContain(ANOTHER_CLIENT_DISPLAYED);
 		}
 
 		@Test @GUITest
 		@DisplayName("New surname is not valid")
-		public void testRenameClientWhenNewSurnameIsNotValidShouldShowFormError() {
+		public void testRenameClientWhenNewSurnameIsNotValidShouldShowFormErrorAndNotRename() {
 			when(clientValidator.validateLastName(ANOTHER_LASTNAME))
 				.thenThrow(new IllegalArgumentException());
 			
 			servedBookingPresenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
 			formErrorMsgLbl.requireText("Client's surname [" + ANOTHER_LASTNAME + "] is not valid.");
+			assertThat(clientList.contents()).doesNotContain(ANOTHER_CLIENT_DISPLAYED);
 		}
 	////////////// Integration tests for 'renameClient'
 
@@ -409,7 +399,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	////////////// Integration tests for 'rescheduleReservation'
 		@Test @GUITest
 		@DisplayName("Rescheduled reservation is new")
-		public void testRescheduleReservationWhenRescheduledReservationIsNewShouldValidateItAndDelegateToServiceAndUpdateReservationList() {
+		public void testRescheduleReservationWhenRescheduledReservationIsNewShouldUpdateReservationInList() {
 			addReservationInList(reservation);
 			
 			when(reservationValidator.validateDate(ANOTHER_DATE)).thenReturn(ANOTHER_LOCALDATE);
@@ -418,40 +408,42 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 			
 			servedBookingPresenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
-			verify(reservationValidator).validateDate(ANOTHER_DATE);
-			verify(bookingService).rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE);
 			assertThat(reservationList.contents())
 				.doesNotContain(A_RESERVATION_DISPLAYED)
-				.containsOnlyOnce(ANOTHER_RESERVATION_DISPLAYED);
+				.containsExactly(ANOTHER_RESERVATION_DISPLAYED);
 		}
 
 		@Test @GUITest
 		@DisplayName("Rescheduled reservation is not new")
-		public void testRescheduleReservationWhenRescheduledReservationIsNotNewShouldShowOperationErrorAndUpdateLists() {
+		public void testRescheduleReservationWhenRescheduledReservationIsNotNewShouldShowOperationErrorAndNotReschedule() {
+			Reservation another_reservation = new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE);
+			
 			addReservationInList(reservation);
+			addReservationInList(another_reservation);
 			
 			when(reservationValidator.validateDate(ANOTHER_DATE)).thenReturn(ANOTHER_LOCALDATE);
 			when(bookingService.rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE))
 				.thenThrow(new InstanceAlreadyExistsException());
 			when(bookingService.findAllReservations()).thenReturn(
-					Arrays.asList(reservation, new Reservation(A_CLIENT_UUID, ANOTHER_LOCALDATE)));
+					Arrays.asList(reservation, another_reservation));
 			
 			servedBookingPresenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
 			operationErrorMsgLbl.requireText("Reservation on " + ANOTHER_DATE + " already exists.");
-			assertThat(reservationList.contents())
-				.containsExactlyInAnyOrder(A_RESERVATION_DISPLAYED, ANOTHER_RESERVATION_DISPLAYED);
+			assertThat(reservationList.contents()).containsOnlyOnceElementsOf(
+					Arrays.asList(A_RESERVATION_DISPLAYED, ANOTHER_RESERVATION_DISPLAYED));
 		}
 
 		@Test @GUITest
 		@DisplayName("New date is not valid")
-		public void testRescheduleReservationWhenNewDateIsNotValidShouldShowFormError() {
+		public void testRescheduleReservationWhenNewDateIsNotValidShouldShowFormErrorAndNotReschedule() {
 			when(reservationValidator.validateDate(ANOTHER_DATE))
 				.thenThrow(new IllegalArgumentException());
 			
 			servedBookingPresenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
 			formErrorMsgLbl.requireText("Reservation's date [" + ANOTHER_DATE + "] is not valid.");
+			assertThat(reservationList.contents()).doesNotContain(ANOTHER_RESERVATION_DISPLAYED);
 		}
 	////////////// Integration tests for 'rescheduleReservation'
 
