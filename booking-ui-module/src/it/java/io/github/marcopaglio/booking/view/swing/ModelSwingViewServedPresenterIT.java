@@ -38,7 +38,7 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 	private static final LocalDate A_LOCALDATE = LocalDate.parse(A_YEAR + "-" + A_MONTH + "-" + A_DAY);
 
 	protected TransactionalBookingService transactionalBookingService;
-	protected ServedBookingPresenter servedBookingPresenter;
+	private ServedBookingPresenter servedBookingPresenter;
 
 	protected FrameFixture window;
 
@@ -161,7 +161,7 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 
 	@Test
 	@DisplayName("Integration tests for 'RenameBtn'")
-	public void testRenameBtnWhenThereIsNoClientWithTheSameNewNamesShouldRenameWithoutChangingId() {
+	public void testRenameBtnWhenThereIsNoClientWithTheSameNewNamesShouldRename() {
 		String anotherFirstName = "Maria";
 		String anotherLastName = "De Lucia";
 		
@@ -219,7 +219,7 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 
 	@Test
 	@DisplayName("Integration tests for 'RescheduleBtn'")
-	public void testRescheduleBtnWhenThereIsNoReservationInTheSameNewDateShouldRescheduleWithoutChangingId() {
+	public void testRescheduleBtnWhenThereIsNoReservationInTheSameNewDateShouldReschedule() {
 		String anotherYear = "2023";
 		String anotherMonth = "09";
 		String anotherDay = "05";

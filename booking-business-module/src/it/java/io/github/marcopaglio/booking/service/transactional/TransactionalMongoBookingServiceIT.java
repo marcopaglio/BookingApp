@@ -1,10 +1,6 @@
 package io.github.marcopaglio.booking.service.transactional;
 
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
-import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_ALREADY_EXISTS_ERROR_MSG;
-import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_NOT_FOUND_ERROR_MSG;
-import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_ALREADY_EXISTS_ERROR_MSG;
-import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_NOT_FOUND_ERROR_MSG;
 import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,6 +58,11 @@ class TransactionalMongoBookingServiceIT {
 	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("7b565e00-59cd-4de8-b70a-a08842317d5b");
 	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse("2023-09-05");
 	private static final UUID ANOTHER_RESERVATION_UUID = UUID.fromString("f9e3dd0c-c3ff-4d4f-a3d1-108fcb3a697d");
+
+	private static final String CLIENT_NOT_FOUND_ERROR_MSG = "The requested client was not found in the database.";
+	private static final String CLIENT_ALREADY_EXISTS_ERROR_MSG = "That client is already in the database.";
+	private static final String RESERVATION_NOT_FOUND_ERROR_MSG = "The requested reservation was not found in the database.";
+	private static final String RESERVATION_ALREADY_EXISTS_ERROR_MSG = "That reservation is already in the database.";
 
 	private static final String MONGODB_NAME = "ITandE2ETest_db";
 	private static String mongoHost = System.getProperty("mongo.host", "localhost");
@@ -246,9 +247,9 @@ class TransactionalMongoBookingServiceIT {
 				
 				Client renamedClientInDB = service
 						.renameClient(A_CLIENT_UUID, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
+				
 				assertThat(renamedClientInDB).isEqualTo(renamedClient);
 				assertThat(renamedClientInDB.getId()).isEqualTo(A_CLIENT_UUID);
-				
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(renamedClient);
@@ -359,9 +360,9 @@ class TransactionalMongoBookingServiceIT {
 				
 				Reservation rescheduledReservationInDB =
 						service.rescheduleReservation(A_RESERVATION_UUID, ANOTHER_LOCALDATE);
+				
 				assertThat(rescheduledReservationInDB).isEqualTo(rescheduledReservation);
 				assertThat(rescheduledReservationInDB.getId()).isEqualTo(A_RESERVATION_UUID);
-				
 				assertThat(readAllReservationsFromDatabase())
 					.doesNotContain(reservation)
 					.containsExactly(rescheduledReservation);
@@ -476,7 +477,7 @@ class TransactionalMongoBookingServiceIT {
 					.hasMessage(RESERVATION_ALREADY_EXISTS_ERROR_MSG);
 				
 				List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-				assertThat(reservationsInDB).containsExactly(reservation);
+				assertThat(reservationsInDB).containsExactly(existingReservation);
 				assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
 			}
 		}
@@ -495,11 +496,11 @@ class TransactionalMongoBookingServiceIT {
 				
 				service.removeClient(A_CLIENT_UUID);
 				
-				assertThat(readAllReservationsFromDatabase())
-					.filteredOn(r -> Objects.equals(r.getClientId(), A_CLIENT_UUID)).isEmpty();
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(another_client);
+				assertThat(readAllReservationsFromDatabase())
+					.filteredOn(r -> Objects.equals(r.getClientId(), A_CLIENT_UUID)).isEmpty();
 			}
 
 			@Test
@@ -525,11 +526,11 @@ class TransactionalMongoBookingServiceIT {
 				
 				service.removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 				
-				assertThat(readAllReservationsFromDatabase())
-					.filteredOn(r -> Objects.equals(r.getClientId(), A_CLIENT_UUID)).isEmpty();
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(another_client);
+				assertThat(readAllReservationsFromDatabase())
+					.filteredOn(r -> Objects.equals(r.getClientId(), A_CLIENT_UUID)).isEmpty();
 			}
 
 			@Test

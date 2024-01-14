@@ -1,6 +1,7 @@
 package io.github.marcopaglio.booking.presenter.served;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,7 +49,6 @@ public abstract class ServedBookingPresenterIT {
 	@Mock
 	private ReservationValidator reservationValidator;
 
-	// SUT
 	protected TransactionalBookingService transactionalBookingService;
 	private ServedBookingPresenter presenter;
 
@@ -223,6 +223,7 @@ public abstract class ServedBookingPresenterIT {
 
 		@BeforeEach
 		void stubbingValidator() throws Exception {
+			when(reservationValidator.validateClientId(isA(UUID.class))).thenAnswer(i -> i.getArguments()[0]);
 			when(reservationValidator.validateDate(A_DATE)).thenReturn(A_LOCALDATE);
 		}
 
@@ -230,25 +231,19 @@ public abstract class ServedBookingPresenterIT {
 		@DisplayName("Reservation is new")
 		void testAddReservationWhenReservationIsNewShouldInsert() {
 			addTestClientToDatabase(client);
-			UUID client_id = client.getId();
-			
-			when(reservationValidator.validateClientId(client_id)).thenReturn(client_id);
 			
 			presenter.addReservation(client, A_DATE);
 			
 			assertThat(readAllReservationsFromDatabase())
-				.containsExactly(new Reservation(client_id, A_LOCALDATE));
+				.containsExactly(new Reservation(client.getId(), A_LOCALDATE));
 		}
 
 		@Test
 		@DisplayName("Reservation is not new")
 		void testAddReservationWhenReservationIsNotNewShouldNotInsertAgain() {
 			addTestClientToDatabase(client);
-			UUID client_id = client.getId();
-			reservation.setClientId(client_id);
+			reservation.setClientId(client.getId());
 			addTestReservationToDatabase(reservation);
-			
-			when(reservationValidator.validateClientId(client_id)).thenReturn(client_id);
 			
 			presenter.addReservation(client, A_DATE);
 			
@@ -312,7 +307,8 @@ public abstract class ServedBookingPresenterIT {
 			
 			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
-			Reservation reservationInDB = transactionalBookingService.findReservation(reservation.getId());
+			Reservation reservationInDB = transactionalBookingService
+					.findReservation(reservation.getId());
 			assertThat(reservationInDB.getDate()).isEqualTo(ANOTHER_LOCALDATE);
 		}
 
@@ -327,7 +323,8 @@ public abstract class ServedBookingPresenterIT {
 			
 			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
-			Reservation reservationInDB = transactionalBookingService.findReservation(reservation.getId());
+			Reservation reservationInDB = transactionalBookingService
+					.findReservation(reservation.getId());
 			assertThat(reservationInDB.getDate()).isEqualTo(A_LOCALDATE);
 		}
 	}

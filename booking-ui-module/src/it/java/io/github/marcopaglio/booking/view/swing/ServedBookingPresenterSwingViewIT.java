@@ -224,7 +224,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	////////////// Integration tests for 'addClient'
 		@Test @GUITest
 		@DisplayName("Client is new")
-		public void testAddClientWhenClientIsNewShouldShowItInList() {
+		public void testAddClientWhenClientIsNewShouldShowInList() {
 			when(clientValidator.validateFirstName(A_FIRSTNAME)).thenReturn(A_FIRSTNAME);
 			when(clientValidator.validateLastName(A_LASTNAME)).thenReturn(A_LASTNAME);
 			when(bookingService.insertNewClient(client)).thenReturn(client);
@@ -279,7 +279,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 	////////////// Integration tests for 'addReservation'
 		@Test @GUITest
 		@DisplayName("Reservation is new")
-		public void testAddReservationWhenReservationIsNewShouldShowItInList() {
+		public void testAddReservationWhenReservationIsNewShouldShowInList() {
 			when(reservationValidator.validateClientId(A_CLIENT_UUID)).thenReturn(A_CLIENT_UUID);
 			when(reservationValidator.validateDate(A_DATE)).thenReturn(A_LOCALDATE);
 			when(bookingService.insertNewReservation(reservation)).thenReturn(reservation);

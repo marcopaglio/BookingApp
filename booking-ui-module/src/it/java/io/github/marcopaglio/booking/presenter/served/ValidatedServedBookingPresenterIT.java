@@ -30,15 +30,14 @@ import io.github.marcopaglio.booking.view.BookingView;
 		+ "and RestrictedReservationValidator")
 class ValidatedServedBookingPresenterIT {
 
-	private RestrictedClientValidator restrictedClientValidator;
-	private RestrictedReservationValidator restrictedReservationValidator;
-
 	@Mock
 	private BookingService bookingService;
 
 	@Mock
 	private BookingView view;
 
+	private RestrictedClientValidator restrictedClientValidator;
+	private RestrictedReservationValidator restrictedReservationValidator;
 	private ServedBookingPresenter presenter;
 
 	private AutoCloseable closeable;
