@@ -44,12 +44,6 @@ import io.github.marcopaglio.booking.transaction.code.ClientTransactionCode;
 import io.github.marcopaglio.booking.transaction.code.ReservationTransactionCode;
 import io.github.marcopaglio.booking.transaction.manager.TransactionManager;
 
-import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_NOT_FOUND_ERROR_MSG;
-import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_ALREADY_EXISTS_ERROR_MSG;
-import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_NOT_FOUND_ERROR_MSG;
-import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_ALREADY_EXISTS_ERROR_MSG;
-import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.DATABASE_ERROR_MSG;
-
 @DisplayName("Tests for TransactionalBookingService class")
 @ExtendWith(MockitoExtension.class)
 class TransactionalBookingServiceTest {
@@ -66,6 +60,12 @@ class TransactionalBookingServiceTest {
 	private static final String ANOTHER_LASTNAME = "De Lucia";
 	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse("2023-09-05");
 	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("c01a64c2-73e6-4b70-808f-00f9bd82571d");
+
+	private static final String CLIENT_NOT_FOUND_ERROR_MSG = "The requested client was not found in the database.";
+	private static final String CLIENT_ALREADY_EXISTS_ERROR_MSG = "That client is already in the database.";
+	private static final String RESERVATION_NOT_FOUND_ERROR_MSG = "The requested reservation was not found in the database.";
+	private static final String RESERVATION_ALREADY_EXISTS_ERROR_MSG = "That reservation is already in the database.";
+	private static final String DATABASE_ERROR_MSG = "A database error occurs: the request cannot be executed.";
 
 	@Mock
 	private TransactionManager transactionManager;
