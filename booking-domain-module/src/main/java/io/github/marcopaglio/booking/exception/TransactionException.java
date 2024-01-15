@@ -4,7 +4,6 @@ package io.github.marcopaglio.booking.exception;
  * Thrown when a generic database transaction fails.
  */
 public class TransactionException extends RuntimeException {
-
 	/**
 	 * Version number used during deserialization to verify that the sender
 	 * and receiver of a serialized object have loaded classes for that object
