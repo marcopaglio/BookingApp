@@ -28,7 +28,6 @@ import jakarta.persistence.Persistence;
 @DisplayName("Tests for ReservationRepositoryFactory class")
 @Testcontainers
 class ReservationRepositoryFactoryTest {
-
 	private static final String BOOKING_DB_NAME = "ReservationRepositoryFactoryTest_db";
 
 	@Container
@@ -99,7 +98,7 @@ class ReservationRepositoryFactoryTest {
 				assertThatThrownBy(
 						() -> reservationRepositoryFactory.createReservationRepository(null, session, BOOKING_DB_NAME))
 					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Cannot create a ReservationMongoRepository from a null Mongo client.");
+					.hasMessage("Cannot create a ReservationMongoRepository from a null MongoDB client.");
 			}
 
 			@Test
@@ -109,7 +108,7 @@ class ReservationRepositoryFactoryTest {
 						() -> reservationRepositoryFactory.createReservationRepository(mongoClient, null, BOOKING_DB_NAME))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage(
-							"Cannot create a ReservationMongoRepository from a null Mongo client session.");
+							"Cannot create a ReservationMongoRepository from a null MongoDB client session.");
 			}
 		}
 

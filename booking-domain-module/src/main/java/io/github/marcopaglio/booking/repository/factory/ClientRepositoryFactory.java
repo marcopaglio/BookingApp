@@ -33,10 +33,10 @@ public class ClientRepositoryFactory {
 			ClientSession session, String databaseName) throws IllegalArgumentException {
 		if (mongoClient == null)
 			throw new IllegalArgumentException(
-					"Cannot create a ClientMongoRepository from a null Mongo client.");
+					"Cannot create a ClientMongoRepository from a null MongoDB client.");
 		if (session == null)
 			throw new IllegalArgumentException(
-					"Cannot create a ClientMongoRepository from a null Mongo client session.");
+					"Cannot create a ClientMongoRepository from a null MongoDB client session.");
 		
 		return new ClientMongoRepository(mongoClient, session, databaseName);
 	}
