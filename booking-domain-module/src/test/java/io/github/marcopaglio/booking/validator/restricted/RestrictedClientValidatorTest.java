@@ -33,7 +33,7 @@ class RestrictedClientValidatorTest {
 
 			@Test
 			@DisplayName("Name is valid")
-			void testValidateNameWhenNameIsValidShouldReturnTheSameName() {
+			void testValidateFirstNameWhenNameIsValidShouldReturnTheSameName() {
 				assertThat(clientValidator.validateFirstName(VALID_FIRSTNAME))
 					.isEqualTo(VALID_FIRSTNAME);
 			}
@@ -44,7 +44,7 @@ class RestrictedClientValidatorTest {
 				"èéàòìù", "Seán", "Ruairí", "Sørina", "Adrián", "François",
 				"Mónica", "Mátyás", "Jokūbas", "Siân", "Zoë", "KŠthe"
 			})
-			void testValidateNameWhenNameIsAccentedShouldNotThrow(String accentedFirstName) {
+			void testValidateFirstNameWhenNameIsAccentedShouldNotThrow(String accentedFirstName) {
 				assertThatNoException().isThrownBy(
 						() -> clientValidator.validateFirstName(accentedFirstName));
 			}
@@ -55,7 +55,7 @@ class RestrictedClientValidatorTest {
 				"De Lucia", "De Lucio Lucia", " Maria", "Maria ", " Maria ",		// single space
 				"De  Lucia", "De  Lucio  Lucia", "  Maria", "Maria  ", "  Maria  "	// multiple spaces
 			})
-			void testValidateNameWhenNameContainsSpacesShouldNotThrow(String spacedFirstName) {
+			void testValidateFirstNameWhenNameContainsSpacesShouldNotThrow(String spacedFirstName) {
 				assertThatNoException().isThrownBy(
 						() -> clientValidator.validateFirstName(spacedFirstName));
 			}
@@ -67,7 +67,7 @@ class RestrictedClientValidatorTest {
 
 			@Test
 			@DisplayName("Null names")
-			void testValidateNameWhenNameIsNullShouldThrow() {
+			void testValidateFirstNameWhenNameIsNullShouldThrow() {
 				assertThatThrownBy(
 						() -> clientValidator.validateFirstName(null))
 					.isInstanceOf(IllegalArgumentException.class)
@@ -77,7 +77,7 @@ class RestrictedClientValidatorTest {
 			@ParameterizedTest(name = "{index}: ''{0}''")
 			@DisplayName("Empty or only-spaces names")
 			@ValueSource(strings = {"", " ", "  ", "\t ", " \n", " \r ", "\f  "})
-			void testValidateNameWhenNameIsEmptyShouldThrow(String emptyFirstName) {
+			void testValidateFirstNameWhenNameIsEmptyShouldThrow(String emptyFirstName) {
 				assertThatThrownBy(
 						() -> clientValidator.validateFirstName(emptyFirstName))
 					.isInstanceOf(IllegalArgumentException.class)
@@ -87,12 +87,12 @@ class RestrictedClientValidatorTest {
 			@ParameterizedTest(name = "{index}: ''{0}''")
 			@DisplayName("Non-alphabet names")
 			@ValueSource(strings = {"Mari0", "Ro55i", "Mario!", "Rossi@"})
-			void testValidateNameWhenNameContainsNonAlphabetCharactersShouldThrow(
+			void testValidateFirstNameWhenNameContainsNonAlphabetCharactersShouldThrow(
 					String nonAlphabetFirstName) {
 				assertThatThrownBy(
 						() -> clientValidator.validateFirstName(nonAlphabetFirstName))
 					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Client's name must contain only alphabet letters.");
+					.hasMessage("Client's name can contain only alphabet letters.");
 			}
 		}
 
@@ -103,7 +103,7 @@ class RestrictedClientValidatorTest {
 			@ParameterizedTest(name = "{index}: ''{0}''")
 			@DisplayName("Side spaced names")
 			@ValueSource(strings = {" Mario", "Mario\t", " Mario ", "\t Mario  "})
-			void testValidateNameWhenNameContainsSideSpacesShouldRemove(
+			void testValidateFirstNameWhenNameContainsSideSpacesShouldRemove(
 					String sideSpacedFirstName) {
 				assertThat(clientValidator.validateFirstName(sideSpacedFirstName))
 					.isEqualTo(VALID_FIRSTNAME);
@@ -116,7 +116,7 @@ class RestrictedClientValidatorTest {
 				"'Mario  Maria  Mario', 'Mario Maria Mario'",
 				"'Mario   Maria   Mario', 'Mario Maria Mario'"
 			})
-			void testValidateNameWhenNameContainsSeveralSpacesShouldReduce(
+			void testValidateFirstNameWhenNameContainsSeveralSpacesShouldReduce(
 					String actualFirstName, String expectedFirstName) {
 				assertThat(clientValidator.validateFirstName(actualFirstName))
 					.isEqualTo(expectedFirstName);
@@ -135,7 +135,7 @@ class RestrictedClientValidatorTest {
 
 			@Test
 			@DisplayName("Surname is valid")
-			void testValidateSurnameWhenSurnameIsValidShouldReturnTheSameSurname() {
+			void testValidateLastNameWhenSurnameIsValidShouldReturnTheSameSurname() {
 				assertThat(clientValidator.validateLastName(VALID_LASTNAME))
 					.isEqualTo(VALID_LASTNAME);
 			}
@@ -146,7 +146,7 @@ class RestrictedClientValidatorTest {
 				"èéàòìù", "Seán", "Ruairí", "Sørina", "Adrián", "François",
 				"Mónica", "Mátyás", "Jokūbas", "Siân", "Zoë", "KŠthe"
 			})
-			void testValidateSurnameWhenSurnameIsAccentedShouldNotThrow(String accentedLastName) {
+			void testValidateLastNameWhenSurnameIsAccentedShouldNotThrow(String accentedLastName) {
 				assertThatNoException().isThrownBy(
 						() -> clientValidator.validateLastName(accentedLastName));
 			}
@@ -157,7 +157,7 @@ class RestrictedClientValidatorTest {
 				"De Lucia", "De Lucio Lucia", " Maria", "Maria ", " Maria ",		// single space
 				"De  Lucia", "De  Lucio  Lucia", "  Maria", "Maria  ", "  Maria  "	// multiple spaces
 			})
-			void testValidateSurnameWhenSurnameContainsSpacesShouldNotThrow(
+			void testValidateLastNameWhenSurnameContainsSpacesShouldNotThrow(
 					String spacedLastName) {
 				assertThatNoException().isThrownBy(
 						() -> clientValidator.validateLastName(spacedLastName));
@@ -170,7 +170,7 @@ class RestrictedClientValidatorTest {
 
 			@Test
 			@DisplayName("Null surnames")
-			void testValidateSurnameWhenSurnameIsNullShouldThrow() {
+			void testValidateLastNameWhenSurnameIsNullShouldThrow() {
 				assertThatThrownBy(
 						() -> clientValidator.validateLastName(null))
 					.isInstanceOf(IllegalArgumentException.class)
@@ -180,7 +180,7 @@ class RestrictedClientValidatorTest {
 			@ParameterizedTest(name = "{index}: ''{0}''")
 			@DisplayName("Empty or only-spaces surnames")
 			@ValueSource(strings = {"", " ", "  ", "\t ", " \n", " \r ", "\f  "})
-			void testValidateSurnameWhenSurnameIsEmptyShouldThrow(String emptyLastName) {
+			void testValidateLastNameWhenSurnameIsEmptyShouldThrow(String emptyLastName) {
 				assertThatThrownBy(
 						() -> clientValidator.validateLastName(emptyLastName))
 					.isInstanceOf(IllegalArgumentException.class)
@@ -190,12 +190,12 @@ class RestrictedClientValidatorTest {
 			@ParameterizedTest(name = "{index}: ''{0}''")
 			@DisplayName("Non-alphabet surnames")
 			@ValueSource(strings = {"Mari0", "Ro55i", "Mario!", "Rossi@"})
-			void testValidateSurnameWhenSurnameContainsNonAlphabetCharactersShouldThrow(
+			void testValidateLastNameWhenSurnameContainsNonAlphabetCharactersShouldThrow(
 					String nonAlphabetLastName) {
 				assertThatThrownBy(
 						() -> clientValidator.validateLastName(nonAlphabetLastName))
 					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Client's surname must contain only alphabet letters.");
+					.hasMessage("Client's surname can contain only alphabet letters.");
 			}
 		}
 
@@ -206,7 +206,7 @@ class RestrictedClientValidatorTest {
 			@ParameterizedTest(name = "{index}: ''{0}''")
 			@DisplayName("Side spaced surnames")
 			@ValueSource(strings = {"\tRossi", "Rossi ", "  Rossi", "Rossi  "})
-			void testValidateSurnameWhenSurnameContainsSideSpacesShouldRemove(
+			void testValidateLastNameWhenSurnameContainsSideSpacesShouldRemove(
 					String sideSpacedLastName) {
 				assertThat(clientValidator.validateLastName(sideSpacedLastName))
 					.isEqualTo(VALID_LASTNAME);
@@ -219,7 +219,7 @@ class RestrictedClientValidatorTest {
 				"'De  Lucio  Lucia', 'De Lucio Lucia'",
 				"'De   Lucio   Lucia', 'De Lucio Lucia'"
 			})
-			void testValidateSurnameWhenSurnameContainsSeveralSpacesShouldReduce(
+			void testValidateLastNameWhenSurnameContainsSeveralSpacesShouldReduce(
 					String actualLastName, String expectedLastName) {
 				assertThat(clientValidator.validateLastName(actualLastName))
 					.isEqualTo(expectedLastName);

@@ -94,7 +94,7 @@ public class RestrictedReservationValidator implements ReservationValidator{
 			throws IllegalArgumentException {
 		if (notOnlyNumeric.matcher(stringDate).find())
 			throw new IllegalArgumentException(
-				"Reservation needs a only numeric " + inputName + ".");
+				"Reservation's " + inputName + " can contain only numeric characters.");
 	}
 
 	/**
