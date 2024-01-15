@@ -4,10 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.AfterAll;
@@ -38,9 +36,10 @@ import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 class ClientPostgresRepositoryTest {
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
+	private static final UUID A_CLIENT_UUID = UUID.fromString("b37cbe2c-77c9-4f68-ad2d-140d7fc43a38");
+
 	private static final String ANOTHER_FIRSTNAME = "Maria";
 	private static final String ANOTHER_LASTNAME = "De Lucia";
-	private static final UUID A_CLIENT_UUID = UUID.fromString("b37cbe2c-77c9-4f68-ad2d-140d7fc43a38");
 
 	@Container
 	private static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15.3")
@@ -465,12 +464,9 @@ class ClientPostgresRepositoryTest {
 						.hasMessage("Client to save violates uniqueness constraints.");
 					em.getTransaction().commit();
 					
-					Set<String> namesInDB = new HashSet<>();
-					readAllClientsFromDatabase().forEach((c) -> namesInDB.add(c.getFirstName()));
-					assertThat(namesInDB).contains(ANOTHER_FIRSTNAME);
-					Set<String> surnamesInDB = new HashSet<>();
-					readAllClientsFromDatabase().forEach((c) -> surnamesInDB.add(c.getLastName()));
-					assertThat(surnamesInDB).contains(ANOTHER_LASTNAME);
+					assertThat(readAllClientsFromDatabase())
+						.anySatisfy(c -> assertThat(c.getFirstName()).isEqualTo(ANOTHER_FIRSTNAME))
+						.anySatisfy(c -> assertThat(c.getLastName()).isEqualTo(ANOTHER_LASTNAME));
 				}
 			}
 
@@ -518,7 +514,7 @@ class ClientPostgresRepositoryTest {
 				@DisplayName("Client has already been removed")
 				void testDeleteWhenClientHasAlreadyBeenRemovedFromDatabaseShouldNotRemoveAnythingAndNotThrow() {
 					addTestClientToDatabaseInTheSameContext(client);
-					// manually sets a different id
+					// set different id
 					UUID another_uuid;
 					do {
 						another_uuid = UUID.randomUUID();

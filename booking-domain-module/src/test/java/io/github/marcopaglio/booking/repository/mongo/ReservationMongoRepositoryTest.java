@@ -16,10 +16,8 @@ import static org.mockito.Mockito.spy;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -380,7 +378,7 @@ class ReservationMongoRepositoryTest {
 					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
 					
 					Reservation spied_reservation = spy(another_reservation);
-					// sets same id
+					// set same id
 					doAnswer( invocation -> {
 						((Reservation) invocation.getMock()).setId(A_RESERVATION_UUID);
 						return null;
@@ -399,7 +397,7 @@ class ReservationMongoRepositoryTest {
 					addTestReservationToDatabaseInAnotherContext(reservation, A_RESERVATION_UUID);
 					
 					Reservation spied_reservation = spy(another_reservation);
-					// sets same id
+					// set same id
 					doAnswer( invocation -> {
 						((Reservation) invocation.getMock()).setId(A_RESERVATION_UUID);
 						return null;
@@ -419,7 +417,7 @@ class ReservationMongoRepositoryTest {
 					
 					another_reservation.setDate(A_LOCALDATE);
 					Reservation spied_reservation = spy(another_reservation);
-					// sets different id
+					// set different id
 					doAnswer(invocation -> {
 						((Reservation) invocation.getMock()).setId(ANOTHER_RESERVATION_UUID);
 						return null;
@@ -441,7 +439,7 @@ class ReservationMongoRepositoryTest {
 					
 					another_reservation.setDate(A_LOCALDATE);
 					Reservation spied_reservation = spy(another_reservation);
-					// sets different id
+					// set different id
 					doAnswer(invocation -> {
 						((Reservation) invocation.getMock()).setId(ANOTHER_RESERVATION_UUID);
 						return null;
@@ -463,7 +461,7 @@ class ReservationMongoRepositoryTest {
 					
 					another_reservation.setClientId(A_CLIENT_UUID);
 					Reservation spied_reservation = spy(another_reservation);
-					// sets different id
+					// set different id
 					doAnswer(invocation -> {
 						((Reservation) invocation.getMock()).setId(ANOTHER_RESERVATION_UUID);
 						return null;
@@ -592,9 +590,8 @@ class ReservationMongoRepositoryTest {
 						.isInstanceOf(UniquenessConstraintViolationException.class)
 						.hasMessage("Reservation to save violates uniqueness constraints.");
 					
-					Set<LocalDate> datesInDB = new HashSet<>();
-					readAllReservationsFromDatabase().forEach((r) -> datesInDB.add(r.getDate()));
-					assertThat(datesInDB).contains(ANOTHER_LOCALDATE);
+					assertThat(readAllReservationsFromDatabase())
+						.anySatisfy(r -> assertThat(r.getDate()).isEqualTo(ANOTHER_LOCALDATE));
 				}
 			}
 

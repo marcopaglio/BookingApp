@@ -18,10 +18,8 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -339,7 +337,7 @@ class ClientMongoRepositoryTest {
 					addTestClientToDatabaseInTheSameContext(client, A_CLIENT_UUID);
 					
 					Client spied_client = spy(another_client);
-					// sets same id
+					// set same id
 					doAnswer(invocation -> {
 						((Client) invocation.getMock()).setId(A_CLIENT_UUID);
 						return null;
@@ -358,7 +356,7 @@ class ClientMongoRepositoryTest {
 					addTestClientToDatabaseInAnotherContext(client, A_CLIENT_UUID);
 					
 					Client spied_client = spy(another_client);
-					// sets same id
+					// set same id
 					doAnswer(invocation -> {
 						((Client) invocation.getMock()).setId(A_CLIENT_UUID);
 						return null;
@@ -379,7 +377,7 @@ class ClientMongoRepositoryTest {
 					another_client.setFirstName(client.getFirstName());
 					another_client.setLastName(client.getLastName());
 					Client spied_client = spy(another_client);
-					// sets different id
+					// set different id
 					doAnswer(invocation -> {
 						((Client) invocation.getMock()).setId(ANOTHER_CLIENT_UUID);
 						return null;
@@ -402,7 +400,7 @@ class ClientMongoRepositoryTest {
 					another_client.setFirstName(client.getFirstName());
 					another_client.setLastName(client.getLastName());
 					Client spied_client = spy(another_client);
-					// sets different id
+					// set different id
 					doAnswer(invocation -> {
 						((Client) invocation.getMock()).setId(ANOTHER_CLIENT_UUID);
 						return null;
@@ -430,7 +428,7 @@ class ClientMongoRepositoryTest {
 					another_client.setFirstName(firstName);
 					another_client.setLastName(lastName);
 					Client spied_client = spy(another_client);
-					// sets different id
+					// set different id
 					doAnswer(invocation -> {
 						((Client) invocation.getMock()).setId(ANOTHER_CLIENT_UUID);
 						return null;
@@ -542,12 +540,9 @@ class ClientMongoRepositoryTest {
 						.isInstanceOf(UniquenessConstraintViolationException.class)
 						.hasMessage("Client to save violates uniqueness constraints.");
 					
-					Set<String> namesInDB = new HashSet<>();
-					readAllClientsFromDatabase().forEach((c) -> namesInDB.add(c.getFirstName()));
-					assertThat(namesInDB).contains(ANOTHER_FIRSTNAME);
-					Set<String> surnamesInDB = new HashSet<>();
-					readAllClientsFromDatabase().forEach((c) -> surnamesInDB.add(c.getLastName()));
-					assertThat(surnamesInDB).contains(ANOTHER_LASTNAME);
+					assertThat(readAllClientsFromDatabase())
+						.anySatisfy(c -> assertThat(c.getFirstName()).isEqualTo(ANOTHER_FIRSTNAME))
+						.anySatisfy(c -> assertThat(c.getLastName()).isEqualTo(ANOTHER_LASTNAME));
 				}
 			}
 
