@@ -271,6 +271,10 @@
         </plugins>
       </build>
       <properties>
+        <!-- The version of Java (11.0.21) used to run this analysis is deprecated, and SonarCloud no longer supports it. Please upgrade to Java 17 or later. -->
+        <!-- ATTENTION: Following workaround will only be effective until January 28, 2024. After this date, all scans using the deprecated Java 11 will fail. -->
+        <sonar.scanner.force-deprecated-java-version>true</sonar.scanner.force-deprecated-java-version>
+        
         <sonar.issue.ignore.multicriteria>e1,e2</sonar.issue.ignore.multicriteria>
         <!-- Rule: "Tests should include assertions"  -->
         <!-- SonarQube does not know that AssertJ Swing methods effectively assert something -->
