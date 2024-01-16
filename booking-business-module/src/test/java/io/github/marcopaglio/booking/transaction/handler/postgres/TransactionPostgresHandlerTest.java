@@ -75,7 +75,7 @@ class TransactionPostgresHandlerTest {
 
 		@Test
 		@DisplayName("Active transaction")
-		void testStartTransactionWhenThereIsAlreadyAnActiveTransactionShouldNotThrowAndMaintainItActive() {
+		void testStartTransactionWhenThereIsAlreadyAnActiveTransactionShouldMaintainItActiveAndNotThrow() {
 			startATransaction();
 			
 			assertThatNoException().isThrownBy(() -> transactionPostgresHandler.startTransaction());
@@ -100,7 +100,7 @@ class TransactionPostgresHandlerTest {
 
 		@Test
 		@DisplayName("No active transaction")
-		void testCommitTransactionWhenThereIsNoActiveTransactionShouldNotThrowAndMaintainItClose() {
+		void testCommitTransactionWhenThereIsNoActiveTransactionShouldMaintainItCloseAndNotThrow() {
 			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 			
 			assertThatNoException().isThrownBy(
@@ -126,7 +126,7 @@ class TransactionPostgresHandlerTest {
 
 		@Test
 		@DisplayName("No active transaction")
-		void testRollbackTransactionWhenThereIsNoActiveTransactionShouldNotThrowAndMaintainItClose() {
+		void testRollbackTransactionWhenThereIsNoActiveTransactionShouldMaintainItCloseAndNotThrow() {
 			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 			
 			assertThatNoException().isThrownBy(
@@ -142,7 +142,7 @@ class TransactionPostgresHandlerTest {
 
 		@Test
 		@DisplayName("Open handler")
-		void testCloseHandlerWhenIsOpenShouldClose() {
+		void testCloseHandlerWhenHandlerIsOpenShouldClose() {
 			assertThat(isHandlerOpen()).isTrue();
 			
 			transactionPostgresHandler.closeHandler();
@@ -152,10 +152,12 @@ class TransactionPostgresHandlerTest {
 
 		@Test
 		@DisplayName("Already closed handler")
-		void testCloseHandlerWhenIsAlreadyClosedShouldReturnNotThrow() {
+		void testCloseHandlerWhenHandlerIsAlreadyClosedShouldMaintainItCloseAndNotThrow() {
 			closeTheHandler();
 			
 			assertThatNoException().isThrownBy(() -> transactionPostgresHandler.closeHandler());
+			
+			assertThat(isHandlerOpen()).isFalse();
 		}
 	}
 
