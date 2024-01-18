@@ -265,7 +265,6 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			public void testReservationListSelectionWhenTheAssociatedClientDoesNotExistShouldClearSelection() {
 				addClientInList(anotherClient);
 				addReservationInList(reservation);
-				
 				clientList.selectItem(0);
 				
 				reservationList.selectItem(0);
@@ -278,7 +277,6 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			public void testReservationListSelectionWhenTheReservationSelectedIsNullShouldClearSelection() {
 				addClientInList(client);
 				addReservationInList(null);
-				
 				clientList.selectItem(0);
 				
 				reservationList.selectItem(0);
@@ -303,14 +301,15 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				@DisplayName("Not blank surname and text is typed")
 				public void testNameFormTxtWhenSurnameIsNotBlankAndTextIsTypedShouldEnableAddClientBtn() {
 					surnameFormTxt.setText(A_LASTNAME);
+					
 					nameFormTxt.enterText(A_FIRSTNAME);
 			
 					addClientBtn.requireEnabled();
 				}
 
 				@Test @GUITest
-				@DisplayName("Add client enabled and text is deleted")
-				public void testNameFormTxtWhenAddClientBtnIsEnabledAndTextIsDeletedShouldDisableAddClientBtn() {
+				@DisplayName("Text is deleted")
+				public void testNameFormTxtWhenTextIsDeletedShouldDisableAddClientBtn() {
 					surnameFormTxt.setText(A_LASTNAME);
 					nameFormTxt.setText(A_FIRSTNAME);
 					enableButton(bookingSwingView.getAddClientBtn());
@@ -324,24 +323,17 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				@DisplayName("Not blank surname and spaces are typed")
 				public void testNameFormTxtWhenSurnameIsNotBlankAndSpacesAreTypedShouldNotEnableAddClientBtn() {
 					surnameFormTxt.setText(A_LASTNAME);
+					
 					nameFormTxt.enterText("   ");
 			
 					addClientBtn.requireDisabled();
 				}
 
 				@Test @GUITest
-				@DisplayName("Empty surname and text is typed")
-				public void testNameFormTxtWhenSurnameIsEmptyAndTextIsTypedShouldNotEnableAddClientBtn() {
-					surnameFormTxt.setText("");
-					nameFormTxt.enterText(A_FIRSTNAME);
-					
-					addClientBtn.requireDisabled();
-				}
-
-				@Test @GUITest
 				@DisplayName("Blank surname and text is typed")
 				public void testNameFormTxtWhenSurnameIsBlankAndTextIsTypedShouldNotEnableAddClientBtn() {
-					surnameFormTxt.setText("  ");
+					surnameFormTxt.setText("");
+					
 					nameFormTxt.enterText(A_FIRSTNAME);
 					
 					addClientBtn.requireDisabled();
@@ -354,14 +346,15 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				@DisplayName("Not blank name and text is typed")
 				public void testSurnameFormTxtWhenNameIsNotBlankAndTextIsTypedShouldEnableAddClientBtn() {
 					nameFormTxt.setText(A_FIRSTNAME);
+					
 					surnameFormTxt.enterText(A_LASTNAME);
 					
 					addClientBtn.requireEnabled();
 				}
 
 				@Test @GUITest
-				@DisplayName("Add client enabled and text is deleted")
-				public void testSurnameFormTxtWhenAddClientBtnIsEnabledAndTextIsDeletedShouldDisableAddClientBtn() {
+				@DisplayName("Text is deleted")
+				public void testSurnameFormTxtWhenTextIsDeletedShouldDisableAddClientBtn() {
 					nameFormTxt.setText(A_FIRSTNAME);
 					surnameFormTxt.enterText(A_LASTNAME);
 					enableButton(bookingSwingView.getAddClientBtn());
@@ -375,16 +368,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				@DisplayName("Not blank name and spaces are typed")
 				public void testSurnameFormTxtWhenNameIsNotBlankAndSpacesAreTypedShouldNotEnableAddClientBtn() {
 					nameFormTxt.setText(A_FIRSTNAME);
-					surnameFormTxt.enterText("  ");
 					
-					addClientBtn.requireDisabled();
-				}
-
-				@Test @GUITest
-				@DisplayName("Empty name and text is typed")
-				public void testSurnameFormTxtWhenNameIsEmptyAndTextIsTypedShouldNotEnableAddClientBtn() {
-					nameFormTxt.setText("");
-					surnameFormTxt.enterText(A_LASTNAME);
+					surnameFormTxt.enterText("  ");
 					
 					addClientBtn.requireDisabled();
 				}
@@ -393,6 +378,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				@DisplayName("Blank name and text is typed")
 				public void testSurnameFormTxtWhenNameIsBlankAndTextIsTypedShouldNotEnableAddClientBtn() {
 					nameFormTxt.setText("  ");
+					
 					surnameFormTxt.enterText(A_LASTNAME);
 					
 					addClientBtn.requireDisabled();
@@ -429,8 +415,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Rename enabled and text is deleted")
-				public void testNameFormTxtWhenRenameBtnIsEnabledAndTextIsDeletedShouldDisableRenameBtn() {
+				@DisplayName("Text is deleted")
+				public void testNameFormTxtWhenTextIsDeletedShouldDisableRenameBtn() {
 					addClientInList(client);
 					clientList.selectItem(0);
 					nameFormTxt.setText(ANOTHER_FIRSTNAME);
@@ -450,18 +436,6 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 					surnameFormTxt.setText(A_LASTNAME);
 					
 					nameFormTxt.enterText("  ");
-					
-					renameBtn.requireDisabled();
-				}
-
-				@Test @GUITest
-				@DisplayName("Empty surname and text is typed")
-				public void testNameFormTxtWhenSurnameIsEmptyAndTextIsTypedShouldNotEnableRenameBtn() {
-					addClientInList(client);
-					clientList.selectItem(0);
-					surnameFormTxt.setText("");
-					
-					nameFormTxt.enterText(ANOTHER_FIRSTNAME);
 					
 					renameBtn.requireDisabled();
 				}
@@ -518,8 +492,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Rename enabled and text is deleted")
-				public void testSurnameFormTxtWhenRenameBtnIsEnabledAndTextIsDeletedShouldDisableRenameBtn() {
+				@DisplayName("Text is deleted")
+				public void testSurnameFormTxtWhenTextIsDeletedShouldDisableRenameBtn() {
 					addClientInList(client);
 					clientList.selectItem(0);
 					nameFormTxt.setText(A_FIRSTNAME);
@@ -544,23 +518,11 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Empty name and text is typed")
-				public void testSurnameFormTxtWhenNameIsEmptyAndTextIsTypedShouldNotEnableRenameBtn() {
-					addClientInList(client);
-					clientList.selectItem(0);
-					nameFormTxt.setText("");
-					
-					surnameFormTxt.enterText(ANOTHER_LASTNAME);
-					
-					renameBtn.requireDisabled();
-				}
-
-				@Test @GUITest
 				@DisplayName("Blank name and text is typed")
 				public void testSurnameFormTxtWhenNameIsBlankAndTextIsTypedShouldNotEnableRenameBtn() {
 					addClientInList(client);
 					clientList.selectItem(0);
-					nameFormTxt.setText(" ");
+					nameFormTxt.setText("");
 					
 					surnameFormTxt.enterText(ANOTHER_LASTNAME);
 					
@@ -607,8 +569,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Rename enabled and client is deselected")
-				public void testClientListWhenRenameBtnIsEnabledAndAClientIsDeselectedShouldDisableRenameBtn() {
+				@DisplayName("Client is deselected")
+				public void testClientListWhenClientIsDeselectedShouldDisableRenameBtn() {
 					addClientInList(client);
 					clientList.selectItem(0);
 					nameFormTxt.setText(ANOTHER_FIRSTNAME);
@@ -622,35 +584,11 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Empty name and client is selected")
-				public void testClientListWhenNameIsEmptyAndAClientIsSelectedShouldNotEnableRenameBtn() {
-					addClientInList(client);
-					nameFormTxt.setText("");
-					surnameFormTxt.setText(ANOTHER_LASTNAME);
-					
-					clientList.selectItem(0);
-					
-					renameBtn.requireDisabled();
-				}
-
-				@Test @GUITest
 				@DisplayName("Blank name and client is selected")
 				public void testClientListWhenNameIsBlankAndAClientIsSelectedShouldNotEnableRenameBtn() {
 					addClientInList(client);
 					nameFormTxt.setText(" ");
 					surnameFormTxt.setText(ANOTHER_LASTNAME);
-					
-					clientList.selectItem(0);
-					
-					renameBtn.requireDisabled();
-				}
-
-				@Test @GUITest
-				@DisplayName("Empty surname and client is selected")
-				public void testClientListWhenSurnameIsEmptyAndAClientIsSelectedShouldNotEnableRenameBtn() {
-					addClientInList(client);
-					nameFormTxt.setText(ANOTHER_FIRSTNAME);
-					surnameFormTxt.setText("");
 					
 					clientList.selectItem(0);
 					
@@ -706,14 +644,15 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				@DisplayName("Client is selected")
 				public void testClientListWhenAClientIsSelectedShouldEnableRemoveClientBtn() {
 					addClientInList(client);
+					
 					clientList.selectItem(0);
 					
 					removeClientBtn.requireEnabled();
 				}
 
 				@Test @GUITest
-				@DisplayName("Remove client enabled and client is deselected")
-				public void testClientListWhenRemoveClientBtnIsEnabledAndClientIsDeselectedShouldDisableRemoveClientBtn() {
+				@DisplayName("Client is deselected")
+				public void testClientListWhenClientIsDeselectedShouldDisableRemoveClientBtn() {
 					addClientInList(client);
 					clientList.selectItem(0);
 					enableButton(bookingSwingView.getRemoveClientBtn());
@@ -756,8 +695,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Add reservation enabled and text is deleted")
-				public void testDayFormTxtWhenAddReservationBtnIsEnabledAndTextIsDeletedShouldDisableAddReservationBtn() {
+				@DisplayName("Text is deleted")
+				public void testDayFormTxtWhenTextIsDeletedShouldDisableAddReservationBtn() {
 					addClientInList(client);
 					clientList.selectItem(0);
 					yearFormTxt.setText(A_YEAR);
@@ -784,19 +723,6 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Empty month and text is typed")
-				public void testDayFormTxtWhenMonthIsEmptyAndTextIsTypedShouldNotEnableAddReservationBtn() {
-					addClientInList(client);
-					clientList.selectItem(0);
-					yearFormTxt.setText(A_YEAR);
-					monthFormTxt.setText("");
-					
-					dayFormTxt.enterText(A_DAY);
-					
-					addReservationBtn.requireDisabled();
-				}
-
-				@Test @GUITest
 				@DisplayName("Blank month and text is typed")
 				public void testDayFormTxtWhenMonthIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
 					addClientInList(client);
@@ -810,24 +736,11 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Empty year and text is typed")
-				public void testDayFormTxtWhenYearIsEmptyAndTextIsTypedShouldNotEnableAddReservationBtn() {
-					addClientInList(client);
-					clientList.selectItem(0);
-					yearFormTxt.setText("");
-					monthFormTxt.setText(A_MONTH);
-					
-					dayFormTxt.enterText(A_DAY);
-					
-					addReservationBtn.requireDisabled();
-				}
-
-				@Test @GUITest
 				@DisplayName("Blank year and text is typed")
 				public void testDayFormTxtWhenYearIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
 					addClientInList(client);
 					clientList.selectItem(0);
-					yearFormTxt.setText("   ");
+					yearFormTxt.setText("");
 					monthFormTxt.setText(A_MONTH);
 					
 					dayFormTxt.enterText(A_DAY);
@@ -917,8 +830,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Add reservation enabled and text is deleted")
-				public void testMonthFormTxtWhenAddReservationBtnIsEnabledAndTextIsDeletedShouldDisableAddReservationBtn() {
+				@DisplayName("Text is deleted")
+				public void testMonthFormTxtWhenTextIsDeletedShouldDisableAddReservationBtn() {
 					addClientInList(client);
 					clientList.selectItem(0);
 					yearFormTxt.setText(A_YEAR);
@@ -945,38 +858,12 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Empty year and text is typed")
-				public void testMonthFormTxtWhenYearIsEmptyAndTextIsTypedShouldNotEnableAddReservationBtn() {
-					addClientInList(client);
-					clientList.selectItem(0);
-					yearFormTxt.setText("");
-					dayFormTxt.setText(A_DAY);
-					
-					monthFormTxt.enterText(A_MONTH);
-					
-					addReservationBtn.requireDisabled();
-				}
-
-				@Test @GUITest
 				@DisplayName("Blank year and text is typed")
 				public void testMonthFormTxtWhenYearIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
 					addClientInList(client);
 					clientList.selectItem(0);
 					yearFormTxt.setText("  ");
 					dayFormTxt.setText(A_DAY);
-					
-					monthFormTxt.enterText(A_MONTH);
-					
-					addReservationBtn.requireDisabled();
-				}
-
-				@Test @GUITest
-				@DisplayName("Empty day and text is typed")
-				public void testMonthFormTxtWhenDayIsEmptyAndTextIsTypedShouldNotEnableAddReservationBtn() {
-					addClientInList(client);
-					clientList.selectItem(0);
-					yearFormTxt.setText(A_YEAR);
-					dayFormTxt.setText("");
 					
 					monthFormTxt.enterText(A_MONTH);
 					
@@ -1078,8 +965,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Add Reservation enabled and text is deleted")
-				public void testYearFormTxtWhenAddReservationBtnIsEnabledAndTextIsDeletedShouldDisableAddReservationBtn() {
+				@DisplayName("Text is deleted")
+				public void testYearFormTxtWhenTextIsDeletedShouldDisableAddReservationBtn() {
 					addClientInList(client);
 					clientList.selectItem(0);
 					yearFormTxt.setText(A_YEAR);
@@ -1106,38 +993,12 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Empty month and text is typed")
-				public void testYearFormTxtWhenMonthIsEmptyAndTextIsTypedShouldNotEnableAddReservationBtn() {
-					addClientInList(client);
-					clientList.selectItem(0);
-					monthFormTxt.setText("");
-					dayFormTxt.setText(A_DAY);
-					
-					yearFormTxt.enterText(A_YEAR);
-					
-					addReservationBtn.requireDisabled();
-				}
-
-				@Test @GUITest
 				@DisplayName("Blank month and text is typed")
 				public void testYearFormTxtWhenMonthIsBlankAndTextIsTypedShouldNotEnableAddReservationBtn() {
 					addClientInList(client);
 					clientList.selectItem(0);
 					monthFormTxt.setText("   ");
 					dayFormTxt.setText(A_DAY);
-					
-					yearFormTxt.enterText(A_YEAR);
-					
-					addReservationBtn.requireDisabled();
-				}
-
-				@Test @GUITest
-				@DisplayName("Empty day and text is typed")
-				public void testYearFormTxtWhenDayIsEmptyAndTextIsTypedShouldNotEnableAddReservationBtn() {
-					addClientInList(client);
-					clientList.selectItem(0);
-					monthFormTxt.setText(A_MONTH);
-					dayFormTxt.setText("");
 					
 					yearFormTxt.enterText(A_YEAR);
 					
@@ -1239,8 +1100,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Add reservation enabled and client is deselected")
-				public void testClientListWhenAddReservationBtnIsEnabledAndClientIsDeselectedShouldDisableAddReservationBtn() {
+				@DisplayName("Client is deselected")
+				public void testClientListWhenClientIsDeselectedShouldDisableAddReservationBtn() {
 					addClientInList(client);
 					clientList.selectItem(0);
 					yearFormTxt.setText(A_YEAR);
@@ -1248,20 +1109,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 					dayFormTxt.setText(A_DAY);
 					enableButton(bookingSwingView.getAddReservationBtn());
 					
+					// unselectItem would be more clear but it doesn't trigger the list selection listener
 					clientList.clearSelection();
-					
-					addReservationBtn.requireDisabled();
-				}
-
-				@Test @GUITest
-				@DisplayName("Empty year and day and client is selected")
-				public void testClientListWhenYearIsEmptyAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
-					addClientInList(client);
-					yearFormTxt.setText("");
-					monthFormTxt.setText(A_MONTH);
-					dayFormTxt.setText(A_DAY);
-					
-					clientList.selectItem(0);
 					
 					addReservationBtn.requireDisabled();
 				}
@@ -1270,21 +1119,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				@DisplayName("Blank year and client is selected")
 				public void testClientListWhenYearIsBlankAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
 					addClientInList(client);
-					yearFormTxt.setText("   ");
+					yearFormTxt.setText("");
 					monthFormTxt.setText(A_MONTH);
-					dayFormTxt.setText(A_DAY);
-					
-					clientList.selectItem(0);
-					
-					addReservationBtn.requireDisabled();
-				}
-
-				@Test @GUITest
-				@DisplayName("Empty month and client is selected")
-				public void testClientListWhenMonthIsEmptyAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
-					addClientInList(client);
-					yearFormTxt.setText(A_YEAR);
-					monthFormTxt.setText("");
 					dayFormTxt.setText(A_DAY);
 					
 					clientList.selectItem(0);
@@ -1299,19 +1135,6 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 					yearFormTxt.setText(A_YEAR);
 					monthFormTxt.setText("  ");
 					dayFormTxt.setText(A_DAY);
-					
-					clientList.selectItem(0);
-					
-					addReservationBtn.requireDisabled();
-				}
-
-				@Test @GUITest
-				@DisplayName("Empty day and client is selected")
-				public void testClientListWhenDayIsEmptyAndAClientIsSelectedShouldNotEnableAddReservationBtn() {
-					addClientInList(client);
-					yearFormTxt.setText(A_YEAR);
-					monthFormTxt.setText(A_MONTH);
-					dayFormTxt.setText("");
 					
 					clientList.selectItem(0);
 					
@@ -1418,8 +1241,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Reschedule enabled and text is deleted")
-				public void testDayFormTxtWhenRescheduleBtnIsEnabledAndTextIsDeletedShouldDisableRescheduleBtn() {
+				@DisplayName("Text is deleted")
+				public void testDayFormTxtWhenTextIsDeletedShouldDisableRescheduleBtn() {
 					addReservationInList(reservation);
 					reservationList.selectItem(0);
 					yearFormTxt.setText(A_YEAR);
@@ -1446,38 +1269,12 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Empty year and text is typed")
-				public void testDayFormTxtWhenYearIsEmptyAndTextIsTypedShouldNotEnableRescheduleBtn() {
-					addReservationInList(reservation);
-					reservationList.selectItem(0);
-					yearFormTxt.setText("");
-					monthFormTxt.setText(A_MONTH);
-					
-					dayFormTxt.enterText(ANOTHER_DAY);
-					
-					rescheduleBtn.requireDisabled();
-				}
-
-				@Test @GUITest
 				@DisplayName("Blank year and text is typed")
 				public void testDayFormTxtWhenYearIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
 					addReservationInList(reservation);
 					reservationList.selectItem(0);
 					yearFormTxt.setText("   ");
 					monthFormTxt.setText(A_MONTH);
-					
-					dayFormTxt.enterText(ANOTHER_DAY);
-					
-					rescheduleBtn.requireDisabled();
-			}
-
-				@Test @GUITest
-				@DisplayName("Empty month and text is typed")
-				public void testDayFormTxtWhenMonthIsEmptyAndTextIsTypedShouldNotEnableRescheduleBtn() {
-					addReservationInList(reservation);
-					reservationList.selectItem(0);
-					yearFormTxt.setText(A_YEAR);
-					monthFormTxt.setText("");
 					
 					dayFormTxt.enterText(ANOTHER_DAY);
 					
@@ -1579,8 +1376,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Reschedule enabled and text is deleted")
-				public void testMonthFormTxtWhenRescheduleBtnIsEnabledAndTextIsDeletedShouldDisableRescheduleBtn() {
+				@DisplayName("Text is deleted")
+				public void testMonthFormTxtWhenTextIsDeletedShouldDisableRescheduleBtn() {
 					addReservationInList(reservation);
 					reservationList.selectItem(0);
 					yearFormTxt.setText(A_YEAR);
@@ -1607,38 +1404,12 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Empty year and text is typed")
-				public void testMonthFormTxtWhenYearIsEmptyAndTextIsTypedShouldNotEnableRescheduleBtn() {
-					addReservationInList(reservation);
-					reservationList.selectItem(0);
-					yearFormTxt.setText("");
-					dayFormTxt.setText(A_DAY);
-					
-					monthFormTxt.enterText(ANOTHER_MONTH);
-					
-					rescheduleBtn.requireDisabled();
-				}
-
-				@Test @GUITest
 				@DisplayName("Blank year and text is typed")
 				public void testMonthFormTxtWhenYearIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
 					addReservationInList(reservation);
 					reservationList.selectItem(0);
 					yearFormTxt.setText("   ");
 					dayFormTxt.setText(A_DAY);
-					
-					monthFormTxt.enterText(ANOTHER_MONTH);
-					
-					rescheduleBtn.requireDisabled();
-				}
-
-				@Test @GUITest
-				@DisplayName("Empty day and text is typed")
-				public void testMonthFormTxtWhenDayIsEmptyAndTextIsTypedShouldNotEnableRescheduleBtn() {
-					addReservationInList(reservation);
-					reservationList.selectItem(0);
-					yearFormTxt.setText(A_YEAR);
-					dayFormTxt.setText("");
 					
 					monthFormTxt.enterText(ANOTHER_MONTH);
 					
@@ -1740,8 +1511,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Reschedule enabled and text is deleted")
-				public void testYearFormTxtWhenRescheduleBtnIsEnabledAndTextIsTypedShouldDisableRescheduleBtn() {
+				@DisplayName("Text is deleted")
+				public void testYearFormTxtWhenTextIsDeletedShouldDisableRescheduleBtn() {
 					addReservationInList(reservation);
 					reservationList.selectItem(0);
 					yearFormTxt.setText(ANOTHER_YEAR);
@@ -1768,38 +1539,12 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Empty month and text is typed")
-				public void testYearFormTxtWhenMonthIsEmptyAndTextIsTypedShouldNotEnableRescheduleBtn() {
-					addReservationInList(reservation);
-					reservationList.selectItem(0);
-					monthFormTxt.setText("");
-					dayFormTxt.setText(A_DAY);
-					
-					yearFormTxt.enterText(ANOTHER_YEAR);
-					
-					rescheduleBtn.requireDisabled();
-				}
-
-				@Test @GUITest
 				@DisplayName("Blank month and text is typed")
 				public void testYearFormTxtWhenMonthIsBlankAndTextIsTypedShouldNotEnableRescheduleBtn() {
 					addReservationInList(reservation);
 					reservationList.selectItem(0);
-					monthFormTxt.setText("  ");
+					monthFormTxt.setText("");
 					dayFormTxt.setText(A_DAY);
-					
-					yearFormTxt.enterText(ANOTHER_YEAR);
-					
-					rescheduleBtn.requireDisabled();
-				}
-
-				@Test @GUITest
-				@DisplayName("Empty day and text is typed")
-				public void testYearFormTxtWhenDayIsEmptyAndTextIsTypedShouldNotEnableRescheduleBtn() {
-					addReservationInList(reservation);
-					reservationList.selectItem(0);
-					monthFormTxt.setText(A_MONTH);
-					dayFormTxt.setText("");
 					
 					yearFormTxt.enterText(ANOTHER_YEAR);
 					
@@ -1901,8 +1646,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Reschedule enabled and reservation is deselected")
-				public void testReservationListWhenRescheduleBtnIsEnabledAndReservationIsDeselectedShouldDisabledRescheduleBtn() {
+				@DisplayName("Reservation is deselected")
+				public void testReservationListWhenReservationIsDeselectedShouldDisabledRescheduleBtn() {
 					addReservationInList(reservation);
 					reservationList.selectItem(0);
 					yearFormTxt.setText(ANOTHER_YEAR);
@@ -1910,20 +1655,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 					dayFormTxt.setText(ANOTHER_DAY);
 					enableButton(bookingSwingView.getRescheduleBtn());
 					
+					// unselectItem would be more clear but it doesn't trigger the list selection listener
 					reservationList.clearSelection();
-					
-					rescheduleBtn.requireDisabled();
-				}
-
-				@Test @GUITest
-				@DisplayName("Empty year and reservation is selected")
-				public void testReservationListWhenYearIsEmptyAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
-					addReservationInList(reservation);
-					yearFormTxt.setText("");
-					monthFormTxt.setText(ANOTHER_MONTH);
-					dayFormTxt.setText(ANOTHER_DAY);
-					
-					reservationList.selectItem(0);
 					
 					rescheduleBtn.requireDisabled();
 				}
@@ -1932,21 +1665,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				@DisplayName("Blank year and reservation is selected")
 				public void testReservationListWhenYearIsBlankAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
 					addReservationInList(reservation);
-					yearFormTxt.setText(" ");
+					yearFormTxt.setText("");
 					monthFormTxt.setText(ANOTHER_MONTH);
-					dayFormTxt.setText(ANOTHER_DAY);
-					
-					reservationList.selectItem(0);
-					
-					rescheduleBtn.requireDisabled();
-				}
-
-				@Test @GUITest
-				@DisplayName("Empty month and reservation is selected")
-				public void testReservationListWhenMonthIsEmptyAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
-					addReservationInList(reservation);
-					yearFormTxt.setText(ANOTHER_YEAR);
-					monthFormTxt.setText("");
 					dayFormTxt.setText(ANOTHER_DAY);
 					
 					reservationList.selectItem(0);
@@ -1961,19 +1681,6 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 					yearFormTxt.setText(ANOTHER_YEAR);
 					monthFormTxt.setText("   ");
 					dayFormTxt.setText(ANOTHER_DAY);
-					
-					reservationList.selectItem(0);
-					
-					rescheduleBtn.requireDisabled();
-				}
-
-				@Test @GUITest
-				@DisplayName("Empty day and reservation is selected")
-				public void testReservationListWhenDayIsEmptyAndAReservationIsSelectedShouldNotEnableRescheduleBtn() {
-					addReservationInList(reservation);
-					yearFormTxt.setText(ANOTHER_YEAR);
-					monthFormTxt.setText(ANOTHER_MONTH);
-					dayFormTxt.setText("");
 					
 					reservationList.selectItem(0);
 					
@@ -2076,8 +1783,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 				}
 
 				@Test @GUITest
-				@DisplayName("Remove reservation enabled and reservation is deselected")
-				public void testReservationListWhenRemoveReservationBtnIsEnabledAndReservationIsDeselectedShouldDisableRemoveReservationBtn() {
+				@DisplayName("Reservation is deselected")
+				public void testReservationListWhenReservationIsDeselectedShouldDisableRemoveReservationBtn() {
 					addReservationInList(reservation);
 					reservationList.selectItem(0);
 					enableButton(bookingSwingView.getRemoveReservationBtn());
@@ -2110,7 +1817,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		////////////// Tests for 'showAllClients'
 			@Test @GUITest
 			@DisplayName("Empty list")
-			public void testShowAllClientsListOfClientsIsEmptyShouldNotShowAnyElements() {
+			public void testShowAllClientsWhenListOfClientsIsEmptyShouldNotShowAnything() {
 				bookingSwingView.showAllClients(Collections.emptyList());
 				
 				assertThat(clientList.contents()).isEmpty();
@@ -2127,30 +1834,32 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Other clients of which one selected")
-			public void testShowAllClientsWhenThereAreOtherClientsOfWhichOneIsSelectedShouldResetSelectionAndShowOnlyNewOnes() {
+			@DisplayName("Other clients displayed")
+			public void testShowAllClientsWhenThereAreOtherClientsDisplayedShouldShowOnlyNewOnes() {
 				addClientInList(client);
 				addClientInList(anotherClient);
-				clientList.selectItem(0);
 				
 				bookingSwingView.showAllClients(Arrays.asList(
 						client, new Client(CHANGED_FIRSTNAME, CHANGED_LASTNAME)));
 				
-				clientList.requireNoSelection();
 				assertThat(clientList.contents())
 					.doesNotContain(ANOTHER_CLIENT_DISPLAYED)
 					.containsExactlyInAnyOrder(A_CLIENT_DISPLAYED, CHANGED_CLIENT_DISPLAYED);
 			}
 
 			@Test @GUITest
-			@DisplayName("Buttons enabled")
-			public void testShowAllClientsWhenThereAreSpecificButtonsEnabledShouldDisableThem() {
+			@DisplayName("Client selected")
+			public void testShowAllClientsWhenAClientIsSelectedShouldClearTheSelectionAndDisableRelatedButtons() {
+				addClientInList(client);
+				addClientInList(anotherClient);
+				clientList.selectItem(0);
 				enableButton(bookingSwingView.getRenameBtn());
 				enableButton(bookingSwingView.getRemoveClientBtn());
 				enableButton(bookingSwingView.getAddReservationBtn());
 				
-				bookingSwingView.showAllClients(Collections.emptyList());
+				bookingSwingView.showAllClients(Arrays.asList(client, anotherClient));
 				
+				clientList.requireNoSelection();
 				renameBtn.requireDisabled();
 				removeClientBtn.requireDisabled();
 				addReservationBtn.requireDisabled();
@@ -2161,7 +1870,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 		////////////// Tests for 'showAllReservations'
 			@Test @GUITest
 			@DisplayName("Empty list")
-			public void testShowAllReservationsWhenListOfReservationsIsEmptyShouldNotShowAnyElements() {
+			public void testShowAllReservationsWhenListOfReservationsIsEmptyShouldNotShowAnything() {
 				bookingSwingView.showAllReservations(Collections.emptyList());
 				
 				assertThat(reservationList.contents()).isEmpty();
@@ -2178,30 +1887,31 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Other reservations of which one selected")
-			public void testShowAllReservationsWhenThereAreOtherReservationsOfWhichOneIsSelectedShouldResetSelectionAndShowOnlyNewOnes() {
+			@DisplayName("Other reservations displayed")
+			public void testShowAllReservationsWhenThereAreOtherReservationsDisplayedShouldShowOnlyNewOnes() {
 				addReservationInList(reservation);
 				addReservationInList(anotherReservation);
-				reservationList.selectItem(0);
 				
 				bookingSwingView.showAllReservations(Arrays.asList(reservation,
 						new Reservation(UUID.fromString("a178969b-c566-4679-8948-d8ff8f8d0a88"),
 								LocalDate.parse(CHANGED_DATE))));
 				
-				reservationList.requireNoSelection();
 				assertThat(reservationList.contents())
 					.doesNotContain(ANOTHER_RESERVATION_DISPLAYED)
 					.containsExactlyInAnyOrder(A_RESERVATION_DISPLAYED, CHANGED_RESERVATION_DISPLAYED);
 			}
 
 			@Test @GUITest
-			@DisplayName("Buttons enabled")
-			public void testShowAllReservationsWhenThereAreSpecificButtonsEnabledShouldDisableThem() {
+			@DisplayName("Reservation selected")
+			public void testShowAllReservationsWhenAReservationIsSelectedShouldClearTheSelectionAndDisableRelatedButtons() {
+				addReservationInList(reservation);
+				reservationList.selectItem(0);
 				enableButton(bookingSwingView.getRescheduleBtn());
 				enableButton(bookingSwingView.getRemoveReservationBtn());
 				
-				bookingSwingView.showAllReservations(Collections.emptyList());
+				bookingSwingView.showAllReservations(Arrays.asList(reservation, anotherReservation));
 				
+				reservationList.requireNoSelection();
 				rescheduleBtn.requireDisabled();
 				removeReservationBtn.requireDisabled();
 			}
@@ -2210,8 +1920,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		////////////// Tests for 'reservationAdded'
 			@Test @GUITest
-			@DisplayName("Empty list")
-			public void testReservationAddedWhenReservationListIsEmptyShouldAddItToTheList() {
+			@DisplayName("No reservations displayed")
+			public void testReservationAddedWhenNoReservationsAreDisplayedShouldPopulateTheList() {
 				bookingSwingView.reservationAdded(reservation);
 				
 				assertThat(reservationList.contents())
@@ -2220,16 +1930,24 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Other reservations of which one selected")
-			public void testReservationAddedWhenThereAreOtherReservationsOfWhichOneIsSelectedShouldNotChangeTheOthersAndTheSelection() {
+			@DisplayName("Other reservations displayed")
+			public void testReservationAddedWhenOtherReservationsAreDisplayedShouldAddItToTheList() {
 				addReservationInList(reservation);
-				reservationList.selectItem(0);
 				
 				bookingSwingView.reservationAdded(anotherReservation);
 				
 				assertThat(reservationList.contents())
 					.hasSize(2)
 					.containsExactlyInAnyOrder(A_RESERVATION_DISPLAYED, ANOTHER_RESERVATION_DISPLAYED);
+			}
+
+			@Test @GUITest
+			@DisplayName("Reservation selected")
+			public void testReservationAddedWhenThereIsAReservationsSelectedShouldNotChangeTheSelection() {
+				addReservationInList(reservation);
+				reservationList.selectItem(0);
+				
+				bookingSwingView.reservationAdded(anotherReservation);
 				
 				String[] selectedReservations = reservationList.selection();
 				assertThat(selectedReservations).hasSize(1);
@@ -2237,8 +1955,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Not empty forms and buttons enabled")
-			public void testReservationAddedWhenReservationFormsAreNotEmptyAndRelatedButtonsAreEnabledShouldResetFormsAndDisableButtons() {
+			@DisplayName("Not empty forms")
+			public void testReservationAddedWhenReservationFormsAreNotEmptyShouldResetFormsAndDisableRelatedButtons() {
 				yearFormTxt.setText(A_YEAR);
 				monthFormTxt.setText(A_MONTH);
 				dayFormTxt.setText(A_DAY);
@@ -2270,8 +1988,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		////////////// Tests for 'clientAdded'
 			@Test @GUITest
-			@DisplayName("Empty list")
-			public void testClientAddedWhenClientListIsEmptyShouldAddItToTheList() {
+			@DisplayName("No clients displayed")
+			public void testClientAddedWhenNoClientsAreDisplayedShouldPopulateTheList() {
 				bookingSwingView.clientAdded(client);
 				
 				assertThat(clientList.contents())
@@ -2280,16 +1998,24 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Other clients of which one is selected")
-			public void testClientAddedWhenThereAreOtherClientsOfWhichOneIsSelectedShouldNotChangeTheOthersAndTheSelection() {
+			@DisplayName("Other clients displayed")
+			public void testClientAddedWhenOtherClientsAreDisplayedShouldAddItToTheList() {
 				addClientInList(client);
-				clientList.selectItem(0);
 				
 				bookingSwingView.clientAdded(anotherClient);
 				
 				assertThat(clientList.contents())
 					.hasSize(2)
 					.containsExactlyInAnyOrder(A_CLIENT_DISPLAYED, ANOTHER_CLIENT_DISPLAYED);
+			}
+
+			@Test @GUITest
+			@DisplayName("Client selected")
+			public void testClientAddedWhenThereIsAClientSelectedShouldNotChangeTheSelection() {
+				addClientInList(client);
+				clientList.selectItem(0);
+				
+				bookingSwingView.clientAdded(anotherClient);
 				
 				String[] selectedClients = clientList.selection();
 				assertThat(selectedClients).hasSize(1);
@@ -2297,8 +2023,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Not empty forms and buttons enabled")
-			public void testClientAddedWhenClientFormsAreNotEmptyAndRelatedButtonsAreEnabledShouldResetFormsAndDisableButtons() {
+			@DisplayName("Not empty forms")
+			public void testClientAddedWhenClientFormsAreNotEmptyShouldResetFormsAndDisableRelatedButtons() {
 				nameFormTxt.setText(A_FIRSTNAME);
 				surnameFormTxt.setText(A_LASTNAME);
 				enableButton(bookingSwingView.getAddClientBtn());
@@ -2328,8 +2054,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		////////////// Tests for 'reservationRemoved'
 			@Test @GUITest
-			@DisplayName("Only that reservation")
-			public void testReservationRemovedWhenThereIsOnlyThatReservationShouldClearTheList() {
+			@DisplayName("Only that reservation displayed")
+			public void testReservationRemovedWhenOnlyThatReservationIsDisplayedShouldClearTheList() {
 				addReservationInList(reservation);
 				
 				bookingSwingView.reservationRemoved(reservation);
@@ -2338,8 +2064,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Others reservations")
-			public void testReservationRemovedWhenThereAreOtherReservationsShouldRemoveItFromTheListAndNotChangeTheOthers() {
+			@DisplayName("Others reservations displayed")
+			public void testReservationRemovedWhenOtherReservationsAreDisplayedShouldRemoveIt() {
 				addReservationInList(reservation);
 				addReservationInList(anotherReservation);
 				
@@ -2349,11 +2075,10 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("That reservation selected and buttons enabled")
-			public void testReservationRemovedWhenThatReservationIsSelectedAndRelatedButtonsAreEnabledShouldClearTheSelectionAndDisableButtons() {
+			@DisplayName("That reservation selected")
+			public void testReservationRemovedWhenThatReservationIsSelectedShouldClearTheSelectionAndDisableRelatedButtons() {
 				addReservationInList(reservation);
 				addReservationInList(anotherReservation);
-				
 				reservationList.selectItem(A_RESERVATION_DISPLAYED);
 				enableButton(bookingSwingView.getRescheduleBtn());
 				enableButton(bookingSwingView.getRemoveReservationBtn());
@@ -2366,12 +2091,11 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Another reservation selected and buttons enabled")
-			public void testReservationRemovedWhenAnotherReservationIsSelectedAndRelatedButtonsAreEnabledShouldNotChangeTheSelectionAndNotDisableButtons() {
+			@DisplayName("Another reservation selected")
+			public void testReservationRemovedWhenAnotherReservationIsSelectedShouldNotChangeTheSelectionAndNotDisableRelatedButtons() {
 				addReservationInList(reservation);
 				addReservationInList(anotherReservation);
-				
-				// Important: selecting an item that successes the removed one
+				// Important: selecting any item subsequent to the removed one
 				//            triggers the selection listener.
 				reservationList.selectItem(ANOTHER_RESERVATION_DISPLAYED);
 				yearFormTxt.setText(ANOTHER_YEAR);
@@ -2405,8 +2129,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		////////////// Tests for 'clientRemoved'
 			@Test @GUITest
-			@DisplayName("Only that client")
-			public void testClientRemovedWhenThereIsOnlyThatClientShouldClearTheList() {
+			@DisplayName("Only that client displayed")
+			public void testClientRemovedWhenOnlyThatClientIsDisplayedShouldClearTheList() {
 				addClientInList(client);
 				
 				bookingSwingView.clientRemoved(client);
@@ -2415,8 +2139,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Others clients")
-			public void testClientRemovedWhenThereAreOtherClientsShouldRemoveItFromTheListAndNotChangeTheOthers() {
+			@DisplayName("Others clients displayed")
+			public void testClientRemovedWhenOtherClientsAreDisplayedShouldRemoveIt() {
 				addClientInList(client);
 				addClientInList(anotherClient);
 				
@@ -2426,11 +2150,10 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("That client selected and buttons enabled")
-			public void testClientRemovedWhenThatClientIsSelectedAndRelatedButtonsAreEnabledShouldClearTheSelectionAndDisableButtons() {
+			@DisplayName("That client selected")
+			public void testClientRemovedWhenThatClientIsSelectedShouldClearTheSelectionAndDisableRelatedButtons() {
 				addClientInList(client);
 				addClientInList(anotherClient);
-				
 				clientList.selectItem(ANOTHER_CLIENT_DISPLAYED);
 				enableButton(bookingSwingView.getRenameBtn());
 				enableButton(bookingSwingView.getRemoveClientBtn());
@@ -2445,11 +2168,10 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Another client selected and buttons enabled")
-			public void testClientRemovedWhenAnotherClientIsSelectedAndRelatedButtonsAreEnabledShouldNotChangeTheSelectionAndNotDisableButtons() {
+			@DisplayName("Another client selected")
+			public void testClientRemovedWhenAnotherClientIsSelectedShouldNotChangeTheSelectionAndNotDisableRelatedButtons() {
 				addClientInList(client);
 				addClientInList(anotherClient);
-				
 				// Important: selecting an item that successes the removed one
 				//            triggers the selection listener.
 				clientList.selectItem(ANOTHER_CLIENT_DISPLAYED);
@@ -2488,8 +2210,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		////////////// Tests for 'clientRenamed'
 			@Test @GUITest
-			@DisplayName("Only the old client")
-			public void testClientRenamedWhenThereIsOnlyTheOldClientInTheListShouldRenameItAndNotAddNothingElse() {
+			@DisplayName("Only that client displayed")
+			public void testClientRenamedWhenOnlyThatClientIsDisplayedShouldRenameIt() {
 				addClientInList(client);
 				
 				bookingSwingView.clientRenamed(client, new Client(CHANGED_FIRSTNAME, CHANGED_LASTNAME));
@@ -2500,8 +2222,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Not only the old client")
-			public void testClientRenamedWhenThereIsNotOnlyTheOldClientInTheListShouldRenameItNotChangeThePositionAndNotChangeTheOthers() {
+			@DisplayName("Other clients displayed")
+			public void testClientRenamedWhenOtherClientsAreDisplayedShouldRenameItAndNotChangeThePosition() {
 				Client renamedClient = new Client(CHANGED_FIRSTNAME, CHANGED_LASTNAME);
 				
 				addClientInList(client);
@@ -2546,10 +2268,9 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Not empty forms and buttons enabled")
-			public void testClientRenamedWhenClientFormsAreNotEmptyAndRelatedButtonsAreEnabledShouldResetFormsAndDisableButtons() {
+			@DisplayName("Not empty forms")
+			public void testClientRenamedWhenClientFormsAreNotEmptyShouldResetFormsAndDisableRelatedButtons() {
 				addClientInList(client);
-				
 				nameFormTxt.setText(ANOTHER_FIRSTNAME);
 				surnameFormTxt.setText(ANOTHER_LASTNAME);
 				enableButton(bookingSwingView.getAddClientBtn());
@@ -2567,7 +2288,6 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			@DisplayName("Error messages")
 			public void testClientRenamedWhenThereAreErrorMessagesShouldResetErrors() {
 				addClientInList(client);
-				
 				setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
 				setTextLabel(bookingSwingView.getOperationErrorMsgLbl(), OPERATIONS_ERROR_MSG);
 				
@@ -2581,8 +2301,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		////////////// Tests for 'reservationRescheduled'
 			@Test @GUITest
-			@DisplayName("Only the old reservation")
-			public void testReservationRescheduledWhenThereIsOnlyTheOldReservationInTheListShouldRescheduleItAndNotAddNothingElse() {
+			@DisplayName("Only that reservation displayed")//TODO: eliminabile?
+			public void testReservationRescheduledWhenOnlyThatReservationIsDisplayedShouldRescheduleIt() {
 				addReservationInList(reservation);
 				
 				bookingSwingView.reservationRescheduled(reservation,
@@ -2594,8 +2314,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Not only the old reservation")
-			public void testReservationRescheduledWhenThereIsNotOnlyTheOldReservationInTheListShouldRescheduleItAndNotChangeThePositionAndNotChangeTheOthers() {
+			@DisplayName("Other reservations displayed")
+			public void testReservationRescheduledWhenOtherReservationsAreDisplayedShouldRescheduleItAndNotChangeThePosition() {
 				Reservation rescheduledReservation = new Reservation(
 						A_CLIENT_UUID, LocalDate.parse(CHANGED_DATE));
 				
@@ -2643,10 +2363,9 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 			}
 
 			@Test @GUITest
-			@DisplayName("Not empty forms and button enabled")
-			public void testReservationRescheduledWhenReservationFormsAreNotEmptyAndRelatedButtonsAreEnabledShouldResetFormsAndDisableButtons() {
+			@DisplayName("Not empty forms")
+			public void testReservationRescheduledWhenReservationFormsAreNotEmptyShouldResetFormsAndDisableRelatedButtons() {
 				addReservationInList(reservation);
-				
 				yearFormTxt.setText(A_YEAR);
 				monthFormTxt.setText(A_MONTH);
 				dayFormTxt.setText(A_DAY);
@@ -2664,9 +2383,8 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 			@Test @GUITest
 			@DisplayName("Error messages")
-			public void testReservationRescheduledWhenThereAreFormAndReservationErrorMessagesShouldResetErrors() {
+			public void testReservationRescheduledWhenThereAreErrorMessagesShouldResetErrors() {
 				addReservationInList(reservation);
-				
 				setTextLabel(bookingSwingView.getFormErrorMsgLbl(), FORMS_ERROR_MSG);
 				setTextLabel(bookingSwingView.getOperationErrorMsgLbl(), OPERATIONS_ERROR_MSG);
 				
