@@ -28,6 +28,8 @@ import io.github.marcopaglio.booking.validator.restricted.RestrictedReservationV
 
 public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitTestCase {
 	private static final long TIMEOUT = 5000;
+	private static final String LASTNAME_FIELD = "lastName";
+	private static final String FIRSTNAME_FIELD = "firstName";
 
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
@@ -175,9 +177,9 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		
 		pause(untilNameFormsAreReset, timeout(TIMEOUT));
 		
-		Client clientInDB = transactionalBookingService.findClient(client.getId());
-		assertThat(clientInDB.getFirstName()).isEqualTo(anotherFirstName);
-		assertThat(clientInDB.getLastName()).isEqualTo(anotherLastName);
+		assertThat(transactionalBookingService.findClient(client.getId()))
+			.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, anotherFirstName)
+			.hasFieldOrPropertyWithValue(LASTNAME_FIELD, anotherLastName);
 	}
 
 	@Test
@@ -223,6 +225,7 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		String anotherYear = "2023";
 		String anotherMonth = "09";
 		String anotherDay = "05";
+		LocalDate anotherLocalDate = LocalDate.parse(anotherYear + "-" + anotherMonth + "-" + anotherDay);
 		
 		addTestClientToDatabase(client);
 		updateClientList();
@@ -238,9 +241,8 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		
 		pause(untilDateFormsAreReset, timeout(TIMEOUT));
 		
-		Reservation reservationInDB = transactionalBookingService.findReservation(reservation.getId());
-		assertThat(reservationInDB.getDate())
-			.isEqualTo(LocalDate.parse(anotherYear + "-" + anotherMonth + "-" + anotherDay));
+		assertThat(transactionalBookingService.findReservation(reservation.getId()))
+			.extracting(Reservation::getDate).isEqualTo(anotherLocalDate);
 	}
 
 	@Test
@@ -261,7 +263,6 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 	}
 
 
-	// GUI updater
 	private void updateClientList() {
 		GuiActionRunner.execute(() -> servedBookingPresenter.allClients());
 	}
@@ -270,7 +271,6 @@ public abstract class ModelSwingViewServedPresenterIT extends AssertJSwingJUnitT
 		GuiActionRunner.execute(() -> servedBookingPresenter.allReservations());
 	}
 
-	// database modifiers
 	private void cleanDatabase() {
 		for (Reservation reservation : transactionalBookingService.findAllReservations())
 			transactionalBookingService.removeReservation(reservation.getId());

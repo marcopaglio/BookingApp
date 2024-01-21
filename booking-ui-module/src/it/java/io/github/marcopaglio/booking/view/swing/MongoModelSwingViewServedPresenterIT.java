@@ -30,7 +30,8 @@ import io.github.marcopaglio.booking.service.transactional.TransactionalBookingS
 import io.github.marcopaglio.booking.transaction.handler.factory.TransactionHandlerFactory;
 import io.github.marcopaglio.booking.transaction.manager.mongo.TransactionMongoManager;
 
-@DisplayName("Integration tests for BookingSwingView, ServedBookingPresenter and MongoDB")
+@DisplayName("Integration tests for BookingSwingView, ServedBookingPresenter and "
+		+ "TransactionalBookingService with MongoDB")
 @RunWith(GUITestRunner.class)
 public class MongoModelSwingViewServedPresenterIT extends ModelSwingViewServedPresenterIT {
 	private static final String MONGODB_NAME = "ITandE2ETest_db";
