@@ -1,5 +1,6 @@
 package io.github.marcopaglio.booking.view.swing;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -467,8 +468,8 @@ public class BookingSwingView extends JFrame implements BookingView {
 			if (reservationSelected != null) {
 				clientList.setSelectedValue(
 					getClientToSelect(
-							reservationSelected.getClientId(),
-							clientListModel.toArray())
+						reservationSelected.getClientId(),
+						clientListModel.toArray())
 					, true);
 			} else
 				clientList.clearSelection();
@@ -484,17 +485,10 @@ public class BookingSwingView extends JFrame implements BookingView {
 	 * 						a {@code null} object, otherwise.
 	 */
 	private Client getClientToSelect(UUID clientId, Object[] clientsInList) {
-		int size = clientsInList.length;
-		Client clientToSelect = null;
-		int i = 0;
-		while(clientToSelect == null && i < size) {
-			Client client = (Client) clientsInList[i];
-			if (client != null && Objects.equals(client.getId(), clientId)) {
-				clientToSelect = client;
-			}
-			i++;
-		}
-		return clientToSelect;
+		return (Client) Arrays.stream(clientsInList)
+			.filter(c -> c != null && Objects.equals(((Client) c).getId(), clientId))
+			.findFirst()
+			.orElse(null);
 	}
 
 	/**

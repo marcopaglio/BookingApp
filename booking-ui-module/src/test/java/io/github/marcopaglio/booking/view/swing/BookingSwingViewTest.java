@@ -2223,7 +2223,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 			@Test @GUITest
 			@DisplayName("Other clients displayed")
-			public void testClientRenamedWhenOtherClientsAreDisplayedShouldRenameItAndNotChangeThePosition() {
+			public void testClientRenamedWhenOtherClientsAreDisplayedShouldNotChangeItsPosition() {
 				Client renamedClient = new Client(CHANGED_FIRSTNAME, CHANGED_LASTNAME);
 				
 				addClientInList(client);
@@ -2301,7 +2301,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 		////////////// Tests for 'reservationRescheduled'
 			@Test @GUITest
-			@DisplayName("Only that reservation displayed")//TODO: eliminabile?
+			@DisplayName("Only that reservation displayed")
 			public void testReservationRescheduledWhenOnlyThatReservationIsDisplayedShouldRescheduleIt() {
 				addReservationInList(reservation);
 				
@@ -2315,7 +2315,7 @@ public class BookingSwingViewTest extends AssertJSwingJUnitTestCase {
 
 			@Test @GUITest
 			@DisplayName("Other reservations displayed")
-			public void testReservationRescheduledWhenOtherReservationsAreDisplayedShouldRescheduleItAndNotChangeThePosition() {
+			public void testReservationRescheduledWhenOtherReservationsAreDisplayedShouldNotChangeItsPosition() {
 				Reservation rescheduledReservation = new Reservation(
 						A_CLIENT_UUID, LocalDate.parse(CHANGED_DATE));
 				
