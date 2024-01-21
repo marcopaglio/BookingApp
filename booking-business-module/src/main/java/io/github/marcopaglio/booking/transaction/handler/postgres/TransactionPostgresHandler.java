@@ -43,8 +43,7 @@ public class TransactionPostgresHandler extends TransactionHandler<EntityManager
 	 */
 	@Override
 	public void rollbackTransaction() {
-		if (hasActiveTransaction())
-			handler.getTransaction().rollback();
+		handler.getTransaction().rollback();
 	}
 
 	/**
