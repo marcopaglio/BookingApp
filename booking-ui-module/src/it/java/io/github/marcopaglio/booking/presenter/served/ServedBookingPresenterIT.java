@@ -145,18 +145,19 @@ public abstract class ServedBookingPresenterIT {
 			
 			assertThat(readAllClientsFromDatabase()).doesNotContain(client);
 			assertThat(readAllReservationsFromDatabase())
-				.filteredOn(r -> Objects.equals(r.getClientId(), client.getId())).isEmpty();
+				.filteredOn(r -> Objects.equals(r.getClientId(), client.getId()))
+				.isEmpty();
 		}
 
 		@Test
 		@DisplayName("Client is not in repository")
 		void testDeleteClientWhenClientIsNotInRepositoryShouldNotChangeAnything() {
-			List<Client> clientsInDB = readAllClientsFromDatabase();
+			List<Client> initialClientsInDB = readAllClientsFromDatabase();
 			client.setId(A_CLIENT_UUID);
 			
 			presenter.deleteClient(client);
 			
-			assertThat(readAllClientsFromDatabase()).isEqualTo(clientsInDB);
+			assertThat(readAllClientsFromDatabase()).isEqualTo(initialClientsInDB);
 		}
 	}
 
@@ -179,12 +180,12 @@ public abstract class ServedBookingPresenterIT {
 		@Test
 		@DisplayName("Reservation is not in repository")
 		void testDeleteReservationWhenReservationIsNotInRepositoryShouldNotChangeAnything() {
-			List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
+			List<Reservation> initialReservationsInDB = readAllReservationsFromDatabase();
 			reservation.setId(A_RESERVATION_UUID);
 			
 			presenter.deleteReservation(reservation);
 			
-			assertThat(readAllReservationsFromDatabase()).isEqualTo(reservationsInDB);
+			assertThat(readAllReservationsFromDatabase()).isEqualTo(initialReservationsInDB);
 		}
 	}
 
@@ -254,6 +255,8 @@ public abstract class ServedBookingPresenterIT {
 	@Nested
 	@DisplayName("Integration tests for 'renameClient'")
 	class RenameClientIT {
+		private static final String LASTNAME_FIELD = "lastName";
+		private static final String FIRSTNAME_FIELD = "firstName";
 
 		@BeforeEach
 		void stubbingValidator() throws Exception {
@@ -270,9 +273,9 @@ public abstract class ServedBookingPresenterIT {
 			
 			presenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
-			Client clientInDB = transactionalBookingService.findClient(client.getId());
-			assertThat(clientInDB.getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
-			assertThat(clientInDB.getLastName()).isEqualTo(ANOTHER_LASTNAME);
+			assertThat(transactionalBookingService.findClient(client.getId()))
+				.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, ANOTHER_FIRSTNAME)
+				.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME);
 		}
 
 		@Test
@@ -283,9 +286,9 @@ public abstract class ServedBookingPresenterIT {
 			
 			presenter.renameClient(client, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
 			
-			Client clientInDB = transactionalBookingService.findClient(client.getId());
-			assertThat(clientInDB.getFirstName()).isEqualTo(A_FIRSTNAME);
-			assertThat(clientInDB.getLastName()).isEqualTo(A_LASTNAME);
+			assertThat(transactionalBookingService.findClient(client.getId()))
+				.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, A_FIRSTNAME)
+				.hasFieldOrPropertyWithValue(LASTNAME_FIELD, A_LASTNAME);
 		}
 	}
 
@@ -307,9 +310,8 @@ public abstract class ServedBookingPresenterIT {
 			
 			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
-			Reservation reservationInDB = transactionalBookingService
-					.findReservation(reservation.getId());
-			assertThat(reservationInDB.getDate()).isEqualTo(ANOTHER_LOCALDATE);
+			assertThat(transactionalBookingService.findReservation(reservation.getId()))
+				.extracting(Reservation::getDate).isEqualTo(ANOTHER_LOCALDATE);
 		}
 
 		@Test
@@ -323,13 +325,12 @@ public abstract class ServedBookingPresenterIT {
 			
 			presenter.rescheduleReservation(reservation, ANOTHER_DATE);
 			
-			Reservation reservationInDB = transactionalBookingService
-					.findReservation(reservation.getId());
-			assertThat(reservationInDB.getDate()).isEqualTo(A_LOCALDATE);
+			assertThat(transactionalBookingService.findReservation(reservation.getId()))
+				.extracting(Reservation::getDate).isEqualTo(A_LOCALDATE);
 		}
 	}
 
-	// database modifiers
+
 	private void cleanDatabase() {
 		for (Reservation reservation : transactionalBookingService.findAllReservations())
 			transactionalBookingService.removeReservation(reservation.getId());

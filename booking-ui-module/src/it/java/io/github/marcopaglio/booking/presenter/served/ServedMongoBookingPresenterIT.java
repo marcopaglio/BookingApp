@@ -28,7 +28,8 @@ import io.github.marcopaglio.booking.service.transactional.TransactionalBookingS
 import io.github.marcopaglio.booking.transaction.handler.factory.TransactionHandlerFactory;
 import io.github.marcopaglio.booking.transaction.manager.mongo.TransactionMongoManager;
 
-@DisplayName("Integration tests for ServedBookingPresenter and MongoDB")
+@DisplayName("Integration tests for ServedBookingPresenter and "
+		+ "TransactionalBookingService with MongoDB")
 class ServedMongoBookingPresenterIT  extends ServedBookingPresenterIT {
 	private static final String MONGODB_NAME = "ITandE2ETest_db";
 	private static String mongoHost = System.getProperty("mongo.host", "localhost");
