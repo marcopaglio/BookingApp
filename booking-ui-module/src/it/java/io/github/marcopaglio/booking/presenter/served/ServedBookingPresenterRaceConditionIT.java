@@ -236,7 +236,6 @@ public abstract class ServedBookingPresenterRaceConditionIT {
 	}
 
 
-	// database modifiers
 	private void cleanDatabase() {
 		for (Reservation reservation : transactionalBookingService.findAllReservations())
 			transactionalBookingService.removeReservation(reservation.getId());

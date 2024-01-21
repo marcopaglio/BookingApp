@@ -447,6 +447,7 @@ public class ServedBookingPresenterSwingViewIT extends AssertJSwingJUnitTestCase
 		}
 	////////////// Integration tests for 'rescheduleReservation'
 
+
 	private void addClientInList(Client client) {
 		GuiActionRunner.execute(() -> bookingSwingView.getClientListModel().addElement(client));
 	}

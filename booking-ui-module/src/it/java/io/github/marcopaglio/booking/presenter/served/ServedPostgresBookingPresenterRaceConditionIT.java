@@ -13,7 +13,8 @@ import io.github.marcopaglio.booking.transaction.manager.postgres.TransactionPos
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
-@DisplayName("Integration tests of race conditions for ServedBookingPresenter and PostgreSQL")
+@DisplayName("Integration tests of race conditions for ServedBookingPresenter and "
+		+ "TransactionalBookingService with PostgreSQL")
 class ServedPostgresBookingPresenterRaceConditionIT extends ServedBookingPresenterRaceConditionIT {
 	private static EntityManagerFactory emf;
 

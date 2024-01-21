@@ -1,6 +1,5 @@
 package io.github.marcopaglio.booking.presenter.served;
 
-
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
@@ -87,8 +86,8 @@ public class ServedBookingPresenter implements BookingPresenter {
 	@Override
 	public void allReservations() {
 		try {
-		view.showAllReservations(bookingService.findAllReservations());
-		LOGGER.info("All reservations have been retrieved with success.");
+			view.showAllReservations(bookingService.findAllReservations());
+			LOGGER.info("All reservations have been retrieved with success.");
 		} catch(DatabaseException e) {
 			LOGGER.warn(e.getMessage());
 			view.showOperationError(databaseErrorMsg("updating reservations"));
