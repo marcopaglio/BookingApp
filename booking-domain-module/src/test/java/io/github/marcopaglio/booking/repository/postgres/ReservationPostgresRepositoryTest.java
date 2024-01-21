@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -32,6 +33,11 @@ import jakarta.persistence.Persistence;
 @DisplayName("Tests for ReservationPostegresRepository class")
 @Testcontainers
 class ReservationPostgresRepositoryTest {
+
+	private static final String ID_FIELD = "id";
+	private static final String DATE_FIELD = "date";
+	private static final String CLIENTID_FIELD = "clientId";
+
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2022-12-22");
 	private static final UUID A_CLIENT_UUID = UUID.fromString("5c4d31a2-be04-4156-aa15-f86e7a916999");
 	private static final UUID A_RESERVATION_UUID = UUID.fromString("d96af73a-efbc-45d7-a013-15e4f0c3a8fd");
@@ -300,12 +306,11 @@ class ReservationPostgresRepositoryTest {
 					Reservation returnedReservation = reservationRepository.save(reservation);
 					em.getTransaction().commit();
 					
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).containsExactly(reservation);
-					assertThat(returnedReservation).isEqualTo(reservation);
-					assertThat(reservationsInDB.get(0).getId()).isNotNull();
-					assertThat(returnedReservation.getId()).isNotNull();
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(returnedReservation.getId());
+					assertThat(returnedReservation).isEqualTo(reservation)
+						.extracting(Reservation::getId).isNotNull();
+					assertThat(readAllReservationsFromDatabase())
+						.singleElement().isEqualTo(returnedReservation)
+							.extracting(Reservation::getId).isEqualTo(returnedReservation.getId());
 				}
 
 				@Test
@@ -349,9 +354,9 @@ class ReservationPostgresRepositoryTest {
 						.hasMessage("Reservation to save violates uniqueness constraints.");
 					em.getTransaction().commit();
 					
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).containsExactly(reservation);
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(reservation.getId());
+					assertThat(readAllReservationsFromDatabase())
+						.singleElement().isEqualTo(reservation)
+							.extracting(Reservation::getId).isEqualTo(reservation.getId());
 				}
 
 				@Test
@@ -367,9 +372,9 @@ class ReservationPostgresRepositoryTest {
 						.hasMessage("Reservation to save violates uniqueness constraints.");
 					em.getTransaction().commit();
 					
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).containsExactly(reservation);
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(reservation.getId());
+					assertThat(readAllReservationsFromDatabase())
+						.singleElement().isEqualTo(reservation)
+							.extracting(Reservation::getId).isEqualTo(reservation.getId());
 				}
 
 				@Test
@@ -404,15 +409,15 @@ class ReservationPostgresRepositoryTest {
 					em.getTransaction().commit();
 					
 					// verify
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).containsExactly(reservation);
-					assertThat(returnedReservation).isEqualTo(reservation);
-					assertThat(reservationsInDB.get(0).getClientId()).isEqualTo(ANOTHER_CLIENT_UUID);
-					assertThat(returnedReservation.getClientId()).isEqualTo(ANOTHER_CLIENT_UUID);
-					assertThat(reservationsInDB.get(0).getDate()).isEqualTo(ANOTHER_LOCALDATE);
-					assertThat(returnedReservation.getDate()).isEqualTo(ANOTHER_LOCALDATE);
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(initialId);
-					assertThat(returnedReservation.getId()).isEqualTo(initialId);
+					assertThat(returnedReservation).isEqualTo(reservation)
+						.hasFieldOrPropertyWithValue(CLIENTID_FIELD, ANOTHER_CLIENT_UUID)
+						.hasFieldOrPropertyWithValue(DATE_FIELD, ANOTHER_LOCALDATE)
+						.hasFieldOrPropertyWithValue(ID_FIELD, initialId);
+					assertThat(readAllReservationsFromDatabase())
+						.singleElement().isEqualTo(returnedReservation)
+							.hasFieldOrPropertyWithValue(CLIENTID_FIELD, ANOTHER_CLIENT_UUID)
+							.hasFieldOrPropertyWithValue(DATE_FIELD, ANOTHER_LOCALDATE)
+							.hasFieldOrPropertyWithValue(ID_FIELD, initialId);
 				}
 
 				@Test
@@ -431,15 +436,15 @@ class ReservationPostgresRepositoryTest {
 					em.getTransaction().commit();
 					
 					// verify
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).containsExactly(reservation);
-					assertThat(returnedReservation).isEqualTo(reservation);
-					assertThat(reservationsInDB.get(0).getClientId()).isEqualTo(ANOTHER_CLIENT_UUID);
-					assertThat(returnedReservation.getClientId()).isEqualTo(ANOTHER_CLIENT_UUID);
-					assertThat(reservationsInDB.get(0).getDate()).isEqualTo(ANOTHER_LOCALDATE);
-					assertThat(returnedReservation.getDate()).isEqualTo(ANOTHER_LOCALDATE);
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(initialId);
-					assertThat(returnedReservation.getId()).isEqualTo(initialId);
+					assertThat(returnedReservation).isEqualTo(reservation)
+						.hasFieldOrPropertyWithValue(CLIENTID_FIELD, ANOTHER_CLIENT_UUID)
+						.hasFieldOrPropertyWithValue(DATE_FIELD, ANOTHER_LOCALDATE)
+						.hasFieldOrPropertyWithValue(ID_FIELD, initialId);
+					assertThat(readAllReservationsFromDatabase())
+						.singleElement().isEqualTo(returnedReservation)
+							.hasFieldOrPropertyWithValue(CLIENTID_FIELD, ANOTHER_CLIENT_UUID)
+							.hasFieldOrPropertyWithValue(DATE_FIELD, ANOTHER_LOCALDATE)
+							.hasFieldOrPropertyWithValue(ID_FIELD, initialId);
 				}
 
 				@Test
@@ -461,7 +466,6 @@ class ReservationPostgresRepositoryTest {
 				void testSaveWhenTheUpdatingReservationHasNullClientIdShouldNotUpdateAndThrow() {
 					// populate DB
 					addTestReservationToDatabaseInTheSameContext(reservation);
-					UUID initialId = reservation.getId();
 					
 					// update
 					reservation.setClientId(null);
@@ -473,11 +477,10 @@ class ReservationPostgresRepositoryTest {
 					em.getTransaction().commit();
 					
 					// verify
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).hasSize(1);
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(initialId);
-					assertThat(reservationsInDB.get(0).getDate()).isEqualTo(A_LOCALDATE);
-					assertThat(reservationsInDB.get(0).getClientId()).isEqualTo(A_CLIENT_UUID);
+					assertThat(readAllReservationsFromDatabase())
+						.filteredOn(r -> Objects.equals(r.getId(), reservation.getId()))
+						.singleElement()
+							.hasFieldOrPropertyWithValue(CLIENTID_FIELD, A_CLIENT_UUID);
 				}
 
 				@Test
@@ -485,7 +488,6 @@ class ReservationPostgresRepositoryTest {
 				void testSaveWhenTheUpdatingReservationHasNullDateShouldNotUpdateAndThrow() {
 					// populate DB
 					addTestReservationToDatabaseInTheSameContext(reservation);
-					UUID initialId = reservation.getId();
 					
 					// update
 					reservation.setDate(null);
@@ -497,11 +499,10 @@ class ReservationPostgresRepositoryTest {
 					em.getTransaction().commit();
 					
 					// verify
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).hasSize(1);
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(initialId);
-					assertThat(reservationsInDB.get(0).getDate()).isEqualTo(A_LOCALDATE);
-					assertThat(reservationsInDB.get(0).getClientId()).isEqualTo(A_CLIENT_UUID);
+					assertThat(readAllReservationsFromDatabase())
+						.filteredOn(r -> Objects.equals(r.getId(), reservation.getId()))
+						.singleElement()
+							.extracting(Reservation::getDate).isEqualTo(A_LOCALDATE);
 				}
 
 				@Test
@@ -521,7 +522,9 @@ class ReservationPostgresRepositoryTest {
 					em.getTransaction().commit();
 					
 					assertThat(readAllReservationsFromDatabase())
-						.anySatisfy(r -> assertThat(r.getDate()).isEqualTo(ANOTHER_LOCALDATE));
+						.filteredOn(r -> Objects.equals(r.getId(), another_reservation.getId()))
+						.singleElement()
+							.extracting(Reservation::getDate).isEqualTo(ANOTHER_LOCALDATE);
 				}
 			}
 
@@ -605,5 +608,4 @@ class ReservationPostgresRepositoryTest {
 			another_em.close();
 		}
 	}
-
 }

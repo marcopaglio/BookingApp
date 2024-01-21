@@ -19,6 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -55,6 +56,10 @@ import static org.mockito.Mockito.spy;
 @DisplayName("Tests for ClientMongoRepository class")
 @Testcontainers
 class ClientMongoRepositoryTest {
+	private static final String ID_FIELD = "id";
+	private static final String LASTNAME_FIELD = "lastName";
+	private static final String FIRSTNAME_FIELD = "firstName";
+
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
 	private static final UUID A_CLIENT_UUID = UUID.fromString("5a583373-c1b4-4913-82b6-5ea76fb1b1be");
@@ -306,12 +311,11 @@ class ClientMongoRepositoryTest {
 				void testSaveWhenNewClientIsValidShouldInsertAndReturnTheClientWithId() {
 					Client returnedClient = clientRepository.save(client);
 					
-					List<Client> clientsInDB = readAllClientsFromDatabase();
-					assertThat(clientsInDB).containsExactly(client);
-					assertThat(returnedClient).isEqualTo(client);
-					assertThat(clientsInDB.get(0).getId()).isNotNull();
-					assertThat(returnedClient.getId()).isNotNull();
-					assertThat(clientsInDB.get(0).getId()).isEqualTo(returnedClient.getId());
+					assertThat(returnedClient).isEqualTo(client)
+						.extracting(Client::getId).isNotNull();
+					assertThat(readAllClientsFromDatabase())
+						.singleElement().isEqualTo(returnedClient)
+							.extracting(Client::getId).isEqualTo(returnedClient.getId());
 				}
 
 				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
@@ -387,9 +391,9 @@ class ClientMongoRepositoryTest {
 						.isInstanceOf(UniquenessConstraintViolationException.class)
 						.hasMessage("Client to save violates uniqueness constraints.");
 					
-					List<Client> clientsInDB = readAllClientsFromDatabase();
-					assertThat(clientsInDB).containsExactly(client);
-					assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
+					assertThat(readAllClientsFromDatabase())
+						.singleElement().isEqualTo(client)
+							.extracting(Client::getId).isEqualTo(A_CLIENT_UUID);
 				}
 
 				@Test
@@ -410,9 +414,9 @@ class ClientMongoRepositoryTest {
 						.isInstanceOf(UniquenessConstraintViolationException.class)
 						.hasMessage("Client to save violates uniqueness constraints.");
 					
-					List<Client> clientsInDB = readAllClientsFromDatabase();
-					assertThat(clientsInDB).containsExactly(client);
-					assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
+					assertThat(readAllClientsFromDatabase())
+						.singleElement().isEqualTo(client)
+							.extracting(Client::getId).isEqualTo(A_CLIENT_UUID);
 				}
 
 				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
@@ -453,15 +457,15 @@ class ClientMongoRepositoryTest {
 					Client returnedClient = clientRepository.save(client);
 					
 					// verify
-					List<Client> clientsInDB = readAllClientsFromDatabase();
-					assertThat(clientsInDB).containsExactly(client);
-					assertThat(returnedClient).isEqualTo(client);
-					assertThat(clientsInDB.get(0).getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
-					assertThat(returnedClient.getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
-					assertThat(clientsInDB.get(0).getLastName()).isEqualTo(ANOTHER_LASTNAME);
-					assertThat(returnedClient.getLastName()).isEqualTo(ANOTHER_LASTNAME);
-					assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
-					assertThat(returnedClient.getId()).isEqualTo(A_CLIENT_UUID);
+					assertThat(returnedClient).isEqualTo(client)
+						.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, ANOTHER_FIRSTNAME)
+						.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME)
+						.hasFieldOrPropertyWithValue(ID_FIELD, A_CLIENT_UUID);
+					assertThat(readAllClientsFromDatabase())
+						.singleElement().isEqualTo(returnedClient)
+							.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, ANOTHER_FIRSTNAME)
+							.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME)
+							.hasFieldOrPropertyWithValue(ID_FIELD, A_CLIENT_UUID);
 				}
 
 				@Test
@@ -477,15 +481,15 @@ class ClientMongoRepositoryTest {
 					Client returnedClient = clientRepository.save(client);
 					
 					// verify
-					List<Client> clientsInDB = readAllClientsFromDatabase();
-					assertThat(clientsInDB).containsExactly(client);
-					assertThat(returnedClient).isEqualTo(client);
-					assertThat(clientsInDB.get(0).getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
-					assertThat(returnedClient.getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
-					assertThat(clientsInDB.get(0).getLastName()).isEqualTo(ANOTHER_LASTNAME);
-					assertThat(returnedClient.getLastName()).isEqualTo(ANOTHER_LASTNAME);
-					assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
-					assertThat(returnedClient.getId()).isEqualTo(A_CLIENT_UUID);
+					assertThat(returnedClient).isEqualTo(client)
+						.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, ANOTHER_FIRSTNAME)
+						.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME)
+						.hasFieldOrPropertyWithValue(ID_FIELD, A_CLIENT_UUID);
+					assertThat(readAllClientsFromDatabase())
+						.singleElement().isEqualTo(returnedClient)
+							.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, ANOTHER_FIRSTNAME)
+							.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME)
+							.hasFieldOrPropertyWithValue(ID_FIELD, A_CLIENT_UUID);
 				}
 
 				@Test
@@ -518,11 +522,11 @@ class ClientMongoRepositoryTest {
 						.hasMessage("Client to save violates not-null constraints.");
 					
 					// verify
-					List<Client> clientsInDB = readAllClientsFromDatabase();
-					assertThat(clientsInDB).hasSize(1);
-					assertThat(clientsInDB.get(0).getId()).isEqualTo(A_CLIENT_UUID);
-					assertThat(clientsInDB.get(0).getFirstName()).isEqualTo(A_FIRSTNAME);
-					assertThat(clientsInDB.get(0).getLastName()).isEqualTo(A_LASTNAME);
+					assertThat(readAllClientsFromDatabase())
+						.filteredOn(c -> Objects.equals(c.getId(), A_CLIENT_UUID))
+						.singleElement()
+							.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, A_FIRSTNAME)
+							.hasFieldOrPropertyWithValue(LASTNAME_FIELD, A_LASTNAME);
 				}
 
 				@Test
@@ -541,8 +545,10 @@ class ClientMongoRepositoryTest {
 						.hasMessage("Client to save violates uniqueness constraints.");
 					
 					assertThat(readAllClientsFromDatabase())
-						.anySatisfy(c -> assertThat(c.getFirstName()).isEqualTo(ANOTHER_FIRSTNAME))
-						.anySatisfy(c -> assertThat(c.getLastName()).isEqualTo(ANOTHER_LASTNAME));
+						.filteredOn(c -> Objects.equals(c.getId(), ANOTHER_CLIENT_UUID))
+						.singleElement()
+							.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, ANOTHER_FIRSTNAME)
+							.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME);
 				}
 			}
 

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,6 +35,10 @@ import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 @DisplayName("Tests for ClientPostegresRepository class")
 @Testcontainers
 class ClientPostgresRepositoryTest {
+	private static final String ID_FIELD = "id";
+	private static final String LASTNAME_FIELD = "lastName";
+	private static final String FIRSTNAME_FIELD = "firstName";
+
 	private static final String A_FIRSTNAME = "Mario";
 	private static final String A_LASTNAME = "Rossi";
 	private static final UUID A_CLIENT_UUID = UUID.fromString("b37cbe2c-77c9-4f68-ad2d-140d7fc43a38");
@@ -265,12 +270,11 @@ class ClientPostgresRepositoryTest {
 					Client returnedClient = clientRepository.save(client);
 					em.getTransaction().commit();
 					
-					List<Client> clientsInDB = readAllClientsFromDatabase();
-					assertThat(clientsInDB).containsExactly(client);
-					assertThat(returnedClient).isEqualTo(client);
-					assertThat(clientsInDB.get(0).getId()).isNotNull();
-					assertThat(returnedClient.getId()).isNotNull();
-					assertThat(clientsInDB.get(0).getId()).isEqualTo(returnedClient.getId());
+					assertThat(returnedClient).isEqualTo(client)
+						.extracting(Client::getId).isNotNull();
+					assertThat(readAllClientsFromDatabase())
+						.singleElement().isEqualTo(returnedClient)
+							.extracting(Client::getId).isEqualTo(returnedClient.getId());
 				}
 
 				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
@@ -306,9 +310,9 @@ class ClientPostgresRepositoryTest {
 						.hasMessage("Client to save violates uniqueness constraints.");
 					em.getTransaction().commit();
 					
-					List<Client> clientsInDB = readAllClientsFromDatabase();
-					assertThat(clientsInDB).containsExactly(client);
-					assertThat(clientsInDB.get(0).getId()).isEqualTo(client.getId());
+					assertThat(readAllClientsFromDatabase())
+						.singleElement().isEqualTo(client)
+							.extracting(Client::getId).isEqualTo(client.getId());
 				}
 
 				@Test
@@ -325,9 +329,9 @@ class ClientPostgresRepositoryTest {
 						.hasMessage("Client to save violates uniqueness constraints.");
 					em.getTransaction().commit();
 					
-					List<Client> clientsInDB = readAllClientsFromDatabase();
-					assertThat(clientsInDB).containsExactly(client);
-					assertThat(clientsInDB.get(0).getId()).isEqualTo(client.getId());
+					assertThat(readAllClientsFromDatabase())
+						.singleElement().isEqualTo(client)
+							.extracting(Client::getId).isEqualTo(client.getId());
 				}
 
 				@ParameterizedTest(name = "{index}: ''{0}''''{1}''")
@@ -367,15 +371,15 @@ class ClientPostgresRepositoryTest {
 					em.getTransaction().commit();
 					
 					// verify
-					List<Client> clientsInDB = readAllClientsFromDatabase();
-					assertThat(clientsInDB).containsExactly(client);
-					assertThat(returnedClient).isEqualTo(client);
-					assertThat(clientsInDB.get(0).getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
-					assertThat(returnedClient.getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
-					assertThat(clientsInDB.get(0).getLastName()).isEqualTo(ANOTHER_LASTNAME);
-					assertThat(returnedClient.getLastName()).isEqualTo(ANOTHER_LASTNAME);
-					assertThat(clientsInDB.get(0).getId()).isEqualTo(initialId);
-					assertThat(returnedClient.getId()).isEqualTo(initialId);
+					assertThat(returnedClient).isEqualTo(client)
+						.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, ANOTHER_FIRSTNAME)
+						.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME)
+						.hasFieldOrPropertyWithValue(ID_FIELD, initialId);
+					assertThat(readAllClientsFromDatabase())
+						.singleElement().isEqualTo(returnedClient)
+							.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, ANOTHER_FIRSTNAME)
+							.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME)
+							.hasFieldOrPropertyWithValue(ID_FIELD, initialId);
 				}
 
 				@Test
@@ -394,15 +398,15 @@ class ClientPostgresRepositoryTest {
 					em.getTransaction().commit();
 					
 					// verify
-					List<Client> clientsInDB = readAllClientsFromDatabase();
-					assertThat(clientsInDB).containsExactly(client);
-					assertThat(returnedClient).isEqualTo(client);
-					assertThat(clientsInDB.get(0).getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
-					assertThat(returnedClient.getFirstName()).isEqualTo(ANOTHER_FIRSTNAME);
-					assertThat(clientsInDB.get(0).getLastName()).isEqualTo(ANOTHER_LASTNAME);
-					assertThat(returnedClient.getLastName()).isEqualTo(ANOTHER_LASTNAME);
-					assertThat(clientsInDB.get(0).getId()).isEqualTo(initialId);
-					assertThat(returnedClient.getId()).isEqualTo(initialId);
+					assertThat(returnedClient).isEqualTo(client)
+						.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, ANOTHER_FIRSTNAME)
+						.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME)
+						.hasFieldOrPropertyWithValue(ID_FIELD, initialId);
+					assertThat(readAllClientsFromDatabase())
+						.singleElement().isEqualTo(returnedClient)
+							.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, ANOTHER_FIRSTNAME)
+							.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME)
+							.hasFieldOrPropertyWithValue(ID_FIELD, initialId);
 				}
 
 				@Test
@@ -427,7 +431,6 @@ class ClientPostgresRepositoryTest {
 				void testSaveWhenTheUpdatingClientHasNullNamesShouldNotUpdateAndThrow(
 						String firstName, String lastName) {
 					addTestClientToDatabaseInTheSameContext(client);
-					UUID initialId = client.getId();
 					
 					// update
 					client.setFirstName(firstName);
@@ -440,11 +443,11 @@ class ClientPostgresRepositoryTest {
 					em.getTransaction().commit();
 					
 					// verify
-					List<Client> clientsInDB = readAllClientsFromDatabase();
-					assertThat(clientsInDB).hasSize(1);
-					assertThat(clientsInDB.get(0).getId()).isEqualTo(initialId);
-					assertThat(clientsInDB.get(0).getFirstName()).isEqualTo(A_FIRSTNAME);
-					assertThat(clientsInDB.get(0).getLastName()).isEqualTo(A_LASTNAME);
+					assertThat(readAllClientsFromDatabase())
+						.filteredOn(c -> Objects.equals(c.getId(), client.getId()))
+						.singleElement()
+							.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, A_FIRSTNAME)
+							.hasFieldOrPropertyWithValue(LASTNAME_FIELD, A_LASTNAME);
 				}
 
 				@Test
@@ -465,8 +468,10 @@ class ClientPostgresRepositoryTest {
 					em.getTransaction().commit();
 					
 					assertThat(readAllClientsFromDatabase())
-						.anySatisfy(c -> assertThat(c.getFirstName()).isEqualTo(ANOTHER_FIRSTNAME))
-						.anySatisfy(c -> assertThat(c.getLastName()).isEqualTo(ANOTHER_LASTNAME));
+						.filteredOn(c -> Objects.equals(c.getId(), another_client.getId()))
+						.singleElement()
+							.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, ANOTHER_FIRSTNAME)
+							.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME);
 				}
 			}
 
