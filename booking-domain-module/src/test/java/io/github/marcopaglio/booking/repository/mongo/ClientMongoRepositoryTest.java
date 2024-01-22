@@ -314,7 +314,7 @@ class ClientMongoRepositoryTest {
 					assertThat(returnedClient).isEqualTo(client)
 						.extracting(Client::getId).isNotNull();
 					assertThat(readAllClientsFromDatabase())
-						.singleElement().isEqualTo(returnedClient)
+						.singleElement().isEqualTo(client)
 							.extracting(Client::getId).isEqualTo(returnedClient.getId());
 				}
 
@@ -462,7 +462,7 @@ class ClientMongoRepositoryTest {
 						.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME)
 						.hasFieldOrPropertyWithValue(ID_FIELD, A_CLIENT_UUID);
 					assertThat(readAllClientsFromDatabase())
-						.singleElement().isEqualTo(returnedClient)
+						.singleElement().isEqualTo(client)
 							.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, ANOTHER_FIRSTNAME)
 							.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME)
 							.hasFieldOrPropertyWithValue(ID_FIELD, A_CLIENT_UUID);
@@ -486,7 +486,7 @@ class ClientMongoRepositoryTest {
 						.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME)
 						.hasFieldOrPropertyWithValue(ID_FIELD, A_CLIENT_UUID);
 					assertThat(readAllClientsFromDatabase())
-						.singleElement().isEqualTo(returnedClient)
+						.singleElement().isEqualTo(client)
 							.hasFieldOrPropertyWithValue(FIRSTNAME_FIELD, ANOTHER_FIRSTNAME)
 							.hasFieldOrPropertyWithValue(LASTNAME_FIELD, ANOTHER_LASTNAME)
 							.hasFieldOrPropertyWithValue(ID_FIELD, A_CLIENT_UUID);

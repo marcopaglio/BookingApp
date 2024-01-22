@@ -348,7 +348,7 @@ class ReservationMongoRepositoryTest {
 					assertThat(returnedReservation).isEqualTo(reservation)
 						.extracting(Reservation::getId).isNotNull();
 					assertThat(readAllReservationsFromDatabase())
-						.singleElement().isEqualTo(returnedReservation)
+						.singleElement().isEqualTo(reservation)
 							.extracting(Reservation::getId).isEqualTo(returnedReservation.getId());
 				}
 
@@ -496,7 +496,7 @@ class ReservationMongoRepositoryTest {
 						.hasFieldOrPropertyWithValue(DATE_FIELD, ANOTHER_LOCALDATE)
 						.hasFieldOrPropertyWithValue(ID_FIELD, A_RESERVATION_UUID);
 					assertThat(readAllReservationsFromDatabase())
-						.singleElement().isEqualTo(returnedReservation)
+						.singleElement().isEqualTo(reservation)
 							.hasFieldOrPropertyWithValue(CLIENTID_FIELD, ANOTHER_CLIENT_UUID)
 							.hasFieldOrPropertyWithValue(DATE_FIELD, ANOTHER_LOCALDATE)
 							.hasFieldOrPropertyWithValue(ID_FIELD, A_RESERVATION_UUID);
@@ -520,7 +520,7 @@ class ReservationMongoRepositoryTest {
 						.hasFieldOrPropertyWithValue(DATE_FIELD, ANOTHER_LOCALDATE)
 						.hasFieldOrPropertyWithValue(ID_FIELD, A_RESERVATION_UUID);
 					assertThat(readAllReservationsFromDatabase())
-						.singleElement().isEqualTo(returnedReservation)
+						.singleElement().isEqualTo(reservation)
 							.hasFieldOrPropertyWithValue(CLIENTID_FIELD, ANOTHER_CLIENT_UUID)
 							.hasFieldOrPropertyWithValue(DATE_FIELD, ANOTHER_LOCALDATE)
 							.hasFieldOrPropertyWithValue(ID_FIELD, A_RESERVATION_UUID);
