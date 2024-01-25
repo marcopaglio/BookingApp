@@ -37,7 +37,7 @@
     <maven.dependency.version>3.5.0</maven.dependency.version>
     <maven.release.version>3.0.0-M7</maven.release.version>
     <maven.clean.version>3.2.0</maven.clean.version>
-    <maven.install.version>3.1.0</maven.install.version>
+    <maven.install.version>3.1.1</maven.install.version>
     <maven.deploy.version>3.1.0</maven.deploy.version>
     <maven.site.version>4.0.0-M5</maven.site.version>
 
@@ -45,7 +45,7 @@
     <maven.shade.version>3.5.1</maven.shade.version>
 
     <!-- VERSIONS FOR OTHER PLUGINS -->
-    <exec.version>3.1.0</exec.version>
+    <exec.version>3.1.1</exec.version>
     <docker.version>0.43.4</docker.version>
   </properties>
   

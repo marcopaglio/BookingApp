@@ -2,10 +2,6 @@ package io.github.marcopaglio.booking.service.transactional;
 
 import static io.github.marcopaglio.booking.model.Client.CLIENT_TABLE_DB;
 import static io.github.marcopaglio.booking.model.Reservation.RESERVATION_TABLE_DB;
-import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_ALREADY_EXISTS_ERROR_MSG;
-import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.CLIENT_NOT_FOUND_ERROR_MSG;
-import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_ALREADY_EXISTS_ERROR_MSG;
-import static io.github.marcopaglio.booking.service.transactional.TransactionalBookingService.RESERVATION_NOT_FOUND_ERROR_MSG;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -45,6 +41,11 @@ class TransactionalPostgresBookingServiceIT {
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2023-04-24");
 	private static final UUID ANOTHER_CLIENT_UUID = UUID.fromString("864f7928-049b-4c2a-bd87-9e52ca16afc5");
 	private static final LocalDate ANOTHER_LOCALDATE = LocalDate.parse("2023-09-05");
+
+	private static final String CLIENT_NOT_FOUND_ERROR_MSG = "The requested client was not found in the database.";
+	private static final String CLIENT_ALREADY_EXISTS_ERROR_MSG = "That client is already in the database.";
+	private static final String RESERVATION_NOT_FOUND_ERROR_MSG = "The requested reservation was not found in the database.";
+	private static final String RESERVATION_ALREADY_EXISTS_ERROR_MSG = "That reservation is already in the database.";
 
 	private static EntityManagerFactory emf;
 
@@ -173,8 +174,8 @@ class TransactionalPostgresBookingServiceIT {
 			void testInsertNewClientWhenClientDoesNotAlreadyExistShouldInsertAndReturnWithId() {
 				Client clientInDB = service.insertNewClient(client);
 				
-				assertThat(clientInDB).isEqualTo(client);
-				assertThat(clientInDB.getId()).isNotNull();
+				assertThat(clientInDB).isEqualTo(client)
+					.extracting(Client::getId).isNotNull();
 				assertThat(readAllClientsFromDatabase()).containsExactly(client);
 			}
 
@@ -183,15 +184,14 @@ class TransactionalPostgresBookingServiceIT {
 			void testInsertNewClientWhenClientAlreadyExistsShouldNotInsertAndThrow() {
 				Client existingClient = new Client(A_FIRSTNAME, A_LASTNAME);
 				addTestClientToDatabase(existingClient);
-				UUID existingId = existingClient.getId();
 				
 				assertThatThrownBy(() -> service.insertNewClient(client))
 					.isInstanceOf(InstanceAlreadyExistsException.class)
 					.hasMessage(CLIENT_ALREADY_EXISTS_ERROR_MSG);
 				
-				List<Client> clientsInDB = readAllClientsFromDatabase();
-				assertThat(clientsInDB).containsExactly(existingClient);
-				assertThat(clientsInDB.get(0).getId()).isEqualTo(existingId);
+				assertThat(readAllClientsFromDatabase())
+					.singleElement().isEqualTo(existingClient)
+						.extracting(Client::getId).isEqualTo(existingClient.getId());
 			}
 		}
 
@@ -208,9 +208,9 @@ class TransactionalPostgresBookingServiceIT {
 				
 				Client renamedClientInDB = service
 						.renameClient(client_id, ANOTHER_FIRSTNAME, ANOTHER_LASTNAME);
-				assertThat(renamedClientInDB).isEqualTo(renamedClient);
-				assertThat(renamedClientInDB.getId()).isEqualTo(client_id);
 				
+				assertThat(renamedClientInDB).isEqualTo(renamedClient)
+					.extracting(Client::getId).isEqualTo(client_id);
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(renamedClient);
@@ -229,8 +229,10 @@ class TransactionalPostgresBookingServiceIT {
 					.hasMessage(CLIENT_ALREADY_EXISTS_ERROR_MSG);
 				
 				assertThat(readAllClientsFromDatabase())
-					.containsExactlyInAnyOrder(client, another_client)
-					.filteredOn(c -> Objects.equals(c.getId(), client_id)).containsOnly(client);
+					.filteredOn(c -> Objects.equals(c.getFirstName(), ANOTHER_FIRSTNAME) &&
+							Objects.equals(c.getLastName(), ANOTHER_LASTNAME))
+						.doesNotContain(client)
+						.containsOnly(another_client);
 			}
 		}
 	}
@@ -283,6 +285,7 @@ class TransactionalPostgresBookingServiceIT {
 			@DisplayName("Reservation doesn't exist")
 			void testFindReservationWhenReservationDoesNotExistShouldThrow() {
 				UUID notPresentId = UUID.fromString("dba11377-e1b2-40ff-8ad7-b7a783b316e1");
+				
 				assertThatThrownBy(() -> service.findReservation(notPresentId))
 					.isInstanceOf(InstanceNotFoundException.class)
 					.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
@@ -324,9 +327,9 @@ class TransactionalPostgresBookingServiceIT {
 				
 				Reservation rescheduledReservationInDB =
 						service.rescheduleReservation(reservation_id, ANOTHER_LOCALDATE);
-				assertThat(rescheduledReservationInDB).isEqualTo(rescheduledReservation);
-				assertThat(rescheduledReservationInDB.getId()).isEqualTo(reservation_id);
 				
+				assertThat(rescheduledReservationInDB).isEqualTo(rescheduledReservation)
+					.extracting(Reservation::getId).isEqualTo(reservation_id);
 				assertThat(readAllReservationsFromDatabase())
 					.doesNotContain(reservation)
 					.containsExactly(rescheduledReservation);
@@ -345,8 +348,9 @@ class TransactionalPostgresBookingServiceIT {
 					.hasMessage(RESERVATION_ALREADY_EXISTS_ERROR_MSG);
 				
 				assertThat(readAllReservationsFromDatabase())
-					.containsExactlyInAnyOrder(reservation, another_reservation)
-					.filteredOn(r -> Objects.equals(r.getId(), reservation_id)).containsOnly(reservation);
+					.filteredOn(r -> Objects.equals(r.getDate(), ANOTHER_LOCALDATE))
+						.doesNotContain(reservation)
+						.containsOnly(another_reservation);
 			}
 		}
 
@@ -371,6 +375,7 @@ class TransactionalPostgresBookingServiceIT {
 			@DisplayName("Reservation doesn't exist")
 			void testRemoveReservationWhenReservationDoesNotExistShouldThrow() {
 				UUID notPresentId = UUID.fromString("e54a2fbd-85bc-4493-b540-5630d3e501ad");
+				
 				assertThatThrownBy(() -> service.removeReservation(notPresentId))
 					.isInstanceOf(InstanceNotFoundException.class)
 					.hasMessage(RESERVATION_NOT_FOUND_ERROR_MSG);
@@ -428,8 +433,8 @@ class TransactionalPostgresBookingServiceIT {
 				
 				Reservation reservationInDB = service.insertNewReservation(reservation);
 				
-				assertThat(reservationInDB).isEqualTo(reservation);
-				assertThat(reservationInDB.getId()).isNotNull();
+				assertThat(reservationInDB).isEqualTo(reservation)
+					.extracting(Reservation::getId).isNotNull();
 				assertThat(readAllReservationsFromDatabase()).containsExactly(reservationInDB);
 			}
 
@@ -438,15 +443,14 @@ class TransactionalPostgresBookingServiceIT {
 			void testInsertNewReservationWhenReservationAlreadyExistsShouldNotInsertAndThrow() {
 				Reservation existingReservation = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 				addTestReservationToDatabase(existingReservation);
-				UUID existingId = existingReservation.getId();
 				
 				assertThatThrownBy(() -> service.insertNewReservation(reservation))
 					.isInstanceOf(InstanceAlreadyExistsException.class)
 					.hasMessage(RESERVATION_ALREADY_EXISTS_ERROR_MSG);
 				
-				List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-				assertThat(reservationsInDB).containsExactly(existingReservation);
-				assertThat(reservationsInDB.get(0).getId()).isEqualTo(existingId);
+				assertThat(readAllReservationsFromDatabase())
+					.singleElement().isEqualTo(existingReservation)
+						.extracting(Reservation::getId).isEqualTo(existingReservation.getId());
 			}
 		}
 
@@ -467,11 +471,11 @@ class TransactionalPostgresBookingServiceIT {
 				
 				service.removeClient(client_id);
 				
-				assertThat(readAllReservationsFromDatabase())
-					.filteredOn(r -> Objects.equals(r.getClientId(), client_id)).isEmpty();
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(another_client);
+				assertThat(readAllReservationsFromDatabase())
+					.filteredOn(r -> Objects.equals(r.getClientId(), client_id)).isEmpty();
 			}
 
 			@Test
@@ -491,8 +495,7 @@ class TransactionalPostgresBookingServiceIT {
 			@DisplayName("Client exists with existing reservation")
 			void testRemoveClientNamedWhenClientExistsWithAnExistingReservationShouldRemove() {
 				addTestClientToDatabase(client);
-				UUID client_id = client.getId();
-				reservation.setClientId(client_id);
+				reservation.setClientId(client.getId());
 				addTestReservationToDatabase(reservation);
 				addTestClientToDatabase(another_client);
 				another_reservation.setClientId(another_client.getId());
@@ -500,11 +503,11 @@ class TransactionalPostgresBookingServiceIT {
 				
 				service.removeClientNamed(A_FIRSTNAME, A_LASTNAME);
 				
-				assertThat(readAllReservationsFromDatabase())
-					.filteredOn(r -> Objects.equals(r.getClientId(), client_id)).isEmpty();
 				assertThat(readAllClientsFromDatabase())
 					.doesNotContain(client)
 					.containsExactly(another_client);
+				assertThat(readAllReservationsFromDatabase())
+					.filteredOn(r -> Objects.equals(r.getClientId(), client.getId())).isEmpty();
 			}
 
 			@Test
@@ -516,6 +519,7 @@ class TransactionalPostgresBookingServiceIT {
 			}
 		}
 	}
+
 
 	private List<Client> readAllClientsFromDatabase() {
 		EntityManager em = emf.createEntityManager();

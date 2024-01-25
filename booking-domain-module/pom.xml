@@ -103,6 +103,7 @@
           <artifactId>jacoco-maven-plugin</artifactId>
           <configuration>
             <excludes>
+              <!-- HERE SOME EXCLUSIONS -->
               <exclude>**/model/*</exclude>
               <exclude>**/annotation/*</exclude>
               <exclude>**/exception/*</exclude>
@@ -114,9 +115,11 @@
           <artifactId>pitest-maven</artifactId>
           <configuration>
             <targetClasses>
+              <!-- HERE CLASSES TO MUTATE -->
               <targetClasse>io.github.marcopaglio.booking.validator.restricted.*</targetClasse>
             </targetClasses>
             <targetTests>
+              <!-- HERE TESTS TO KILL MUTANS -->
               <targetTest>io.github.marcopaglio.booking.validator.restricted.*</targetTest>
             </targetTests>
           </configuration>

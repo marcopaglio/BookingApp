@@ -29,6 +29,7 @@ class TransactionHandlerFactoryTest {
 
 	@Container
 	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
+	private static final String TXNOPTIONS_FIELD = "txnOptions";
 	private static MongoClient mongoClient;
 
 	@Container
@@ -71,10 +72,11 @@ class TransactionHandlerFactoryTest {
 		class MongoDBHandlerTest {
 
 			@Test
-			@DisplayName("Valid mongoClient")
-			void testCreateTransactionHandlerWhenMongoClientIsValidShouldReturnTransactionMongoHandler() {
+			@DisplayName("Valid parameters")
+			void testCreateTransactionHandlerWhenParametersAreValidShouldReturnTransactionMongoHandler() {
 				assertThat(transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS))
-					.isInstanceOf(TransactionMongoHandler.class);
+					.isInstanceOf(TransactionMongoHandler.class)
+					.extracting(TXNOPTIONS_FIELD).isNotNull();
 			}
 
 			@Test
@@ -83,14 +85,15 @@ class TransactionHandlerFactoryTest {
 				assertThatThrownBy(
 						() -> transactionHandlerFactory.createTransactionHandler(null, TXN_OPTIONS))
 					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Cannot create a ClientSession from a null Mongo client.");
+					.hasMessage("Cannot create a TransactionMongoHandler from a null MongoDB client.");
 			}
 
 			@Test
 			@DisplayName("Null txnOptions")
-			void testCreateTransactionHandlerWhenTransactionOptionsAreNullShouldReturnSession() {
+			void testCreateTransactionHandlerWhenTransactionOptionsAreNullShouldReturnTransactionMongoHandler() {
 				assertThat(transactionHandlerFactory.createTransactionHandler(mongoClient, null))
-					.isInstanceOf(TransactionMongoHandler.class);
+					.isInstanceOf(TransactionMongoHandler.class)
+					.extracting(TXNOPTIONS_FIELD).isNull();
 			}
 		}
 
@@ -111,7 +114,7 @@ class TransactionHandlerFactoryTest {
 				assertThatThrownBy(
 						() -> transactionHandlerFactory.createTransactionHandler(null))
 					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Cannot create an EntityManager from a null EntityManagerFactory.");
+					.hasMessage("Cannot create a TransactionPostgresHandler from a null EntityManagerFactory.");
 			}
 		}
 	}

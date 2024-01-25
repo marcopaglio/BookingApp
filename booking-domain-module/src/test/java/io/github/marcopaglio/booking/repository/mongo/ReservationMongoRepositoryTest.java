@@ -16,10 +16,9 @@ import static org.mockito.Mockito.spy;
 
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -54,6 +53,10 @@ import io.github.marcopaglio.booking.model.Reservation;
 @DisplayName("Tests for ReservationMongoRepository class")
 @Testcontainers
 class ReservationMongoRepositoryTest {
+	private static final String ID_FIELD = "id";
+	private static final String DATE_FIELD = "date";
+	private static final String CLIENTID_FIELD = "clientId";
+
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2022-12-22");
 	private static final UUID A_CLIENT_UUID = UUID.fromString("5a583373-c1b4-4913-82b6-5ea76fb1b1be");
 	private static final UUID A_RESERVATION_UUID = UUID.fromString("e77ce09c-bf58-4691-b69b-11851f359b99");
@@ -342,12 +345,11 @@ class ReservationMongoRepositoryTest {
 				void testSaveWhenNewReservationIsValidShouldInsertAndReturnTheReservationWithId() {
 					Reservation returnedReservation = reservationRepository.save(reservation);
 					
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).containsExactly(reservation);
-					assertThat(returnedReservation).isEqualTo(reservation);
-					assertThat(reservationsInDB.get(0).getId()).isNotNull();
-					assertThat(returnedReservation.getId()).isNotNull();
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(returnedReservation.getId());
+					assertThat(returnedReservation).isEqualTo(reservation)
+						.extracting(Reservation::getId).isNotNull();
+					assertThat(readAllReservationsFromDatabase())
+						.singleElement().isEqualTo(reservation)
+							.extracting(Reservation::getId).isEqualTo(returnedReservation.getId());
 				}
 
 				@Test
@@ -380,7 +382,7 @@ class ReservationMongoRepositoryTest {
 					addTestReservationToDatabaseInTheSameContext(reservation, A_RESERVATION_UUID);
 					
 					Reservation spied_reservation = spy(another_reservation);
-					// sets same id
+					// set same id
 					doAnswer( invocation -> {
 						((Reservation) invocation.getMock()).setId(A_RESERVATION_UUID);
 						return null;
@@ -399,7 +401,7 @@ class ReservationMongoRepositoryTest {
 					addTestReservationToDatabaseInAnotherContext(reservation, A_RESERVATION_UUID);
 					
 					Reservation spied_reservation = spy(another_reservation);
-					// sets same id
+					// set same id
 					doAnswer( invocation -> {
 						((Reservation) invocation.getMock()).setId(A_RESERVATION_UUID);
 						return null;
@@ -419,7 +421,7 @@ class ReservationMongoRepositoryTest {
 					
 					another_reservation.setDate(A_LOCALDATE);
 					Reservation spied_reservation = spy(another_reservation);
-					// sets different id
+					// set different id
 					doAnswer(invocation -> {
 						((Reservation) invocation.getMock()).setId(ANOTHER_RESERVATION_UUID);
 						return null;
@@ -429,9 +431,9 @@ class ReservationMongoRepositoryTest {
 						.isInstanceOf(UniquenessConstraintViolationException.class)
 						.hasMessage("Reservation to save violates uniqueness constraints.");
 					
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).containsExactly(reservation);
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
+					assertThat(readAllReservationsFromDatabase())
+						.singleElement().isEqualTo(reservation)
+							.extracting(Reservation::getId).isEqualTo(A_RESERVATION_UUID);
 				}
 
 				@Test
@@ -441,7 +443,7 @@ class ReservationMongoRepositoryTest {
 					
 					another_reservation.setDate(A_LOCALDATE);
 					Reservation spied_reservation = spy(another_reservation);
-					// sets different id
+					// set different id
 					doAnswer(invocation -> {
 						((Reservation) invocation.getMock()).setId(ANOTHER_RESERVATION_UUID);
 						return null;
@@ -451,9 +453,9 @@ class ReservationMongoRepositoryTest {
 						.isInstanceOf(UniquenessConstraintViolationException.class)
 						.hasMessage("Reservation to save violates uniqueness constraints.");
 					
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).containsExactly(reservation);
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
+					assertThat(readAllReservationsFromDatabase())
+						.singleElement().isEqualTo(reservation)
+							.extracting(Reservation::getId).isEqualTo(A_RESERVATION_UUID);
 				}
 
 				@Test
@@ -463,7 +465,7 @@ class ReservationMongoRepositoryTest {
 					
 					another_reservation.setClientId(A_CLIENT_UUID);
 					Reservation spied_reservation = spy(another_reservation);
-					// sets different id
+					// set different id
 					doAnswer(invocation -> {
 						((Reservation) invocation.getMock()).setId(ANOTHER_RESERVATION_UUID);
 						return null;
@@ -489,15 +491,15 @@ class ReservationMongoRepositoryTest {
 					Reservation returnedReservation = reservationRepository.save(reservation);
 					
 					// verify
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).containsExactly(reservation);
-					assertThat(returnedReservation).isEqualTo(reservation);
-					assertThat(reservationsInDB.get(0).getClientId()).isEqualTo(ANOTHER_CLIENT_UUID);
-					assertThat(returnedReservation.getClientId()).isEqualTo(ANOTHER_CLIENT_UUID);
-					assertThat(reservationsInDB.get(0).getDate()).isEqualTo(ANOTHER_LOCALDATE);
-					assertThat(returnedReservation.getDate()).isEqualTo(ANOTHER_LOCALDATE);
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
-					assertThat(returnedReservation.getId()).isEqualTo(A_RESERVATION_UUID);
+					assertThat(returnedReservation).isEqualTo(reservation)
+						.hasFieldOrPropertyWithValue(CLIENTID_FIELD, ANOTHER_CLIENT_UUID)
+						.hasFieldOrPropertyWithValue(DATE_FIELD, ANOTHER_LOCALDATE)
+						.hasFieldOrPropertyWithValue(ID_FIELD, A_RESERVATION_UUID);
+					assertThat(readAllReservationsFromDatabase())
+						.singleElement().isEqualTo(reservation)
+							.hasFieldOrPropertyWithValue(CLIENTID_FIELD, ANOTHER_CLIENT_UUID)
+							.hasFieldOrPropertyWithValue(DATE_FIELD, ANOTHER_LOCALDATE)
+							.hasFieldOrPropertyWithValue(ID_FIELD, A_RESERVATION_UUID);
 				}
 
 				@Test
@@ -513,15 +515,15 @@ class ReservationMongoRepositoryTest {
 					Reservation returnedReservation = reservationRepository.save(reservation);
 					
 					// verify
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).containsExactly(reservation);
-					assertThat(returnedReservation).isEqualTo(reservation);
-					assertThat(reservationsInDB.get(0).getClientId()).isEqualTo(ANOTHER_CLIENT_UUID);
-					assertThat(returnedReservation.getClientId()).isEqualTo(ANOTHER_CLIENT_UUID);
-					assertThat(reservationsInDB.get(0).getDate()).isEqualTo(ANOTHER_LOCALDATE);
-					assertThat(returnedReservation.getDate()).isEqualTo(ANOTHER_LOCALDATE);
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
-					assertThat(returnedReservation.getId()).isEqualTo(A_RESERVATION_UUID);
+					assertThat(returnedReservation).isEqualTo(reservation)
+						.hasFieldOrPropertyWithValue(CLIENTID_FIELD, ANOTHER_CLIENT_UUID)
+						.hasFieldOrPropertyWithValue(DATE_FIELD, ANOTHER_LOCALDATE)
+						.hasFieldOrPropertyWithValue(ID_FIELD, A_RESERVATION_UUID);
+					assertThat(readAllReservationsFromDatabase())
+						.singleElement().isEqualTo(reservation)
+							.hasFieldOrPropertyWithValue(CLIENTID_FIELD, ANOTHER_CLIENT_UUID)
+							.hasFieldOrPropertyWithValue(DATE_FIELD, ANOTHER_LOCALDATE)
+							.hasFieldOrPropertyWithValue(ID_FIELD, A_RESERVATION_UUID);
 				}
 
 				@Test
@@ -550,11 +552,10 @@ class ReservationMongoRepositoryTest {
 						.hasMessage("Reservation to save violates not-null constraints.");
 					
 					// verify
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).hasSize(1);
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
-					assertThat(reservationsInDB.get(0).getDate()).isEqualTo(A_LOCALDATE);
-					assertThat(reservationsInDB.get(0).getClientId()).isEqualTo(A_CLIENT_UUID);
+					assertThat(readAllReservationsFromDatabase())
+						.filteredOn(r -> Objects.equals(r.getId(), A_RESERVATION_UUID))
+						.singleElement()
+							.hasFieldOrPropertyWithValue(CLIENTID_FIELD, A_CLIENT_UUID);
 				}
 
 				@Test
@@ -571,11 +572,10 @@ class ReservationMongoRepositoryTest {
 						.hasMessage("Reservation to save violates not-null constraints.");
 					
 					// verify
-					List<Reservation> reservationsInDB = readAllReservationsFromDatabase();
-					assertThat(reservationsInDB).hasSize(1);
-					assertThat(reservationsInDB.get(0).getId()).isEqualTo(A_RESERVATION_UUID);
-					assertThat(reservationsInDB.get(0).getDate()).isEqualTo(A_LOCALDATE);
-					assertThat(reservationsInDB.get(0).getClientId()).isEqualTo(A_CLIENT_UUID);
+					assertThat(readAllReservationsFromDatabase())
+						.filteredOn(r -> Objects.equals(r.getId(), A_RESERVATION_UUID))
+						.singleElement()
+							.extracting(Reservation::getDate).isEqualTo(A_LOCALDATE);
 				}
 
 				@Test
@@ -592,9 +592,10 @@ class ReservationMongoRepositoryTest {
 						.isInstanceOf(UniquenessConstraintViolationException.class)
 						.hasMessage("Reservation to save violates uniqueness constraints.");
 					
-					Set<LocalDate> datesInDB = new HashSet<>();
-					readAllReservationsFromDatabase().forEach((r) -> datesInDB.add(r.getDate()));
-					assertThat(datesInDB).contains(ANOTHER_LOCALDATE);
+					assertThat(readAllReservationsFromDatabase())
+						.filteredOn(r -> Objects.equals(r.getId(), ANOTHER_RESERVATION_UUID))
+						.singleElement()
+							.extracting(Reservation::getDate).isEqualTo(ANOTHER_LOCALDATE);
 				}
 			}
 

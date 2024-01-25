@@ -15,8 +15,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 @DisplayName("Tests for RestrictedReservationValidator class")
 class RestrictedReservationValidatorTest {
-	private static final UUID VALID_UUID = UUID.fromString("95a995a6-6461-4bae-a88c-2ac40e26accd");
-	private static final String VALID_DATE = "2022-12-22";
 
 	private RestrictedReservationValidator reservationValidator;
 
@@ -28,12 +26,13 @@ class RestrictedReservationValidatorTest {
 	@Nested
 	@DisplayName("Tests for 'validateClientId'")
 	class ValidateClientIdTest {
+		private final UUID valid_UUID = UUID.fromString("95a995a6-6461-4bae-a88c-2ac40e26accd");
 
 		@Test
 		@DisplayName("ClientId is valid")
 		void testValidateClientIdWhenClientIdIsValidShouldReturnTheSameClientId() {
-			assertThat(reservationValidator.validateClientId(VALID_UUID))
-				.isEqualTo(VALID_UUID);
+			assertThat(reservationValidator.validateClientId(valid_UUID))
+				.isEqualTo(valid_UUID);
 		}
 
 		@Test
@@ -48,6 +47,7 @@ class RestrictedReservationValidatorTest {
 	@Nested
 	@DisplayName("Tests for 'validateDate'")
 	class ValidateDateTest {
+		private static final String VALID_DATE = "2022-12-22";
 
 		@Test
 		@DisplayName("Date is valid")
@@ -55,7 +55,6 @@ class RestrictedReservationValidatorTest {
 			assertThat(reservationValidator.validateDate(VALID_DATE))
 				.isEqualTo(LocalDate.parse(VALID_DATE));
 		}
-
 
 		@Nested
 		@DisplayName("Invalid dates")
@@ -87,7 +86,7 @@ class RestrictedReservationValidatorTest {
 					String nonNumericDate) {
 				assertThatThrownBy(() -> reservationValidator.validateDate(nonNumericDate))
 					.isInstanceOf(IllegalArgumentException.class)
-					.hasMessage("Reservation needs a only numeric date.");
+					.hasMessage("Reservation's date can contain only numeric characters.");
 			}
 
 			@ParameterizedTest(name = "{index}: ''{0}''")
@@ -98,8 +97,8 @@ class RestrictedReservationValidatorTest {
 				"20226-12-21", "2022-126-21", "2022-12-216",			// different number of digits
 				"202-212-21", "20221-2-12", "2022-122-1", "2022-1-221"	// different number of digits
 			})
-			void testValidateDateWhenDateFormatIsWrongShouldThrow(String wrongFormatDate) {
-				assertThatThrownBy(() -> reservationValidator.validateDate(wrongFormatDate))
+			void testValidateDateWhenDateFormatIsWrongShouldThrow(String wrongDateFormat) {
+				assertThatThrownBy(() -> reservationValidator.validateDate(wrongDateFormat))
 					.isInstanceOf(IllegalArgumentException.class)
 					.hasMessage("Reservation needs a date in format aaaa-mm-dd.");
 			}

@@ -35,28 +35,28 @@
     <postgres.database.pswd>postgres-it-e2e</postgres.database.pswd>
 
     <!-- VERSIONS FOR DEPENDENCIES -->
-    <junit.version>5.9.2</junit.version>
-    <assertj.version>3.24.2</assertj.version>
+    <junit.version>5.10.1</junit.version>
+    <assertj.version>3.25.2</assertj.version>
     <assertj.swing.version>3.17.1</assertj.swing.version>
-    <mockito.version>5.1.1</mockito.version>
-    <testcontainers.version>1.18.3</testcontainers.version>
+    <mockito.version>5.10.0</mockito.version>
+    <testcontainers.version>1.19.3</testcontainers.version>
     <awaitility.version>4.2.0</awaitility.version>
 
 
     <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
     <maven.compiler.version>3.11.0</maven.compiler.version>
-    <maven.resources.version>3.3.0</maven.resources.version>
+    <maven.resources.version>3.3.1</maven.resources.version>
     <maven.jar.version>3.3.0</maven.jar.version>
     <maven.javadoc.version>3.6.0</maven.javadoc.version>
     <maven.source.version>3.3.0</maven.source.version>
 
     <!-- VERSIONS FOR OTHER PLUGINS -->
-    <jacoco.version>0.8.8</jacoco.version>
+    <jacoco.version>0.8.11</jacoco.version>
     <coveralls.version>4.3.0</coveralls.version>
-    <jaxb.api.version>2.3.1</jaxb.api.version>
-    <pitest.version>1.11.4</pitest.version>
-    <pitest.junit5.version>1.1.2</pitest.junit5.version>
-    <sonar.version>3.9.1.2184</sonar.version>
+    <jaxb.api.version>2.4.0-b180830.0359</jaxb.api.version>
+    <pitest.version>1.15.6</pitest.version>
+    <pitest.jupiter.version>1.2.1</pitest.jupiter.version>
+    <sonar.version>3.10.0.2594</sonar.version>
     <build.helper.version>3.4.0</build.helper.version>
     <docker.version>0.43.4</docker.version>
   </properties>
@@ -229,7 +229,7 @@
             <dependency>
               <groupId>org.pitest</groupId>
               <artifactId>pitest-junit5-plugin</artifactId>
-              <version>${pitest.junit5.version}</version>
+              <version>${pitest.jupiter.version}</version>
             </dependency>
           </dependencies>
           <executions>

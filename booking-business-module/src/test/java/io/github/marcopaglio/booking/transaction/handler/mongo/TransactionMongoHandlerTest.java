@@ -69,7 +69,7 @@ class TransactionMongoHandlerTest {
 
 		@Test
 		@DisplayName("Active transaction")
-		void testStartTransactionWhenThereIsAlreadyAnActiveTransactionNotThrowAndShouldMaintainItActive() {
+		void testStartTransactionWhenThereIsAlreadyAnActiveTransactionShouldMaintainItActiveAndNotThrow() {
 			startATransaction();
 			
 			assertThatNoException().isThrownBy(() -> transactionMongoHandler.startTransaction());
@@ -104,7 +104,7 @@ class TransactionMongoHandlerTest {
 
 		@Test
 		@DisplayName("No active transaction")
-		void testCommitTransactionWhenThereIsNoActiveTransactionShouldNotThrowAndMaintainItClose() {
+		void testCommitTransactionWhenThereIsNoActiveTransactionShouldMaintainItCloseAndNotThrow() {
 			assertThat(session.hasActiveTransaction()).isFalse();
 			
 			assertThatNoException().isThrownBy(() -> transactionMongoHandler.commitTransaction());
@@ -129,7 +129,7 @@ class TransactionMongoHandlerTest {
 
 		@Test
 		@DisplayName("No active transaction")
-		void testRollbackTransactionWhenThereIsNoActiveTransactionShouldNotThrowAndMaintainItClose() {
+		void testRollbackTransactionWhenThereIsNoActiveTransactionShouldMaintainItCloseAndNotThrow() {
 			assertThat(hasHandlerAnActiveTransaction()).isFalse();
 			
 			assertThatNoException().isThrownBy(
@@ -145,7 +145,7 @@ class TransactionMongoHandlerTest {
 
 		@Test
 		@DisplayName("Open handler")
-		void testCloseHandlerWhenIsOpenShouldClose() {
+		void testCloseHandlerWhenHandlerIsOpenShouldClose() {
 			assertThat(isHandlerOpen()).isTrue();
 			
 			transactionMongoHandler.closeHandler();
@@ -155,10 +155,12 @@ class TransactionMongoHandlerTest {
 
 		@Test
 		@DisplayName("Already closed handler")
-		void testCloseHandlerWhenIsAlreadyClosedShouldReturnNotThrow() {
+		void testCloseHandlerWhenHandlerIsAlreadyClosedShouldMaintainItCloseAndNotThrow() {
 			closeTheHandler();
 			
 			assertThatNoException().isThrownBy(() -> transactionMongoHandler.closeHandler());
+			
+			assertThat(isHandlerOpen()).isFalse();
 		}
 	}
 

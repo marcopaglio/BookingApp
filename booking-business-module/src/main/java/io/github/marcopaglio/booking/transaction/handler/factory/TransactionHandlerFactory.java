@@ -30,7 +30,7 @@ public class TransactionHandlerFactory {
 	public TransactionMongoHandler createTransactionHandler(MongoClient mongoClient, TransactionOptions txnOptions)
 			throws IllegalArgumentException {
 		if (mongoClient == null)
-			throw new IllegalArgumentException("Cannot create a ClientSession from a null Mongo client.");
+			throw new IllegalArgumentException("Cannot create a TransactionMongoHandler from a null MongoDB client.");
 		
 		return new TransactionMongoHandler(mongoClient.startSession(), txnOptions);
 	}
@@ -47,7 +47,7 @@ public class TransactionHandlerFactory {
 	 */
 	public TransactionPostgresHandler createTransactionHandler(EntityManagerFactory emf) {
 		if (emf == null)
-			throw new IllegalArgumentException("Cannot create an EntityManager from a null EntityManagerFactory.");
+			throw new IllegalArgumentException("Cannot create a TransactionPostgresHandler from a null EntityManagerFactory.");
 		
 		return new TransactionPostgresHandler(emf.createEntityManager());
 	}

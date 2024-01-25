@@ -110,7 +110,7 @@ public class RestrictedClientValidator implements ClientValidator {
 			throws IllegalArgumentException {
 		if (notOnlyAlphabetic.matcher(str).find())
 			throw new IllegalArgumentException(
-				"Client's " + inputName + " must contain only alphabet letters.");
+				"Client's " + inputName + " can contain only alphabet letters.");
 	}
 
 	/**

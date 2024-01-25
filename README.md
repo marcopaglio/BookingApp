@@ -172,6 +172,8 @@ Alternative builds can be run by adding one or more *profiles* at the end of the
 - `-Pjacoco` adds test coverage. BookingApp project already provides test coverage results on [Coveralls](https://coveralls.io/github/marcopaglio/BookingApp?branch=main), but you can see them yourself once the execution finishes at `/booking-report/target/site/jacoco-aggregate/index.html`.
   
 - `-Ppitest` adds mutation testing. BookingApp project already provides mutation testing results on the [website](https://marcopaglio.github.io/BookingApp/pit-reports/index.html), but you can see them yourself once the execution finishes at `/booking-report/target/pit-reports/index.html`.
+
+- `-Pskip-gui-tests` skips tests that require a graphical environment. This profile is useful to quickly see how builds work, since GUI tests slow them down.
   
 - `-Pdocker` dockerizes the application. The Docker image created is named `booking-app` and it is verified with both MongoDB and PostgreSQL.
 
@@ -187,12 +189,13 @@ Launch file naming convention consists of a radix that is the module name, and a
 | :----: | ------------ |
 | `-install` | Runs all tests and installs dependencies locally for each module. |
 | `-verify` | Runs all tests. |
-| `-test-without-docker` | Only runs tests that don't require the use of Docker. |
+| `-test-without-docker` | Only runs unit tests that don't require the use of Docker. |
 | `-junit-report` | Runs all tests and generates unit test results at `/target/site/surefire-report.html` and integration and end-to-end test results at `/target/site/failsafe-report.html`. |
 | `-jacoco` | Does the same thing as `-Pjacoco` of [Build commands](#build-commands) section. If launched on a sub-module, test coverage results can be found at `/target/site/jacoco/index.html`. |
 | `-pitest` | Does the same thing as `-Ppitest` of [Build commands](#build-commands) section. If launched in a sub-module, mutation testing results can be found at `/target/pit-reports/index.html`. |
 | `-pages` | Generates a static website for the BookingApp project that can be visited from `/target/staging/index.html`. |
 | `-docker` | Does the same thing as `-Pdocker` of [Build commands](#build-commands) section. |
+| `-without-gui-tests` | Does the same thing as`-Pskip-gui-tests` of [Build commands](#build-commands) section. |
 | `-docs` | Generates a jar archive for source code and another for its javadoc in the `/target/` directory. |
 | `-reset-dependencies` | Removes the project dependencies from the local repository. It is useful when you have to remove unused or conflicting dependencies. |
 

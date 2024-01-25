@@ -1,8 +1,9 @@
 package io.github.marcopaglio.booking.transaction.manager.mongo;
 
-import static io.github.marcopaglio.booking.transaction.manager.mongo.TransactionMongoManager.TXN_OPTIONS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -27,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.mongodb.MongoCommandException;
 import com.mongodb.ServerAddress;
+import com.mongodb.TransactionOptions;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoClient;
 
@@ -59,6 +61,12 @@ class TransactionMongoManagerTest {
 	private static final LocalDate A_LOCALDATE = LocalDate.parse("2022-12-22");
 	private static final Reservation A_RESERVATION = new Reservation(A_CLIENT_UUID, A_LOCALDATE);
 
+	private static final String INVALID_ARGUMENT_ERROR_MSG = "Transaction fails due to invalid argument(s) passed.";
+	private static final String UPDATE_FAILURE_ERROR_MSG = "Transaction fails due to an update failure.";
+	private static final String VIOLATION_OF_NOT_NULL_CONSTRAINT_ERROR_MSG = "Transaction fails due to violation of not-null constraint(s).";
+	private static final String VIOLATION_OF_UNIQUENESS_CONSTRAINT_ERROR_MSG = "Transaction fails due to violation of uniqueness constraint(s).";
+	private static final String COMMIT_FAILURE_ERROR_MSG = "Transaction fails due to a commitment failure.";
+
 	private static final String BOOKING_DB_NAME = "TransactionMongoManager_db";
 	private MongoClient mongoClient;
 	private ClientSession session;
@@ -89,7 +97,7 @@ class TransactionMongoManagerTest {
 				transactionHandlerFactory, clientRepositoryFactory, reservationRepositoryFactory);
 		
 		// stubbing
-		when(transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS))
+		when(transactionHandlerFactory.createTransactionHandler(same(mongoClient), isA(TransactionOptions.class)))
 			.thenReturn(transactionMongoHandler);
 		when(transactionMongoHandler.getHandler()).thenReturn(session);
 	}
@@ -106,11 +114,11 @@ class TransactionMongoManagerTest {
 
 		@Test
 		@DisplayName("Code calls ClientRepository's method")
-		void testDoInTransactionWhenCallsAMethodOfClientRepositoryShouldApplyAndReturn() {
+		void testDoInTransactionWhenCallsAMethodShouldApplyAndReturn() {
 			ClientTransactionCode<List<Client>> code =
 					(ClientRepository clientRepository) -> clientRepository.findAll();
-			List<Client> listOfClients = Arrays.asList(A_CLIENT);
 			
+			List<Client> listOfClients = Arrays.asList(A_CLIENT);
 			when(clientMongoRepository.findAll()).thenReturn(listOfClients);
 			
 			assertThat(transactionManager.doInTransaction(code)).isEqualTo(listOfClients);
@@ -126,14 +134,11 @@ class TransactionMongoManagerTest {
 		}
 
 		@Test
-		@DisplayName("Code on ClientRepository throws IllegalArgumentException")
-		void testDoInTransactionWhenClientRepositoryThrowsIllegalArgumentExceptionShouldRollBackAndThrow() {
+		@DisplayName("Code throws IllegalArgumentException")
+		void testDoInTransactionWhenCodeThrowsIllegalArgumentExceptionShouldRollBackAndThrow() {
 			ClientTransactionCode<Object> code = (ClientRepository clientRepository) -> {
-				clientRepository.delete(null);
-				return null;
-			};
-			
-			doThrow(new IllegalArgumentException()).when(clientMongoRepository).delete(null);
+					throw new IllegalArgumentException();
+				};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
@@ -145,17 +150,15 @@ class TransactionMongoManagerTest {
 		}
 
 		@Test
-		@DisplayName("Code on ClientRepository throws UpdateFailureException")
-		void testDoInTransactionWhenClientRepositoryThrowsUpdateFailureExceptionShouldRollBackAndThrow() {
-			ClientTransactionCode<Client> code = (ClientRepository clientRepository) -> 
-				clientRepository.save(A_CLIENT);
-				
-			doThrow(new UpdateFailureException())
-				.when(clientMongoRepository).save(A_CLIENT);
+		@DisplayName("Code throws UpdateFailureException")
+		void testDoInTransactionWhenCodeThrowsUpdateFailureExceptionShouldRollBackAndThrow() {
+			ClientTransactionCode<Object> code = (ClientRepository clientRepository) -> {
+					throw new UpdateFailureException();
+				};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to an update failure.");
+				.hasMessage(UPDATE_FAILURE_ERROR_MSG);
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
@@ -163,17 +166,15 @@ class TransactionMongoManagerTest {
 		}
 
 		@Test
-		@DisplayName("Code on ClientRepository throws NotNullConstraintViolationException")
-		void testDoInTransactionWhenClientRepositoryThrowsNotNullConstraintViolationExceptionShouldRollBackAndThrow() {
-			ClientTransactionCode<Client> code = (ClientRepository clientRepository) -> 
-				clientRepository.save(A_CLIENT);
-				
-			doThrow(new NotNullConstraintViolationException())
-				.when(clientMongoRepository).save(A_CLIENT);
+		@DisplayName("Code throws NotNullConstraintViolationException")
+		void testDoInTransactionWhenCodeThrowsNotNullConstraintViolationExceptionShouldRollBackAndThrow() {
+			ClientTransactionCode<Object> code = (ClientRepository clientRepository) -> {
+					throw new NotNullConstraintViolationException();
+				};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to violation of not-null constraint(s).");
+				.hasMessage(VIOLATION_OF_NOT_NULL_CONSTRAINT_ERROR_MSG);
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
@@ -181,17 +182,15 @@ class TransactionMongoManagerTest {
 		}
 
 		@Test
-		@DisplayName("Code on ClientRepository throws UniquenessConstraintViolationException")
-		void testDoInTransactionWhenClientRepositoryThrowsUniquenessConstraintViolationExceptionShouldRollBackAndThrow() {
-			ClientTransactionCode<Client> code = (ClientRepository clientRepository) -> 
-				clientRepository.save(A_CLIENT);
-			
-			doThrow(new UniquenessConstraintViolationException())
-				.when(clientMongoRepository).save(A_CLIENT);
+		@DisplayName("Code throws UniquenessConstraintViolationException")
+		void testDoInTransactionWhenCodeThrowsUniquenessConstraintViolationExceptionShouldRollBackAndThrow() {
+			ClientTransactionCode<Object> code = (ClientRepository clientRepository) -> {
+					throw new UniquenessConstraintViolationException();
+				};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to violation of uniqueness constraint(s).");
+				.hasMessage(VIOLATION_OF_UNIQUENESS_CONSTRAINT_ERROR_MSG);
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
@@ -203,8 +202,8 @@ class TransactionMongoManagerTest {
 		void testDoInTransactionWhenCodeThrowsOthersRuntimeExceptionsShouldRollBackAndRethrow() {
 			RuntimeException runtimeException = new RuntimeException();
 			ClientTransactionCode<Object> code = (ClientRepository clientRepository) -> {
-				throw runtimeException;
-			};
+					throw runtimeException;
+				};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isEqualTo(runtimeException);
@@ -217,7 +216,7 @@ class TransactionMongoManagerTest {
 		@Test
 		@DisplayName("Commit fails")
 		void testDoInTransactionWhenCommitFailsShouldRollBackAndThrow() {
-			ClientTransactionCode<List<Client>> code =
+			ClientTransactionCode<Object> code =
 					(ClientRepository clientRepository) -> clientRepository.findAll();
 			
 			doThrow(new MongoCommandException(new BsonDocument(), new ServerAddress()))
@@ -225,7 +224,7 @@ class TransactionMongoManagerTest {
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to a commitment failure.");
+				.hasMessage(COMMIT_FAILURE_ERROR_MSG);
 			
 			verify(transactionMongoHandler).commitTransaction();
 			verify(transactionMongoHandler).rollbackTransaction();
@@ -245,11 +244,11 @@ class TransactionMongoManagerTest {
 
 		@Test
 		@DisplayName("Code calls ReservationRepository's method")
-		void testDoInTransactionWhenCallsAMethodOfReservationRepositoryShouldApplyAndReturn() {
+		void testDoInTransactionWhenCallsAMethodShouldApplyAndReturn() {
 			ReservationTransactionCode<List<Reservation>> code = 
 					(ReservationRepository reservationRepository) -> reservationRepository.findAll();
-			List<Reservation> listOfReservations = Arrays.asList(A_RESERVATION);
 			
+			List<Reservation> listOfReservations = Arrays.asList(A_RESERVATION);
 			when(reservationMongoRepository.findAll()).thenReturn(listOfReservations);
 			
 			assertThat(transactionManager.doInTransaction(code)).isEqualTo(listOfReservations);
@@ -265,18 +264,15 @@ class TransactionMongoManagerTest {
 		}
 
 		@Test
-		@DisplayName("Code on ReservationRepository throws IllegalArgumentException")
-		void testDoInTransactionWhenReservationRepositoryThrowsIllegalArgumentExceptionShouldRollBackAndThrow() {
+		@DisplayName("Code throws IllegalArgumentException")
+		void testDoInTransactionWhenCodeThrowsIllegalArgumentExceptionShouldRollBackAndThrow() {
 			ReservationTransactionCode<Object> code = (ReservationRepository reservationRepository) -> {
-				reservationRepository.delete(null);
-				return null;
-			};
-			
-			doThrow(new IllegalArgumentException()).when(reservationMongoRepository).delete(null);
+					throw new IllegalArgumentException();
+				};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to invalid argument(s) passed.");
+				.hasMessage(INVALID_ARGUMENT_ERROR_MSG);
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
@@ -284,18 +280,15 @@ class TransactionMongoManagerTest {
 		}
 
 		@Test
-		@DisplayName("Code on ReservationRepository throws UpdateFailureException")
-		void testDoInTransactionWhenReservationRepositoryThrowsUpdateFailureExceptionShouldRollBackAndThrow() {
-			ReservationTransactionCode<Reservation> code = 
-					(ReservationRepository reservationRepository) -> 
-						reservationRepository.save(A_RESERVATION);
-			
-			doThrow(new UpdateFailureException())
-				.when(reservationMongoRepository).save(A_RESERVATION);
+		@DisplayName("Code throws UpdateFailureException")
+		void testDoInTransactionWhenCodeThrowsUpdateFailureExceptionShouldRollBackAndThrow() {
+			ReservationTransactionCode<Object> code = (ReservationRepository reservationRepository) -> {
+					throw new UpdateFailureException();
+				};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to an update failure.");
+				.hasMessage(UPDATE_FAILURE_ERROR_MSG);
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
@@ -303,18 +296,15 @@ class TransactionMongoManagerTest {
 		}
 
 		@Test
-		@DisplayName("Code on ReservationRepository throws NotNullConstraintViolationException")
-		void testDoInTransactionWhenReservationRepositoryThrowsNotNullConstraintViolationExceptionShouldRollBackAndThrow() {
-			ReservationTransactionCode<Reservation> code = 
-					(ReservationRepository reservationRepository) -> 
-						reservationRepository.save(A_RESERVATION);
-			
-			doThrow(new NotNullConstraintViolationException())
-				.when(reservationMongoRepository).save(A_RESERVATION);
+		@DisplayName("Code throws NotNullConstraintViolationException")
+		void testDoInTransactionWhenCodeThrowsNotNullConstraintViolationExceptionShouldRollBackAndThrow() {
+			ReservationTransactionCode<Object> code = (ReservationRepository reservationRepository) -> {
+					throw new NotNullConstraintViolationException();
+				};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to violation of not-null constraint(s).");
+				.hasMessage(VIOLATION_OF_NOT_NULL_CONSTRAINT_ERROR_MSG);
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
@@ -322,18 +312,15 @@ class TransactionMongoManagerTest {
 		}
 
 		@Test
-		@DisplayName("Code on ReservationRepository throws UniquenessConstraintViolationException")
-		void testDoInTransactionWhenReservationRepositoryThrowsUniquenessConstraintViolationExceptionShouldRollBackAndThrow() {
-			ReservationTransactionCode<Reservation> code =
-					(ReservationRepository reservationRepository) -> 
-						reservationRepository.save(A_RESERVATION);
-						
-			doThrow(new UniquenessConstraintViolationException())
-				.when(reservationMongoRepository).save(A_RESERVATION);
+		@DisplayName("Code throws UniquenessConstraintViolationException")
+		void testDoInTransactionWhenCodeThrowsUniquenessConstraintViolationExceptionShouldRollBackAndThrow() {
+			ReservationTransactionCode<Object> code = (ReservationRepository reservationRepository) -> {
+					throw new UniquenessConstraintViolationException();
+				};
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to violation of uniqueness constraint(s).");
+				.hasMessage(VIOLATION_OF_UNIQUENESS_CONSTRAINT_ERROR_MSG);
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
@@ -342,7 +329,7 @@ class TransactionMongoManagerTest {
 
 		@Test
 		@DisplayName("Code throws others RuntimeException")
-		void testDoInTransactionWhenCodeThrowsOthersRuntimeExceptionsShouldAbortAndRethrow() {
+		void testDoInTransactionWhenCodeThrowsOthersRuntimeExceptionsShouldRollBackAndRethrow() {
 			RuntimeException runtimeException = new RuntimeException();
 			ReservationTransactionCode<Object> code = (ReservationRepository reservationRepository) -> {
 					throw runtimeException;
@@ -359,7 +346,7 @@ class TransactionMongoManagerTest {
 		@Test
 		@DisplayName("Commit fails")
 		void testDoInTransactionWhenCommitFailsShouldRollBackAndThrow() {
-			ReservationTransactionCode<List<Reservation>> code = 
+			ReservationTransactionCode<Object> code = 
 					(ReservationRepository reservationRepository) -> reservationRepository.findAll();
 			
 			doThrow(new MongoCommandException(new BsonDocument(), new ServerAddress()))
@@ -367,7 +354,7 @@ class TransactionMongoManagerTest {
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to a commitment failure.");
+				.hasMessage(COMMIT_FAILURE_ERROR_MSG);
 			
 			verify(transactionMongoHandler).commitTransaction();
 			verify(transactionMongoHandler).rollbackTransaction();
@@ -389,14 +376,14 @@ class TransactionMongoManagerTest {
 
 		@Test
 		@DisplayName("Code calls both ClientRepository's and ReservationRepository's methods")
-		void testDoInTransactionWhenCallsMethodsOfClientAndReservationRepositoriesShouldApplyAndReturn() {
+		void testDoInTransactionWhenCodeCallsMethodsShouldApplyAndReturn() {
 			ClientReservationTransactionCode<List<Reservation>> code = 
 				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
 					clientRepository.findAll();
 					return reservationRepository.findAll();
 				};
-			List<Reservation> listOfReservations = Arrays.asList(A_RESERVATION);
 			
+			List<Reservation> listOfReservations = Arrays.asList(A_RESERVATION);
 			when(reservationMongoRepository.findAll()).thenReturn(listOfReservations);
 			
 			assertThat(transactionManager.doInTransaction(code)).isEqualTo(listOfReservations);
@@ -414,20 +401,16 @@ class TransactionMongoManagerTest {
 		}
 
 		@Test
-		@DisplayName("Code on ClientRepository throws IllegalArgumentException")
-		void testDoInTransactionWhenClientRepositoryThrowsIllegalArgumentExceptionShouldRollBackAndThrow() {
+		@DisplayName("Code throws IllegalArgumentException")
+		void testDoInTransactionWhenCodeThrowsIllegalArgumentExceptionShouldRollBackAndThrow() {
 			ClientReservationTransactionCode<Object> code =
 				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-					reservationRepository.delete(A_RESERVATION);
-					clientRepository.delete(null);
-					return null;
+					throw new IllegalArgumentException();
 				};
-			
-			doThrow(new IllegalArgumentException()).when(clientMongoRepository).delete(null);
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to invalid argument(s) passed.");
+				.hasMessage(INVALID_ARGUMENT_ERROR_MSG);
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
@@ -435,20 +418,16 @@ class TransactionMongoManagerTest {
 		}
 
 		@Test
-		@DisplayName("Code on ReservationRepository throws IllegalArgumentException")
-		void testDoInTransactionWhenReservationRepositoryThrowsIllegalArgumentExceptionShouldRollBackAndThrow() {
+		@DisplayName("Code throws UpdateFailureException")
+		void testDoInTransactionWhenCodeThrowsUpdateFailureExceptionShouldRollBackAndThrow() {
 			ClientReservationTransactionCode<Object> code =
 				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-					clientRepository.save(A_CLIENT);
-					reservationRepository.save(null);
-					return null;
+					throw new UpdateFailureException();
 				};
-					
-			doThrow(new IllegalArgumentException()).when(reservationMongoRepository).save(null);
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to invalid argument(s) passed.");
+				.hasMessage(UPDATE_FAILURE_ERROR_MSG);
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
@@ -456,20 +435,16 @@ class TransactionMongoManagerTest {
 		}
 
 		@Test
-		@DisplayName("Code on ClientRepository throws UpdateFailureException")
-		void testDoInTransactionWhenClientRepositoryThrowsUpdateFailureExceptionShouldRollBackAndThrow() {
+		@DisplayName("Code throws NotNullConstraintViolationException")
+		void testDoInTransactionWhenCodeThrowsNotNullConstraintViolationExceptionShouldRollBackAndThrow() {
 			ClientReservationTransactionCode<Object> code =
 				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-					clientRepository.save(A_CLIENT);
-					reservationRepository.save(A_RESERVATION);
-					return null;
+					throw new NotNullConstraintViolationException();
 				};
-			
-			doThrow(new UpdateFailureException()).when(clientMongoRepository).save(A_CLIENT);
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to an update failure.");
+				.hasMessage(VIOLATION_OF_NOT_NULL_CONSTRAINT_ERROR_MSG);
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
@@ -477,109 +452,16 @@ class TransactionMongoManagerTest {
 		}
 
 		@Test
-		@DisplayName("Code on ReservationRepository throws UpdateFailureException")
-		void testDoInTransactionWhenReservationRepositoryThrowsUpdateFailureExceptionShouldRollBackAndThrow() {
+		@DisplayName("Code throws UniquenessConstraintViolationException")
+		void testDoInTransactionWhenCodeThrowsUniquenessConstraintViolationExceptionShouldRollBackAndThrow() {
 			ClientReservationTransactionCode<Object> code =
 				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-					clientRepository.save(A_CLIENT);
-					reservationRepository.save(A_RESERVATION);
-					return null;
-				};
-					
-			doThrow(new UpdateFailureException())
-				.when(reservationMongoRepository).save(A_RESERVATION);
-			
-			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
-				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to an update failure.");
-			
-			verify(transactionMongoHandler).rollbackTransaction();
-			verify(transactionMongoHandler, never()).commitTransaction();
-			verify(transactionMongoHandler).closeHandler();
-		}
-
-		@Test
-		@DisplayName("Code on ClientRepository throws NotNullConstraintViolationException")
-		void testDoInTransactionWhenClientRepositoryThrowsNotNullConstraintViolationExceptionShouldRollBackAndThrow() {
-			ClientReservationTransactionCode<Object> code =
-				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-					clientRepository.save(A_CLIENT);
-					reservationRepository.save(A_RESERVATION);
-					return null;
+					throw new UniquenessConstraintViolationException();
 				};
 			
-			doThrow(new NotNullConstraintViolationException())
-				.when(clientMongoRepository).save(A_CLIENT);
-			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to violation of not-null constraint(s).");
-			
-			verify(transactionMongoHandler).rollbackTransaction();
-			verify(transactionMongoHandler, never()).commitTransaction();
-			verify(transactionMongoHandler).closeHandler();
-		}
-
-		@Test
-		@DisplayName("Code on ReservationRepository throws NotNullConstraintViolationException")
-		void testDoInTransactionWhenReservationRepositoryThrowsNotNullConstraintViolationExceptionShouldRollBackAndThrow() {
-			ClientReservationTransactionCode<Object> code =
-				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-					clientRepository.save(A_CLIENT);
-					reservationRepository.save(A_RESERVATION);
-					return null;
-				};
-					
-			doThrow(new NotNullConstraintViolationException())
-				.when(reservationMongoRepository).save(A_RESERVATION);
-			
-			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
-				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to violation of not-null constraint(s).");
-			
-			verify(transactionMongoHandler).rollbackTransaction();
-			verify(transactionMongoHandler, never()).commitTransaction();
-			verify(transactionMongoHandler).closeHandler();
-		}
-
-		@Test
-		@DisplayName("Code on ClientRepository throws UniquenessConstraintViolationException")
-		void testDoInTransactionWhenClientRepositoryThrowsUniquenessConstraintViolationExceptionShouldAbortAndThrow() {
-			ClientReservationTransactionCode<Object> code =
-				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-					clientRepository.save(A_CLIENT);
-					reservationRepository.save(A_RESERVATION);
-					return null;
-				};
-			
-			doThrow(new UniquenessConstraintViolationException())
-				.when(clientMongoRepository).save(A_CLIENT);
-			
-			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
-				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to violation of uniqueness constraint(s).");
-			
-			verify(transactionMongoHandler).rollbackTransaction();
-			verify(transactionMongoHandler, never()).commitTransaction();
-			verify(transactionMongoHandler).closeHandler();
-		}
-
-		@Test
-		@DisplayName("Code on ReservationRepository throws UniquenessConstraintViolationException")
-		void testDoInTransactionWhenReservationRepositoryThrowsUniquenessConstraintViolationExceptionShouldAbortAndThrow() {
-			ClientReservationTransactionCode<Object> code =
-					(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
-						clientRepository.save(A_CLIENT);
-						reservationRepository.save(A_RESERVATION);
-						return null;
-					};
-					
-			doThrow(new UniquenessConstraintViolationException())
-				.when(reservationMongoRepository).save(A_RESERVATION);
-			
-			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
-				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to violation of uniqueness constraint(s).");
+				.hasMessage(VIOLATION_OF_UNIQUENESS_CONSTRAINT_ERROR_MSG);
 			
 			verify(transactionMongoHandler).rollbackTransaction();
 			verify(transactionMongoHandler, never()).commitTransaction();
@@ -588,7 +470,7 @@ class TransactionMongoManagerTest {
 
 		@Test
 		@DisplayName("Code throws others RuntimeException")
-		void testDoInTransactionWhenCodeThrowsOthersRuntimeExceptionsShouldAbortAndRethrow() {
+		void testDoInTransactionWhenCodeThrowsOthersRuntimeExceptionsShouldRollBackAndRethrow() {
 			RuntimeException runtimeException = new RuntimeException();
 			ClientReservationTransactionCode<Object> code =
 				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
@@ -606,10 +488,11 @@ class TransactionMongoManagerTest {
 		@Test
 		@DisplayName("Commit fails")
 		void testDoInTransactionWhenCommitFailsShouldRollBackAndThrow() {
-			ClientReservationTransactionCode<List<Reservation>> code = 
+			ClientReservationTransactionCode<Object> code = 
 				(ClientRepository clientRepository, ReservationRepository reservationRepository) -> {
 					clientRepository.findAll();
-					return reservationRepository.findAll();
+					reservationRepository.findAll();
+					return null;
 				};
 			
 			doThrow(new MongoCommandException(new BsonDocument(), new ServerAddress()))
@@ -617,7 +500,7 @@ class TransactionMongoManagerTest {
 			
 			assertThatThrownBy(() -> transactionManager.doInTransaction(code))
 				.isInstanceOf(TransactionException.class)
-				.hasMessage("Transaction fails due to a commitment failure.");
+				.hasMessage(COMMIT_FAILURE_ERROR_MSG);
 			
 			verify(transactionMongoHandler).commitTransaction();
 			verify(transactionMongoHandler).rollbackTransaction();

@@ -71,8 +71,7 @@ public class PostgresBookingSwingViewE2E extends BookingSwingViewE2E {
 		em.close();
 		
 		// add entities to the database
-		addTestClientToDatabase(A_FIRSTNAME, A_LASTNAME, A_CLIENT_UUID);
-		addTestReservationToDatabase(A_CLIENT_UUID, A_DATE, A_RESERVATION_UUID);
+		addTestEntitiesToDatabase();
 		
 		// start the Swing application
 		application(PostgresBookingSwingApp.class)
@@ -92,6 +91,7 @@ public class PostgresBookingSwingViewE2E extends BookingSwingViewE2E {
 		emf.close();
 	}
 
+	// database modifiers
 	@Override
 	protected void addTestClientToDatabase(String name, String surname, UUID id) {
 		EntityManager em = emf.createEntityManager();

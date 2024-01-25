@@ -102,8 +102,7 @@ public class MongoBookingSwingViewE2E extends BookingSwingViewE2E {
 		database.drop();
 		
 		// add entities to the database
-		addTestClientToDatabase(A_FIRSTNAME, A_LASTNAME, A_CLIENT_UUID);
-		addTestReservationToDatabase(A_CLIENT_UUID, A_DATE, A_RESERVATION_UUID);
+		addTestEntitiesToDatabase();
 		
 		// start the Swing application
 		application(MongoBookingSwingApp.class)
@@ -121,6 +120,7 @@ public class MongoBookingSwingViewE2E extends BookingSwingViewE2E {
 		mongoClient.close();
 	}
 
+	// database modifiers
 	@Override
 	protected void addTestClientToDatabase(String name, String surname, UUID id) {
 		Client client = new Client(name, surname);

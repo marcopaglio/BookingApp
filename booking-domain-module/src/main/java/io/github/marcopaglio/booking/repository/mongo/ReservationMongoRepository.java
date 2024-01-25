@@ -169,9 +169,11 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 					Filters.eq(ID_MONGODB, reservation.getId()),
 					reservation,
 					new ReplaceOptions().upsert(false))
-				.getModifiedCount() == 0)
+				.getModifiedCount() == 0) {
+			LOGGER.warn(() -> reservation.toString() + " to update was not found in the database.");
 			throw new UpdateFailureException(
 					"Reservation to update is not longer present in the repository.");
+		}
 	}
 
 	/**
@@ -190,7 +192,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 			if(collection.deleteOne(session, Filters.eq(ID_MONGODB, reservation.getId()))
 					.getDeletedCount() == 0)
 				LOGGER.warn(() -> reservation.toString() +
-						" has already been deleted from the database.");
+						" to delete was not found in the database.");
 		}
 		else
 			 LOGGER.warn(() -> reservation.toString() + " to delete was never been "

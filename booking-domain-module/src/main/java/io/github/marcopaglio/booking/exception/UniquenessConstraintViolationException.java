@@ -5,7 +5,6 @@ package io.github.marcopaglio.booking.exception;
  * This exception is a {@code RuntimeException}.
  */
 public class UniquenessConstraintViolationException extends RuntimeException {
-
 	/**
 	 * Version number used during deserialization to verify that the sender
 	 * and receiver of a serialized object have loaded classes for that object

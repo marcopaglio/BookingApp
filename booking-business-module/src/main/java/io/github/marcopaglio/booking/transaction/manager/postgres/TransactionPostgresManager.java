@@ -58,10 +58,7 @@ public class TransactionPostgresManager extends TransactionManager {
 	 * @param <R>					the returned type of executed code.
 	 * @param code					the code to execute.
 	 * @return						something depending on execution code.
-	 * @throws TransactionException	if {@code code} throws {@code IllegalArgumentException},
-	 * 								{@code UpdateFailureException},
-	 * 								{@code NotNullConstraintViolationException} or
-	 * 								{@code UniquenessConstraintViolationException}.
+	 * @throws TransactionException	if the execution or the commitment of the transaction fails.
 	 */
 	@Override
 	public <R> R doInTransaction(ClientTransactionCode<R> code) throws TransactionException {
@@ -85,10 +82,7 @@ public class TransactionPostgresManager extends TransactionManager {
 	 * @param <R>					the returned type of executed code.
 	 * @param code					the code to execute.
 	 * @return						something depending on execution code.
-	 * @throws TransactionException	if {@code code} throws {@code IllegalArgumentException},
-	 * 								{@code UpdateFailureException},
-	 * 								{@code NotNullConstraintViolationException} or
-	 * 								{@code UniquenessConstraintViolationException}.
+	 * @throws TransactionException	if the execution or the commitment of the transaction fails.
 	 */
 	@Override
 	public <R> R doInTransaction(ReservationTransactionCode<R> code) throws TransactionException {
@@ -112,10 +106,7 @@ public class TransactionPostgresManager extends TransactionManager {
 	 * @param <R>					the returned type of executed code.
 	 * @param code					the code to execute.
 	 * @return						something depending on execution code.
-	 * @throws TransactionException	if {@code code} throws {@code IllegalArgumentException},
-	 * 								{@code UpdateFailureException},
-	 * 								{@code NotNullConstraintViolationException} or
-	 * 								{@code UniquenessConstraintViolationException}.
+	 * @throws TransactionException	if the execution or the commitment of the transaction fails.
 	 */
 	@Override
 	public <R> R doInTransaction(ClientReservationTransactionCode<R> code) throws TransactionException {

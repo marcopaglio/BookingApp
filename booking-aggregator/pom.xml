@@ -42,20 +42,20 @@
     <maven.dependency.version>3.5.0</maven.dependency.version>
     <maven.release.version>3.0.0-M7</maven.release.version>
     <maven.clean.version>3.2.0</maven.clean.version>
-    <maven.install.version>3.1.0</maven.install.version>
+    <maven.install.version>3.1.1</maven.install.version>
     <maven.deploy.version>3.1.0</maven.deploy.version>
     <maven.site.version>4.0.0-M5</maven.site.version>
 
     <!-- VERSIONS FOR ADDED MAVEN PLUGINS -->
     <maven.reports.version>3.4.2</maven.reports.version>
-    <maven.surefire.version>3.1.2</maven.surefire.version>
+    <maven.surefire.version>3.2.2</maven.surefire.version>
     <maven.jxr.version>3.3.0</maven.jxr.version>
     <maven.javadoc.version>3.6.0</maven.javadoc.version>
     <maven.source.version>3.3.0</maven.source.version>
 
     <!-- VERSIONS FOR OTHER PLUGINS -->
-    <pitest.version>1.11.4</pitest.version>
-    <sonar.version>3.9.1.2184</sonar.version>
+    <pitest.version>1.15.6</pitest.version>
+    <sonar.version>3.10.0.2594</sonar.version>
   </properties>
   
   <build>
@@ -271,6 +271,10 @@
         </plugins>
       </build>
       <properties>
+        <!-- The version of Java (11.0.21) used to run this analysis is deprecated, and SonarCloud no longer supports it. Please upgrade to Java 17 or later. -->
+        <!-- ATTENTION: Following workaround will only be effective until January 28, 2024. After this date, all scans using the deprecated Java 11 will fail. -->
+        <sonar.scanner.force-deprecated-java-version>true</sonar.scanner.force-deprecated-java-version>
+        
         <sonar.issue.ignore.multicriteria>e1,e2</sonar.issue.ignore.multicriteria>
         <!-- Rule: "Tests should include assertions"  -->
         <!-- SonarQube does not know that AssertJ Swing methods effectively assert something -->

@@ -24,57 +24,57 @@ import org.junit.Test;
 import org.junit.jupiter.api.DisplayName;
 
 public abstract class BookingSwingViewE2E extends AssertJSwingJUnitTestCase {
-	public static final int TIMEOUT = 5000;
-	public static final int DEFAULT_NUM_OF_CLIENTS = 1;
-	public static final int DEFAULT_NUM_OF_RESERVATIONS = 1;
+	private static final int TIMEOUT = 5000;
+	private static final int DEFAULT_NUM_OF_CLIENTS = 1;
+	private static final int DEFAULT_NUM_OF_RESERVATIONS = 1;
 
-	public static final String A_FIRSTNAME = "Mario";
-	public static final String A_LASTNAME = "Rossi";
-	public static final UUID A_CLIENT_UUID = UUID.fromString("b8a88ad6-739e-4df5-b3ea-82832a56843a");
-	public static final String ANOTHER_FIRSTNAME = "Maria";
-	public static final String ANOTHER_LASTNAME = "De Lucia";
+	private static final String A_FIRSTNAME = "Mario";
+	private static final String A_LASTNAME = "Rossi";
+	private static final UUID A_CLIENT_UUID = UUID.fromString("b8a88ad6-739e-4df5-b3ea-82832a56843a");
+	private static final String ANOTHER_FIRSTNAME = "Maria";
+	private static final String ANOTHER_LASTNAME = "De Lucia";
 
-	public static final String INVALID_FIRSTNAME = "Mari4";
-	public static final String INVALID_LASTNAME = "De_Lucia";
+	private static final String INVALID_FIRSTNAME = "Mari4";
+	private static final String INVALID_LASTNAME = "De_Lucia";
 
-	public static final String A_YEAR = "2022";
-	public static final String A_MONTH = "04";
-	public static final String A_DAY = "24";
-	public static final String A_DATE = A_YEAR + "-" + A_MONTH + "-" + A_DAY;
-	public static final UUID A_RESERVATION_UUID = UUID.fromString("6de5f28a-541a-4699-8377-e0eaa9d2b13e");
-	public static final String ANOTHER_YEAR = "2023";
-	public static final String ANOTHER_MONTH = "09";
-	public static final String ANOTHER_DAY = "05";
-	public static final String ANOTHER_DATE = ANOTHER_YEAR + "-" + ANOTHER_MONTH + "-" + ANOTHER_DAY;
+	private static final String A_YEAR = "2022";
+	private static final String A_MONTH = "04";
+	private static final String A_DAY = "24";
+	private static final String A_DATE = A_YEAR + "-" + A_MONTH + "-" + A_DAY;
+	private static final UUID A_RESERVATION_UUID = UUID.fromString("6de5f28a-541a-4699-8377-e0eaa9d2b13e");
+	private static final String ANOTHER_YEAR = "2023";
+	private static final String ANOTHER_MONTH = "09";
+	private static final String ANOTHER_DAY = "05";
+	private static final String ANOTHER_DATE = ANOTHER_YEAR + "-" + ANOTHER_MONTH + "-" + ANOTHER_DAY;
 
-	public static final String INVALID_YEAR = "2O23";
+	private static final String INVALID_YEAR = "2O23";
 
 	// regex
-	public static final String NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX =
+	private static final String NAME_THEN_SURNAME_OR_SURNAME_THEN_NAME_REGEX =
 			".*" + A_FIRSTNAME + ".*" + A_LASTNAME + ".*" + "|" +
 			".*" + A_LASTNAME + ".*" + A_FIRSTNAME + ".*";
-	public static final String DATE_REGEX = ".*" + A_DATE + ".*";
+	private static final String DATE_REGEX = ".*" + A_DATE + ".*";
 
 	protected FrameFixture window;
 
-	protected JTextComponentFixture nameFormTxt;
-	protected JTextComponentFixture surnameFormTxt;
-	protected JTextComponentFixture yearFormTxt;
-	protected JTextComponentFixture monthFormTxt;
-	protected JTextComponentFixture dayFormTxt;
-	protected JLabelFixture formErrorMsgLbl;
-	protected JLabelFixture operationErrorMsgLbl;
-	protected JButtonFixture addReservationBtn;
-	protected JButtonFixture addClientBtn;
-	protected JButtonFixture renameBtn;
-	protected JButtonFixture rescheduleBtn;
-	protected JButtonFixture removeClientBtn;
-	protected JButtonFixture removeReservationBtn;
-	protected JListFixture clientList;
-	protected JListFixture reservationList;
+	private JTextComponentFixture nameFormTxt;
+	private JTextComponentFixture surnameFormTxt;
+	private JTextComponentFixture yearFormTxt;
+	private JTextComponentFixture monthFormTxt;
+	private JTextComponentFixture dayFormTxt;
+	private JLabelFixture formErrorMsgLbl;
+	private JLabelFixture operationErrorMsgLbl;
+	private JButtonFixture addReservationBtn;
+	private JButtonFixture addClientBtn;
+	private JButtonFixture renameBtn;
+	private JButtonFixture rescheduleBtn;
+	private JButtonFixture removeClientBtn;
+	private JButtonFixture removeReservationBtn;
+	private JListFixture clientList;
+	private JListFixture reservationList;
 
 	// pause conditions
-	protected Condition untilClientListContainsDifferentNumberOfClientsThanTheDefaultOnes = new Condition(
+	private Condition untilClientListContainsDifferentNumberOfClientsThanTheDefaultOnes = new Condition(
 			"Client list to contain different number of clients than the default ones") {
 		@Override
 		public boolean test() {
@@ -82,7 +82,7 @@ public abstract class BookingSwingViewE2E extends AssertJSwingJUnitTestCase {
 		}
 	};
 
-	protected Condition untilNameFormsAreReset = new Condition("Name forms to be reset") {
+	private Condition untilNameFormsAreReset = new Condition("Name forms to be reset") {
 		@Override
 		public boolean test() {
 			return nameFormTxt.text().isEmpty() && 
@@ -90,7 +90,7 @@ public abstract class BookingSwingViewE2E extends AssertJSwingJUnitTestCase {
 		}
 	};
 
-	protected Condition untilReservationListContainsDifferentNumberOfReservationThanTheDefaultOnes = new Condition(
+	private Condition untilReservationListContainsDifferentNumberOfReservationThanTheDefaultOnes = new Condition(
 			"Reservation list to contain different number of reservations than the default ones") {
 		@Override
 		public boolean test() {
@@ -98,7 +98,7 @@ public abstract class BookingSwingViewE2E extends AssertJSwingJUnitTestCase {
 		}
 	};
 
-	protected Condition untilDateFormsAreReset = new Condition("Date forms to be reset") {
+	private Condition untilDateFormsAreReset = new Condition("Date forms to be reset") {
 		@Override
 		public boolean test() {
 			return yearFormTxt.text().isEmpty() && 
@@ -107,14 +107,14 @@ public abstract class BookingSwingViewE2E extends AssertJSwingJUnitTestCase {
 		}
 	};
 
-	protected Condition untilFormErrorContainsAMessage = new Condition("Form error to contain a message") {
+	private Condition untilFormErrorContainsAMessage = new Condition("Form error to contain a message") {
 		@Override
 		public boolean test() {
 			return !formErrorMsgLbl.text().isBlank();
 		}
 	};
 
-	protected Condition untilOperationErrorContainsAMessage = new Condition("Operation error to contain a message") {
+	private Condition untilOperationErrorContainsAMessage = new Condition("Operation error to contain a message") {
 		@Override
 		public boolean test() {
 			return !operationErrorMsgLbl.text().isBlank();
@@ -153,6 +153,11 @@ public abstract class BookingSwingViewE2E extends AssertJSwingJUnitTestCase {
 		// lists
 		clientList = window.list("clientList");
 		reservationList = window.list("reservationList");
+	}
+
+	protected void addTestEntitiesToDatabase() {
+		addTestClientToDatabase(A_FIRSTNAME, A_LASTNAME, A_CLIENT_UUID);
+		addTestReservationToDatabase(A_CLIENT_UUID, A_DATE, A_RESERVATION_UUID);
 	}
 
 
@@ -497,6 +502,8 @@ public abstract class BookingSwingViewE2E extends AssertJSwingJUnitTestCase {
 	}
 	////////////// Remove reservation
 
+
+	// database modifiers
 	protected abstract void addTestClientToDatabase(String name, String surname, UUID id);
 
 	protected abstract void removeTestClientFromDatabase(String name, String surname);
