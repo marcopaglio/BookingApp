@@ -29,6 +29,7 @@ class TransactionHandlerFactoryTest {
 
 	@Container
 	private static final MongoDBContainer mongo = new MongoDBContainer("mongo:6.0.7");
+	private static final String TXNOPTIONS_FIELD = "txnOptions";
 	private static MongoClient mongoClient;
 
 	@Container
@@ -74,7 +75,8 @@ class TransactionHandlerFactoryTest {
 			@DisplayName("Valid parameters")
 			void testCreateTransactionHandlerWhenParametersAreValidShouldReturnTransactionMongoHandler() {
 				assertThat(transactionHandlerFactory.createTransactionHandler(mongoClient, TXN_OPTIONS))
-					.isInstanceOf(TransactionMongoHandler.class);
+					.isInstanceOf(TransactionMongoHandler.class)
+					.extracting(TXNOPTIONS_FIELD).isNotNull();
 			}
 
 			@Test
@@ -90,7 +92,8 @@ class TransactionHandlerFactoryTest {
 			@DisplayName("Null txnOptions")
 			void testCreateTransactionHandlerWhenTransactionOptionsAreNullShouldReturnTransactionMongoHandler() {
 				assertThat(transactionHandlerFactory.createTransactionHandler(mongoClient, null))
-					.isInstanceOf(TransactionMongoHandler.class);
+					.isInstanceOf(TransactionMongoHandler.class)
+					.extracting(TXNOPTIONS_FIELD).isNull();
 			}
 		}
 
