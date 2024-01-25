@@ -107,22 +107,15 @@
         <plugin>
           <groupId>org.jacoco</groupId>
           <artifactId>jacoco-maven-plugin</artifactId>
-          <configuration>
-            <excludes>
-              <!-- HERE SOME EXCLUSIONS -->
-            </excludes>
-          </configuration>
         </plugin>
         <plugin>
           <groupId>org.pitest</groupId>
           <artifactId>pitest-maven</artifactId>
           <configuration>
             <targetClasses>
-              <!-- HERE CLASSES TO MUTATE -->
               <targetClasse>io.github.marcopaglio.booking.presenter.served.*</targetClasse>
             </targetClasses>
             <targetTests>
-              <!-- HERE TESTS TO KILL MUTANS -->
               <targetTest>io.github.marcopaglio.booking.presenter.served.*</targetTest>
             </targetTests>
           </configuration>
