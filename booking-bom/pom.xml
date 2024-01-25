@@ -26,10 +26,10 @@
     <site.url>https://marcopaglio.github.io/BookingApp/</site.url>
     
     <!-- VERSIONS FOR DEPENDENCIES -->
-    <log4j.version>2.20.0</log4j.version>
-    <mongo.version>4.9.1</mongo.version>
-    <hibernate.version>6.3.0.CR1</hibernate.version>
-    <postgresql.version>42.6.0</postgresql.version>
+    <log4j.version>2.22.1</log4j.version>
+    <mongo.version>4.11.1</mongo.version>
+    <hibernate.version>6.4.2.Final</hibernate.version>
+    <postgresql.version>42.7.1</postgresql.version>
     <logback.version>1.2.12</logback.version>
 
     <!-- VERSIONS FOR DEFAULT MAVEN PLUGINS -->
