@@ -246,7 +246,7 @@ If the confirmation message `ok: 1` appears, then the replica set is also initia
 
 Once the MongoDB instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application via the following command:
 ```
-java -jar booking-app-1.0.0-jar-with-dependencies.jar --dbms=MONGO --host=localhost --port=27017 --name=<YOUR_DB_NAME>
+java -jar booking-app-1.1.0-jar-with-dependencies.jar --dbms=MONGO --host=localhost --port=27017 --name=<YOUR_DB_NAME>
 ```
 The placeholder `<YOUR_DB_NAME>` must be replaced with a custom name for your database.
 
@@ -262,7 +262,7 @@ The placeholders `<YOUR_DB_NAME>`, `<YOUR_USER>` and `<YOUR_PSWD>` must be repla
 
 Once the PostgreSQL instance is ready, place yourself into the jar file folder (in the BookingApp project it is located in `/booking-app/target/`), open a Command Prompt and launch the BookingApp application with the following command (use the previously defined values for placeholders):
 ```
-java -jar booking-app-1.0.0-jar-with-dependencies.jar --dbms=POSTGRES --host=localhost --port=5432 --name=<YOUR_DB_NAME> --user=<YOUR_USER> --pswd=<YOUR_PSWD>
+java -jar booking-app-1.1.0-jar-with-dependencies.jar --dbms=POSTGRES --host=localhost --port=5432 --name=<YOUR_DB_NAME> --user=<YOUR_USER> --pswd=<YOUR_PSWD>
 ```
 
 ### Run through Docker

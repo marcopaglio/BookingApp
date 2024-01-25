@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>io.github.marcopaglio</groupId>
   <artifactId>booking-app</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
   
   <name>BookingApp - Application</name>
   <description>
@@ -258,7 +258,7 @@
                 <configuration>
                   <verbose>build</verbose>
                   <images>
-                    <!-- $ docker build -t booking-app:1.0.0 -REMOVE_THESE_WORDS-build-arg jarToCopy=booking-app-1.0.0-jar-with-dependencies.jar . -->
+                    <!-- $ docker build -t booking-app:1.1.0 -REMOVE_THESE_WORDS-build-arg jarToCopy=booking-app-1.1.0-jar-with-dependencies.jar . -->
                     <image>
                       <name>%a</name> <!-- %a = sanitized version of the artefact id -->
                       <alias>${project.artifactId}</alias>
