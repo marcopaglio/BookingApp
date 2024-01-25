@@ -54,8 +54,8 @@
     <maven.source.version>3.3.0</maven.source.version>
 
     <!-- VERSIONS FOR OTHER PLUGINS -->
-    <pitest.version>1.11.4</pitest.version>
-    <sonar.version>3.9.1.2184</sonar.version>
+    <pitest.version>1.15.6</pitest.version>
+    <sonar.version>3.10.0.2594</sonar.version>
   </properties>
   
   <build>
