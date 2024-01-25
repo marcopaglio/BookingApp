@@ -156,5 +156,58 @@
         <sonar.issue.ignore.multicriteria.e2.resourceKey>**/*E2E.java</sonar.issue.ignore.multicriteria.e2.resourceKey>
       </properties>
     </profile>
+
+    <!-- skip-gui-tests profile has to be located after others overridden plugins/profiles -->
+    <!-- e.g. after sonar profile, jacoco plugin conf, etc -->
+    <profile>
+      <id>skip-gui-tests</id>
+      <properties>
+        <sonar.coverage.exclusions>
+          **/view/swing/*.*
+        </sonar.coverage.exclusions>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/view/swing/*Test.java</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+          <plugin>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>default-it</id>
+                <configuration>
+                  <excludes>
+                    <exclude>**/view/swing/*IT.java</exclude>
+                  </excludes>
+                </configuration>
+              </execution>
+              <execution>
+                <id>e2e-tests</id>
+                <configuration>
+                  <excludes>
+                    <exclude>**/view/swing/*E2E.java</exclude>
+                  </excludes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <configuration>
+              <excludes>
+                <exclude>**/view/swing/*</exclude>
+              </excludes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 </project>
