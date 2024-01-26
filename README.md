@@ -22,7 +22,7 @@
 
 ## Introduction
 
-BookingApp is a simple desktop application writte in **Java 11** for managing reservations developed with TDD, build automation and continuous integration practices. Once the application is launched, you can add your clients and their reservations via a **Java Swing** GUI. Informations are stored in a database server running as a **Docker** container. BookingApp is compatible with both **MongoDB** and **PostgreSQL** DBMSs, respectively via the **Java Driver** and **Hibernate** APIs.<br>
+BookingApp is a simple desktop application written in **Java 11** for managing reservations developed with TDD, build automation and continuous integration practices. Once the application is launched, you can add your clients and their reservations via a **Java Swing** GUI. Informations are stored in a database server running as a **Docker** container. BookingApp is compatible with both **MongoDB** and **PostgreSQL** DBMSs, respectively via the **Java Driver** and **Hibernate** APIs.<br>
 <p align="center">
   <img src="/../screenshots/screenshot-bookingapp-gui.png" alt="Screenshot of the simple BookingApp GUI." title="BookingApp GUI" width="80%"/>
 </p>
