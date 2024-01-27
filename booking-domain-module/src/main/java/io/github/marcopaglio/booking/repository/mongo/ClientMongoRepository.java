@@ -51,7 +51,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 				.getCollection(CLIENT_TABLE_DB, Client.class),
 				session);
 		
-		// configuration
+		// collection configuration
 		collection.createIndex(session, Indexes.descending(FIRSTNAME_DB, LASTNAME_DB), 
 				new IndexOptions().unique(true));
 	}

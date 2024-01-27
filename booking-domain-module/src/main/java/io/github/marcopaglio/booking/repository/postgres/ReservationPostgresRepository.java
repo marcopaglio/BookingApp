@@ -192,5 +192,4 @@ public class ReservationPostgresRepository implements ReservationRepository {
 			LOGGER.warn(() -> reservation.toString() + " to delete was never been "
 					+ "inserted into the database.");
 	}
-
 }

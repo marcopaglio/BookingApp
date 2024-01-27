@@ -198,5 +198,4 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 			 LOGGER.warn(() -> reservation.toString() + " to delete was never been "
 					+ "inserted into the database.");
 	}
-
 }
