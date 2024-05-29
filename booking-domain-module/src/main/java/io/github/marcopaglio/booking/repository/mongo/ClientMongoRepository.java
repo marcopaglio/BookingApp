@@ -3,7 +3,6 @@ package io.github.marcopaglio.booking.repository.mongo;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.apache.logging.log4j.LogManager;
@@ -65,7 +64,7 @@ public class ClientMongoRepository extends MongoRepository<Client> implements Cl
 	public List<Client> findAll() {
 		return StreamSupport
 				.stream(collection.find(session).spliterator(), false)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	/**

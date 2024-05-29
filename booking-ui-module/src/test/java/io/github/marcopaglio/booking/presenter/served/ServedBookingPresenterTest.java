@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -279,7 +278,7 @@ class ServedBookingPresenterTest {
 					.mapToObj(i -> new Thread(() ->
 						servedBookingPresenter.deleteClient(client)))
 					.peek(t -> t.start())
-					.collect(Collectors.toList());
+					.toList();
 			
 			await().atMost(10, SECONDS)
 				.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
@@ -371,7 +370,7 @@ class ServedBookingPresenterTest {
 					.mapToObj(i -> new Thread(() ->
 						servedBookingPresenter.deleteReservation(reservation)))
 					.peek(t -> t.start())
-					.collect(Collectors.toList());
+					.toList();
 			
 			await().atMost(10, SECONDS)
 				.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
@@ -465,7 +464,7 @@ class ServedBookingPresenterTest {
 						.mapToObj(i -> new Thread(() ->
 							servedBookingPresenter.addClient(A_FIRSTNAME, A_LASTNAME)))
 						.peek(t -> t.start())
-						.collect(Collectors.toList());
+						.toList();
 				
 				await().atMost(10, SECONDS)
 					.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
@@ -624,7 +623,7 @@ class ServedBookingPresenterTest {
 						.mapToObj(i -> new Thread(() ->
 							servedBookingPresenter.addReservation(client, A_DATE)))
 						.peek(t -> t.start())
-						.collect(Collectors.toList());
+						.toList();
 				
 				await().atMost(10, SECONDS)
 					.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
@@ -835,7 +834,7 @@ class ServedBookingPresenterTest {
 						.mapToObj(i -> new Thread(() ->
 							servedBookingPresenter.renameClient(client, newFirstName, newLastName)))
 						.peek(t -> t.start())
-						.collect(Collectors.toList());
+						.toList();
 				
 				await().atMost(10, SECONDS)
 					.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
@@ -1016,7 +1015,7 @@ class ServedBookingPresenterTest {
 						.mapToObj(i -> new Thread(() ->
 							servedBookingPresenter.rescheduleReservation(reservation, newDate)))
 						.peek(t -> t.start())
-						.collect(Collectors.toList());
+						.toList();
 				
 				await().atMost(10, SECONDS)
 					.until(() -> threads.stream().noneMatch(t -> t.isAlive()));

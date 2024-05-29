@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.bson.codecs.configuration.CodecProvider;
@@ -550,13 +549,13 @@ class TransactionalMongoBookingServiceIT {
 	private List<Client> readAllClientsFromDatabase() {
 		return StreamSupport
 				.stream(clientCollection.find().spliterator(), false)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	private List<Reservation> readAllReservationsFromDatabase() {
 		return StreamSupport
 				.stream(reservationCollection.find().spliterator(), false)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	public void addTestClientToDatabase(Client client, UUID id) {

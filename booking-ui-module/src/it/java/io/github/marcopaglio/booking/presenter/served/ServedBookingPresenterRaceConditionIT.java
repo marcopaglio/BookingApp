@@ -13,7 +13,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.AfterEach;
@@ -85,7 +84,7 @@ public abstract class ServedBookingPresenterRaceConditionIT {
 								clientValidator, reservationValidator)
 							.addClient(A_FIRSTNAME, A_LASTNAME)))
 				.peek(t -> t.start())
-				.collect(Collectors.toList());
+				.toList();
 		
 		await().atMost(10, SECONDS)
 			.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
@@ -111,7 +110,7 @@ public abstract class ServedBookingPresenterRaceConditionIT {
 								clientValidator, reservationValidator)
 							.addReservation(client, A_DATE)))
 				.peek(t -> t.start())
-				.collect(Collectors.toList());
+				.toList();
 		
 		await().atMost(10, SECONDS)
 			.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
@@ -134,7 +133,7 @@ public abstract class ServedBookingPresenterRaceConditionIT {
 								clientValidator, reservationValidator)
 							.deleteClient(client)))
 				.peek(t -> t.start())
-				.collect(Collectors.toList());
+				.toList();
 		
 		await().atMost(10, SECONDS)
 			.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
@@ -158,7 +157,7 @@ public abstract class ServedBookingPresenterRaceConditionIT {
 								clientValidator, reservationValidator)
 							.deleteReservation(reservation)))
 				.peek(t -> t.start())
-				.collect(Collectors.toList());
+				.toList();
 		
 		await().atMost(10, SECONDS)
 			.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
@@ -191,7 +190,7 @@ public abstract class ServedBookingPresenterRaceConditionIT {
 								clientValidator, reservationValidator)
 							.renameClient(clients.get(i), another_firstName, another_lastName)))
 				.peek(t -> t.start())
-				.collect(Collectors.toList());
+				.toList();
 		
 		await().atMost(10, SECONDS)
 			.until(() -> threads.stream().noneMatch(t -> t.isAlive()));
@@ -224,7 +223,7 @@ public abstract class ServedBookingPresenterRaceConditionIT {
 								clientValidator, reservationValidator)
 							.rescheduleReservation(reservations.get(i), another_date)))
 				.peek(t -> t.start())
-				.collect(Collectors.toList());
+				.toList();
 		
 		await().atMost(10, SECONDS)
 			.until(() -> threads.stream().noneMatch(t -> t.isAlive()));

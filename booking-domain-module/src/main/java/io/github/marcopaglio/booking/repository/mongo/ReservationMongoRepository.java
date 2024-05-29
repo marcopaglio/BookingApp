@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.apache.logging.log4j.LogManager;
@@ -65,7 +64,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	public List<Reservation> findAll() {
 		return StreamSupport
 				.stream(collection.find(session).spliterator(), false)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	/**
@@ -80,7 +79,7 @@ public class ReservationMongoRepository extends MongoRepository<Reservation> imp
 	public List<Reservation> findByClient(UUID clientId) {
 		return StreamSupport
 				.stream(collection.find(session, Filters.eq(CLIENTID_DB, clientId)).spliterator(), false)
-				.collect(Collectors.toList());
+				.toList();
 	}
 
 	/**
