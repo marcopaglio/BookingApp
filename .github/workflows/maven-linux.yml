@@ -15,7 +15,7 @@ jobs:
     
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         # Shallow clones should be disabled for a better relevancy of SonarQube analysis
         fetch-depth: 0
@@ -28,7 +28,7 @@ jobs:
         java-version: ${{ env.java-version }}
 
     - name: Cache Maven packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.m2
@@ -57,7 +57,7 @@ jobs:
 
     - name: Archive JUnit Report
       if: ${{ failure() && steps.test-report.outcome == 'success' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: surefire-report-jdk-${{ env.java-version }}
         path: ${{ env.workdir }}/target/site/
@@ -66,7 +66,7 @@ jobs:
 
     - name: Archive failed GUI tests screenshots
       if: ${{ failure() && steps.maven-build.conclusion != 'skipped' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: failed-gui-tests-screenshots
         path: '**/failed-gui-tests/'
@@ -81,7 +81,7 @@ jobs:
 
     - name: Archive Pitest Report
       if: ${{ failure() && steps.pitest-report.outcome == 'success' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: pitest-report-jdk-${{ env.java-version }}
         path: '**/target/pit-reports/'
