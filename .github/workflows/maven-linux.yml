@@ -83,7 +83,7 @@ jobs:
       if: ${{ failure() && steps.pitest-report.outcome == 'success' }}
       uses: actions/upload-artifact@v3
       with:
-        name: pitest-report-jdk-${{}}
+        name: pitest-report-jdk-${{ env.java-version }}
         path: '**/target/pit-reports/'
         if-no-files-found: error
         retention-days: 30
