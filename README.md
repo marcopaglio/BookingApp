@@ -22,7 +22,7 @@
 
 ## Introduction
 
-BookingApp is a simple desktop application written in **Java 11** for managing reservations developed with TDD, build automation and continuous integration practices. Once the application is launched, you can add your clients and their reservations via a **Java Swing** GUI. Informations are stored in a database server running as a **Docker** container. BookingApp is compatible with both **MongoDB** and **PostgreSQL** DBMSs, respectively via the **Java Driver** and **Hibernate** APIs.<br>
+BookingApp is a simple desktop application written in **Java 17** for managing reservations developed with TDD, build automation and continuous integration practices. Once the application is launched, you can add your clients and their reservations via a **Java Swing** GUI. Informations are stored in a database server running as a **Docker** container. BookingApp is compatible with both **MongoDB** and **PostgreSQL** DBMSs, respectively via the **Java Driver** and **Hibernate** APIs.<br>
 <p align="center">
   <img src="/../screenshots/screenshot-bookingapp-gui.png" alt="Screenshot of the simple BookingApp GUI." title="BookingApp GUI" width="80%"/>
 </p>
@@ -84,7 +84,7 @@ If you see a confirmation message then your cores have AVX support.
 
 To [run the BookingApp application](#run-through-jar), *at least* the following programs must be installed on your computer:
 
-- [Java 11](https://github.com/marcopaglio/installation-guides/tree/java#installation-guide "Installation guide for Java")
+- [Java 17](https://github.com/marcopaglio/installation-guides/tree/java#installation-guide "Installation guide for Java")
 - [Docker Engine](https://github.com/marcopaglio/installation-guides/tree/docker#installation-guide "Installation guide for Docker")
 
 To [replicate builds, tests and so on](#build-the-bookingapp-project), the BookingApp project *also* requires:
