@@ -49,7 +49,7 @@ jobs:
     - name: Archive FatJar
       uses: actions/upload-artifact@v4
       with:
-        name: github-releases
+        name: github-releases-fatjar
         path: '**/target/*-jar-with-dependencies.jar'
         if-no-files-found: error
         retention-days: 30
@@ -61,7 +61,7 @@ jobs:
     - name: Archive Sources Jar
       uses: actions/upload-artifact@v4
       with:
-        name: github-releases
+        name: github-releases-sources
         path: '**/target/*-sources.jar'
         if-no-files-found: error
         retention-days: 30
@@ -73,7 +73,7 @@ jobs:
     - name: Archive Javadocs Jar
       uses: actions/upload-artifact@v4
       with:
-        name: github-releases
+        name: github-releases-javadocs
         path: '**/target/*-javadoc.jar'
         if-no-files-found: error
         retention-days: 30
@@ -88,6 +88,10 @@ jobs:
     steps:
     - name: Download Jars
       uses: actions/download-artifact@v4
+      with:
+        path: ${{ environment.name }}
+        pattern: ${{ environment.name }}-*
+        merge-multiple: true
 
     - name: Deploy to GitHub Releases
       uses: softprops/action-gh-release@v2
